@@ -12,7 +12,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
         typeof(string), typeof(WebViewPostJsonOnChangeBehavior),
         new PropertyMetadata(default(string), OnJsonDataChanged));
 
-    public string CachedData { get; set; } = string.Empty;
+    public string CachedJson { get; set; } = string.Empty;
 
     public string JsonData
     {
@@ -24,10 +24,10 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
     {
         if (!(e.WebMessageAsJson?.Contains("script-finished") ?? false)) return;
 
-        if (string.IsNullOrWhiteSpace(CachedData)) return;
+        if (string.IsNullOrWhiteSpace(CachedJson)) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
-        await PostNewJson(this, CachedData);
+        await PostNewJson(this, CachedJson);
     }
 
     protected override void OnAttached()
@@ -59,7 +59,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
 
         if (bindingBehavior.AssociatedObject.IsInitialized && bindingBehavior.AssociatedObject.CoreWebView2 != null)
         {
-            bindingBehavior.CachedData = string.Empty;
+            bindingBehavior.CachedJson = string.Empty;
 
             try
             {
@@ -72,7 +72,7 @@ public class WebViewPostJsonOnChangeBehavior : Behavior<WebView2>
         }
         else
         {
-            bindingBehavior.CachedData = toPost;
+            bindingBehavior.CachedJson = toPost;
         }
     }
 }

@@ -24,7 +24,7 @@ using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
@@ -57,7 +57,7 @@ public partial class GpxImportContext
         FolderEntry = folderContext;
         TagEntry = tagsEditor;
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
+        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 

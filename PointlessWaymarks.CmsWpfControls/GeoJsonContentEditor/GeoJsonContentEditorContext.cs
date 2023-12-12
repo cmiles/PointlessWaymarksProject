@@ -19,7 +19,7 @@ using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
@@ -43,7 +43,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         BuildCommands();
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
+        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 

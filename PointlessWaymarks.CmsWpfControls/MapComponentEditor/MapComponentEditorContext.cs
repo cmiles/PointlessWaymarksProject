@@ -20,7 +20,7 @@ using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
@@ -51,7 +51,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         BuildCommands();
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
+        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 

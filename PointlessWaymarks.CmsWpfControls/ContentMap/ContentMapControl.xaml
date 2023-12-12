@@ -6,8 +6,9 @@
              xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentMap"
              xmlns:contentList="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
-             DataContextChanged="ContentMapControlControl_OnDataContextChanged"
              Loaded="ContentMapControl_OnLoaded"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:ContentMapContext}">
     <UserControl.Resources>
@@ -22,14 +23,27 @@
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
+<Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+    <RowDefinition Height="Auto"></RowDefinition>
+</Grid.RowDefinitions>
         <contentList:ContentListControl
             Grid.Column="0"
             Margin="4,5,4,6"
             DataContext="{Binding ListContext}" />
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
+            <Button Command="{Binding RequestMapCenterOnCurrentBoundsCommand}">Bounds Center</Button>
+            <Button Command="{Binding RefreshMapCommand}">Bounds Center</Button>
+        </StackPanel>
         <wpf:WebView2
-            x:Name="ContentMapWebView"
+            Name="ContentMapWebView"
+            Grid.Row="0"
+            Grid.RowSpan="2"
             Grid.Column="1"
-            CoreWebView2InitializationCompleted="ContentMapWebView_OnCoreWebView2InitializationCompleted"
-            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+            <b:Interaction.Behaviors>
+                <wpfHtml:WebViewHtmlStringAndJsonOnChangeBehavior HtmlString="{Binding MapHtml}" JsonData="{Binding MapJsonDto}"/>
+            </b:Interaction.Behaviors>
+        </wpf:WebView2>
     </Grid>
 </UserControl>

@@ -7,9 +7,9 @@ using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 
-namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
+namespace PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 
-public static class WpfHtmlDocument
+public static class WpfCmsHtmlDocument
 {
     public static string LeafletDocumentOpening(string title, string styleBlock)
     {
@@ -244,110 +244,116 @@ public static class WpfHtmlDocument
     {
         var layers = LeafletLayerList();
 
-        var htmlDoc = $@"
-{LeafletDocumentOpening(title, styleBlock)}
-<body>
-     <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
-        style=""height: 92vh;""></div>
-    <script>
-        {string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}
+        var htmlDoc = $$"""
 
-        var map = L.map('mainMap', {{
-            center: {{ lat: {initialLatitude}, lng: {initialLongitude} }},
-            zoom: 13,
-            layers: [{string.Join(", ", layers.Select(x => x.LayerVariableName))}],
-            doubleClickZoom: false
-        }});
-
-        var baseMaps = {{
-            {string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}
-        }};
-
-        L.control.layers(baseMaps).addTo(map);
-
-        window.chrome.webview.addEventListener('message', function (e) {{
-            console.log(e);
-            if(e.data.MessageType === 'MapJsonDto') postGeoJsonDataHandler(e);
-            if(e.data.MessageType === 'CenterFeatureRequest') {{
-                console.log('Center Feature Request');
-                map.eachLayer(function (l) {{ 
-                    if (l.feature?.properties?.displayId === e.data.DisplayId) {{
-                        console.log(`l.feature?.geometry?.type ${{l.feature?.geometry?.type}}`); 
-                        if(l.feature?.geometry?.type === 'Point') {{
-                            map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
-                        }}
-                        if(l.feature?.geometry?.type === 'LineString') {{
-                            map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]], [l.feature.bbox[3], l.feature.bbox[2]]]);
-                        }}
-                        l.openPopup();
-                    }}
-                }})
-            }}
-        }});
-
-         function onEachMapGeoJsonFeature(feature, layer) {{
-
-            if (feature.properties && (feature.properties.title || feature.properties.description)) {{
-                let popupHtml = """";
-
-                if (feature.properties.title) {{
-                    popupHtml += feature.properties.title;
-                }}
-
-                if (feature.properties.description) {{
-                    popupHtml += `<p>${{feature.properties.description}}</p>`;
-                }}
-
-                if(popupHtml !== """") layer.bindPopup(popupHtml);
-
-                layer.on('click', function (e) {{
-                    console.log(e);
-                    window.chrome.webview.postMessage({{ ""messageType"": ""featureClicked"", ""data"": e.target.feature.properties }}); }});
-            }}
-        }} 
-
-        function geoJsonLayerStyle(feature) {{
-            //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
-            var newStyle = {{}};
-
-            if (feature.properties.hasOwnProperty(""stroke"")) newStyle.color = feature.properties[""stroke""];
-            if (feature.properties.hasOwnProperty(""stroke-width"")) newStyle.weight = feature.properties[""stroke-width""];
-            if (feature.properties.hasOwnProperty(""stroke-opacity"")) newStyle.opacity = feature.properties[""stroke-opacity""];
-            if (feature.properties.hasOwnProperty(""fill"")) newStyle.fillColor = feature.properties[""fill""];
-            if (feature.properties.hasOwnProperty(""fill-opacity"")) newStyle.fillOpacity = feature.properties[""fill-opacity""];
-
-            return newStyle;
-        }}
-
-        var mapLayers = [];
-
-        function postGeoJsonDataHandler(e) {{
-            if(Object.keys(mapLayers).length > 0) {{ 
-                mapLayers.forEach(item => map.removeLayer(item));
-            }}
-
-            mapLayers = [];
-
-            let mapData = e.data;
-
-            if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
-
-            map.flyToBounds([
-                [mapData.Bounds.InitialViewBoundsMinLatitude, mapData.Bounds.InitialViewBoundsMinLongitude],
-                [mapData.Bounds.InitialViewBoundsMaxLatitude, mapData.Bounds.InitialViewBoundsMaxLongitude]
-            ]);
-
-            mapData.GeoJsonLayers.forEach(item => {{
-                let newLayer = new L.geoJSON(item, {{onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle}});
-                mapLayers.push(newLayer);
-                map.addLayer(newLayer); }});
-        }};
-
-        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
-
-    </script>
-</body>
-</html>";
+                        {{LeafletDocumentOpening(title, styleBlock)}}
+                        <body>
+                             <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
+                                style="height: 92vh;"></div>
+                            <script>
+                                {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
+                        
+                                var map = L.map('mainMap', {
+                                    center: { lat: {{initialLatitude}}, lng: {{initialLongitude}} },
+                                    zoom: 13,
+                                    layers: [{{string.Join(", ", layers.Select(x => x.LayerVariableName))}}],
+                                    doubleClickZoom: false
+                                });
+                        
+                                var baseMaps = {
+                                    {{string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}}
+                                };
+                        
+                                L.control.layers(baseMaps).addTo(map);
+                        
+                                window.chrome.webview.addEventListener('message', function (e) {
+                                    console.log(e);
+                                    if(e.data.MessageType === 'MapJsonDto') postGeoJsonDataHandler(e);
+                                    if(e.data.MessageType === 'CenterFeatureRequest') {
+                                        console.log('Center Feature Request');
+                                        map.eachLayer(function (l) {
+                                            if (l.feature?.properties?.displayId === e.data.DisplayId) {
+                                                console.log(`l.feature?.geometry?.type ${l.feature?.geometry?.type}`);
+                                                if(l.feature?.geometry?.type === 'Point') {
+                                                    map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
+                                                }
+                                                if(l.feature?.geometry?.type === 'LineString') {
+                                                    map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]], [l.feature.bbox[3], l.feature.bbox[2]]]);
+                                                }
+                                                l.openPopup();
+                                            }
+                                        })
+                                    }
+                                    if(e.data.MessageType === 'CenterBoundingBoxRequest') {
+                                        console.log('Center Bounding Box Request');
+                                        map.flyToBounds([[e.data.BoundingBox[1], e.data.BoundingBox[0]], [e.data.BoundingBox[3], e.data.BoundingBox[2]]]);
+                                    }
+                                });
+                        
+                                 function onEachMapGeoJsonFeature(feature, layer) {
+                        
+                                    if (feature.properties && (feature.properties.title || feature.properties.description)) {
+                                        let popupHtml = "";
+                        
+                                        if (feature.properties.title) {
+                                            popupHtml += feature.properties.title;
+                                        }
+                        
+                                        if (feature.properties.description) {
+                                            popupHtml += `<p>${feature.properties.description}</p>`;
+                                        }
+                        
+                                        if(popupHtml !== "") layer.bindPopup(popupHtml);
+                        
+                                        layer.on('click', function (e) {
+                                            console.log(e);
+                                            window.chrome.webview.postMessage({ "messageType": "featureClicked", "data": e.target.feature.properties }); });
+                                    }
+                                }
+                        
+                                function geoJsonLayerStyle(feature) {
+                                    //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
+                                    var newStyle = {};
+                        
+                                    if (feature.properties.hasOwnProperty("stroke")) newStyle.color = feature.properties["stroke"];
+                                    if (feature.properties.hasOwnProperty("stroke-width")) newStyle.weight = feature.properties["stroke-width"];
+                                    if (feature.properties.hasOwnProperty("stroke-opacity")) newStyle.opacity = feature.properties["stroke-opacity"];
+                                    if (feature.properties.hasOwnProperty("fill")) newStyle.fillColor = feature.properties["fill"];
+                                    if (feature.properties.hasOwnProperty("fill-opacity")) newStyle.fillOpacity = feature.properties["fill-opacity"];
+                        
+                                    return newStyle;
+                                }
+                        
+                                var mapLayers = [];
+                        
+                                function postGeoJsonDataHandler(e) {
+                                    if(Object.keys(mapLayers).length > 0) {
+                                        mapLayers.forEach(item => map.removeLayer(item));
+                                    }
+                        
+                                    mapLayers = [];
+                        
+                                    let mapData = e.data;
+                        
+                                    if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
+                        
+                                    map.flyToBounds([
+                                        [mapData.Bounds.InitialViewBoundsMinLatitude, mapData.Bounds.InitialViewBoundsMinLongitude],
+                                        [mapData.Bounds.InitialViewBoundsMaxLatitude, mapData.Bounds.InitialViewBoundsMaxLongitude]
+                                    ]);
+                        
+                                    mapData.GeoJsonLayers.forEach(item => {
+                                        let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle});
+                                        mapLayers.push(newLayer);
+                                        map.addLayer(newLayer); });
+                                };
+                        
+                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
+                        
+                            </script>
+                        </body>
+                        </html>
+                        """;
 
         return htmlDoc;
     }

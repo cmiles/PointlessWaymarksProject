@@ -49,7 +49,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
 {
     private ContentListContext(StatusControlContext? statusContext,
         ObservableCollection<IContentListItem> factoryContentListItems,
-        ICollectionView factoryObservableView,
         ContentListSelected<IContentListItem> factoryListSelection, IContentListLoader loader,
         WindowIconStatus? windowStatus = null)
     {
@@ -64,7 +63,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
         ContentListLoader = loader;
 
         Items = factoryContentListItems;
-        ItemsView = factoryObservableView;
 
         ListSelection = factoryListSelection;
 
@@ -100,7 +98,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public GeoJsonContentActions GeoJsonItemActions { get; set; }
     public ImageContentActions ImageItemActions { get; set; }
     public ObservableCollection<IContentListItem> Items { get; set; }
-    public ICollectionView ItemsView { get; set; }
     public LineContentActions LineItemActions { get; set; }
     public LinkContentActions LinkItemActions { get; set; }
     public ContentListSelected<IContentListItem> ListSelection { get; set; }
@@ -239,13 +236,12 @@ public partial class ContentListContext : IDragSource, IDropTarget
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         var factoryObservable = new ObservableCollection<IContentListItem>();
-        var factoryObservableView = CollectionViewSource.GetDefaultView(factoryObservable);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
 
-        return new ContentListContext(statusContext, factoryObservable, factoryObservableView, factoryListSelection,
+        return new ContentListContext(statusContext, factoryObservable, factoryListSelection,
             loader, windowStatus);
     }
 
@@ -432,15 +428,34 @@ public partial class ContentListContext : IDragSource, IDropTarget
         }
     }
 
+    public List<IContentListItem> FilteredListItems()
+    {
+        var returnList = new List<IContentListItem>();
+
+        var itemsView = CollectionViewSource.GetDefaultView(Items);
+
+        foreach (var loopView in itemsView)
+        {
+            var itemList = loopView as IContentListItem;
+            if (itemList != null) returnList.Add(itemList);
+        }
+
+        return returnList;
+    }
+
     private async Task FilterList()
     {
         if (!Items.Any()) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        var initialItemIds = FilteredListItems().Select(x => x.ContentId()).ToList();
+
+        var itemsView = CollectionViewSource.GetDefaultView(Items);
+
         if (string.IsNullOrWhiteSpace(UserFilterText))
         {
-            ItemsView.Filter = _ => true;
+            itemsView.Filter = _ => true;
             return;
         }
 
@@ -503,11 +518,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (!searchFilterStack.Any())
         {
-            ItemsView.Filter = _ => true;
+            itemsView.Filter = _ => true;
             return;
         }
 
-        ItemsView.Filter = o =>
+        itemsView.Filter = o =>
         {
             if (o is not IContentListItem toFilter) return false;
 
@@ -573,6 +588,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public async Task ImportFromOpenExcelInstance()
     {
         await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext);
+    }
+
+    public ICollectionView ItemsView()
+    {
+        return CollectionViewSource.GetDefaultView(Items);
     }
 
     public async Task<IContentListItem?> ListItemFromDbItem(object? dbItem)

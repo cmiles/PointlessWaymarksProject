@@ -17,7 +17,7 @@ public  partial class ContentMapWindow : Window
     }
 
     public ContentMapContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Photo List";
+    public string WindowTitle { get; set; } = "Content Map";
 
     public static async Task<ContentMapWindow> CreateInstance(ContentMapListLoader toLoad)
     {
