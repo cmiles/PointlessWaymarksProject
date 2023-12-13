@@ -1,5 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.Dynamic;
+using System.IO;
 using System.Text.Json;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -14,6 +15,7 @@ using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
@@ -70,6 +72,45 @@ public partial class ContentMapContext
         var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
 
         return new ContentMapContext(factoryStatusContext, null, factoryListContext, loadInBackground);
+    }
+
+    public Envelope GetBounds(List<IContentListItem> toMeasure)
+    {
+        var boundsKeeper = new List<Point>();
+
+        foreach (var loopElements in toMeasure)
+            switch (loopElements)
+            {
+                case GeoJsonListListItem { DbEntry.GeoJson: not null } mapGeoJson:
+                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
+                        mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
+                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
+                        mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
+                    break;
+                case LineListListItem { DbEntry.Line: not null } mapLine:
+                    var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.DbEntry.Line);
+                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
+                        mapLine.DbEntry.InitialViewBoundsMaxLatitude));
+                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
+                        mapLine.DbEntry.InitialViewBoundsMinLatitude));
+                    break;
+            }
+
+        if (toMeasure.Any(x => x is PointListListItem))
+            foreach (var loopElements in toMeasure.Where(x => x is PointListListItem).Cast<PointListListItem>()
+                         .ToList())
+                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
+
+        if (toMeasure.Any(x => x is PhotoListListItem))
+            foreach (var loopElements in toMeasure.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
+                         .ToList())
+            {
+                if (loopElements.DbEntry.Latitude is null || loopElements.DbEntry.Longitude is null) continue;
+
+                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude.Value, loopElements.DbEntry.Latitude.Value));
+            }
+
+        return SpatialConverters.PointBoundingBox(boundsKeeper);
     }
 
     private void ItemsViewOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -173,11 +214,32 @@ public partial class ContentMapContext
             {
                 if (loopElements.DbEntry.Latitude is null || loopElements.DbEntry.Longitude is null) continue;
 
+                var description = string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(loopElements.SmallImageUrl))
+                {
+                    var tempImg = Path.Combine(FileLocationTools.TempStorageHtmlDirectory().FullName,
+                        Path.GetFileName(loopElements.SmallImageUrl));
+                    File.Copy(loopElements.SmallImageUrl, tempImg, true);
+                    description = $"""
+                                   <img src="https://localcms.pointlesswaymarks.com/{Path.GetFileName(loopElements.SmallImageUrl)}"/>
+                                   """;
+                }
+                else
+                {
+                    description = $"""
+                                    <p>{loopElements.DbEntry.Summary}</p>
+                                   """;
+                }
+
                 featureCollection.Add(new Feature(
                     PointTools.Wgs84Point(loopElements.DbEntry.Longitude.Value, loopElements.DbEntry.Latitude.Value,
                         loopElements.DbEntry.Elevation ?? 0),
                     new AttributesTable(new Dictionary<string, object>
-                        { { "title", loopElements.DbEntry.Title ?? string.Empty } })));
+                    {
+                        { "title", loopElements.DbEntry.Title ?? string.Empty },
+                        { "description", description }
+                    })));
                 boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude.Value, loopElements.DbEntry.Latitude.Value));
             }
 
@@ -190,6 +252,22 @@ public partial class ContentMapContext
             new GeoJsonData.SpatialBounds(Bounds.MaxY, Bounds.MaxX, Bounds.MinY, Bounds.MinX), geoJsonList);
 
         MapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
+    }
+
+    [NonBlockingCommand]
+    public async Task RequestMapCenterOnAllItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!ListContext.Items.Any())
+        {
+            StatusContext.ToastError("No Items?");
+            return;
+        }
+
+        if (Bounds == null) return;
+
+        await RequestMapCenterOnEnvelope(Bounds);
     }
 
     [NonBlockingCommand]
@@ -206,21 +284,76 @@ public partial class ContentMapContext
         MapRequest?.Invoke(this, JsonSerializer.Serialize(foo));
     }
 
-    [NonBlockingCommand]
-    public async Task RequestMapCenterOnCurrentBounds()
+    public async Task RequestMapCenterOnEnvelope(Envelope toCenter)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (Bounds == null) return;
+        if (toCenter is { Width: 0, Height: 0 })
+        {
+            await RequestMapCenterOnPoint(toCenter.MinX, toCenter.MinY);
+            return;
+        }
 
         dynamic foo = new ExpandoObject();
         foo.MessageType = "CenterBoundingBoxRequest";
-        foo.BoundingBox = new[] { Bounds.MinX, Bounds.MinY, Bounds.MaxX, Bounds.MaxY };
+        foo.BoundingBox = new[] { toCenter.MinX, toCenter.MinY, toCenter.MaxX, toCenter.MaxY };
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var serializedData = JsonSerializer.Serialize(foo);
 
         MapRequest?.Invoke(this, serializedData);
+    }
+
+    [NonBlockingCommand]
+    public async Task RequestMapCenterOnFilteredItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var filteredItems = ListContext.FilteredListItems();
+
+        if (!filteredItems.Any())
+        {
+            StatusContext.ToastError("No Visible Items?");
+            return;
+        }
+
+        var bounds = GetBounds(ListContext.FilteredListItems());
+
+        await RequestMapCenterOnEnvelope(bounds);
+    }
+
+    public async Task RequestMapCenterOnPoint(double longitude, double latitude)
+    {
+        dynamic foo = new ExpandoObject();
+        foo.MessageType = "CenterCoordinateRequest";
+        foo.Point = new[] { longitude, latitude };
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var serializedData = JsonSerializer.Serialize(foo);
+
+        MapRequest?.Invoke(this, serializedData);
+    }
+
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task RequestMapCenterOnSelectedItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var bounds = GetBounds(ListContext.SelectedListItems());
+
+        await RequestMapCenterOnEnvelope(bounds);
+    }
+
+    public IContentListItem? SelectedListItem()
+    {
+        return ListContext.ListSelection.Selected;
+    }
+
+    public List<IContentListItem> SelectedListItems()
+    {
+        return ListContext.ListSelection.SelectedItems;
     }
 }

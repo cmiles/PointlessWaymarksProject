@@ -94,7 +94,7 @@ public class WebViewHtmlStringAndJsonOnChangeBehavior : Behavior<WebView2>
                         FileLocationTools.TempStorageHtmlDirectory().FullName,
                         $"TempHtml-{Guid.NewGuid()}.html"));
                     await File.WriteAllTextAsync(newFile.FullName, newString);
-                    bindingBehavior.AssociatedObject.CoreWebView2.Navigate($"file:////{newFile.FullName}");
+                    bindingBehavior.AssociatedObject.CoreWebView2.Navigate($"https://localcmshtml.pointlesswaymarks.com/{newFile.FullName}");
 
                     bindingBehavior._previousFiles.Add(newFile);
                     bindingBehavior._currentFile = newFile;
@@ -154,11 +154,10 @@ public class WebViewHtmlStringAndJsonOnChangeBehavior : Behavior<WebView2>
             _loaded = true;
             try
             {
-                var webViewEnvironment = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(
-                    FileLocationTools.TempStorageHtmlDirectory().FullName));
-
                 await ThreadSwitcher.ResumeForegroundAsync();
-                await AssociatedObject.EnsureCoreWebView2Async(webViewEnvironment);
+
+                await AssociatedObject.EnsureCoreWebView2Async();
+                AssociatedObject.CoreWebView2.SetVirtualHostNameToFolderMapping($"localcms.pointlesswaymarks.com", FileLocationTools.TempStorageHtmlDirectory().FullName, CoreWebView2HostResourceAccessKind.Allow);
             }
             catch (Exception exception)
             {

@@ -284,6 +284,10 @@ public static class WpfCmsHtmlDocument
                                             }
                                         })
                                     }
+                                    if(e.data.MessageType === 'CenterCoordinateRequest') {
+                                        console.log('Center Coordinate Request');
+                                        map.flyTo([e.data.Point[1], e.data.Point[0]]);
+                                    }
                                     if(e.data.MessageType === 'CenterBoundingBoxRequest') {
                                         console.log('Center Bounding Box Request');
                                         map.flyToBounds([[e.data.BoundingBox[1], e.data.BoundingBox[0]], [e.data.BoundingBox[3], e.data.BoundingBox[2]]]);
@@ -300,7 +304,7 @@ public static class WpfCmsHtmlDocument
                                         }
                         
                                         if (feature.properties.description) {
-                                            popupHtml += `<p>${feature.properties.description}</p>`;
+                                            popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
                                         }
                         
                                         if(popupHtml !== "") layer.bindPopup(popupHtml);
