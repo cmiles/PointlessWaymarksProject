@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="PointlessWaymarks.CmsWpfControls.ContentMap.ContentMapControl"
+<UserControl x:Class="PointlessWaymarks.CmsWpfControls.ContentMap.ContentMapControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,6 +8,7 @@
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              Loaded="ContentMapControl_OnLoaded"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:ContentMapContext}">
@@ -40,6 +41,11 @@
                 <wpfHtml:WebViewHtmlStringAndJsonOnChangeBehavior HtmlString="{Binding MapHtml}"
                                                                   JsonData="{Binding MapJsonDto}" />
             </b:Interaction.Behaviors>
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="WebMessageReceived">
+                    <behaviors:EventToCommand Command="{Binding MapMessageReceivedCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
         </wpf:WebView2>
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel
@@ -49,6 +55,7 @@
                 <Button Command="{Binding RequestMapCenterOnSelectedItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Center - Selected</Button>
                 <Button Command="{Binding RequestMapCenterOnFilteredItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Center - Filtered</Button>
                 <Button Command="{Binding RequestMapCenterOnAllItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Center - All</Button>
+                <Button Command="{Binding PopupsForSelectedItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Popups - Selected</Button>
                 <Button Command="{Binding RefreshMapCommand}" Style="{StaticResource ActionPanelButtonStyle}">Refresh Map</Button>
             </WrapPanel>
         </Border>

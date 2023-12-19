@@ -1,7 +1,8 @@
-﻿using System.Collections.Specialized;
-using System.Dynamic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using Microsoft.Web.WebView2.Core;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
@@ -11,7 +12,6 @@ using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.LineList;
-using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
@@ -50,6 +50,8 @@ public partial class ContentMapContext
 
     public CmsCommonCommands CommonCommands { get; set; }
     public ContentListContext ListContext { get; set; }
+
+    public GeoJsonData.SpatialBounds? MapBounds { get; set; } = null;
     public string MapHtml { get; set; }
     public string MapJsonDto { get; set; }
     public StatusControlContext StatusContext { get; set; }
@@ -126,12 +128,12 @@ public partial class ContentMapContext
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
+            new() { ItemName = "Center Map", ItemCommand = RequestMapCenterOnSelectedItemsCommand },
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
@@ -144,20 +146,67 @@ public partial class ContentMapContext
         ListContext.ItemsView().CollectionChanged += ItemsViewOnCollectionChanged;
     }
 
+    [NonBlockingCommand]
+    private async Task MapMessageReceived(CoreWebView2WebMessageReceivedEventArgs? mapMessage)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (mapMessage == null) return;
+
+        var rawMessage = mapMessage.WebMessageAsJson;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var parsedJson = JsonNode.Parse(rawMessage);
+
+        if (parsedJson == null) return;
+
+        var messageType = parsedJson["messageType"]?.ToString() ?? string.Empty;
+
+        if (messageType == "mapBoundsChange")
+        {
+            MapBounds = new GeoJsonData.SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
+                parsedJson["bounds"]["_northEast"]["lng"].GetValue<double>(),
+                parsedJson["bounds"]["_southWest"]["lat"].GetValue<double>(),
+                parsedJson["bounds"]["_southWest"]["lng"].GetValue<double>());
+            return;
+        }
+
+        Console.WriteLine("clicked");
+    }
+
     public event EventHandler<string>? MapRequest;
+
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task PopupsForSelectedItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var bounds = SelectedListItems().Select(x => x.ContentId()).Where(x => x is not null).Select(x => x!.Value)
+            .ToList();
+
+        var popupData = new MapJsonFeatureListDto(bounds, "ShowPopupsFor");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var serializedData = JsonSerializer.Serialize(popupData);
+
+        MapRequest?.Invoke(this, serializedData);
+    }
 
     [BlockingCommand]
     public async Task RefreshMap()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var frozenItems = ListContext.FilteredListItems();
+        var frozenItems = await ListContext.FilteredListItems();
 
         if (frozenItems.Count == 0) frozenItems = ListContext.Items.ToList();
 
         if (frozenItems.Count < 1)
         {
-            MapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapComponentEditorContext.MapJsonDto(
+            MapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonNewFeatureCollectionDto(
                 Guid.NewGuid(),
                 new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
@@ -171,7 +220,11 @@ public partial class ContentMapContext
             switch (loopElements)
             {
                 case GeoJsonListListItem { DbEntry.GeoJson: not null } mapGeoJson:
-                    geoJsonList.Add(GeoJsonTools.DeserializeStringToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
+                    var featureCollection =
+                        GeoJsonTools.DeserializeStringToFeatureCollection(mapGeoJson.DbEntry.GeoJson);
+                    foreach (var feature in featureCollection)
+                        feature.Attributes.Add("displayId", mapGeoJson.DbEntry.ContentId);
+                    geoJsonList.Add(featureCollection);
                     boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
                         mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
                     boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
@@ -179,6 +232,9 @@ public partial class ContentMapContext
                     break;
                 case LineListListItem { DbEntry.Line: not null } mapLine:
                     var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.DbEntry.Line);
+                    foreach (var feature in lineFeatureCollection)
+                        feature.Attributes.Add("displayId", mapLine.DbEntry.ContentId);
+                    geoJsonList.Add(lineFeatureCollection);
                     geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
                         mapLine.DbEntry.InitialViewBoundsMaxLatitude));
@@ -198,7 +254,10 @@ public partial class ContentMapContext
                     PointTools.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
                         loopElements.DbEntry.Elevation ?? 0),
                     new AttributesTable(new Dictionary<string, object>
-                        { { "title", loopElements.DbEntry.Title ?? string.Empty } })));
+                    {
+                        { "title", loopElements.DbEntry.Title ?? string.Empty },
+                        { "displayId", loopElements.DbEntry.ContentId }
+                    })));
                 boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
             }
 
@@ -238,7 +297,8 @@ public partial class ContentMapContext
                     new AttributesTable(new Dictionary<string, object>
                     {
                         { "title", loopElements.DbEntry.Title ?? string.Empty },
-                        { "description", description }
+                        { "description", description },
+                        { "displayId", loopElements.DbEntry.ContentId }
                     })));
                 boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude.Value, loopElements.DbEntry.Latitude.Value));
             }
@@ -248,7 +308,7 @@ public partial class ContentMapContext
 
         Bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
 
-        var dto = new MapComponentEditorContext.MapJsonDto(Guid.NewGuid(),
+        var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
             new GeoJsonData.SpatialBounds(Bounds.MaxY, Bounds.MaxX, Bounds.MinY, Bounds.MinX), geoJsonList);
 
         MapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
@@ -275,13 +335,11 @@ public partial class ContentMapContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        dynamic foo = new ExpandoObject();
-        foo.MessageType = "CenterFeatureRequest";
-        foo.DisplayId = toCenter.ContentId()!;
+        var centerData = new MapJsonFeatureDto(toCenter.ContentId()!.Value, "CenterFeatureRequest");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        MapRequest?.Invoke(this, JsonSerializer.Serialize(foo));
+        MapRequest?.Invoke(this, JsonSerializer.Serialize(centerData));
     }
 
     public async Task RequestMapCenterOnEnvelope(Envelope toCenter)
@@ -294,13 +352,13 @@ public partial class ContentMapContext
             return;
         }
 
-        dynamic foo = new ExpandoObject();
-        foo.MessageType = "CenterBoundingBoxRequest";
-        foo.BoundingBox = new[] { toCenter.MinX, toCenter.MinY, toCenter.MaxX, toCenter.MaxY };
+        var centerData = new MapJsonBoundsDto(
+            new GeoJsonData.SpatialBounds(toCenter.MaxY, toCenter.MaxX, toCenter.MinY, toCenter.MinX),
+            "CenterBoundingBoxRequest");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var serializedData = JsonSerializer.Serialize(foo);
+        var serializedData = JsonSerializer.Serialize(centerData);
 
         MapRequest?.Invoke(this, serializedData);
     }
@@ -310,7 +368,7 @@ public partial class ContentMapContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var filteredItems = ListContext.FilteredListItems();
+        var filteredItems = await ListContext.FilteredListItems();
 
         if (!filteredItems.Any())
         {
@@ -318,20 +376,20 @@ public partial class ContentMapContext
             return;
         }
 
-        var bounds = GetBounds(ListContext.FilteredListItems());
+        var bounds = GetBounds(filteredItems);
 
         await RequestMapCenterOnEnvelope(bounds);
     }
 
     public async Task RequestMapCenterOnPoint(double longitude, double latitude)
     {
-        dynamic foo = new ExpandoObject();
-        foo.MessageType = "CenterCoordinateRequest";
-        foo.Point = new[] { longitude, latitude };
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var centerData = new MapJsonCoordinateDto(latitude, longitude, "CenterCoordinateRequest");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var serializedData = JsonSerializer.Serialize(foo);
+        var serializedData = JsonSerializer.Serialize(centerData);
 
         MapRequest?.Invoke(this, serializedData);
     }

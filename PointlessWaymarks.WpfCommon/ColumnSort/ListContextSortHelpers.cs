@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows.Data;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using TypeSupport.Extensions;
@@ -7,9 +7,11 @@ namespace PointlessWaymarks.WpfCommon.ColumnSort;
 
 public static class ListContextSortHelpers
 {
-    public static void SortList(List<SortDescription>? listSorts, object? items)
+    public static async Task SortList(List<SortDescription>? listSorts, object? items)
     {
         if (items == null) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
 
         if (CollectionViewSource.GetDefaultView(items) is ListCollectionView listCollectionView)
         {

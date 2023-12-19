@@ -1,4 +1,4 @@
-﻿const lazyInit = (elementToObserve, fn) => {
+const lazyInit = (elementToObserve, fn) => {
     const observer = new IntersectionObserver((entries) => {
         if (entries.some(({ isIntersecting }) => isIntersecting)) {
             observer.disconnect();
@@ -34,7 +34,7 @@ function nationalBaseMapTopoMapLayer() {
         {
             maxNativeZoom: 16,
             maxZoom: 22,
-            id: "tnmImageTopo",
+            id: "tnmTopo",
             attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
         });
 }

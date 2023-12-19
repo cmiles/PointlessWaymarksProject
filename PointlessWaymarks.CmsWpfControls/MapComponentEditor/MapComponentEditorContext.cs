@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 using GongSolutions.Wpf.DragDrop;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Features;
@@ -63,7 +62,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         ListSort = SortContextMapElementsDefault();
 
         ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, MapElements); });
+            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, MapElements));
 
         DbEntry = dbEntry;
 
@@ -74,6 +73,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public List<MapElement> DbElements { get; set; } = new();
     public MapComponent DbEntry { get; set; }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext HelpContext { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
     public ObservableCollection<IMapElementListItem>? MapElements { get; set; }
@@ -117,9 +119,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         await RefreshMapPreview();
     }
-
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
         bool guiNotificationAndMapRefreshWhenAdded = false)
@@ -415,7 +414,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), MapElements);
+        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), MapElements);
         await FilterList();
     }
 
@@ -462,7 +461,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         if (MapElements == null || !MapElements.Any())
         {
-            PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonDto(Guid.NewGuid(),
+            PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonNewFeatureCollectionDto(
+                Guid.NewGuid(),
                 new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
         }
@@ -513,7 +513,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         var bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
 
-        var dto = new MapJsonDto(Guid.NewGuid(),
+        var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
             new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), geoJsonList);
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
@@ -703,7 +703,4 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         await RefreshMapPreview();
     }
-
-    public record MapJsonDto(Guid Identifier, GeoJsonData.SpatialBounds Bounds, List<FeatureCollection> GeoJsonLayers,
-        string MessageType = "MapJsonDto");
 }

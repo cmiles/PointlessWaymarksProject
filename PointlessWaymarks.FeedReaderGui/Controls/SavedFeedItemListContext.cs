@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CommonTools;
@@ -359,11 +358,11 @@ public partial class SavedFeedItemListContext
                 DbReaderFeed = db.Feeds.SingleOrDefault(x => x.PersistentId == loopItems.FeedPersistentId)
             });
 
-        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
         await FilterList();
 
         ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
 
         PropertyChanged += OnPropertyChanged;
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };

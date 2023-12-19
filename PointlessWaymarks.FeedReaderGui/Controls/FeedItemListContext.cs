@@ -436,11 +436,11 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                 DbItem = loopItems, DbReaderFeed = db.Feeds.Single(x => x.PersistentId == loopItems.FeedPersistentId)
             });
 
-        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
         await FilterList();
 
         ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
 
         PropertyChanged += OnPropertyChanged;
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };

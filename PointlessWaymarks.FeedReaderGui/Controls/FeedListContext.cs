@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CommonTools;
@@ -265,7 +264,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
 
         await ContextDb.FeedAllItemsRead(listItem.DbReaderFeed.PersistentId, true);
     }
-    
+
     [NonBlockingCommand]
     [StopAndWarnIfNoSelectedListItem]
     public async Task MarkAllReadForSelectedItem()
@@ -289,7 +288,35 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
     {
         await ContextDb.FeedAllItemsRead(SelectedListItem()!.DbReaderFeed.PersistentId, false);
     }
-    
+
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task MarkdownLinksForSelectedItems()
+    {
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedListItems())
+            clipboardBlock.AppendLine($"[{loopItems.DbReaderFeed.Name ?? "No Name"}]({loopItems.DbReaderFeed.Url})");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task NamesForSelectedItems()
+    {
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedListItems())
+            clipboardBlock.AppendLine($"{loopItems.DbReaderFeed.Name ?? "(No Name)"}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
+    }
+
     [BlockingCommand]
     public async Task NewFeedEditorFromUrl()
     {
@@ -300,7 +327,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
             StatusContext.ToastWarning("Feed to Add is Blank?");
             return;
         }
-        
+
         var feedItem = await ContextDb.TryGetFeed(UserAddFeedInput, StatusContext.ProgressTracker());
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -398,17 +425,31 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
             Items.Add(loopItem);
         }
 
-        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
 
         await FilterList();
 
         ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
 
         PropertyChanged += OnPropertyChanged;
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+    }
+
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task TitleAndUrlForSelectedItems()
+    {
+        var clipboardBlock = new StringBuilder();
+
+        foreach (var loopItems in SelectedListItems())
+            clipboardBlock.AppendLine($"{loopItems.DbReaderFeed.Name ?? "(No Name)"} - {loopItems.DbReaderFeed.Url}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(clipboardBlock.ToString());
     }
 
     [BlockingCommand]
@@ -504,47 +545,6 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
         var clipboardBlock = new StringBuilder();
 
         foreach (var loopItems in SelectedListItems()) clipboardBlock.AppendLine($"{loopItems.DbReaderFeed.Url}");
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(clipboardBlock.ToString());
-    }
-
-    [NonBlockingCommand]
-    [StopAndWarnIfNoSelectedListItems]
-    public async Task NamesForSelectedItems()
-    {
-        var clipboardBlock = new StringBuilder();
-
-        foreach (var loopItems in SelectedListItems()) clipboardBlock.AppendLine($"{loopItems.DbReaderFeed.Name ?? "(No Name)"}");
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(clipboardBlock.ToString());
-    }
-
-    [NonBlockingCommand]
-    [StopAndWarnIfNoSelectedListItems]
-    public async Task MarkdownLinksForSelectedItems()
-    {
-        var clipboardBlock = new StringBuilder();
-
-        foreach (var loopItems in SelectedListItems())
-            clipboardBlock.AppendLine($"[{loopItems.DbReaderFeed.Name ?? "No Name"}]({loopItems.DbReaderFeed.Url})");
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(clipboardBlock.ToString());
-    }
-
-    [NonBlockingCommand]
-    [StopAndWarnIfNoSelectedListItems]
-    public async Task TitleAndUrlForSelectedItems()
-    {
-        var clipboardBlock = new StringBuilder();
-
-        foreach (var loopItems in SelectedListItems())
-            clipboardBlock.AppendLine($"{loopItems.DbReaderFeed.Name ?? "(No Name)"} - {loopItems.DbReaderFeed.Url}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

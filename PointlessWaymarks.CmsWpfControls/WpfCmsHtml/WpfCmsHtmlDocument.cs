@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -44,14 +44,13 @@ public static class WpfCmsHtmlDocument
         var layers = new List<WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry>
         {
             new("openTopoMap", "OSM Topo", @"
-        var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxNativeZoom: 17,
-            maxZoom: 24,
-            id: 'osmTopo',
-            attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
-        });")
+                var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                    maxNativeZoom: 17,
+                    maxZoom: 24,
+                    id: 'osmTopo',
+                    attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
+                });")
         };
-
 
         if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
         {
@@ -90,6 +89,23 @@ public static class WpfCmsHtmlDocument
             maxZoom: 24
         }});"));
         }
+
+        layers.Add(new("tnmImageTopoMap", "TNM Image Topo", @"
+                var tnmImageTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}',
+                {
+                    maxNativeZoom: 16,
+                    maxZoom: 22,
+                    id: 'tnmImageTopo',
+                    attribution: 'Tiles courtesy of the <a href=""https://usgs.gov/"">U.S. Geological Survey</a>'
+                });"));
+        layers.Add(new("tnmTopoMap", "TNM Image Topo", @"
+                var tnmTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+                {
+                    maxNativeZoom: 16,
+                    maxZoom: 22,
+                    id: 'tnmTopo',
+                    attribution: 'Tiles courtesy of the <a href=""https://usgs.gov/"">U.S. Geological Survey</a>'
+                });"));
 
         return layers;
     }
@@ -249,7 +265,7 @@ public static class WpfCmsHtmlDocument
                         {{LeafletDocumentOpening(title, styleBlock)}}
                         <body>
                              <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
-                                style="height: 92vh;"></div>
+                                style="height: 98vh;"></div>
                             <script>
                                 {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
                         
@@ -257,18 +273,23 @@ public static class WpfCmsHtmlDocument
                                     center: { lat: {{initialLatitude}}, lng: {{initialLongitude}} },
                                     zoom: 13,
                                     layers: [{{string.Join(", ", layers.Select(x => x.LayerVariableName))}}],
-                                    doubleClickZoom: false
+                                    doubleClickZoom: false,
+                                    closePopupOnClick: false
                                 });
                         
                                 var baseMaps = {
                                     {{string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}}
                                 };
                         
+                                map.on('moveend', function(e) {
+                                    window.chrome.webview.postMessage( { "messageType": "mapBoundsChange", "bounds": map.getBounds() } );
+                                });
+                        
                                 L.control.layers(baseMaps).addTo(map);
                         
                                 window.chrome.webview.addEventListener('message', function (e) {
                                     console.log(e);
-                                    if(e.data.MessageType === 'MapJsonDto') postGeoJsonDataHandler(e);
+                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e);
                                     if(e.data.MessageType === 'CenterFeatureRequest') {
                                         console.log('Center Feature Request');
                                         map.eachLayer(function (l) {
@@ -284,13 +305,28 @@ public static class WpfCmsHtmlDocument
                                             }
                                         })
                                     }
+                                    if(e.data.MessageType === 'ShowPopupsFor') {
+                                        console.log(`Show Popups Request`);
+                                        map.eachLayer(function (l) {
+                                            if(!l.feature?.properties?.displayId) return;
+                                            if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
+                                                console.log(`opening popup for l.feature ${l.feature}`);
+                                                l.openPopup();
+                                            }
+                                            else {
+                                                console.log(`closing popup for l.feature ${l.feature}`);
+                                                l.closePopup();
+                                            }
+                                            console.log(l);
+                                        })
+                                    }
                                     if(e.data.MessageType === 'CenterCoordinateRequest') {
                                         console.log('Center Coordinate Request');
-                                        map.flyTo([e.data.Point[1], e.data.Point[0]]);
+                                        map.flyTo([e.data.Latitude, e.data.Longitude]);
                                     }
                                     if(e.data.MessageType === 'CenterBoundingBoxRequest') {
                                         console.log('Center Bounding Box Request');
-                                        map.flyToBounds([[e.data.BoundingBox[1], e.data.BoundingBox[0]], [e.data.BoundingBox[3], e.data.BoundingBox[2]]]);
+                                        map.flyToBounds([[e.data.Bounds.InitialViewBoundsMinLatitude, e.data.Bounds.InitialViewBoundsMinLongitude], [e.data.Bounds.InitialViewBoundsMaxLatitude, e.data.Bounds.InitialViewBoundsMaxLongitude]]);
                                     }
                                 });
                         
@@ -307,7 +343,7 @@ public static class WpfCmsHtmlDocument
                                             popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
                                         }
                         
-                                        if(popupHtml !== "") layer.bindPopup(popupHtml);
+                                        if(popupHtml !== "") layer.bindPopup(popupHtml, { autoClose: false });
                         
                                         layer.on('click', function (e) {
                                             console.log(e);

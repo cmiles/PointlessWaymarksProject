@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 using GongSolutions.Wpf.DragDrop;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
@@ -85,7 +84,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         ListSort = ContentListLoader.SortContext();
 
         ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -428,16 +427,23 @@ public partial class ContentListContext : IDragSource, IDropTarget
         }
     }
 
-    public List<IContentListItem> FilteredListItems()
+    public async Task<List<IContentListItem>> FilteredListItems()
     {
         var returnList = new List<IContentListItem>();
 
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         var itemsView = CollectionViewSource.GetDefaultView(Items);
+
+        var filter = itemsView.Filter;
+
+        if (filter is null) return Items.ToList();
 
         foreach (var loopView in itemsView)
         {
-            var itemList = loopView as IContentListItem;
-            if (itemList != null) returnList.Add(itemList);
+            if (!filter(loopView)) continue;
+
+            if (loopView is IContentListItem itemList) returnList.Add(itemList);
         }
 
         return returnList;
@@ -448,8 +454,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
         if (!Items.Any()) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
-
-        var initialItemIds = FilteredListItems().Select(x => x.ContentId()).ToList();
 
         var itemsView = CollectionViewSource.GetDefaultView(Items);
 
@@ -671,7 +675,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         Items = new ObservableCollection<IContentListItem>(contentListItems);
 
-        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
         await FilterList();
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
