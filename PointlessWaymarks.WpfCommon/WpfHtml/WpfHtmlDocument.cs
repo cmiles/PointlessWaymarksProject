@@ -1,4 +1,4 @@
-﻿using System.Text.Encodings.Web;
+using System.Text.Encodings.Web;
 using PointlessWaymarks.WpfCommon.Utility;
 // ReSharper disable StringLiteralTypo
 
@@ -125,8 +125,8 @@ public static class WpfHtmlDocument
             if(Object.keys(geoJsonData).length === 0) return;
 
             map.flyToBounds([
-                [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
-                [geoJsonData.Bounds.InitialViewBoundsMaxLatitude, geoJsonData.Bounds.InitialViewBoundsMaxLongitude]
+                [geoJsonData.Bounds.MinLatitude, geoJsonData.Bounds.MinLongitude],
+                [geoJsonData.Bounds.MaxLatitude, geoJsonData.Bounds.MaxLongitude]
             ]);
 
             geoMapLayer = new L.geoJSON(geoJsonData.GeoJson, {{

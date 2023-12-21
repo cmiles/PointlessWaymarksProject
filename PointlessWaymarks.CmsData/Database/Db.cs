@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,8 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.SpatialTools;
+using SQLitePCL;
 
 namespace PointlessWaymarks.CmsData.Database;
 
@@ -82,71 +85,8 @@ public static class Db
     }
 
     /// <summary>
-    /// Returns Content where it was last updated, or created on and never updated, on the input day. List returns with
-    /// an ascending sort on the LastUpdatedOn or CreatedOn used to filter the item. Drafts and items excluded from
-    /// search are not included.
-    /// </summary>
-    /// <param name="createdOn"></param>
-    /// <returns></returns>
-    public static async Task<List<object>> ContentLastUpdatedCreatedOnDayNoDrafts(DateTime createdOn)
-    {
-        var createdOnOnOrAfter = createdOn.Date;
-        var createdOnBefore = createdOn.AddDays(1).Date;
-
-        var returnList = new List<(DateTime, object)>();
-
-        var context = await Context();
-
-        //!!Content Type List!!
-        returnList.AddRange((await context.FileContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.GeoJsonContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.ImageContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft && x.ShowInSearch).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.LineContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.LinkContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.NoteContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.PhotoContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.PointContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.PostContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-        returnList.AddRange((await context.VideoContents
-            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
-
-        //!!Content Type List!!
-        returnList.AddRange((await context.FileContents
-            .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.GeoJsonContents
-            .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.ImageContents
-            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft && x.ShowInSearch).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.LineContents
-            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.LinkContents
-            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.NoteContents
-            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.PhotoContents
-            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.PointContents
-            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.PostContents
-            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-        returnList.AddRange((await context.VideoContents
-            .Where(x =>  x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter && x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync()).Select(x => (x.LastUpdatedOn!.Value, (object)x)));
-
-        return returnList.OrderBy(x => x.Item1).Select(x => x.Item2).ToList();
-    }
-
-    /// <summary>
-    /// Returns content where the CreatedOn is in the input date. Return list is sorted ascending by Created On. (Note
-    /// that LastUpdatedOn is not considered).
+    ///     Returns content where the CreatedOn is in the input date. Return list is sorted ascending by Created On. (Note
+    ///     that LastUpdatedOn is not considered).
     /// </summary>
     /// <param name="createdOn"></param>
     /// <returns></returns>
@@ -161,27 +101,59 @@ public static class Db
 
         //!!Content Type List!!
         returnList.AddRange((await context.FileContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.GeoJsonContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.ImageContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.LineContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.LinkContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.NoteContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.PhotoContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.PointContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.PostContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.VideoContents
-            .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
 
         return returnList.OrderBy(x => x.Item1).Select(x => x.Item2).ToList();
+    }
+
+    public static async Task<List<dynamic>> ContentFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var points = (await PointContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
+        var lines = (await LineContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
+        var geoJson = (await GeoJsonContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
+        var photos = (await PhotoContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
+
+        return points.Union(lines).Union(geoJson).Union(photos).ToList();
+    }
+
+    public static async Task<List<Guid>> ContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var points = (await PointContentIdsFromBoundingBox(db, bounds)).ToList();
+        var lines = (await LineContentIdsFromBoundingBox(db, bounds)).ToList();
+        var geoJson = (await GeoJsonContentIdsFromBoundingBox(db, bounds)).ToList();
+        var photos = (await PhotoContentIdsFromBoundingBox(db, bounds)).ToList();
+
+        return points.Union(lines).Union(geoJson).Union(photos).ToList();
     }
 
     /// <summary>
@@ -248,7 +220,7 @@ public static class Db
     /// <param name="contentIds"></param>
     /// <returns></returns>
     public static async Task<List<dynamic>> ContentFromContentIds(this PointlessWaymarksContext db,
-        List<Guid> contentIds)
+        List<Guid> contentIds, bool pointsAsDtos = true)
     {
         if (!contentIds.Any()) return new List<dynamic>();
 
@@ -262,7 +234,8 @@ public static class Db
         returnList.AddRange(db.LinkContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(db.NoteContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(db.PhotoContents.Where(x => contentIds.Contains(x.ContentId)));
-        returnList.AddRange(await PointsAndPointDetails(contentIds).ConfigureAwait(false));
+        if (pointsAsDtos) returnList.AddRange(await PointsAndPointDetails(contentIds).ConfigureAwait(false));
+        else returnList.AddRange(db.PointContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(db.PostContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(db.VideoContents.Where(x => contentIds.Contains(x.ContentId)));
 
@@ -271,7 +244,9 @@ public static class Db
 
     /// <summary>
     ///     Determines if a ContentId is from a Point, Line or GeoJson entry - returns false otherwise (this does not
-    ///     validate if the ContentId exists in the database, only if it is present in a spatial type table).
+    ///     validate if the ContentId exists in the database, only if it is present in a spatial type table). Photographs
+    ///     ARE NOT considered 'Spatial Content' by this method - this only detects the dedicated Point/Line/GeoJson spatial
+    ///     types.
     /// </summary>
     /// <param name="toValidate"></param>
     /// <returns></returns>
@@ -284,6 +259,35 @@ public static class Db
         if (db.LineContents.Any(x => x.ContentId == toValidate)) return true;
 
         return false;
+    }
+
+    /// <summary>
+    ///     Filters the input list and returns Guids that match the ContentId of a Point, Line, GeoJson or optionally
+    ///     photo content with Lat/Long.
+    /// </summary>
+    /// <param name="toFilter"></param>
+    /// <param name="includePhotosWithLatLong"></param>
+    /// <returns></returns>
+    public static async Task<List<Guid>> ContentIdsAreSpatialContentInDatabase(List<Guid> toFilter,
+        bool includePhotosWithLatLong)
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.PointContents.Where(x => toFilter.Contains(x.ContentId)).Select(x => x.ContentId)
+            .ToListAsync());
+        returnList.AddRange(await db.LineContents.Where(x => toFilter.Contains(x.ContentId)).Select(x => x.ContentId)
+            .ToListAsync());
+        returnList.AddRange(await db.GeoJsonContents.Where(x => toFilter.Contains(x.ContentId)).Select(x => x.ContentId)
+            .ToListAsync());
+
+        if (includePhotosWithLatLong)
+            returnList.AddRange(await db.PhotoContents
+                .Where(x => x.Latitude != null && x.Longitude != null && toFilter.Contains(x.ContentId))
+                .Select(x => x.ContentId).ToListAsync());
+
+        return returnList;
     }
 
     public static async Task<List<object>> ContentInFolder(string folderName)
@@ -306,6 +310,99 @@ public static class Db
         returnList.AddRange(context.VideoContents.Where(x => x.Folder == folderName).Cast<object>());
 
         return returnList;
+    }
+
+    /// <summary>
+    ///     Returns Content where it was last updated, or created on and never updated, on the input day. List returns with
+    ///     an ascending sort on the LastUpdatedOn or CreatedOn used to filter the item. Drafts and items excluded from
+    ///     search are not included.
+    /// </summary>
+    /// <param name="createdOn"></param>
+    /// <returns></returns>
+    public static async Task<List<object>> ContentLastUpdatedCreatedOnDayNoDrafts(DateTime createdOn)
+    {
+        var createdOnOnOrAfter = createdOn.Date;
+        var createdOnBefore = createdOn.AddDays(1).Date;
+
+        var returnList = new List<(DateTime, object)>();
+
+        var context = await Context();
+
+        //!!Content Type List!!
+        returnList.AddRange((await context.FileContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.GeoJsonContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.ImageContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft && x.ShowInSearch).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.LineContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.LinkContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore)
+            .ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.NoteContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PhotoContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PointContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.PostContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.VideoContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+
+        //!!Content Type List!!
+        returnList.AddRange((await context.FileContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.GeoJsonContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.ImageContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft && x.ShowInSearch).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.LineContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.LinkContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.NoteContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.PhotoContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.PointContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.PostContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.VideoContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+
+        return returnList.OrderBy(x => x.Item1).Select(x => x.Item2).ToList();
     }
 
     public static async Task<List<object>> ContentNeverUpdated()
@@ -421,8 +518,8 @@ public static class Db
     public static Task<PointlessWaymarksContext> Context()
     {
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
-        SQLitePCL.Batteries_V2.Init();
-        SQLitePCL.raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
+        Batteries_V2.Init();
+        raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
 
         var optionsBuilder = new DbContextOptionsBuilder<PointlessWaymarksContext>();
         var dbPath = UserSettingsSingleton.CurrentSettings().DatabaseFileFullName();
@@ -1141,6 +1238,62 @@ public static class Db
         return compiledList;
     }
 
+    public static async Task<List<GeoJsonContent>> GeoJsonContentFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<GeoJsonContent>();
+
+        returnList.AddRange(await db.GeoJsonContents.Where(x =>
+            (
+                (bounds.MinLatitude >= x.InitialViewBoundsMinLatitude
+                 && bounds.MinLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MaxLatitude >= x.InitialViewBoundsMinLatitude
+                    && bounds.MaxLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MinLatitude <= x.InitialViewBoundsMinLatitude &&
+                    bounds.MaxLatitude >= x.InitialViewBoundsMaxLatitude)
+            )
+            &&
+            (
+                (bounds.MinLongitude >= x.InitialViewBoundsMinLongitude
+                 && bounds.MinLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MaxLongitude >= x.InitialViewBoundsMinLongitude
+                    && bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MinLongitude <= x.InitialViewBoundsMinLongitude &&
+                    bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+            )
+        ).ToListAsync());
+
+        return returnList;
+    }
+
+    public static async Task<List<Guid>> GeoJsonContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.GeoJsonContents.Where(x =>
+            (
+                (bounds.MinLatitude >= x.InitialViewBoundsMinLatitude
+                 && bounds.MinLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MaxLatitude >= x.InitialViewBoundsMinLatitude
+                    && bounds.MaxLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MinLatitude <= x.InitialViewBoundsMinLatitude &&
+                    bounds.MaxLatitude >= x.InitialViewBoundsMaxLatitude)
+            )
+            &&
+            (
+                (bounds.MinLongitude >= x.InitialViewBoundsMinLongitude
+                 && bounds.MinLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MaxLongitude >= x.InitialViewBoundsMinLongitude
+                    && bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MinLongitude <= x.InitialViewBoundsMinLongitude &&
+                    bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+            )
+        ).Select(x => x.ContentId).ToListAsync());
+
+        return returnList;
+    }
+
     /// <summary>
     ///     Returns up to the specified number of historic details for a Point.
     /// </summary>
@@ -1153,6 +1306,62 @@ public static class Db
     {
         return await db.HistoricPointDetails.Where(x => x.PointContentId == pointContentId).Take(entriesToReturn)
             .ToListAsync().ConfigureAwait(false);
+    }
+
+    public static async Task<List<LineContent>> LineContentFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<LineContent>();
+
+        returnList.AddRange(await db.LineContents.Where(x =>
+            (
+                (bounds.MinLatitude >= x.InitialViewBoundsMinLatitude
+                 && bounds.MinLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MaxLatitude >= x.InitialViewBoundsMinLatitude
+                    && bounds.MaxLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MinLatitude <= x.InitialViewBoundsMinLatitude &&
+                    bounds.MaxLatitude >= x.InitialViewBoundsMaxLatitude)
+            )
+            &&
+            (
+                (bounds.MinLongitude >= x.InitialViewBoundsMinLongitude
+                 && bounds.MinLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MaxLongitude >= x.InitialViewBoundsMinLongitude
+                    && bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MinLongitude <= x.InitialViewBoundsMinLongitude &&
+                    bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+            )
+        ).ToListAsync());
+
+        return returnList;
+    }
+
+    public static async Task<List<Guid>> LineContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.LineContents.Where(x =>
+            (
+                (bounds.MinLatitude >= x.InitialViewBoundsMinLatitude
+                 && bounds.MinLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MaxLatitude >= x.InitialViewBoundsMinLatitude
+                    && bounds.MaxLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MinLatitude <= x.InitialViewBoundsMinLatitude &&
+                    bounds.MaxLatitude >= x.InitialViewBoundsMaxLatitude)
+            )
+            &&
+            (
+                (bounds.MinLongitude >= x.InitialViewBoundsMinLongitude
+                 && bounds.MinLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MaxLongitude >= x.InitialViewBoundsMinLongitude
+                    && bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MinLongitude <= x.InitialViewBoundsMinLongitude &&
+                    bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+            )
+        ).Select(x => x.ContentId).ToListAsync());
+
+        return returnList;
     }
 
     /// <summary>
@@ -1188,7 +1397,8 @@ public static class Db
             .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(videoContent).OrderByDescending(x => x.FeedOn).ToList();
+            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(videoContent)
+            .OrderByDescending(x => x.FeedOn).ToList();
     }
 
     /// <summary>
@@ -1234,7 +1444,8 @@ public static class Db
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(photoContent).Concat(postContent).Concat(pointContent).Concat(videoContent).OrderBy(x => x.FeedOn).Take(numberOfEntries)
+            .Concat(photoContent).Concat(postContent).Concat(pointContent).Concat(videoContent).OrderBy(x => x.FeedOn)
+            .Take(numberOfEntries)
             .ToList();
     }
 
@@ -1282,7 +1493,8 @@ public static class Db
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(videoContent).OrderByDescending(x => x.FeedOn)
+            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(videoContent)
+            .OrderByDescending(x => x.FeedOn)
             .Take(numberOfEntries).ToList();
     }
 
@@ -1332,7 +1544,8 @@ public static class Db
 
         var contentIdListForFeed = fileContentDateList.Concat(geoJsonContentDateList).Concat(imageContentDateList)
             .Concat(lineContentDateList).Concat(noteContentDateList).Concat(photoContentDateList)
-            .Concat(pointContentDateList).Concat(postContentDateList).Concat(videoContentDateList).OrderByDescending(x => x.FeedOn)
+            .Concat(pointContentDateList).Concat(postContentDateList).Concat(videoContentDateList)
+            .OrderByDescending(x => x.FeedOn)
             .Take(topNumberOfEntries).Select(x => x.ContentId).ToList();
 
         var dynamicContent = await db.ContentFromContentIds(contentIdListForFeed);
@@ -1408,6 +1621,36 @@ public static class Db
             .ThenByDescending(x => x.ContentId).FirstOrDefaultAsync().ConfigureAwait(false);
     }
 
+    public static async Task<List<PhotoContent>> PhotoContentFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<PhotoContent>();
+
+        returnList.AddRange(await db.PhotoContents.Where(x =>
+            x.Latitude != null && x.Longitude != null
+                               && x.Latitude >= bounds.MinLatitude
+                               && x.Latitude <= bounds.MaxLatitude
+                               && x.Longitude >= bounds.MinLongitude
+                               && x.Longitude <= bounds.MaxLongitude).ToListAsync());
+
+        return returnList;
+    }
+
+    public static async Task<List<Guid>> PhotoContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.PhotoContents.Where(x =>
+            x.Latitude != null && x.Longitude != null
+                               && x.Latitude >= bounds.MinLatitude
+                               && x.Latitude <= bounds.MaxLatitude
+                               && x.Longitude >= bounds.MinLongitude
+                               && x.Longitude <= bounds.MaxLongitude).Select(x => x.ContentId).ToListAsync());
+
+        return returnList;
+    }
+
     public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId)
     {
         var db = await Context().ConfigureAwait(false);
@@ -1463,6 +1706,36 @@ public static class Db
         var relatedDetails = dto.PointDetails;
 
         return (toSave, relatedDetails);
+    }
+
+    public static async Task<List<PointContent>> PointContentFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<PointContent>();
+
+        returnList.AddRange(await db.PointContents
+            .Where(x => x.Latitude >= bounds.MinLatitude
+                        && x.Latitude <= bounds.MaxLatitude
+                        && x.Longitude >= bounds.MinLongitude
+                        && x.Longitude <= bounds.MaxLongitude).ToListAsync());
+
+
+        return returnList;
+    }
+
+    public static async Task<List<Guid>> PointContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.PointContents
+            .Where(x => x.Latitude >= bounds.MinLatitude
+                        && x.Latitude <= bounds.MaxLatitude
+                        && x.Longitude >= bounds.MinLongitude
+                        && x.Longitude <= bounds.MaxLongitude).Select(x => x.ContentId).ToListAsync());
+
+
+        return returnList;
     }
 
     public static IPointDetailData? PointDetailDataFromIdentifierAndJson(string dataIdentifier, string json)

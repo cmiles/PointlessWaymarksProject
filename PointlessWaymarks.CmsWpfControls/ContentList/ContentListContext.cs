@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 using GongSolutions.Wpf.DragDrop;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
@@ -14,6 +13,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
+using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
@@ -62,6 +62,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         ContentListLoader = loader;
 
         Items = factoryContentListItems;
+
         ListSelection = factoryListSelection;
 
         FileItemActions = new FileContentActions(StatusContext);
@@ -83,7 +84,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         ListSort = ContentListLoader.SortContext();
 
         ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -239,7 +240,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
 
-        return new ContentListContext(statusContext, factoryObservable, factoryListSelection, loader, windowStatus);
+        return new ContentListContext(statusContext, factoryObservable, factoryListSelection,
+            loader, windowStatus);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -425,15 +427,39 @@ public partial class ContentListContext : IDragSource, IDropTarget
         }
     }
 
+    public async Task<List<IContentListItem>> FilteredListItems()
+    {
+        var returnList = new List<IContentListItem>();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var itemsView = CollectionViewSource.GetDefaultView(Items);
+
+        var filter = itemsView.Filter;
+
+        if (filter is null) return Items.ToList();
+
+        foreach (var loopView in itemsView)
+        {
+            if (!filter(loopView)) continue;
+
+            if (loopView is IContentListItem itemList) returnList.Add(itemList);
+        }
+
+        return returnList;
+    }
+
     private async Task FilterList()
     {
         if (!Items.Any()) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        var itemsView = CollectionViewSource.GetDefaultView(Items);
+
         if (string.IsNullOrWhiteSpace(UserFilterText))
         {
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
+            itemsView.Filter = _ => true;
             return;
         }
 
@@ -496,11 +522,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (!searchFilterStack.Any())
         {
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
+            itemsView.Filter = _ => true;
             return;
         }
 
-        ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+        itemsView.Filter = o =>
         {
             if (o is not IContentListItem toFilter) return false;
 
@@ -566,6 +592,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public async Task ImportFromOpenExcelInstance()
     {
         await ExcelHelpers.ImportFromOpenExcelInstance(StatusContext);
+    }
+
+    public ICollectionView ItemsView()
+    {
+        return CollectionViewSource.GetDefaultView(Items);
     }
 
     public async Task<IContentListItem?> ListItemFromDbItem(object? dbItem)
@@ -644,7 +675,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         Items = new ObservableCollection<IContentListItem>(contentListItems);
 
-        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
         await FilterList();
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
@@ -701,6 +732,34 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public async Task SelectedToExcel()
     {
         await ExcelHelpers.SelectedToExcel(SelectedListItems().Cast<dynamic>().ToList(), StatusContext);
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task SpatialItemsToContentMapWindowSelected(CancellationToken cancelToken)
+    {
+        var currentSelected = SelectedListItems();
+
+        var spatialContent =
+            await Db.ContentIdsAreSpatialContentInDatabase(
+                currentSelected.Select(x => x.ContentId()).Where(x => x != null).Select(x => x!.Value).ToList(), true);
+
+        if (!spatialContent.Any())
+        {
+            StatusContext.ToastError("No Spatial Content Selected?");
+            return;
+        }
+
+        if (spatialContent.Count != currentSelected.Count)
+            StatusContext.ToastWarning(
+                $"{currentSelected.Count - spatialContent.Count} Selected Items not sent to the map - no spatial data...");
+
+        cancelToken.ThrowIfCancellationRequested();
+
+        var mapWindow =
+            await ContentMapWindow.CreateInstance(new ContentMapListLoader("Mapped Content", spatialContent));
+
+        await mapWindow.PositionWindowAndShowOnUiThread();
     }
 
     private void StatusContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

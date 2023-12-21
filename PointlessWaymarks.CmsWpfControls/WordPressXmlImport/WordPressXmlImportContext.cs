@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -63,7 +63,7 @@ public partial class WordPressXmlImportContext
         PropertyChanged += OnPropertyChanged;
 
         ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
     }
 
     public bool FilterOutExistingPostUrls { get; set; } = true;
@@ -218,7 +218,7 @@ public partial class WordPressXmlImportContext
         Items.Clear();
         processedContent.ForEach(x => Items.Add(x));
 
-        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
         await FilterList();
     }
 

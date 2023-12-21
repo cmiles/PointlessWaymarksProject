@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -7,9 +7,9 @@ using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 
-namespace PointlessWaymarks.CmsWpfControls.WpfHtml;
+namespace PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 
-public static class WpfHtmlDocument
+public static class WpfCmsHtmlDocument
 {
     public static string LeafletDocumentOpening(string title, string styleBlock)
     {
@@ -44,14 +44,13 @@ public static class WpfHtmlDocument
         var layers = new List<WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry>
         {
             new("openTopoMap", "OSM Topo", @"
-        var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxNativeZoom: 17,
-            maxZoom: 24,
-            id: 'osmTopo',
-            attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
-        });")
+                var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                    maxNativeZoom: 17,
+                    maxZoom: 24,
+                    id: 'osmTopo',
+                    attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
+                });")
         };
-
 
         if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
         {
@@ -90,6 +89,23 @@ public static class WpfHtmlDocument
             maxZoom: 24
         }});"));
         }
+
+        layers.Add(new("tnmImageTopoMap", "TNM Image Topo", @"
+                var tnmImageTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}',
+                {
+                    maxNativeZoom: 16,
+                    maxZoom: 22,
+                    id: 'tnmImageTopo',
+                    attribution: 'Tiles courtesy of the <a href=""https://usgs.gov/"">U.S. Geological Survey</a>'
+                });"));
+        layers.Add(new("tnmTopoMap", "TNM Topo", @"
+                var tnmTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+                {
+                    maxNativeZoom: 16,
+                    maxZoom: 22,
+                    id: 'tnmTopo',
+                    attribution: 'Tiles courtesy of the <a href=""https://usgs.gov/"">U.S. Geological Survey</a>'
+                });"));
 
         return layers;
     }
@@ -152,8 +168,8 @@ public static class WpfHtmlDocument
             if(Object.keys(geoJsonData).length === 0) return;
 
             map.flyToBounds([
-                [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
-                [geoJsonData.Bounds.InitialViewBoundsMaxLatitude, geoJsonData.Bounds.InitialViewBoundsMaxLongitude]
+                [geoJsonData.Bounds.MinLatitude, geoJsonData.Bounds.MinLongitude],
+                [geoJsonData.Bounds.MaxLatitude, geoJsonData.Bounds.MaxLongitude]
             ]);
 
             geoMapLayer = new L.geoJSON(geoJsonData.GeoJson, {{
@@ -219,8 +235,8 @@ public static class WpfHtmlDocument
             if(Object.keys(lineData).length === 0) return;
 
             map.flyToBounds([
-                [lineData.Bounds.InitialViewBoundsMinLatitude, lineData.Bounds.InitialViewBoundsMinLongitude],
-                [lineData.Bounds.InitialViewBoundsMaxLatitude, lineData.Bounds.InitialViewBoundsMaxLongitude]
+                [lineData.Bounds.MinLatitude, lineData.Bounds.MinLongitude],
+                [lineData.Bounds.MaxLatitude, lineData.Bounds.MaxLongitude]
             ]);
 
             geoMapLayer = new L.geoJSON(lineData.GeoJson, {{
@@ -244,110 +260,140 @@ public static class WpfHtmlDocument
     {
         var layers = LeafletLayerList();
 
-        var htmlDoc = $@"
-{LeafletDocumentOpening(title, styleBlock)}
-<body>
-     <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
-        style=""height: 92vh;""></div>
-    <script>
-        {string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}
+        var htmlDoc = $$"""
 
-        var map = L.map('mainMap', {{
-            center: {{ lat: {initialLatitude}, lng: {initialLongitude} }},
-            zoom: 13,
-            layers: [{string.Join(", ", layers.Select(x => x.LayerVariableName))}],
-            doubleClickZoom: false
-        }});
-
-        var baseMaps = {{
-            {string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}
-        }};
-
-        L.control.layers(baseMaps).addTo(map);
-
-        window.chrome.webview.addEventListener('message', function (e) {{
-            console.log(e);
-            if(e.data.MessageType === 'MapJsonDto') postGeoJsonDataHandler(e);
-            if(e.data.MessageType === 'CenterFeatureRequest') {{
-                console.log('Center Feature Request');
-                map.eachLayer(function (l) {{ 
-                    if (l.feature?.properties?.displayId === e.data.DisplayId) {{
-                        console.log(`l.feature?.geometry?.type ${{l.feature?.geometry?.type}}`); 
-                        if(l.feature?.geometry?.type === 'Point') {{
-                            map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
-                        }}
-                        if(l.feature?.geometry?.type === 'LineString') {{
-                            map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]], [l.feature.bbox[3], l.feature.bbox[2]]]);
-                        }}
-                        l.openPopup();
-                    }}
-                }})
-            }}
-        }});
-
-         function onEachMapGeoJsonFeature(feature, layer) {{
-
-            if (feature.properties && (feature.properties.title || feature.properties.description)) {{
-                let popupHtml = """";
-
-                if (feature.properties.title) {{
-                    popupHtml += feature.properties.title;
-                }}
-
-                if (feature.properties.description) {{
-                    popupHtml += `<p>${{feature.properties.description}}</p>`;
-                }}
-
-                if(popupHtml !== """") layer.bindPopup(popupHtml);
-
-                layer.on('click', function (e) {{
-                    console.log(e);
-                    window.chrome.webview.postMessage({{ ""messageType"": ""featureClicked"", ""data"": e.target.feature.properties }}); }});
-            }}
-        }} 
-
-        function geoJsonLayerStyle(feature) {{
-            //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
-            var newStyle = {{}};
-
-            if (feature.properties.hasOwnProperty(""stroke"")) newStyle.color = feature.properties[""stroke""];
-            if (feature.properties.hasOwnProperty(""stroke-width"")) newStyle.weight = feature.properties[""stroke-width""];
-            if (feature.properties.hasOwnProperty(""stroke-opacity"")) newStyle.opacity = feature.properties[""stroke-opacity""];
-            if (feature.properties.hasOwnProperty(""fill"")) newStyle.fillColor = feature.properties[""fill""];
-            if (feature.properties.hasOwnProperty(""fill-opacity"")) newStyle.fillOpacity = feature.properties[""fill-opacity""];
-
-            return newStyle;
-        }}
-
-        var mapLayers = [];
-
-        function postGeoJsonDataHandler(e) {{
-            if(Object.keys(mapLayers).length > 0) {{ 
-                mapLayers.forEach(item => map.removeLayer(item));
-            }}
-
-            mapLayers = [];
-
-            let mapData = e.data;
-
-            if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
-
-            map.flyToBounds([
-                [mapData.Bounds.InitialViewBoundsMinLatitude, mapData.Bounds.InitialViewBoundsMinLongitude],
-                [mapData.Bounds.InitialViewBoundsMaxLatitude, mapData.Bounds.InitialViewBoundsMaxLongitude]
-            ]);
-
-            mapData.GeoJsonLayers.forEach(item => {{
-                let newLayer = new L.geoJSON(item, {{onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle}});
-                mapLayers.push(newLayer);
-                map.addLayer(newLayer); }});
-        }};
-
-        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
-
-    </script>
-</body>
-</html>";
+                        {{LeafletDocumentOpening(title, styleBlock)}}
+                        <body>
+                             <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
+                                style="height: 98vh;"></div>
+                            <script>
+                                {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
+                        
+                                var map = L.map('mainMap', {
+                                    center: { lat: {{initialLatitude}}, lng: {{initialLongitude}} },
+                                    zoom: 13,
+                                    layers: [{{string.Join(", ", layers.Select(x => x.LayerVariableName))}}],
+                                    doubleClickZoom: false,
+                                    closePopupOnClick: false
+                                });
+                        
+                                var baseMaps = {
+                                    {{string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}}
+                                };
+                        
+                                map.on('moveend', function(e) {
+                                    window.chrome.webview.postMessage( { "messageType": "mapBoundsChange", "bounds": map.getBounds() } );
+                                });
+                        
+                                L.control.layers(baseMaps).addTo(map);
+                        
+                                window.chrome.webview.addEventListener('message', function (e) {
+                                    console.log(e);
+                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e);
+                                    if(e.data.MessageType === 'CenterFeatureRequest') {
+                                        console.log('Center Feature Request');
+                                        map.eachLayer(function (l) {
+                                            if (l.feature?.properties?.displayId === e.data.DisplayId) {
+                                                console.log(`l.feature?.geometry?.type ${l.feature?.geometry?.type}`);
+                                                if(l.feature?.geometry?.type === 'Point') {
+                                                    map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
+                                                }
+                                                if(l.feature?.geometry?.type === 'LineString') {
+                                                    map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]], [l.feature.bbox[3], l.feature.bbox[2]]]);
+                                                }
+                                                l.openPopup();
+                                            }
+                                        })
+                                    }
+                                    if(e.data.MessageType === 'ShowPopupsFor') {
+                                        console.log(`Show Popups Request`);
+                                        map.eachLayer(function (l) {
+                                            if(!l.feature?.properties?.displayId) return;
+                                            if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
+                                                console.log(`opening popup for l.feature ${l.feature}`);
+                                                l.openPopup();
+                                            }
+                                            else {
+                                                console.log(`closing popup for l.feature ${l.feature}`);
+                                                l.closePopup();
+                                            }
+                                            console.log(l);
+                                        })
+                                    }
+                                    if(e.data.MessageType === 'CenterCoordinateRequest') {
+                                        console.log('Center Coordinate Request');
+                                        map.flyTo([e.data.Latitude, e.data.Longitude]);
+                                    }
+                                    if(e.data.MessageType === 'CenterBoundingBoxRequest') {
+                                        console.log('Center Bounding Box Request');
+                                        map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
+                                    }
+                                });
+                        
+                                 function onEachMapGeoJsonFeature(feature, layer) {
+                        
+                                    if (feature.properties && (feature.properties.title || feature.properties.description)) {
+                                        let popupHtml = "";
+                        
+                                        if (feature.properties.title) {
+                                            popupHtml += feature.properties.title;
+                                        }
+                        
+                                        if (feature.properties.description) {
+                                            popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
+                                        }
+                        
+                                        if(popupHtml !== "") layer.bindPopup(popupHtml, { autoClose: false });
+                        
+                                        layer.on('click', function (e) {
+                                            console.log(e);
+                                            window.chrome.webview.postMessage({ "messageType": "featureClicked", "data": e.target.feature.properties }); });
+                                    }
+                                }
+                        
+                                function geoJsonLayerStyle(feature) {
+                                    //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
+                                    var newStyle = {};
+                        
+                                    if (feature.properties.hasOwnProperty("stroke")) newStyle.color = feature.properties["stroke"];
+                                    if (feature.properties.hasOwnProperty("stroke-width")) newStyle.weight = feature.properties["stroke-width"];
+                                    if (feature.properties.hasOwnProperty("stroke-opacity")) newStyle.opacity = feature.properties["stroke-opacity"];
+                                    if (feature.properties.hasOwnProperty("fill")) newStyle.fillColor = feature.properties["fill"];
+                                    if (feature.properties.hasOwnProperty("fill-opacity")) newStyle.fillOpacity = feature.properties["fill-opacity"];
+                        
+                                    return newStyle;
+                                }
+                        
+                                var mapLayers = [];
+                        
+                                function postGeoJsonDataHandler(e) {
+                                    if(Object.keys(mapLayers).length > 0) {
+                                        mapLayers.forEach(item => map.removeLayer(item));
+                                    }
+                        
+                                    mapLayers = [];
+                        
+                                    let mapData = e.data;
+                        
+                                    if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
+                        
+                                    map.flyToBounds([
+                                        [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
+                                        [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
+                                    ]);
+                        
+                                    mapData.GeoJsonLayers.forEach(item => {
+                                        let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle});
+                                        mapLayers.push(newLayer);
+                                        map.addLayer(newLayer); });
+                                };
+                        
+                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
+                        
+                            </script>
+                        </body>
+                        </html>
+                        """;
 
         return htmlDoc;
     }

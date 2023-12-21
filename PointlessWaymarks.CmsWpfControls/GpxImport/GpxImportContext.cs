@@ -1,12 +1,10 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Dynamic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows.Data;
-using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -21,10 +19,9 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
-using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
@@ -57,7 +54,7 @@ public partial class GpxImportContext
         FolderEntry = folderContext;
         TagEntry = tagsEditor;
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletMapDocument("Map",
+        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
@@ -82,7 +79,7 @@ public partial class GpxImportContext
         };
 
         ListSort.SortUpdated += (_, list) =>
-            Dispatcher.CurrentDispatcher.Invoke(() => { ListContextSortHelpers.SortList(list, Items); });
+            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -101,7 +98,6 @@ public partial class GpxImportContext
     public TagsEditorContext TagEntry { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
 
-
     public async Task BuildMap()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -113,9 +109,9 @@ public partial class GpxImportContext
         if (!itemList.Any())
         {
             PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(
-                new MapComponentEditorContext.MapJsonDto(
+                new MapJsonNewFeatureCollectionDto(
                     Guid.NewGuid(),
-                    new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+                    new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
         }
 
@@ -164,8 +160,8 @@ public partial class GpxImportContext
 
         var bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
 
-        var dto = new MapComponentEditorContext.MapJsonDto(Guid.NewGuid(),
-            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
+        var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
             new List<FeatureCollection> { featureCollection });
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
@@ -687,7 +683,7 @@ public partial class GpxImportContext
             }
         }
 
-        ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
         await FilterList();
     }
 
@@ -888,13 +884,11 @@ public partial class GpxImportContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        dynamic foo = new ExpandoObject();
-        foo.MessageType = "CenterFeatureRequest";
-        foo.DisplayId = toCenter.DisplayId;
+        var centerData = new MapJsonFeatureDto(toCenter.DisplayId, "CenterFeatureRequest");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        MapRequest?.Invoke(this, JsonSerializer.Serialize(foo));
+        MapRequest?.Invoke(this, JsonSerializer.Serialize(centerData));
     }
 
     [BlockingCommand]

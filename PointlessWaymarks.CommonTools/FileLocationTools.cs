@@ -96,4 +96,15 @@ public static class FileLocationTools
 
         return directory;
     }
+    
+    public static DirectoryInfo TempStorageHtmlImageDirectory()
+    {
+        var directory = new DirectoryInfo(Path.Combine(TempStorageHtmlDirectory().FullName, "Images"));
+
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
 }

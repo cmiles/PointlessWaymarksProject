@@ -1,4 +1,4 @@
-﻿using NetTopologySuite;
+using NetTopologySuite;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -76,6 +76,25 @@ public static class GeoJsonTools
             .ConfigureAwait(false);
     }
 
+    public static async Task<string> SerializeFeatureCollectionToGeoJson(FeatureCollection featureCollection)
+    {
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            Wgs84GeometryFactory(), 3);
+
+        await using var stringWriter = new StringWriter();
+        using var jsonWriter = new JsonTextWriter(stringWriter);
+        serializer.Serialize(jsonWriter, featureCollection);
+
+        return stringWriter.ToString();
+    }
+
+    public static async Task<string> SerializeFeatureToGeoJson(IFeature feature)
+    {
+        var collection = new FeatureCollection { feature };
+
+        return await SerializeFeatureCollectionToGeoJson(collection);
+    }
+
     public static async Task<string> SerializeListOfFeaturesCollectionToGeoJson(List<Feature> features)
     {
         var collectionBoundingBox = new Envelope();
@@ -104,25 +123,6 @@ public static class GeoJsonTools
         }
 
         collection.BoundingBox = collectionBoundingBox;
-
-        return await SerializeFeatureCollectionToGeoJson(collection);
-    }
-
-    public static async Task<string> SerializeFeatureCollectionToGeoJson(FeatureCollection featureCollection)
-    {
-        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
-            Wgs84GeometryFactory(), 3);
-
-        await using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-        serializer.Serialize(jsonWriter, featureCollection);
-
-        return stringWriter.ToString();
-    }
-
-    public static async Task<string> SerializeFeatureToGeoJson(IFeature feature)
-    {
-        var collection = new FeatureCollection { feature };
 
         return await SerializeFeatureCollectionToGeoJson(collection);
     }

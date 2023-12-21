@@ -18,7 +18,7 @@ using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
@@ -45,7 +45,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         BuildCommands();
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletLineDocument("Line",
+        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletLineDocument("Line",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 

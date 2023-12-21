@@ -19,7 +19,7 @@ using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
-using PointlessWaymarks.CmsWpfControls.WpfHtml;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
@@ -43,7 +43,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         BuildCommands();
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
+        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
@@ -57,14 +57,12 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public GeoJsonContent DbEntry { get; set; }
     public string GeoJsonText { get; set; } = string.Empty;
-
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public string PreviewGeoJsonDto { get; set; } = string.Empty;
     public string PreviewHtml { get; set; }
-
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }
     public StatusControlContext StatusContext { get; set; }
