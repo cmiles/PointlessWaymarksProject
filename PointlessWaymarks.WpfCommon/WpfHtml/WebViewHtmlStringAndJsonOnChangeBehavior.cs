@@ -175,11 +175,11 @@ public class WebViewHtmlStringAndJsonOnChangeBehavior : Behavior<WebView2>
         foreach (var loopCache in toProcess)
             try
             {
-                AssociatedObject.CoreWebView2.PostWebMessageAsJson(loopCache);
+                if(!string.IsNullOrWhiteSpace(loopCache)) AssociatedObject.CoreWebView2.PostWebMessageAsJson(loopCache);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "PostNewJson Error");
+                Log.ForContext(nameof(loopCache), loopCache).Error(ex, "PostNewJson Error");
             }
     }
 
@@ -227,10 +227,10 @@ public class WebViewHtmlStringAndJsonOnChangeBehavior : Behavior<WebView2>
         if (bindingBehavior.AssociatedObject.IsInitialized && bindingBehavior.AssociatedObject.CoreWebView2 != null &&
             !bindingBehavior.HtmlLoading)
         {
-            if (!string.IsNullOrWhiteSpace(toPost)) bindingBehavior.CachedJson.Enqueue(toPost);
-            var toProcess = bindingBehavior.CachedJson.ToList();
+            if (string.IsNullOrWhiteSpace(toPost)) return;
+            
             bindingBehavior.CachedJson.Clear();
-
+            bindingBehavior.CachedJson.Enqueue(toPost);
             bindingBehavior.ProcessJsonDataCache();
         }
         else

@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
@@ -131,6 +132,28 @@ public static class Db
             .Select(x => (x.CreatedOn, (object)x)));
 
         return returnList.OrderBy(x => x.Item1).Select(x => x.Item2).ToList();
+    }
+
+    public static async Task<List<dynamic>> ContentFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var points = (await PointContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
+        var lines = (await LineContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
+        var geoJson = (await GeoJsonContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
+        var photos = (await PhotoContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
+
+        return points.Union(lines).Union(geoJson).Union(photos).ToList();
+    }
+
+    public static async Task<List<Guid>> ContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var points = (await PointContentIdsFromBoundingBox(db, bounds)).ToList();
+        var lines = (await LineContentIdsFromBoundingBox(db, bounds)).ToList();
+        var geoJson = (await GeoJsonContentIdsFromBoundingBox(db, bounds)).ToList();
+        var photos = (await PhotoContentIdsFromBoundingBox(db, bounds)).ToList();
+
+        return points.Union(lines).Union(geoJson).Union(photos).ToList();
     }
 
     /// <summary>
@@ -1243,6 +1266,34 @@ public static class Db
         return returnList;
     }
 
+    public static async Task<List<Guid>> GeoJsonContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.GeoJsonContents.Where(x =>
+            (
+                (bounds.MinLatitude >= x.InitialViewBoundsMinLatitude
+                 && bounds.MinLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MaxLatitude >= x.InitialViewBoundsMinLatitude
+                    && bounds.MaxLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MinLatitude <= x.InitialViewBoundsMinLatitude &&
+                    bounds.MaxLatitude >= x.InitialViewBoundsMaxLatitude)
+            )
+            &&
+            (
+                (bounds.MinLongitude >= x.InitialViewBoundsMinLongitude
+                 && bounds.MinLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MaxLongitude >= x.InitialViewBoundsMinLongitude
+                    && bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MinLongitude <= x.InitialViewBoundsMinLongitude &&
+                    bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+            )
+        ).Select(x => x.ContentId).ToListAsync());
+
+        return returnList;
+    }
+
     /// <summary>
     ///     Returns up to the specified number of historic details for a Point.
     /// </summary>
@@ -1281,6 +1332,34 @@ public static class Db
                     bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
             )
         ).ToListAsync());
+
+        return returnList;
+    }
+
+    public static async Task<List<Guid>> LineContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.LineContents.Where(x =>
+            (
+                (bounds.MinLatitude >= x.InitialViewBoundsMinLatitude
+                 && bounds.MinLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MaxLatitude >= x.InitialViewBoundsMinLatitude
+                    && bounds.MaxLatitude <= x.InitialViewBoundsMaxLatitude)
+                || (bounds.MinLatitude <= x.InitialViewBoundsMinLatitude &&
+                    bounds.MaxLatitude >= x.InitialViewBoundsMaxLatitude)
+            )
+            &&
+            (
+                (bounds.MinLongitude >= x.InitialViewBoundsMinLongitude
+                 && bounds.MinLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MaxLongitude >= x.InitialViewBoundsMinLongitude
+                    && bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+                || (bounds.MinLongitude <= x.InitialViewBoundsMinLongitude &&
+                    bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+            )
+        ).Select(x => x.ContentId).ToListAsync());
 
         return returnList;
     }
@@ -1557,6 +1636,21 @@ public static class Db
         return returnList;
     }
 
+    public static async Task<List<Guid>> PhotoContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.PhotoContents.Where(x =>
+            x.Latitude != null && x.Longitude != null
+                               && x.Latitude >= bounds.MinLatitude
+                               && x.Latitude <= bounds.MaxLatitude
+                               && x.Longitude >= bounds.MinLongitude
+                               && x.Longitude <= bounds.MaxLongitude).Select(x => x.ContentId).ToListAsync());
+
+        return returnList;
+    }
+
     public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId)
     {
         var db = await Context().ConfigureAwait(false);
@@ -1619,10 +1713,27 @@ public static class Db
     {
         var returnList = new List<PointContent>();
 
-        returnList.AddRange(await db.PointContents.Where(x => x.Latitude >= bounds.MinLatitude
-                                                              && x.Latitude <= bounds.MaxLatitude
-                                                              && x.Longitude >= bounds.MinLongitude
-                                                              && x.Longitude <= bounds.MaxLongitude).ToListAsync());
+        returnList.AddRange(await db.PointContents
+            .Where(x => x.Latitude >= bounds.MinLatitude
+                        && x.Latitude <= bounds.MaxLatitude
+                        && x.Longitude >= bounds.MinLongitude
+                        && x.Longitude <= bounds.MaxLongitude).ToListAsync());
+
+
+        return returnList;
+    }
+
+    public static async Task<List<Guid>> PointContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var returnList = new List<Guid>();
+
+        returnList.AddRange(await db.PointContents
+            .Where(x => x.Latitude >= bounds.MinLatitude
+                        && x.Latitude <= bounds.MaxLatitude
+                        && x.Longitude >= bounds.MinLongitude
+                        && x.Longitude <= bounds.MaxLongitude).Select(x => x.ContentId).ToListAsync());
+
 
         return returnList;
     }

@@ -56,6 +56,7 @@
                 <Button Command="{Binding RequestMapCenterOnFilteredItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Center - Filtered</Button>
                 <Button Command="{Binding RequestMapCenterOnAllItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Center - All</Button>
                 <Button Command="{Binding PopupsForSelectedItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Popups - Selected</Button>
+                <Button Command="{Binding SearchInBoundsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Search Here</Button>
                 <Button Command="{Binding RefreshMapCommand}" Style="{StaticResource ActionPanelButtonStyle}">Refresh Map</Button>
             </WrapPanel>
         </Border>

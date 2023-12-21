@@ -253,7 +253,7 @@ public partial class ConnectBasedGeoTaggerContext
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 
             var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-                new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+                new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
             PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
         }
@@ -429,7 +429,7 @@ public partial class ConnectBasedGeoTaggerContext
         bounds.ExpandBy(1000);
 
         var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
@@ -517,7 +517,7 @@ public partial class ConnectBasedGeoTaggerContext
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 
             var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-                new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+                new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
             WriteToFileGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
         }

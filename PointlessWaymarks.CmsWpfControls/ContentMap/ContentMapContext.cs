@@ -6,7 +6,7 @@ using Microsoft.Web.WebView2.Core;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -46,14 +46,13 @@ public partial class ContentMapContext
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
-    public Envelope? Bounds { get; set; }
-
     public CmsCommonCommands CommonCommands { get; set; }
-    public ContentListContext ListContext { get; set; }
 
-    public GeoJsonData.SpatialBounds? MapBounds { get; set; } = null;
+    public Envelope? ContentBounds { get; set; }
+    public ContentListContext ListContext { get; set; }
+    public SpatialBounds? MapBounds { get; set; } = null;
     public string MapHtml { get; set; }
-    public string MapJsonDto { get; set; }
+    public string MapJsonDto { get; set; } = string.Empty;
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
 
@@ -165,7 +164,7 @@ public partial class ContentMapContext
 
         if (messageType == "mapBoundsChange")
         {
-            MapBounds = new GeoJsonData.SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
+            MapBounds = new SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
                 parsedJson["bounds"]["_northEast"]["lng"].GetValue<double>(),
                 parsedJson["bounds"]["_southWest"]["lat"].GetValue<double>(),
                 parsedJson["bounds"]["_southWest"]["lng"].GetValue<double>());
@@ -208,7 +207,7 @@ public partial class ContentMapContext
         {
             MapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonNewFeatureCollectionDto(
                 Guid.NewGuid(),
-                new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+                new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
         }
 
@@ -306,10 +305,11 @@ public partial class ContentMapContext
             geoJsonList.Add(featureCollection);
         }
 
-        Bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
+        ContentBounds = SpatialConverters.PointBoundingBox(boundsKeeper);
 
         var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
-            new GeoJsonData.SpatialBounds(Bounds.MaxY, Bounds.MaxX, Bounds.MinY, Bounds.MinX), geoJsonList);
+            new SpatialBounds(ContentBounds.MaxY, ContentBounds.MaxX, ContentBounds.MinY, ContentBounds.MinX),
+            geoJsonList);
 
         MapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
     }
@@ -325,9 +325,9 @@ public partial class ContentMapContext
             return;
         }
 
-        if (Bounds == null) return;
+        if (ContentBounds == null) return;
 
-        await RequestMapCenterOnEnvelope(Bounds);
+        await RequestMapCenterOnEnvelope(ContentBounds);
     }
 
     [NonBlockingCommand]
@@ -353,7 +353,7 @@ public partial class ContentMapContext
         }
 
         var centerData = new MapJsonBoundsDto(
-            new GeoJsonData.SpatialBounds(toCenter.MaxY, toCenter.MaxX, toCenter.MinY, toCenter.MinX),
+            new SpatialBounds(toCenter.MaxY, toCenter.MaxX, toCenter.MinY, toCenter.MinX),
             "CenterBoundingBoxRequest");
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -403,6 +403,36 @@ public partial class ContentMapContext
         var bounds = GetBounds(ListContext.SelectedListItems());
 
         await RequestMapCenterOnEnvelope(bounds);
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchInBounds()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapBounds == null)
+        {
+            StatusContext.ToastError("No Map Bounds?");
+            return;
+        }
+
+        var currentGuids = ListContext.Items.Select(x => x.ContentId()).Where(x => x is not null).Select(x => x!.Value)
+            .ToList();
+        var searchResultGuids = await (await Db.Context()).ContentIdsFromBoundingBox(MapBounds);
+
+        if (searchResultGuids.All(x => currentGuids.Contains(x)))
+        {
+            StatusContext.ToastWarning("No New Items Found");
+            return;
+        }
+
+        var allGuids = currentGuids.Union(searchResultGuids).ToList();
+
+        ListContext.ContentListLoader = new ContentListLoaderReport(async () =>
+            (await (await Db.Context()).ContentFromContentIds(allGuids)).Cast<object>().ToList());
+        await ListContext.LoadData();
+
+        await RefreshMap();
     }
 
     public IContentListItem? SelectedListItem()

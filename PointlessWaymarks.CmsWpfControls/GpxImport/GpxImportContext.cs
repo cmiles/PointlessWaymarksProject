@@ -111,7 +111,7 @@ public partial class GpxImportContext
             PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(
                 new MapJsonNewFeatureCollectionDto(
                     Guid.NewGuid(),
-                    new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+                    new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
         }
 
@@ -161,7 +161,7 @@ public partial class GpxImportContext
         var bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
 
         var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
-            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
             new List<FeatureCollection> { featureCollection });
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto

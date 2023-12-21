@@ -124,8 +124,8 @@ async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
     let map = standardMap(mapElement);
 
     map.fitBounds([
-        [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
-        [geoJsonData.Bounds.InitialViewBoundsMaxLatitude, geoJsonData.Bounds.InitialViewBoundsMaxLongitude]
+        [geoJsonData.Bounds.MinLatitude, geoJsonData.Bounds.MinLongitude],
+        [geoJsonData.Bounds.MaxLatitude, geoJsonData.Bounds.MaxLongitude]
     ]);
 
     let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
@@ -151,8 +151,8 @@ async function singleLineMapInitFromLineData(mapElement, lineData) {
     let map = standardMap(mapElement);
 
     map.fitBounds([
-        [lineData.Bounds.InitialViewBoundsMinLatitude, lineData.Bounds.InitialViewBoundsMinLongitude],
-        [lineData.Bounds.InitialViewBoundsMaxLatitude, lineData.Bounds.InitialViewBoundsMaxLongitude]
+        [lineData.Bounds.MinLatitude, lineData.Bounds.MinLongitude],
+        [lineData.Bounds.MaxLatitude, lineData.Bounds.MaxLongitude]
     ]);
 
     let newMapLayer = new L.geoJSON(lineData.GeoJson, {

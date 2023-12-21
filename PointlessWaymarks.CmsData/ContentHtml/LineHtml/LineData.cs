@@ -53,7 +53,7 @@ public static class LineData
                 LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(lineGeoJson));
 
         var jsonDto = new LineSiteJsonData(pageUrl,
-            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
             contentFeatureCollection, elevationPlot);
 
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
@@ -114,6 +114,6 @@ public static class LineData
 
     public record LineElevationPlotDataPoint(double DistanceFromOrigin, double? Elevation);
 
-    public record LineSiteJsonData(string PageUrl, GeoJsonData.SpatialBounds Bounds, FeatureCollection GeoJson,
+    public record LineSiteJsonData(string PageUrl, SpatialBounds Bounds, FeatureCollection GeoJson,
         List<LineElevationPlotDataPoint> ElevationPlotData);
 }

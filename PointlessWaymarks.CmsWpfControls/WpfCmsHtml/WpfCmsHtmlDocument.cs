@@ -98,7 +98,7 @@ public static class WpfCmsHtmlDocument
                     id: 'tnmImageTopo',
                     attribution: 'Tiles courtesy of the <a href=""https://usgs.gov/"">U.S. Geological Survey</a>'
                 });"));
-        layers.Add(new("tnmTopoMap", "TNM Image Topo", @"
+        layers.Add(new("tnmTopoMap", "TNM Topo", @"
                 var tnmTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
                 {
                     maxNativeZoom: 16,
@@ -168,8 +168,8 @@ public static class WpfCmsHtmlDocument
             if(Object.keys(geoJsonData).length === 0) return;
 
             map.flyToBounds([
-                [geoJsonData.Bounds.InitialViewBoundsMinLatitude, geoJsonData.Bounds.InitialViewBoundsMinLongitude],
-                [geoJsonData.Bounds.InitialViewBoundsMaxLatitude, geoJsonData.Bounds.InitialViewBoundsMaxLongitude]
+                [geoJsonData.Bounds.MinLatitude, geoJsonData.Bounds.MinLongitude],
+                [geoJsonData.Bounds.MaxLatitude, geoJsonData.Bounds.MaxLongitude]
             ]);
 
             geoMapLayer = new L.geoJSON(geoJsonData.GeoJson, {{
@@ -235,8 +235,8 @@ public static class WpfCmsHtmlDocument
             if(Object.keys(lineData).length === 0) return;
 
             map.flyToBounds([
-                [lineData.Bounds.InitialViewBoundsMinLatitude, lineData.Bounds.InitialViewBoundsMinLongitude],
-                [lineData.Bounds.InitialViewBoundsMaxLatitude, lineData.Bounds.InitialViewBoundsMaxLongitude]
+                [lineData.Bounds.MinLatitude, lineData.Bounds.MinLongitude],
+                [lineData.Bounds.MaxLatitude, lineData.Bounds.MaxLongitude]
             ]);
 
             geoMapLayer = new L.geoJSON(lineData.GeoJson, {{
@@ -326,7 +326,7 @@ public static class WpfCmsHtmlDocument
                                     }
                                     if(e.data.MessageType === 'CenterBoundingBoxRequest') {
                                         console.log('Center Bounding Box Request');
-                                        map.flyToBounds([[e.data.Bounds.InitialViewBoundsMinLatitude, e.data.Bounds.InitialViewBoundsMinLongitude], [e.data.Bounds.InitialViewBoundsMaxLatitude, e.data.Bounds.InitialViewBoundsMaxLongitude]]);
+                                        map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
                                     }
                                 });
                         
@@ -378,8 +378,8 @@ public static class WpfCmsHtmlDocument
                                     if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
                         
                                     map.flyToBounds([
-                                        [mapData.Bounds.InitialViewBoundsMinLatitude, mapData.Bounds.InitialViewBoundsMinLongitude],
-                                        [mapData.Bounds.InitialViewBoundsMaxLatitude, mapData.Bounds.InitialViewBoundsMaxLongitude]
+                                        [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
+                                        [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
                                     ]);
                         
                                     mapData.GeoJsonLayers.forEach(item => {

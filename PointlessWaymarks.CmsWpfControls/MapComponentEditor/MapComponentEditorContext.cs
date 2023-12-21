@@ -463,7 +463,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         {
             PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonNewFeatureCollectionDto(
                 Guid.NewGuid(),
-                new GeoJsonData.SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+                new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
             return;
         }
 
@@ -514,7 +514,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
 
         var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
-            new GeoJsonData.SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), geoJsonList);
+            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), geoJsonList);
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
         PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
