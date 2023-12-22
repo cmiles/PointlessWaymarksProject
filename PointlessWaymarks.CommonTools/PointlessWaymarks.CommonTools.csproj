@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="AnyClone" Version="1.1.6" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.304.7" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.304.13" />
     <PackageReference Include="ClosedXML" Version="0.102.1" />
     <PackageReference Include="GitInfo" Version="3.3.3">
       <PrivateAssets>all</PrivateAssets>
@@ -45,7 +45,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    <PackageReference Include="TinyIpc" Version="4.2.0" />
+    <PackageReference Include="TinyIpc" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
