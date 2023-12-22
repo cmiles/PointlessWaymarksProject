@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
@@ -14,10 +15,11 @@ public partial class GeoJsonListWindow
         InitializeComponent();
         ListContext = toLoad;
         DataContext = this;
+        WindowTitle = $"GeoJson List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public GeoJsonListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "GeoJson List";
+    public string WindowTitle { get; set; }
 
 
     /// <summary>

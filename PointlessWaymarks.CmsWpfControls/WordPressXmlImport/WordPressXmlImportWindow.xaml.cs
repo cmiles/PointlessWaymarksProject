@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 
@@ -13,16 +14,15 @@ public partial class WordPressXmlImportWindow
     private WordPressXmlImportWindow()
     {
         InitializeComponent();
-
         StatusContext = new StatusControlContext();
-
         DataContext = this;
-
         ImportContext = new WordPressXmlImportContext(StatusContext);
+        WindowTitle = $"WordPress Import - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WordPressXmlImportContext ImportContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
+    public string WindowTitle { get; set; }
 
     public static async Task<WordPressXmlImportWindow> CreateInstance()
     {

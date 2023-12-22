@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
@@ -12,14 +13,13 @@ public partial class LineListWindow
     private LineListWindow(LineListWithActionsContext toLoad)
     {
         InitializeComponent();
-
         ListContext = toLoad;
-
         DataContext = this;
+        WindowTitle = $"Line List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public LineListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Line List";
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

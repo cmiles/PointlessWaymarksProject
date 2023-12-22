@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.PostList;
@@ -12,14 +13,13 @@ public partial class PostListWindow
     private PostListWindow(PostListWithActionsContext toLoad)
     {
         InitializeComponent();
-
         ListContext = toLoad;
-
         DataContext = this;
+        WindowTitle = $"Post List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public PostListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Post List";
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

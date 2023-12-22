@@ -6,7 +6,7 @@
     xmlns:linkContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.LinkContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    Title="Link Editor"
+    Title="{Binding WindowTitle}"
     Width="900"
     Height="650"
     d:DataContext="{d:DesignInstance linkContentEditor:LinkContentEditorWindow}"

@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.AllContentList;
@@ -12,14 +13,13 @@ public partial class AllContentListWindow
     private AllContentListWindow(AllContentListWithActionsContext toLoad)
     {
         InitializeComponent();
-
         ListContext = toLoad;
-
         DataContext = this;
+        WindowTitle = $"Content List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public AllContentListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "All Content List";
+    public string WindowTitle { get; set; }
 
     public static async Task<AllContentListWindow> CreateInstance(AllContentListWithActionsContext? toLoad)
     {

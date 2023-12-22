@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
@@ -7,21 +8,18 @@ namespace PointlessWaymarks.CmsWpfControls.VideoList;
 ///     Interaction logic for VideoListWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
-#pragma warning disable MVVMTK0033
 public partial class VideoListWindow
-#pragma warning restore MVVMTK0033
 {
     private VideoListWindow(VideoListWithActionsContext listContext)
     {
         InitializeComponent();
-
         ListContext = listContext;
-
         DataContext = this;
+        WindowTitle = $"Video List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public VideoListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Videos List";
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentList;
@@ -12,14 +13,13 @@ public partial class MapComponentListWindow
     private MapComponentListWindow(MapComponentListWithActionsContext toLoad)
     {
         InitializeComponent();
-
         ListContext = toLoad;
-
         DataContext = this;
+        WindowTitle = $"Map List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public MapComponentListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Map List";
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

@@ -6,7 +6,7 @@
     xmlns:imageContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.ImageContentEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    Title="Image Content Editor"
+    Title="{Binding WindowTitle}"
     Width="900"
     Height="650"
     d:DataContext="{d:DesignInstance imageContentEditor:ImageContentEditorWindow}"

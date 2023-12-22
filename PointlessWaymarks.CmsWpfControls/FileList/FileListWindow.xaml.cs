@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.FileList;
@@ -12,14 +13,13 @@ public partial class FileListWindow
     private FileListWindow(FileListWithActionsContext toLoad)
     {
         InitializeComponent();
-
         ListContext = toLoad;
-
         DataContext = this;
+        WindowTitle = $"File List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public FileListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Files List";
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

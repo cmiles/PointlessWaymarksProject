@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteList;
@@ -12,14 +13,14 @@ public partial class NoteListWindow
     private NoteListWindow(NoteListWithActionsContext toLoad)
     {
         InitializeComponent();
-
         ListContext = toLoad;
-
         DataContext = this;
+        WindowTitle = $"Note List - {UserSettingsSingleton.CurrentSettings().SiteName}";
+
     }
 
     public NoteListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Note List";
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

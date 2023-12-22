@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.CmsData.Database.Models;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
@@ -21,11 +22,13 @@ public partial class LineContentEditorWindow
         InitializeComponent();
         StatusContext = new StatusControlContext();
         DataContext = this;
+        WindowTitle = $"Line Editor - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public LineContentEditorContext? LineContent { get; set; }
     public StatusControlContext StatusContext { get; set; }
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

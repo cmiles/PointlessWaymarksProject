@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
@@ -12,14 +13,13 @@ public partial class LinkListWindow
     private LinkListWindow(LinkListWithActionsContext toLoad)
     {
         InitializeComponent();
-
         ListContext = toLoad;
-
         DataContext = this;
+        WindowTitle = $"Link List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public LinkListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Link List";
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

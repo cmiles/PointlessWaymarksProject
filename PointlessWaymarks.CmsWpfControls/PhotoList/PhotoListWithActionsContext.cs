@@ -79,6 +79,7 @@ public partial class PhotoListWithActionsContext
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
+        
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 

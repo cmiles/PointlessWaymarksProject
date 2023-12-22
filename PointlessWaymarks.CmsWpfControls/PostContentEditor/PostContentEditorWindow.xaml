@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:postContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PostContentEditor"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    Title="Post Editor"
+    Title="{Binding WindowTitle}"
     Width="900"
     Height="650"
     d:DataContext="{d:DesignInstance postContentEditor:PostContentEditorWindow}"

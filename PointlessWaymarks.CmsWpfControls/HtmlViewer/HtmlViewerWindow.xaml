@@ -10,7 +10,7 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
-    Title="HtmlViewerWindow"
+    Title="{Binding WindowTitle}"
     Width="800"
     Height="450"
     d:DataContext="{d:DesignInstance htmlViewer:HtmlViewerContext}"

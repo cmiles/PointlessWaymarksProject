@@ -1,3 +1,4 @@
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -21,11 +22,13 @@ public partial class MapComponentEditorWindow
         InitializeComponent();
         StatusContext = new StatusControlContext();
         DataContext = this;
+        WindowTitle = $"Map Editor - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public MapComponentEditorContext? MapComponentContent { get; set; }
     public StatusControlContext StatusContext { get; set; }
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

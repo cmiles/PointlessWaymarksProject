@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.LlamaAspects;
+﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
@@ -12,14 +13,13 @@ public partial class PhotoListWindow
     private PhotoListWindow(PhotoListWithActionsContext toLoad)
     {
         InitializeComponent();
-
         ListContext = toLoad;
-
         DataContext = this;
+        WindowTitle = $"Photo List - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public PhotoListWithActionsContext ListContext { get; set; }
-    public string WindowTitle { get; set; } = "Photo List";
+    public string WindowTitle { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

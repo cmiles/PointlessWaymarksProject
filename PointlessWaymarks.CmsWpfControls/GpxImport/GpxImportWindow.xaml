@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.GpxImport"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    Title="GPX Import"
+    Title="{Binding WindowTitle}"
     Width="1000"
     Height="750"
     d:DataContext="{d:DesignInstance local:GpxImportWindow}"

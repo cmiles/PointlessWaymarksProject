@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:noteContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.NoteContentEditor"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    Title="Note Editor"
+    Title="{Binding WindowTitle}"
     Width="900"
     Height="650"
     d:DataContext="{d:DesignInstance noteContentEditor:NoteContentEditorWindow}"
