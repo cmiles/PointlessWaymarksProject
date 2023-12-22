@@ -142,6 +142,8 @@ public partial class ContentMapContext
 
         await RefreshMap();
 
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         ListContext.ItemsView().CollectionChanged += ItemsViewOnCollectionChanged;
     }
 
@@ -307,6 +309,9 @@ public partial class ContentMapContext
 
         ContentBounds = SpatialConverters.PointBoundingBox(boundsKeeper);
 
+        if(ContentBounds.Width < 0.01) ContentBounds.ExpandBy(0.01 - ContentBounds.Width, 0);
+        if(ContentBounds.Height < 0.01) ContentBounds.ExpandBy(0, 0.01 - ContentBounds.Height);
+
         var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
             new SpatialBounds(ContentBounds.MaxY, ContentBounds.MaxX, ContentBounds.MinY, ContentBounds.MinX),
             geoJsonList);
@@ -430,7 +435,7 @@ public partial class ContentMapContext
 
         ListContext.ContentListLoader = new ContentListLoaderReport(async () =>
             (await (await Db.Context()).ContentFromContentIds(allGuids)).Cast<object>().ToList());
-        await ListContext.LoadData();
+        await ListContext.LoadData(true);
 
         await RefreshMap();
     }

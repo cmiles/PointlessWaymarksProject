@@ -637,7 +637,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
         await LoadData();
     }
 
-    public async Task LoadData()
+    /// <summary>
+    /// Loads data - by default it will create a new ObservableCollection which is very performant and works
+    /// in most cases, but if you have event handlers attached to the collection you may want to preserve the
+    /// collection with preserveCollection = true
+    /// </summary>
+    /// <param name="preserveCollection"></param>
+    /// <returns></returns>
+    public async Task LoadData(bool preserveCollection = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -673,7 +680,18 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         StatusContext.Progress("Loading Display List of Items");
 
-        Items = new ObservableCollection<IContentListItem>(contentListItems);
+        if (preserveCollection)
+        {
+            Items.Clear();
+            foreach (var toAdd in contentListItems)
+            {
+                Items.Add(toAdd);
+            }
+        }
+        else
+        {
+            Items = new ObservableCollection<IContentListItem>(contentListItems);
+        }
 
         await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
         await FilterList();
