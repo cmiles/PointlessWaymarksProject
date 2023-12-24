@@ -15,7 +15,7 @@ public static class GeoJsonData
         var bounds = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(geoJsonContent));
 
         var jsonDto = new GeoJsonSiteJsonData(pageUrl,
-            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), contentFeatureCollection);
+            SpatialBounds.FromEnvelope(bounds), contentFeatureCollection);
 
         var jsonString = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
 

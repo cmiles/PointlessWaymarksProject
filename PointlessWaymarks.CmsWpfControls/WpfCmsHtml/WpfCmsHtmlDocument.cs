@@ -22,237 +22,108 @@ public static class WpfCmsHtmlDocument
             bingScript = reader.ReadToEnd();
         }
 
-        return $@"
-<!doctype html>
-<html lang=en>
-<head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta charset=""utf-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <link rel=""stylesheet"" href=""https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"" integrity=""sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="" crossorigin="""" />
-    <script src=""https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"" integrity=""sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="" crossorigin=""""></script>
-    <script>
-        {bingScript}
-    </script>
-    <style>{styleBlock}</style>
-</head>";
+        return $"""
+
+                <!doctype html>
+                <html lang=en>
+                <head>
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>{HtmlEncoder.Default.Encode(title)}</title>
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+                    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+                    <script>
+                        {bingScript}
+                    </script>
+                    <style>{styleBlock}</style>
+                </head>
+                """;
     }
 
     public static List<WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry> LeafletLayerList()
     {
         var layers = new List<WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry>
         {
-            new("openTopoMap", "OSM Topo", @"
-                var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                    maxNativeZoom: 17,
-                    maxZoom: 24,
-                    id: 'osmTopo',
-                    attribution: 'Map data: &copy; <a href=""https://www.openstreetmap.org/copyright"">OpenStreetMap</a> contributors, <a href=""http://viewfinderpanoramas.org"">SRTM</a> | Map style: &copy; <a href=""https://opentopomap.org"">OpenTopoMap</a> (<a href=""https://creativecommons.org/licenses/by-sa/3.0/"">CC-BY-SA</a>)'
-                });")
+            new("openTopoMap", "OSM Topo", """
+                                           
+                                                           var openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                                                               maxNativeZoom: 17,
+                                                               maxZoom: 24,
+                                                               id: 'osmTopo',
+                                                               attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+                                                           });
+                                           """)
         };
 
         if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().CalTopoApiKey))
         {
-            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("calTopoTopoLayer", "CalTopo Topo", $@"
-                 var calTopoTopoLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/t/{{z}}/{{x}}/{{y}}.png', {{
-            attribution: 'CalTopo',
-            maxNativeZoom: 16,
-            maxZoom: 24,
-            id: 'caltopoT',
-            accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
-        }});"));
+            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("calTopoTopoLayer", "CalTopo Topo", $$"""
+                  
+                  var calTopoTopoLayer = L.tileLayer('http://caltopo.com/api/{accessToken}/wmts/tile/t/{z}/{x}/{y}.png', {
+                          attribution: 'CalTopo',
+                          maxNativeZoom: 16,
+                          maxZoom: 24,
+                          id: 'caltopoT',
+                          accessToken: '{{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}}'
+                      });
+                  """));
 
-            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("calTopoFsLayer", "CalTopo FS", $@"
-                 var calTopoFsLayer = L.tileLayer('http://caltopo.com/api/{{accessToken}}/wmts/tile/f16a/{{z}}/{{x}}/{{y}}.png', {{
-            attribution: 'CalTopo',
-            maxNativeZoom: 16,
-            maxZoom: 24,
-            id: 'caltopoF16a',
-            accessToken: '{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}'
-        }});"));
+            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("calTopoFsLayer", "CalTopo FS", $$"""
+                  
+                  var calTopoFsLayer = L.tileLayer('http://caltopo.com/api/{accessToken}/wmts/tile/f16a/{z}/{x}/{y}.png', {
+                          attribution: 'CalTopo',
+                          maxNativeZoom: 16,
+                          maxZoom: 24,
+                          id: 'caltopoF16a',
+                          accessToken: '{{UserSettingsSingleton.CurrentSettings().CalTopoApiKey}}'
+                      });
+                  """));
         }
 
         if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().BingApiKey))
         {
-            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("bingAerialTileLayer", "Bing Aerial", $@"
-                          var bingAerialTileLayer = L.tileLayer.bing({{
-            bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
-            imagerySet: 'AerialWithLabels',
-            maxZoom: 24
-        }});"));
+            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("bingAerialTileLayer", "Bing Aerial", $$"""
+                  
+                  var bingAerialTileLayer = L.tileLayer.bing({
+                          bingMapsKey: '{{UserSettingsSingleton.CurrentSettings().BingApiKey}}', // Required
+                          imagerySet: 'AerialWithLabels',
+                          maxZoom: 24
+                      });
+                  """));
 
-            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("bingRoadTileLayer", "Bing Roads", $@"
-                          var bingRoadTileLayer = L.tileLayer.bing({{
-            bingMapsKey: '{UserSettingsSingleton.CurrentSettings().BingApiKey}', // Required
-            imagerySet: 'RoadOnDemand',
-            maxZoom: 24
-        }});"));
+            layers.Add(new WpfCommon.WpfHtml.WpfHtmlDocument.LeafletLayerEntry("bingRoadTileLayer", "Bing Roads", $$"""
+                  
+                  var bingRoadTileLayer = L.tileLayer.bing({
+                          bingMapsKey: '{{UserSettingsSingleton.CurrentSettings().BingApiKey}}', // Required
+                          imagerySet: 'RoadOnDemand',
+                          maxZoom: 24
+                      });
+                  """));
         }
 
-        layers.Add(new("tnmImageTopoMap", "TNM Image Topo", @"
-                var tnmImageTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}',
-                {
-                    maxNativeZoom: 16,
-                    maxZoom: 22,
-                    id: 'tnmImageTopo',
-                    attribution: 'Tiles courtesy of the <a href=""https://usgs.gov/"">U.S. Geological Survey</a>'
-                });"));
-        layers.Add(new("tnmTopoMap", "TNM Topo", @"
-                var tnmTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
-                {
-                    maxNativeZoom: 16,
-                    maxZoom: 22,
-                    id: 'tnmTopo',
-                    attribution: 'Tiles courtesy of the <a href=""https://usgs.gov/"">U.S. Geological Survey</a>'
-                });"));
+        layers.Add(new("tnmImageTopoMap", "TNM Image Topo", """
+                                                            
+                                                            var tnmImageTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}',
+                                                                    {
+                                                                        maxNativeZoom: 16,
+                                                                        maxZoom: 22,
+                                                                        id: 'tnmImageTopo',
+                                                                        attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
+                                                                    });
+                                                            """));
+        layers.Add(new("tnmTopoMap", "TNM Topo", """
+                                                 
+                                                            var tnmTopoMap =  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+                                                                 {
+                                                                     maxNativeZoom: 16,
+                                                                     maxZoom: 22,
+                                                                     id: 'tnmTopo',
+                                                                     attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
+                                                                 });
+                                                 """));
 
         return layers;
-    }
-
-    public static string ToHtmlLeafletGeoJsonDocument(string title, double initialLatitude, double initialLongitude,
-        string styleBlock)
-    {
-        var layers = LeafletLayerList();
-
-        var htmlDoc = $@"
-{LeafletDocumentOpening(title, styleBlock)}
-<body>
-     <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
-        style=""height: 92vh;""></div>
-    <script>
-        {string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}
-
-        var map = L.map('mainMap', {{
-            center: {{ lat: {initialLatitude}, lng: {initialLongitude} }},
-            zoom: 13,
-            layers: [{string.Join(", ", layers.Select(x => x.LayerVariableName))}],
-            doubleClickZoom: false
-        }});
-
-        var baseMaps = {{
-            {string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}
-        }};
-
-        L.control.layers(baseMaps).addTo(map);
-
-        window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
-
-        function geoJsonLayerStyle(feature) {{
-
-            var newStyle = {{}};
-
-            if (feature.properties.hasOwnProperty('stroke')) newStyle.color = feature.properties['stroke'];
-            if (feature.properties.hasOwnProperty('stroke-width')) newStyle.weight = feature.properties['stroke-width'];
-            if (feature.properties.hasOwnProperty('stroke-opacity')) newStyle.opacity = feature.properties['stroke-opacity'];
-            if (feature.properties.hasOwnProperty('fill')) newStyle.fillColor = feature.properties['fill'];
-            if (feature.properties.hasOwnProperty('fill-opacity')) newStyle.fillOpacity = feature.properties['fill-opacity'];
-
-            return newStyle;
-        }}
-
-        function onEachMapGeoJsonFeature(feature, layer) {{
-            if (feature.properties && feature.properties.title) {{
-                layer.bindPopup(feature.properties.title);
-            }}
-        }}
-
-
-        var geoMapLayer;
-
-        function postGeoJsonDataHandler(e) {{
-            if(geoMapLayer != null) map.removeLayer(geoMapLayer);
-
-            let geoJsonData = e.data;
-
-            if(Object.keys(geoJsonData).length === 0) return;
-
-            map.flyToBounds([
-                [geoJsonData.Bounds.MinLatitude, geoJsonData.Bounds.MinLongitude],
-                [geoJsonData.Bounds.MaxLatitude, geoJsonData.Bounds.MaxLongitude]
-            ]);
-
-            geoMapLayer = new L.geoJSON(geoJsonData.GeoJson, {{
-                onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
-            }});
-
-            map.addLayer(geoMapLayer);
-        }};
-
-        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
-
-    </script>
-</body>
-</html>";
-
-        return htmlDoc;
-    }
-
-    public static string ToHtmlLeafletLineDocument(string title, double initialLatitude, double initialLongitude,
-        string styleBlock)
-    {
-        var layers = LeafletLayerList();
-
-        var htmlDoc = $@"
-{LeafletDocumentOpening(title, styleBlock)}
-<body>
-     <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
-        style=""height: 92vh;""></div>
-    <script>
-        {string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}
-
-        var map = L.map('mainMap', {{
-            center: {{ lat: {initialLatitude}, lng: {initialLongitude} }},
-            zoom: 13,
-            layers: [{string.Join(", ", layers.Select(x => x.LayerVariableName))}],
-            doubleClickZoom: false
-        }});
-
-        var baseMaps = {{
-            {string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}
-        }};
-
-        L.control.layers(baseMaps).addTo(map);
-
-        window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
-
-        function onEachMapGeoJsonFeature(feature, layer) {{
-            if (feature.properties && feature.properties.PopupContent) {{
-                layer.bindPopup(feature.properties.PopupContent);
-            }}
-            if (feature.properties && feature.properties.popupContent) {{
-                layer.bindPopup(feature.properties.PopupContent);
-            }}
-        }}
-
-        var geoMapLayer;
-
-        function postGeoJsonDataHandler(e) {{
-            if(geoMapLayer != null) map.removeLayer(geoMapLayer);
-
-            let lineData = e.data;
-
-            if(Object.keys(lineData).length === 0) return;
-
-            map.flyToBounds([
-                [lineData.Bounds.MinLatitude, lineData.Bounds.MinLongitude],
-                [lineData.Bounds.MaxLatitude, lineData.Bounds.MaxLongitude]
-            ]);
-
-            geoMapLayer = new L.geoJSON(lineData.GeoJson, {{
-                onEachFeature: onEachMapGeoJsonFeature
-            }});
-
-            map.addLayer(geoMapLayer);
-        }};
-
-        window.chrome.webview.postMessage( {{ ""messageType"": ""script-finished"" }} );
-
-    </script>
-</body>
-</html>";
-
-        return htmlDoc;
     }
 
     public static string ToHtmlLeafletMapDocument(string title, double initialLatitude, double initialLongitude,
@@ -412,59 +283,61 @@ public static class WpfCmsHtmlDocument
 
         var layers = LeafletLayerList();
 
-        var htmlDoc = $@"
-{LeafletDocumentOpening(title, styleBlock)}
-<body>
-     <div id=""mainMap"" class=""leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag""
-        style=""height: 92vh;""></div>
-    <script>
-        {string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}
+        var htmlDoc = $$"""
 
-        var map = L.map('mainMap', {{
-            center: {{ lat: {initialLatitude}, lng: {initialLongitude} }},
-            zoom: 13,
-            layers: [{string.Join(", ", layers.Select(x => x.LayerVariableName))}],
-            doubleClickZoom: false
-        }});
-
-        var baseMaps = {{
-            {string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}
-        }};
-
-        L.control.layers(baseMaps).addTo(map);
-
-        map.on('dblclick', function (e) {{
-            console.log(e);
-            pointContentMarker.setLatLng(e.latlng);
-            window.chrome.webview.postMessage(e.latlng.lat + "";"" + e.latlng.lng);
-        }});
-
-        var pointContentMarker = new L.marker([{initialLatitude},{initialLongitude}],{{
-            draggable: true,
-            autoPan: true
-        }}).addTo(map);
-
-        pointContentMarker.on('dragend', function(e) {{
-            console.log(e);
-            window.chrome.webview.postMessage(e.target._latlng.lat + "";"" + e.target._latlng.lng);
-        }});
-
-        const pointData = {otherPointsJsonData};
-
-        for (let circlePoint of pointData) {{
-            let toAdd = L.circleMarker([circlePoint.Latitude, circlePoint.Longitude],
-                40, {{ color: ""blue"", fillColor: ""blue"", fillOpacity: .5 }});
-
-            const circlePopup = L.popup({{ autoClose: false, autoPan: false }})
-                .setContent(`<p>${{circlePoint.Title}}</p>`);
-            const boundCirclePopup = toAdd.bindPopup(circlePopup);
-
-            toAdd.addTo(map);
-        }};
-
-    </script>
-</body>
-</html>";
+                        {{LeafletDocumentOpening(title, styleBlock)}}
+                        <body>
+                             <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
+                                style="height: 92vh;"></div>
+                            <script>
+                                {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
+                        
+                                var map = L.map('mainMap', {
+                                    center: { lat: {{initialLatitude}}, lng: {{initialLongitude}} },
+                                    zoom: 13,
+                                    layers: [{{string.Join(", ", layers.Select(x => x.LayerVariableName))}}],
+                                    doubleClickZoom: false
+                                });
+                        
+                                var baseMaps = {
+                                    {{string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}}
+                                };
+                        
+                                L.control.layers(baseMaps).addTo(map);
+                        
+                                map.on('dblclick', function (e) {
+                                    console.log(e);
+                                    pointContentMarker.setLatLng(e.latlng);
+                                    window.chrome.webview.postMessage(e.latlng.lat + ";" + e.latlng.lng);
+                                });
+                        
+                                var pointContentMarker = new L.marker([{{initialLatitude}},{{initialLongitude}}],{
+                                    draggable: true,
+                                    autoPan: true
+                                }).addTo(map);
+                        
+                                pointContentMarker.on('dragend', function(e) {
+                                    console.log(e);
+                                    window.chrome.webview.postMessage(e.target._latlng.lat + ";" + e.target._latlng.lng);
+                                });
+                        
+                                const pointData = {{otherPointsJsonData}};
+                        
+                                for (let circlePoint of pointData) {
+                                    let toAdd = L.circleMarker([circlePoint.Latitude, circlePoint.Longitude],
+                                        40, { color: "blue", fillColor: "blue", fillOpacity: .5 });
+                        
+                                    const circlePopup = L.popup({ autoClose: false, autoPan: false })
+                                        .setContent(`<p>${circlePoint.Title}</p>`);
+                                    const boundCirclePopup = toAdd.bindPopup(circlePopup);
+                        
+                                    toAdd.addTo(map);
+                                };
+                        
+                            </script>
+                        </body>
+                        </html>
+                        """;
 
         return htmlDoc;
     }

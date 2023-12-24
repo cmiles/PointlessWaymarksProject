@@ -43,7 +43,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         BuildCommands();
 
-        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletGeoJsonDocument("GeoJson",
+        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("GeoJson",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
@@ -315,8 +315,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewGeoJsonDto = await GeoJsonData.GenerateGeoJson(GeoJsonText, Guid.NewGuid().ToString());
+        PreviewGeoJsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(GeoJsonText);
     }
 
     [BlockingCommand]

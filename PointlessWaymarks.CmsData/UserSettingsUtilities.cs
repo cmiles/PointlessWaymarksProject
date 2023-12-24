@@ -17,6 +17,8 @@ namespace PointlessWaymarks.CmsData;
 
 public static class UserSettingsUtilities
 {
+    public static readonly double ProjectDefaultLatitude = 32.119742;
+    public static readonly double ProjectDefaultLongitude = -110.5230213;
     public static string SettingsFileFullName { get; set; } = "PointlessWaymarksCmsSettings.ini";
 
     private static string AddSettingsFileRootDirectoryIfNeeded(this string fileName)
@@ -149,6 +151,26 @@ public static class UserSettingsUtilities
     public static string DefaultContentFormatChoice()
     {
         return Enum.GetNames(typeof(ContentFormatEnum)).First();
+    }
+
+    public static async Task<double> DefaultLatitudeValidated(this UserSettings settings)
+    {
+        var currentSetting = settings.LatitudeDefault;
+
+        if (!(await CommonContentValidation.LatitudeValidation(currentSetting)).Valid)
+            return ProjectDefaultLatitude;
+
+        return currentSetting;
+    }
+
+    public static async Task<double> DefaultLongitudeValidated(this UserSettings settings)
+    {
+        var currentSetting = settings.LongitudeDefault;
+
+        if (!(await CommonContentValidation.LongitudeValidation(currentSetting)).Valid)
+            return ProjectDefaultLongitude;
+
+        return currentSetting;
     }
 
     public static async Task EnsureDbIsPresent(IProgress<string>? progress = null)
@@ -1587,8 +1609,8 @@ public static class UserSettingsUtilities
         newSettings.SiteSummary = "A new site.";
         newSettings.SiteAuthors = "Pointless Waymarks CMS";
         newSettings.SiteEmailTo = "emailto@nowhere.com";
-        newSettings.LatitudeDefault = 32.443131;
-        newSettings.LongitudeDefault = -110.788429;
+        newSettings.LatitudeDefault = ProjectDefaultLatitude;
+        newSettings.LongitudeDefault = ProjectDefaultLongitude;
         newSettings.NumberOfItemsOnMainSitePage = 4;
         newSettings.SettingsId = Guid.NewGuid();
 

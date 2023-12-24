@@ -6,7 +6,6 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
@@ -45,7 +44,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         BuildCommands();
 
-        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletLineDocument("Line",
+        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Line",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
@@ -61,7 +60,6 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public LineContent DbEntry { get; set; }
     public ConversionDataEntryContext<double>? DescentElevationEntry { get; set; }
     public ConversionDataEntryContext<double>? DistanceEntry { get; set; }
-
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
@@ -71,7 +69,6 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public ConversionDataEntryContext<double>? MinimumElevationEntry { get; set; }
     public string PreviewHtml { get; set; }
     public string PreviewLineJsonDto { get; set; } = string.Empty;
-
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingEndedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingStartedOnEntry { get; set; }
@@ -438,9 +435,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewLineJsonDto = await LineData.GenerateLineJson(LineGeoJson,
-            TitleSummarySlugFolder?.TitleEntry.UserValue ?? string.Empty, Guid.NewGuid().ToString());
+        PreviewLineJsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson);
     }
 
     [BlockingCommand]
