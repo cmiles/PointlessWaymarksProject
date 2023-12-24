@@ -12,4 +12,4 @@ if (-not ("BuildTools\PointlessWaymarks.PublishReadmeHelper.exe" | Test-Path)) {
 	
 }
 
-C:\Code\PointlessWaymarksProject-05\BuildTools\PointlessWaymarks.PublishReadmeHelper.exe
+.\BuildTools\PointlessWaymarks.PublishReadmeHelper.exe
