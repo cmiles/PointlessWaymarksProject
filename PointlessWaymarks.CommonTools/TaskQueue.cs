@@ -4,25 +4,23 @@ using Serilog;
 
 namespace PointlessWaymarks.CommonTools;
 
-public class WorkQueue<T>
+public class TaskQueue
 {
     //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
-    private readonly BlockingCollection<T> _jobs = new();
+    private readonly BlockingCollection<Func<Task>> _jobs = new();
 
-    private readonly List<T> _pausedQueue = new();
+    private readonly List<Func<Task>> _pausedQueue = new();
 
     private bool _suspended;
 
-    public WorkQueue(bool suspended = false)
+    public TaskQueue(bool suspended = false)
     {
         _suspended = suspended;
         var thread = new Thread(OnStart) {IsBackground = true};
         thread.Start();
     }
 
-    public Func<T, Task>? Processor { get; set; }
-
-    public void Enqueue(T job)
+    public void Enqueue(Func<Task> job)
     {
         if (_suspended) _pausedQueue.Add(job);
         else _jobs.Add(job);
@@ -33,7 +31,7 @@ public class WorkQueue<T>
         foreach (var job in _jobs.GetConsumingEnumerable(CancellationToken.None))
             try
             {
-                Processor?.Invoke(job).Wait();
+                job.Invoke().Wait();
             }
             catch (Exception e)
             {

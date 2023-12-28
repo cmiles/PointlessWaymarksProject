@@ -49,7 +49,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-        JsonToWebView = new OneAtATimeWorkQueue<WebViewMessage>();
+        JsonToWebView = new WorkQueue<WebViewMessage>(true);
 
         DbEntry = dbEntry;
 
@@ -66,7 +66,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
-    public OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
+    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public string LineGeoJson { get; set; } = string.Empty;
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public ConversionDataEntryContext<double>? MaximumElevationEntry { get; set; }

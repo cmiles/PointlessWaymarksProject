@@ -12,6 +12,6 @@ public interface IWebViewMessenger
     /// well before the WebView and Xaml Bindings are initialized and able to accept
     /// messages.
     /// </summary>
-    OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
+    WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     void JsonFromWebView(object? o, WebViewMessage args);
 }

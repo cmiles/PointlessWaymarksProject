@@ -86,7 +86,7 @@ public class WebViewHtmlStringAndJsonMessagingBehavior : Behavior<WebView2>
                 bindingBehavior.AssociatedObject.CoreWebView2 != null)
             {
                 //A naive attempt to prevent Html and JsonData from overlapped loading
-                bindingBehavior.WebViewMessenger.JsonToWebView.Stop();
+                bindingBehavior.WebViewMessenger.JsonToWebView.Suspend(true);
 
                 try
                 {
@@ -128,7 +128,7 @@ public class WebViewHtmlStringAndJsonMessagingBehavior : Behavior<WebView2>
                     Log.Error(ex, "OnHtmlChanged Exception");
                 }
 
-                bindingBehavior.WebViewMessenger.JsonToWebView.Start();
+                bindingBehavior.WebViewMessenger.JsonToWebView.Suspend(false);
             }
             else
             {
@@ -197,7 +197,7 @@ public class WebViewHtmlStringAndJsonMessagingBehavior : Behavior<WebView2>
     /// <param name="e"></param>
     private void OnReadyHtmlCacheLoadCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
     {
-        WebViewMessenger.JsonToWebView.Start();
+        WebViewMessenger.JsonToWebView.Suspend(false);
         AssociatedObject.NavigationCompleted -= OnReadyHtmlCacheLoadCompleted;
     }
 

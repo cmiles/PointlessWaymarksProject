@@ -1,5 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Windows;
 using NetTopologySuite.Features;
 using Omu.ValueInjecter;
@@ -19,6 +21,7 @@ using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
@@ -28,6 +31,7 @@ using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
@@ -35,7 +39,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
 public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAndValidation,
-    IHasValidationIssues
+    IHasValidationIssues, IWebViewMessenger
 {
     public EventHandler? RequestContentEditorWindowClose;
 
@@ -47,6 +51,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         DbEntry = pointContent;
 
+        JsonToWebView = new WorkQueue<WebViewMessage>();
+
         PropertyChanged += OnPropertyChanged;
     }
 
@@ -56,12 +62,16 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public PointContent DbEntry { get; set; }
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
+    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public StringDataEntryContext? MapLabelContent { get; set; }
     public PointDetailListContext? PointDetails { get; set; }
+    public string PreviewHtml { get; set; } = string.Empty;
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
@@ -73,8 +83,11 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
+    public void JsonFromWebView(object? o, WebViewMessage args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.Message))
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await ProcessJsonFromWebView(args.Message));
+    }
 
     [BlockingCommand]
     private async Task AddFeatureIntersectTags()
@@ -203,8 +216,14 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     private void LatitudeLongitudeChangeBroadcast()
     {
         if (BroadcastLatLongChange && !LatitudeEntry!.HasValidationIssues && !LongitudeEntry!.HasValidationIssues)
-            RaisePointLatitudeLongitudeChange?.Invoke(this,
-                new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
+        {
+            var centerData = new MapJsonCoordinateDto(LatitudeEntry.UserValue, LongitudeEntry.UserValue,
+                "MoveUserLocationSelection");
+
+            var serializedData = JsonSerializer.Serialize(centerData);
+
+            JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+        }
     }
 
     [BlockingCommand]
@@ -303,6 +322,10 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         });
 
+        PreviewHtml = await WpfCmsHtmlDocument.ToHtmlLeafletPointDocument("Point", DbEntry.ContentId,
+            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
@@ -314,17 +337,29 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             CheckForChangesAndValidationIssues();
     }
 
-    public void OnRaisePointLatitudeLongitudeChange(object? sender, PointLatitudeLongitudeChange e)
+    public async Task ProcessJsonFromWebView(string json)
     {
+        if (string.IsNullOrWhiteSpace(json)) return;
+
+        var message = JsonSerializer.Deserialize<JsonNode>(json);
+
+        if (message is null) return;
+
+        if (!message["messageType"]?.GetValue<string>().Equals("userSelectedLatitudeLongitudeChanged",
+                StringComparison.InvariantCultureIgnoreCase) ?? true) return;
+
+        var latitude = message["latitude"]?.GetValue<double>();
+        var longitude = message["longitude"]?.GetValue<double>();
+
+        if (latitude == null || longitude == null) return;
+
         BroadcastLatLongChange = false;
 
-        LatitudeEntry!.UserText = e.Latitude.ToString("F6");
-        LongitudeEntry!.UserText = e.Longitude.ToString("F6");
+        LatitudeEntry!.UserText = latitude.ToString("F6");
+        LongitudeEntry!.UserText = longitude.ToString("F6");
 
         BroadcastLatLongChange = true;
     }
-
-    public event EventHandler<PointLatitudeLongitudeChange>? RaisePointLatitudeLongitudeChange;
 
     [BlockingCommand]
     public async Task Save()

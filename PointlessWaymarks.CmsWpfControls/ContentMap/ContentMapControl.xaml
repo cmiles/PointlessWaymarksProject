@@ -38,11 +38,6 @@
             <b:Interaction.Behaviors>
                 <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewMessenger="{Binding .}" HtmlString="{Binding MapHtml}" />
             </b:Interaction.Behaviors>
-            <b:Interaction.Triggers>
-                <b:EventTrigger EventName="WebMessageReceived">
-                    <behaviors:EventToCommand Command="{Binding MapMessageReceivedCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
-                </b:EventTrigger>
-            </b:Interaction.Triggers>
         </wpf:WebView2>
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel

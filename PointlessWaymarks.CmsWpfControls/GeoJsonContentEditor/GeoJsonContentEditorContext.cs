@@ -47,7 +47,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-        JsonToWebView = new OneAtATimeWorkQueue<WebViewMessage>();
+        JsonToWebView = new WorkQueue<WebViewMessage>(true);
 
         DbEntry = dbEntry;
 
@@ -62,7 +62,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
-    public OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
+    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
 
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public string PreviewHtml { get; set; }

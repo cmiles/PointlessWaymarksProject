@@ -39,7 +39,7 @@ public partial class ContentMapContext : IWebViewMessenger
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-        JsonToWebView = new OneAtATimeWorkQueue<WebViewMessage>();
+        JsonToWebView = new WorkQueue<WebViewMessage>(true);
 
         CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
         ListContext = factoryListContext;
@@ -52,7 +52,7 @@ public partial class ContentMapContext : IWebViewMessenger
     public CmsCommonCommands CommonCommands { get; set; }
     public Envelope? ContentBounds { get; set; }
 
-    public OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
+    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ContentListContext ListContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public string MapHtml { get; set; }
@@ -61,6 +61,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
     public void JsonFromWebView(object? o, WebViewMessage args)
     {
+        StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args));
     }
 
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
@@ -153,18 +154,11 @@ public partial class ContentMapContext : IWebViewMessenger
         ListContext.ItemsView().CollectionChanged += ItemsViewOnCollectionChanged;
     }
 
-    [NonBlockingCommand]
-    private async Task MapMessageReceived(CoreWebView2WebMessageReceivedEventArgs? mapMessage)
+    private async Task MapMessageReceived(WebViewMessage mapMessage)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        if (mapMessage == null) return;
-
-        var rawMessage = mapMessage.WebMessageAsJson;
-
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var parsedJson = JsonNode.Parse(rawMessage);
+        var parsedJson = JsonNode.Parse(mapMessage.Message);
 
         if (parsedJson == null) return;
 
@@ -178,8 +172,6 @@ public partial class ContentMapContext : IWebViewMessenger
                 parsedJson["bounds"]["_southWest"]["lng"].GetValue<double>());
             return;
         }
-
-        Console.WriteLine("clicked");
     }
 
     [NonBlockingCommand]
@@ -390,8 +382,6 @@ public partial class ContentMapContext : IWebViewMessenger
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var centerData = new MapJsonCoordinateDto(latitude, longitude, "CenterCoordinateRequest");
-
-        await ThreadSwitcher.ResumeForegroundAsync();
 
         var serializedData = JsonSerializer.Serialize(centerData);
 

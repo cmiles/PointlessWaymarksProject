@@ -19,11 +19,11 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    DataContextChanged="PointContentEditorControl_OnDataContextChanged"
-    Loaded="PointContentEditorControl_OnLoaded"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -103,10 +103,12 @@
                         </WrapPanel>
                     </GroupBox>
                     <wpf:WebView2
-                        x:Name="PointContentWebView"
                         Grid.Row="1"
-                        CoreWebView2InitializationCompleted="PointContentWebView_OnCoreWebView2InitializationCompleted"
-                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" >
+                        <b:Interaction.Behaviors>
+                            <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewMessenger="{Binding .}" HtmlString="{Binding PreviewHtml}" />
+                        </b:Interaction.Behaviors>
+                    </wpf:WebView2>
                 </Grid>
             </TabItem>
             <TabItem Header="Body">

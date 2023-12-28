@@ -312,7 +312,7 @@ public static class WpfCmsHtmlDocument
                                 map.on('dblclick', function (e) {
                                     console.log(e);
                                     pointContentMarker.setLatLng(e.latlng);
-                                    window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.latlng.lat; longitude: e.latlng.lng });
+                                    window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.latlng.lat, longitude: e.latlng.lng });
                                 });
                                 
                                 var pointContentMarker = new L.marker([{{initialLatitude}},{{initialLongitude}}],{
@@ -322,7 +322,7 @@ public static class WpfCmsHtmlDocument
                                 
                                 pointContentMarker.on('dragend', function(e) {
                                     console.log(e);
-                                    window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.target._latlng.lat; longitude: e.target._latlng.lng });
+                                    window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.target._latlng.lat, longitude: e.target._latlng.lng });
                                 });
                         
                                 var geojsonMarkerOptions = {
@@ -374,6 +374,11 @@ public static class WpfCmsHtmlDocument
                                     if(e.data.MessageType === 'CenterBoundingBoxRequest') {
                                         console.log('Center Bounding Box Request');
                                         map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
+                                    }
+                                    if(e.data.MessageType === 'MoveUserLocationSelection') {
+                                        console.log('Mover User Location Selection Request');
+                                        pointContentMarker.setLatLng([e.data.Latitude,e.data.Longitude]);
+                                        map.setView([e.data.Latitude,e.data.Longitude], map.getZoom());
                                     }
                                 });
                         
@@ -430,8 +435,7 @@ public static class WpfCmsHtmlDocument
                                     ]);
                         
                                     mapData.GeoJsonLayers.forEach(item => {
-                                        let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle, pointToLayer: function (feature, latlng) {
-                                            return L.circleMarker(latlng, geojsonMarkerOptions});
+                                        let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle, pointToLayer: function (feature, latlng) { return L.circleMarker(latlng, geojsonMarkerOptions) } });
                                         mapLayers.push(newLayer);
                                         map.addLayer(newLayer); });
                                 };
