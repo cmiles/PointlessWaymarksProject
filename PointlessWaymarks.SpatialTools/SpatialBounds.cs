@@ -20,7 +20,7 @@ public record SpatialBounds(
 
     public Envelope ToEnvelope(double? minimumInMeters = null)
     {
-        var currentEnvelope = new Envelope(MinLongitude, MinLatitude, MaxLongitude, MaxLatitude);
+        var currentEnvelope = new Envelope(MinLongitude, MaxLongitude, MinLatitude, MaxLatitude);
         if (minimumInMeters is not null) DistanceTools.MinimumEnvelopeInMeters(currentEnvelope, minimumInMeters.Value);
         return currentEnvelope;
     }

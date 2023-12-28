@@ -28,13 +28,14 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
 public partial class LineContentEditorContext : IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+    ICheckForChangesAndValidation, IWebViewMessenger
 {
     public EventHandler? RequestContentEditorWindowClose;
 
@@ -48,6 +49,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
+        JsonToWebView = new OneAtATimeWorkQueue<WebViewMessage>();
+        
         DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
@@ -68,7 +71,6 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public ConversionDataEntryContext<double>? MaximumElevationEntry { get; set; }
     public ConversionDataEntryContext<double>? MinimumElevationEntry { get; set; }
     public string PreviewHtml { get; set; }
-    public string PreviewLineJsonDto { get; set; } = string.Empty;
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingEndedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingStartedOnEntry { get; set; }
@@ -435,7 +437,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        PreviewLineJsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson);
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson)));
     }
 
     [BlockingCommand]
@@ -527,5 +529,10 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
+    }
+
+    public OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
+    public void JsonFromWebView(object? o, WebViewMessage args)
+    {
     }
 }

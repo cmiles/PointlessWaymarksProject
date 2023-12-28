@@ -21,12 +21,13 @@ using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class ContentMapContext
+public partial class ContentMapContext : IWebViewMessenger
 {
     private ContentMapContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
         ContentListContext factoryListContext, bool loadInBackground = true)
@@ -34,12 +35,14 @@ public partial class ContentMapContext
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
 
-        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
-        ListContext = factoryListContext;
-
         MapHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+
+        JsonToWebView = new OneAtATimeWorkQueue<WebViewMessage>();
+
+        CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
+        ListContext = factoryListContext;
 
         BuildCommands();
 
@@ -47,14 +50,18 @@ public partial class ContentMapContext
     }
 
     public CmsCommonCommands CommonCommands { get; set; }
-
     public Envelope? ContentBounds { get; set; }
+
+    public OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ContentListContext ListContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public string MapHtml { get; set; }
-    public string MapJsonDto { get; set; } = string.Empty;
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
+
+    public void JsonFromWebView(object? o, WebViewMessage args)
+    {
+    }
 
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)
@@ -89,7 +96,6 @@ public partial class ContentMapContext
                         mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
                     break;
                 case LineListListItem { DbEntry.Line: not null } mapLine:
-                    var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.DbEntry.Line);
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
                         mapLine.DbEntry.InitialViewBoundsMaxLatitude));
                     boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
@@ -176,8 +182,6 @@ public partial class ContentMapContext
         Console.WriteLine("clicked");
     }
 
-    public event EventHandler<string>? MapRequest;
-
     [NonBlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
     public async Task PopupsForSelectedItems()
@@ -193,7 +197,7 @@ public partial class ContentMapContext
 
         var serializedData = JsonSerializer.Serialize(popupData);
 
-        MapRequest?.Invoke(this, serializedData);
+        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
     }
 
     [BlockingCommand]
@@ -207,9 +211,10 @@ public partial class ContentMapContext
 
         if (frozenItems.Count < 1)
         {
-            MapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonNewFeatureCollectionDto(
-                Guid.NewGuid(),
-                new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+            JsonToWebView.Enqueue(new WebViewMessage(await GeoJsonTools.SerializeWithGeoJsonSerializer(
+                new MapJsonNewFeatureCollectionDto(
+                    Guid.NewGuid(),
+                    new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()))));
             return;
         }
 
@@ -309,8 +314,8 @@ public partial class ContentMapContext
 
         ContentBounds = SpatialConverters.PointBoundingBox(boundsKeeper);
 
-        MapJsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(geoJsonList,
-            SpatialBounds.FromEnvelope(ContentBounds).ExpandToMinimumMeters(1000));
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(geoJsonList,
+            SpatialBounds.FromEnvelope(ContentBounds).ExpandToMinimumMeters(1000))));
     }
 
     [NonBlockingCommand]
@@ -338,7 +343,7 @@ public partial class ContentMapContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        MapRequest?.Invoke(this, JsonSerializer.Serialize(centerData));
+        JsonToWebView.Enqueue(new WebViewMessage(JsonSerializer.Serialize(centerData)));
     }
 
     public async Task RequestMapCenterOnEnvelope(Envelope toCenter)
@@ -359,7 +364,7 @@ public partial class ContentMapContext
 
         var serializedData = JsonSerializer.Serialize(centerData);
 
-        MapRequest?.Invoke(this, serializedData);
+        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
     }
 
     [NonBlockingCommand]
@@ -390,7 +395,7 @@ public partial class ContentMapContext
 
         var serializedData = JsonSerializer.Serialize(centerData);
 
-        MapRequest?.Invoke(this, serializedData);
+        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
     }
 
     [NonBlockingCommand]

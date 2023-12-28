@@ -10,7 +10,6 @@
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
-             Loaded="ContentMapControl_OnLoaded"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:ContentMapContext}">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -33,13 +32,11 @@
             Margin="4,5,4,6"
             DataContext="{Binding ListContext}" />
         <wpf:WebView2
-            Name="ContentMapWebView"
             Grid.Row="0"
             Grid.Column="1"
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
-                <wpfHtml:WebViewHtmlStringAndJsonOnChangeBehavior HtmlString="{Binding MapHtml}"
-                                                                  JsonData="{Binding MapJsonDto}" />
+                <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewMessenger="{Binding .}" HtmlString="{Binding MapHtml}" />
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="WebMessageReceived">

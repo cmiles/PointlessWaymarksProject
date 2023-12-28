@@ -132,7 +132,6 @@ public static class WpfCmsHtmlDocument
         var layers = LeafletLayerList();
 
         var htmlDoc = $$"""
-
                         {{LeafletDocumentOpening(title, styleBlock)}}
                         <body>
                              <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
@@ -288,7 +287,7 @@ public static class WpfCmsHtmlDocument
                         {{LeafletDocumentOpening(title, styleBlock)}}
                         <body>
                              <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
-                                style="height: 92vh;"></div>
+                                style="height: 98vh;"></div>
                             <script>
                                 {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
                         
@@ -296,43 +295,148 @@ public static class WpfCmsHtmlDocument
                                     center: { lat: {{initialLatitude}}, lng: {{initialLongitude}} },
                                     zoom: 13,
                                     layers: [{{string.Join(", ", layers.Select(x => x.LayerVariableName))}}],
-                                    doubleClickZoom: false
+                                    doubleClickZoom: false,
+                                    closePopupOnClick: false
                                 });
                         
                                 var baseMaps = {
                                     {{string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}}
                                 };
-                        
+                                
                                 L.control.layers(baseMaps).addTo(map);
                         
+                                map.on('moveend', function(e) {
+                                    window.chrome.webview.postMessage( { "messageType": "mapBoundsChange", "bounds": map.getBounds() } );
+                                });
+                                
                                 map.on('dblclick', function (e) {
                                     console.log(e);
                                     pointContentMarker.setLatLng(e.latlng);
-                                    window.chrome.webview.postMessage(e.latlng.lat + ";" + e.latlng.lng);
+                                    window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.latlng.lat; longitude: e.latlng.lng });
                                 });
-                        
+                                
                                 var pointContentMarker = new L.marker([{{initialLatitude}},{{initialLongitude}}],{
                                     draggable: true,
                                     autoPan: true
                                 }).addTo(map);
-                        
+                                
                                 pointContentMarker.on('dragend', function(e) {
                                     console.log(e);
-                                    window.chrome.webview.postMessage(e.target._latlng.lat + ";" + e.target._latlng.lng);
+                                    window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.target._latlng.lat; longitude: e.target._latlng.lng });
                                 });
                         
-                                const pointData = {{otherPointsJsonData}};
-                        
-                                for (let circlePoint of pointData) {
-                                    let toAdd = L.circleMarker([circlePoint.Latitude, circlePoint.Longitude],
-                                        40, { color: "blue", fillColor: "blue", fillOpacity: .5 });
-                        
-                                    const circlePopup = L.popup({ autoClose: false, autoPan: false })
-                                        .setContent(`<p>${circlePoint.Title}</p>`);
-                                    const boundCirclePopup = toAdd.bindPopup(circlePopup);
-                        
-                                    toAdd.addTo(map);
+                                var geojsonMarkerOptions = {
+                                    radius: 8,
+                                    fillColor: "#ff7800",
+                                    color: "#000",
+                                    weight: 1,
+                                    opacity: 1,
+                                    fillOpacity: 0.8
                                 };
+                        
+                                window.chrome.webview.addEventListener('message', function (e) {
+                                    console.log(e);
+                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e);
+                                    if(e.data.MessageType === 'CenterFeatureRequest') {
+                                        console.log('Center Feature Request');
+                                        map.eachLayer(function (l) {
+                                            if (l.feature?.properties?.displayId === e.data.DisplayId) {
+                                                console.log(`l.feature?.geometry?.type ${l.feature?.geometry?.type}`);
+                                                if(l.feature?.geometry?.type === 'Point') {
+                                                    map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
+                                                }
+                                                if(l.feature?.geometry?.type === 'LineString') {
+                                                    map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]], [l.feature.bbox[3], l.feature.bbox[2]]]);
+                                                }
+                                                l.openPopup();
+                                            }
+                                        })
+                                    }
+                                    if(e.data.MessageType === 'ShowPopupsFor') {
+                                        console.log(`Show Popups Request`);
+                                        map.eachLayer(function (l) {
+                                            if(!l.feature?.properties?.displayId) return;
+                                            if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
+                                                console.log(`opening popup for l.feature ${l.feature}`);
+                                                l.openPopup();
+                                            }
+                                            else {
+                                                console.log(`closing popup for l.feature ${l.feature}`);
+                                                l.closePopup();
+                                            }
+                                            console.log(l);
+                                        })
+                                    }
+                                    if(e.data.MessageType === 'CenterCoordinateRequest') {
+                                        console.log('Center Coordinate Request');
+                                        map.flyTo([e.data.Latitude, e.data.Longitude]);
+                                    }
+                                    if(e.data.MessageType === 'CenterBoundingBoxRequest') {
+                                        console.log('Center Bounding Box Request');
+                                        map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
+                                    }
+                                });
+                        
+                                 function onEachMapGeoJsonFeature(feature, layer) {
+                        
+                                    if (feature.properties && (feature.properties.title || feature.properties.description)) {
+                                        let popupHtml = "";
+                        
+                                        if (feature.properties.title) {
+                                            popupHtml += feature.properties.title;
+                                        }
+                        
+                                        if (feature.properties.description) {
+                                            popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
+                                        }
+                        
+                                        if(popupHtml !== "") layer.bindPopup(popupHtml, { autoClose: false });
+
+                                        layer.on('click', function (e) {
+                                            console.log(e);
+                                            window.chrome.webview.postMessage({ "messageType": "featureClicked", "data": e.target.feature.properties }); });
+                                    }
+                                }
+                        
+                                function geoJsonLayerStyle(feature) {
+                                    //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
+                                    var newStyle = {};
+                        
+                                    if (feature.properties.hasOwnProperty("stroke")) newStyle.color = feature.properties["stroke"];
+                                    if (feature.properties.hasOwnProperty("stroke-width")) newStyle.weight = feature.properties["stroke-width"];
+                                    if (feature.properties.hasOwnProperty("stroke-opacity")) newStyle.opacity = feature.properties["stroke-opacity"];
+                                    if (feature.properties.hasOwnProperty("fill")) newStyle.fillColor = feature.properties["fill"];
+                                    if (feature.properties.hasOwnProperty("fill-opacity")) newStyle.fillOpacity = feature.properties["fill-opacity"];
+                        
+                                    return newStyle;
+                                }
+                        
+                                var mapLayers = [];
+                        
+                                function postGeoJsonDataHandler(e) {
+                                    if(Object.keys(mapLayers).length > 0) {
+                                        mapLayers.forEach(item => map.removeLayer(item));
+                                    }
+                        
+                                    mapLayers = [];
+                        
+                                    let mapData = e.data;
+                        
+                                    if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
+                        
+                                    map.flyToBounds([
+                                        [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
+                                        [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
+                                    ]);
+                        
+                                    mapData.GeoJsonLayers.forEach(item => {
+                                        let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle, pointToLayer: function (feature, latlng) {
+                                            return L.circleMarker(latlng, geojsonMarkerOptions});
+                                        mapLayers.push(newLayer);
+                                        map.addLayer(newLayer); });
+                                };
+                        
+                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
                         
                             </script>
                         </body>
