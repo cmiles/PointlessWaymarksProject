@@ -7,7 +7,6 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
@@ -29,13 +28,14 @@ using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
 public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation
+    ICheckForChangesAndValidation, IWebViewMessenger
 {
     private GeoJsonContentEditorContext(StatusControlContext statusContext, GeoJsonContent dbEntry)
     {
@@ -46,6 +46,8 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("GeoJson",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+
+        JsonToWebView = new OneAtATimeWorkQueue<WebViewMessage>();
 
         DbEntry = dbEntry;
 
@@ -60,8 +62,9 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
+    public OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
+
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
-    public string PreviewGeoJsonDto { get; set; } = string.Empty;
     public string PreviewHtml { get; set; }
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }
@@ -75,6 +78,10 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
+    public void JsonFromWebView(object? o, WebViewMessage args)
+    {
     }
 
     [BlockingCommand]
@@ -315,7 +322,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        PreviewGeoJsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(GeoJsonText);
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(GeoJsonText)));
     }
 
     [BlockingCommand]

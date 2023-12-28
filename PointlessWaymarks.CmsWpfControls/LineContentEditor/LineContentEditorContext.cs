@@ -50,7 +50,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
         JsonToWebView = new OneAtATimeWorkQueue<WebViewMessage>();
-        
+
         DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
@@ -66,6 +66,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
+    public OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public string LineGeoJson { get; set; } = string.Empty;
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public ConversionDataEntryContext<double>? MaximumElevationEntry { get; set; }
@@ -85,6 +86,10 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
+    public void JsonFromWebView(object? o, WebViewMessage args)
+    {
     }
 
     [BlockingCommand]
@@ -529,10 +534,5 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
-    }
-
-    public OneAtATimeWorkQueue<WebViewMessage> JsonToWebView { get; set; }
-    public void JsonFromWebView(object? o, WebViewMessage args)
-    {
     }
 }

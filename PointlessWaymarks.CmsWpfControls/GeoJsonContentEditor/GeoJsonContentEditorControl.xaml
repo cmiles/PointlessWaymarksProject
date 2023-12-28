@@ -91,8 +91,7 @@
                     <wpf:WebView2 Grid.Row="1"
                                   Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
-                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
-                            <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewGeoJsonDto}" />
+                            <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior HtmlString="{Binding PreviewHtml}"></wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior>
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>
