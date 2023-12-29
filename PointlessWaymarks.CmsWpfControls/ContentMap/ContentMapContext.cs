@@ -210,104 +210,12 @@ public partial class ContentMapContext : IWebViewMessenger
             return;
         }
 
-        var geoJsonList = new List<FeatureCollection>();
+        var mapInformation = MapJson.ProcessContentToMapInformation(frozenItems);
 
-        var boundsKeeper = new List<Point>();
-
-        foreach (var loopElements in frozenItems)
-            switch (loopElements)
-            {
-                case GeoJsonListListItem { DbEntry.GeoJson: not null } mapGeoJson:
-                    var featureCollection =
-                        GeoJsonTools.DeserializeStringToFeatureCollection(mapGeoJson.DbEntry.GeoJson);
-                    foreach (var feature in featureCollection)
-                        feature.Attributes.Add("displayId", mapGeoJson.DbEntry.ContentId);
-                    geoJsonList.Add(featureCollection);
-                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
-                        mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
-                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
-                        mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
-                    break;
-                case LineListListItem { DbEntry.Line: not null } mapLine:
-                    var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.DbEntry.Line);
-                    foreach (var feature in lineFeatureCollection)
-                        feature.Attributes.Add("displayId", mapLine.DbEntry.ContentId);
-                    geoJsonList.Add(lineFeatureCollection);
-                    geoJsonList.Add(lineFeatureCollection);
-                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
-                        mapLine.DbEntry.InitialViewBoundsMaxLatitude));
-                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
-                        mapLine.DbEntry.InitialViewBoundsMinLatitude));
-                    break;
-            }
-
-        if (frozenItems.Any(x => x is PointListListItem))
-        {
-            var featureCollection = new FeatureCollection();
-
-            foreach (var loopElements in frozenItems.Where(x => x is PointListListItem).Cast<PointListListItem>()
-                         .ToList())
-            {
-                featureCollection.Add(new Feature(
-                    PointTools.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
-                        loopElements.DbEntry.Elevation ?? 0),
-                    new AttributesTable(new Dictionary<string, object>
-                    {
-                        { "title", loopElements.DbEntry.Title ?? string.Empty },
-                        { "displayId", loopElements.DbEntry.ContentId }
-                    })));
-                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
-            }
-
-            geoJsonList.Add(featureCollection);
-        }
-
-        if (frozenItems.Any(x => x is PhotoListListItem))
-        {
-            var featureCollection = new FeatureCollection();
-
-            foreach (var loopElements in frozenItems.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
-                         .ToList())
-            {
-                if (loopElements.DbEntry.Latitude is null || loopElements.DbEntry.Longitude is null) continue;
-
-                var description = string.Empty;
-
-                if (!string.IsNullOrWhiteSpace(loopElements.SmallImageUrl))
-                {
-                    var tempImg = Path.Combine(FileLocationTools.TempStorageHtmlDirectory().FullName,
-                        Path.GetFileName(loopElements.SmallImageUrl));
-                    File.Copy(loopElements.SmallImageUrl, tempImg, true);
-                    description = $"""
-                                   <img src="https://localcms.pointlesswaymarks.com/{Path.GetFileName(loopElements.SmallImageUrl)}"/>
-                                   """;
-                }
-                else
-                {
-                    description = $"""
-                                    <p>{loopElements.DbEntry.Summary}</p>
-                                   """;
-                }
-
-                featureCollection.Add(new Feature(
-                    PointTools.Wgs84Point(loopElements.DbEntry.Longitude.Value, loopElements.DbEntry.Latitude.Value,
-                        loopElements.DbEntry.Elevation ?? 0),
-                    new AttributesTable(new Dictionary<string, object>
-                    {
-                        { "title", loopElements.DbEntry.Title ?? string.Empty },
-                        { "description", description },
-                        { "displayId", loopElements.DbEntry.ContentId }
-                    })));
-                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude.Value, loopElements.DbEntry.Latitude.Value));
-            }
-
-            geoJsonList.Add(featureCollection);
-        }
-
-        ContentBounds = SpatialConverters.PointBoundingBox(boundsKeeper);
-
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(geoJsonList,
-            SpatialBounds.FromEnvelope(ContentBounds).ExpandToMinimumMeters(1000))));
+        ContentBounds = mapInformation.bounds.ToEnvelope();
+        
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(mapInformation.featureList,
+            mapInformation.bounds.ExpandToMinimumMeters(1000))));
     }
 
     [NonBlockingCommand]

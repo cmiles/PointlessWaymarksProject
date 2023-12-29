@@ -13,6 +13,12 @@ public record SpatialBounds(
         return FromEnvelope(ToEnvelope(minimumInMeters));
     }
 
+    public static SpatialBounds FromCoordinates(double latitude, double longitude, double sizeInMeters)
+    {
+        return
+            new SpatialBounds(latitude, longitude, latitude, longitude).ExpandToMinimumMeters(sizeInMeters);
+    }
+
     public static SpatialBounds FromEnvelope(Envelope envelope)
     {
         return new SpatialBounds(envelope.MaxY, envelope.MaxX, envelope.MinY, envelope.MinX);

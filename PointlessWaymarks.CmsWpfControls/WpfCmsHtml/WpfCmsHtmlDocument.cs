@@ -159,7 +159,8 @@ public static class WpfCmsHtmlDocument
                         
                                 window.chrome.webview.addEventListener('message', function (e) {
                                     console.log(e);
-                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e);
+                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, false);
+                                    if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true);
                                     if(e.data.MessageType === 'CenterFeatureRequest') {
                                         console.log('Center Feature Request');
                                         map.eachLayer(function (l) {
@@ -236,7 +237,7 @@ public static class WpfCmsHtmlDocument
                         
                                 var mapLayers = [];
                         
-                                function postGeoJsonDataHandler(e) {
+                                function postGeoJsonDataHandler(e, center) {
                                     if(Object.keys(mapLayers).length > 0) {
                                         mapLayers.forEach(item => map.removeLayer(item));
                                     }
@@ -247,11 +248,13 @@ public static class WpfCmsHtmlDocument
                         
                                     if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
                         
-                                    map.flyToBounds([
-                                        [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
-                                        [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
-                                    ]);
-                        
+                                    if(center) {
+                                        map.flyToBounds([
+                                            [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
+                                            [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
+                                        ]);
+                                    }
+                                    
                                     mapData.GeoJsonLayers.forEach(item => {
                                         let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle});
                                         mapLayers.push(newLayer);
@@ -336,7 +339,8 @@ public static class WpfCmsHtmlDocument
                         
                                 window.chrome.webview.addEventListener('message', function (e) {
                                     console.log(e);
-                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e);
+                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, false);
+                                    if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true);
                                     if(e.data.MessageType === 'CenterFeatureRequest') {
                                         console.log('Center Feature Request');
                                         map.eachLayer(function (l) {
@@ -418,7 +422,7 @@ public static class WpfCmsHtmlDocument
                         
                                 var mapLayers = [];
                         
-                                function postGeoJsonDataHandler(e) {
+                                function postGeoJsonDataHandler(e, center) {
                                     if(Object.keys(mapLayers).length > 0) {
                                         mapLayers.forEach(item => map.removeLayer(item));
                                     }
@@ -428,11 +432,13 @@ public static class WpfCmsHtmlDocument
                                     let mapData = e.data;
                         
                                     if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
-                        
-                                    map.flyToBounds([
-                                        [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
-                                        [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
-                                    ]);
+                                    
+                                    if(center) {
+                                        map.flyToBounds([
+                                            [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
+                                            [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
+                                        ]);
+                                    }
                         
                                     mapData.GeoJsonLayers.forEach(item => {
                                         let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle, pointToLayer: function (feature, latlng) { return L.circleMarker(latlng, geojsonMarkerOptions) } });

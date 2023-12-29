@@ -30,4 +30,21 @@ public static class ListTools
     {
         return new List<T> { item };
     }
+
+    /// <summary>
+    /// Async Select one at a time.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="asyncSelector"></param>
+    /// <typeparam name="TSource"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
+    /// <returns></returns>
+    public static async Task<List<TResult>> SelectInSequenceAsync<TSource, TResult>(this IEnumerable<TSource> source,
+        Func<TSource, Task<TResult>> asyncSelector)
+    {
+        var result = new List<TResult>();
+        foreach (var s in source) result.Add(await asyncSelector(s));
+
+        return result;
+    }
 }

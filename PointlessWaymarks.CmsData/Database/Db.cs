@@ -1698,6 +1698,17 @@ public static class Db
 
         return toReturn;
     }
+    
+    public static async Task<PointContentDto> PointContentDtoFromPoint(PointContent content, PointlessWaymarksContext context)
+    {
+        var toReturn = new PointContentDto();
+
+        toReturn.InjectFrom(content);
+
+        toReturn.PointDetails = await PointDetailsForPoint(content.ContentId, context);
+
+        return toReturn;
+    }
 
     public static (PointContent content, List<PointDetail> details) PointContentDtoToPointContentAndDetails(
         PointContentDto dto)

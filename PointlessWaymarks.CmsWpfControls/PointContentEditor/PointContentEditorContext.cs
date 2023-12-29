@@ -25,6 +25,7 @@ using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
@@ -51,7 +52,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         DbEntry = pointContent;
 
-        JsonToWebView = new WorkQueue<WebViewMessage>();
+        JsonToWebView = new WorkQueue<WebViewMessage>(true);
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -323,8 +324,20 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         });
 
         PreviewHtml = await WpfCmsHtmlDocument.ToHtmlLeafletPointDocument("Point", DbEntry.ContentId,
-            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+            LatitudeEntry.UserValue,
+            LongitudeEntry.UserValue, string.Empty);
+
+
+        var db = await Db.Context();
+        var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
+
+        var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds))
+            .Where(x => x.ContentId != DbEntry.ContentId).ToList();
+        var mapInformation = await MapJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
+
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+            mapInformation.featureList,
+            mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
@@ -355,8 +368,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         BroadcastLatLongChange = false;
 
-        LatitudeEntry!.UserText = latitude.ToString("F6");
-        LongitudeEntry!.UserText = longitude.ToString("F6");
+        LatitudeEntry!.UserText = latitude.Value.ToString("F6");
+        LongitudeEntry!.UserText = longitude.Value.ToString("F6");
 
         BroadcastLatLongChange = true;
     }
