@@ -32,6 +32,44 @@ public record MapJsonNewFeatureCollectionDto(
 
 public static class MapJson
 {
+    public static Envelope GetBounds(List<IContentListItem> toMeasure)
+    {
+        var boundsKeeper = new List<Point>();
+
+        foreach (var loopElements in toMeasure)
+            switch (loopElements)
+            {
+                case GeoJsonListListItem { DbEntry.GeoJson: not null } mapGeoJson:
+                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
+                        mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
+                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
+                        mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
+                    break;
+                case LineListListItem { DbEntry.Line: not null } mapLine:
+                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
+                        mapLine.DbEntry.InitialViewBoundsMaxLatitude));
+                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
+                        mapLine.DbEntry.InitialViewBoundsMinLatitude));
+                    break;
+            }
+
+        if (toMeasure.Any(x => x is PointListListItem))
+            foreach (var loopElements in toMeasure.Where(x => x is PointListListItem).Cast<PointListListItem>()
+                         .ToList())
+                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
+
+        if (toMeasure.Any(x => x is PhotoListListItem))
+            foreach (var loopElements in toMeasure.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
+                         .ToList())
+            {
+                if (loopElements.DbEntry.Latitude is null || loopElements.DbEntry.Longitude is null) continue;
+
+                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude.Value, loopElements.DbEntry.Latitude.Value));
+            }
+
+        return SpatialConverters.PointBoundingBox(boundsKeeper);
+    }
+
     public static async Task<MapJsonNewFeatureCollectionDto> NewMapFeatureCollectionDto(
         string featureCollection)
     {
@@ -146,7 +184,7 @@ public static class MapJson
             {
                 if (loopElements.DbEntry.Latitude is null || loopElements.DbEntry.Longitude is null) continue;
 
-                var description = string.Empty;
+                string description;
 
                 if (!string.IsNullOrWhiteSpace(loopElements.SmallImageUrl))
                 {

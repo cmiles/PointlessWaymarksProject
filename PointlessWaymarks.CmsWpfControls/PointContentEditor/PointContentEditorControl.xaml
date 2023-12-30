@@ -64,6 +64,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <GroupBox
                         Margin="4,0,0,4"
@@ -109,6 +110,18 @@
                             <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewMessenger="{Binding .}" HtmlString="{Binding PreviewHtml}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
+                    <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
+                        <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <Button
+                                Command="{Binding SearchInBoundsCommand}"
+                                Content="Search"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
+                                Command="{Binding CenterMapOnSelectedLocationCommand}"
+                                Content="Center on Point"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                        </WrapPanel>
+                    </Border>
                 </Grid>
             </TabItem>
             <TabItem Header="Body">

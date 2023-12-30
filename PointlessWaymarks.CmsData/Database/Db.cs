@@ -1259,7 +1259,7 @@ public static class Db
                 || (bounds.MaxLongitude >= x.InitialViewBoundsMinLongitude
                     && bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
                 || (bounds.MinLongitude <= x.InitialViewBoundsMinLongitude &&
-                    bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+                    bounds.MaxLongitude >= x.InitialViewBoundsMaxLongitude)
             )
         ).ToListAsync());
 
@@ -1329,7 +1329,7 @@ public static class Db
                 || (bounds.MaxLongitude >= x.InitialViewBoundsMinLongitude
                     && bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
                 || (bounds.MinLongitude <= x.InitialViewBoundsMinLongitude &&
-                    bounds.MaxLongitude <= x.InitialViewBoundsMaxLongitude)
+                    bounds.MaxLongitude >= x.InitialViewBoundsMaxLongitude)
             )
         ).ToListAsync());
 

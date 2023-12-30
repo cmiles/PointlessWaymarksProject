@@ -159,8 +159,9 @@ public static class WpfCmsHtmlDocument
                         
                                 window.chrome.webview.addEventListener('message', function (e) {
                                     console.log(e);
-                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, false);
-                                    if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true);
+                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, true, false);
+                                    if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true, true);
+                                    if(e.data.MessageType === 'AddFeatureCollection') postGeoJsonDataHandler(e, false, false);
                                     if(e.data.MessageType === 'CenterFeatureRequest') {
                                         console.log('Center Feature Request');
                                         map.eachLayer(function (l) {
@@ -237,13 +238,15 @@ public static class WpfCmsHtmlDocument
                         
                                 var mapLayers = [];
                         
-                                function postGeoJsonDataHandler(e, center) {
-                                    if(Object.keys(mapLayers).length > 0) {
-                                        mapLayers.forEach(item => map.removeLayer(item));
+                                function postGeoJsonDataHandler(e, clearCurrent, center) {
+                                    
+                                    if(clearCurrent) {
+                                        if(Object.keys(mapLayers).length > 0) {
+                                            mapLayers.forEach(item => map.removeLayer(item));
+                                        }
+                                        mapLayers = [];
                                     }
-                        
-                                    mapLayers = [];
-                        
+                                    
                                     let mapData = e.data;
                         
                                     if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
@@ -339,8 +342,9 @@ public static class WpfCmsHtmlDocument
                         
                                 window.chrome.webview.addEventListener('message', function (e) {
                                     console.log(e);
-                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, false);
-                                    if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true);
+                                    if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, true, false);
+                                    if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true, true);
+                                    if(e.data.MessageType === 'AddFeatureCollection') postGeoJsonDataHandler(e, false, false);
                                     if(e.data.MessageType === 'CenterFeatureRequest') {
                                         console.log('Center Feature Request');
                                         map.eachLayer(function (l) {
@@ -422,12 +426,14 @@ public static class WpfCmsHtmlDocument
                         
                                 var mapLayers = [];
                         
-                                function postGeoJsonDataHandler(e, center) {
-                                    if(Object.keys(mapLayers).length > 0) {
-                                        mapLayers.forEach(item => map.removeLayer(item));
+                                function postGeoJsonDataHandler(e, clearCurrent, center) {
+                                    
+                                    if(clearCurrent) {
+                                        if(Object.keys(mapLayers).length > 0) {
+                                            mapLayers.forEach(item => map.removeLayer(item));
+                                        }
+                                        mapLayers = [];
                                     }
-                        
-                                    mapLayers = [];
                         
                                     let mapData = e.data;
                         

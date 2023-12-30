@@ -38,8 +38,8 @@ public static class DistanceTools
     {
         var complongitude = longitude switch
         {
-            (> 179) or (< -179) => latitude - 1,
-            _ => latitude + 1
+            (> 179) or (< -179) => longitude - 1,
+            _ => longitude + 1
         };
 
         var oneDegreeMetersDistance = GetDistanceInMeters(longitude, latitude, complongitude, latitude);

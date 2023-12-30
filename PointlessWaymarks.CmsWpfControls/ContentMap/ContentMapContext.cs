@@ -1,8 +1,6 @@
 using System.Collections.Specialized;
-using System.IO;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Microsoft.Web.WebView2.Core;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
@@ -51,7 +49,6 @@ public partial class ContentMapContext : IWebViewMessenger
 
     public CmsCommonCommands CommonCommands { get; set; }
     public Envelope? ContentBounds { get; set; }
-
     public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ContentListContext ListContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
@@ -61,7 +58,8 @@ public partial class ContentMapContext : IWebViewMessenger
 
     public void JsonFromWebView(object? o, WebViewMessage args)
     {
-        StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args));
+        if(!string.IsNullOrWhiteSpace(args.Message))
+        StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
     }
 
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
@@ -81,44 +79,6 @@ public partial class ContentMapContext : IWebViewMessenger
         var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
 
         return new ContentMapContext(factoryStatusContext, null, factoryListContext, loadInBackground);
-    }
-
-    public Envelope GetBounds(List<IContentListItem> toMeasure)
-    {
-        var boundsKeeper = new List<Point>();
-
-        foreach (var loopElements in toMeasure)
-            switch (loopElements)
-            {
-                case GeoJsonListListItem { DbEntry.GeoJson: not null } mapGeoJson:
-                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
-                        mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
-                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
-                        mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
-                    break;
-                case LineListListItem { DbEntry.Line: not null } mapLine:
-                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
-                        mapLine.DbEntry.InitialViewBoundsMaxLatitude));
-                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
-                        mapLine.DbEntry.InitialViewBoundsMinLatitude));
-                    break;
-            }
-
-        if (toMeasure.Any(x => x is PointListListItem))
-            foreach (var loopElements in toMeasure.Where(x => x is PointListListItem).Cast<PointListListItem>()
-                         .ToList())
-                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
-
-        if (toMeasure.Any(x => x is PhotoListListItem))
-            foreach (var loopElements in toMeasure.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
-                         .ToList())
-            {
-                if (loopElements.DbEntry.Latitude is null || loopElements.DbEntry.Longitude is null) continue;
-
-                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude.Value, loopElements.DbEntry.Latitude.Value));
-            }
-
-        return SpatialConverters.PointBoundingBox(boundsKeeper);
     }
 
     private void ItemsViewOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -154,11 +114,11 @@ public partial class ContentMapContext : IWebViewMessenger
         ListContext.ItemsView().CollectionChanged += ItemsViewOnCollectionChanged;
     }
 
-    private async Task MapMessageReceived(WebViewMessage mapMessage)
+    private async Task MapMessageReceived(string mapMessage)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var parsedJson = JsonNode.Parse(mapMessage.Message);
+        var parsedJson = JsonNode.Parse(mapMessage);
 
         if (parsedJson == null) return;
 
@@ -213,8 +173,9 @@ public partial class ContentMapContext : IWebViewMessenger
         var mapInformation = MapJson.ProcessContentToMapInformation(frozenItems);
 
         ContentBounds = mapInformation.bounds.ToEnvelope();
-        
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(mapInformation.featureList,
+
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+            mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000))));
     }
 
@@ -257,7 +218,7 @@ public partial class ContentMapContext : IWebViewMessenger
         }
 
         var centerData = new MapJsonBoundsDto(
-            new SpatialBounds(toCenter.MaxY, toCenter.MaxX, toCenter.MinY, toCenter.MinX),
+            new SpatialBounds(toCenter.MaxY, toCenter.MaxX, toCenter.MinY, toCenter.MinX).ExpandToMinimumMeters(1000),
             "CenterBoundingBoxRequest");
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -280,7 +241,7 @@ public partial class ContentMapContext : IWebViewMessenger
             return;
         }
 
-        var bounds = GetBounds(filteredItems);
+        var bounds = MapJson.GetBounds(filteredItems);
 
         await RequestMapCenterOnEnvelope(bounds);
     }
@@ -302,7 +263,7 @@ public partial class ContentMapContext : IWebViewMessenger
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var bounds = GetBounds(ListContext.SelectedListItems());
+        var bounds = MapJson.GetBounds(ListContext.SelectedListItems());
 
         await RequestMapCenterOnEnvelope(bounds);
     }

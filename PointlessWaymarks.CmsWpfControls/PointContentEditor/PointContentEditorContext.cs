@@ -62,6 +62,9 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public PointContent DbEntry { get; set; }
+
+
+    public List<Guid> DisplayedContentGuids { get; set; } = new();
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
@@ -70,6 +73,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public SpatialBounds? MapBounds { get; set; } = null;
     public StringDataEntryContext? MapLabelContent { get; set; }
     public PointDetailListContext? PointDetails { get; set; }
     public string PreviewHtml { get; set; } = string.Empty;
@@ -87,7 +91,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public void JsonFromWebView(object? o, WebViewMessage args)
     {
         if (!string.IsNullOrWhiteSpace(args.Message))
-            StatusContext.RunFireAndForgetNonBlockingTask(async () => await ProcessJsonFromWebView(args.Message));
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await MapMessageReceived(args.Message));
     }
 
     [BlockingCommand]
@@ -121,6 +125,19 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         TagEdit!.Tags =
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
+    }
+
+    [NonBlockingCommand]
+    public async Task CenterMapOnSelectedLocation()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var centerData =
+            new MapJsonCoordinateDto(LatitudeEntry.UserValue, LongitudeEntry.UserValue, "CenterCoordinateRequest");
+
+        var serializedData = JsonSerializer.Serialize(centerData);
+
+        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
     }
 
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext? statusContext,
@@ -327,13 +344,14 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             LatitudeEntry.UserValue,
             LongitudeEntry.UserValue, string.Empty);
 
-
         var db = await Db.Context();
         var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
         var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds))
-            .Where(x => x.ContentId != DbEntry.ContentId).ToList();
+            .Where(x => x.ContentId != DbEntry.ContentId && !DisplayedContentGuids.Contains(x.ContentId)).ToList();
         var mapInformation = await MapJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
+        DisplayedContentGuids =
+            DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
         JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
@@ -342,36 +360,48 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
+    public async Task MapMessageReceived(string json)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var parsedJson = JsonNode.Parse(json);
+
+        if (parsedJson == null) return;
+
+        var messageType = parsedJson["messageType"]?.ToString() ?? string.Empty;
+
+        if (messageType.Equals("userSelectedLatitudeLongitudeChanged",
+                StringComparison.InvariantCultureIgnoreCase))
+        {
+            var latitude = parsedJson["latitude"]?.GetValue<double>();
+            var longitude = parsedJson["longitude"]?.GetValue<double>();
+
+            if (latitude == null || longitude == null) return;
+
+            BroadcastLatLongChange = false;
+
+            LatitudeEntry!.UserText = latitude.Value.ToString("F6");
+            LongitudeEntry!.UserText = longitude.Value.ToString("F6");
+
+            BroadcastLatLongChange = true;
+        }
+
+        if (messageType == "mapBoundsChange")
+        {
+            MapBounds = new SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
+                parsedJson["bounds"]["_northEast"]["lng"].GetValue<double>(),
+                parsedJson["bounds"]["_southWest"]["lat"].GetValue<double>(),
+                parsedJson["bounds"]["_southWest"]["lng"].GetValue<double>());
+            return;
+        }
+    }
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
-    }
-
-    public async Task ProcessJsonFromWebView(string json)
-    {
-        if (string.IsNullOrWhiteSpace(json)) return;
-
-        var message = JsonSerializer.Deserialize<JsonNode>(json);
-
-        if (message is null) return;
-
-        if (!message["messageType"]?.GetValue<string>().Equals("userSelectedLatitudeLongitudeChanged",
-                StringComparison.InvariantCultureIgnoreCase) ?? true) return;
-
-        var latitude = message["latitude"]?.GetValue<double>();
-        var longitude = message["longitude"]?.GetValue<double>();
-
-        if (latitude == null || longitude == null) return;
-
-        BroadcastLatLongChange = false;
-
-        LatitudeEntry!.UserText = latitude.Value.ToString("F6");
-        LongitudeEntry!.UserText = longitude.Value.ToString("F6");
-
-        BroadcastLatLongChange = true;
     }
 
     [BlockingCommand]
@@ -407,6 +437,37 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchInBounds()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapBounds == null)
+        {
+            StatusContext.ToastError("No Map Bounds?");
+            return;
+        }
+
+        var searchResult = (await (await Db.Context()).ContentFromBoundingBox(MapBounds)).Where(x =>
+            x.ContentId != DbEntry.ContentId && !DisplayedContentGuids.Contains(x.ContentId)).ToList();
+
+        if (!searchResult.Any())
+        {
+            StatusContext.ToastWarning("No New Items Found");
+            return;
+        }
+
+        StatusContext.ToastSuccess($"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
+
+        var mapInformation = await MapJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
+        DisplayedContentGuids =
+            DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
+
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+            mapInformation.featureList,
+            mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));
     }
 
     [BlockingCommand]

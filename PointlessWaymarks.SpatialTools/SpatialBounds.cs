@@ -30,4 +30,7 @@ public record SpatialBounds(
         if (minimumInMeters is not null) DistanceTools.MinimumEnvelopeInMeters(currentEnvelope, minimumInMeters.Value);
         return currentEnvelope;
     }
+    
+    public double Width() => DistanceTools.GetDistanceInMeters(MinLongitude, MinLatitude, MaxLongitude, MinLatitude);
+    public double Height() => DistanceTools.GetDistanceInMeters(MaxLongitude, MinLatitude, MaxLongitude, MaxLatitude);
 }
