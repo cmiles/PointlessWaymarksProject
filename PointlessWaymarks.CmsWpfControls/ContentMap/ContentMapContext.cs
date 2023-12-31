@@ -1,17 +1,13 @@
 using System.Collections.Specialized;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using DocumentFormat.OpenXml.Spreadsheet;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.GeoJsonList;
-using PointlessWaymarks.CmsWpfControls.LineList;
-using PointlessWaymarks.CmsWpfControls.PhotoList;
-using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -53,44 +49,60 @@ public partial class ContentMapContext : IWebViewMessenger
     public ContentListContext ListContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public string MapHtml { get; set; }
+
+    public bool RefreshMapOnCollectionChanged { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
 
     public void JsonFromWebView(object? o, WebViewMessage args)
     {
-        if(!string.IsNullOrWhiteSpace(args.Message))
-        StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
+        if (!string.IsNullOrWhiteSpace(args.Message))
+            StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
     }
 
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
             await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), windowStatus);
 
-        return new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var toReturn = new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
+        toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
+
+        return toReturn;
     }
 
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         IContentListLoader reportFilter, bool loadInBackground = true)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
 
-        return new ContentMapContext(factoryStatusContext, null, factoryListContext, loadInBackground);
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var toReturn = new ContentMapContext(factoryStatusContext, null, factoryListContext, loadInBackground);
+        toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
+
+        return toReturn;
     }
 
     private void ItemsViewOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        StatusContext.RunNonBlockingTask(RefreshMap);
+        if (RefreshMapOnCollectionChanged) StatusContext.RunNonBlockingTask(async () => await RefreshMap(MapBounds));
     }
 
     public async Task LoadData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext.ItemsView().CollectionChanged -= ItemsViewOnCollectionChanged;
+        RefreshMapOnCollectionChanged = false;
 
         ListContext.ContextMenuItems = new List<ContextMenuItemData>
         {
@@ -105,13 +117,11 @@ public partial class ContentMapContext : IWebViewMessenger
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
         };
 
-        await ListContext.LoadData();
+        await ListContext.LoadData(true);
+
+        RefreshMapOnCollectionChanged = true;
 
         await RefreshMap();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        ListContext.ItemsView().CollectionChanged += ItemsViewOnCollectionChanged;
     }
 
     private async Task MapMessageReceived(string mapMessage)
@@ -153,7 +163,7 @@ public partial class ContentMapContext : IWebViewMessenger
     }
 
     [BlockingCommand]
-    public async Task RefreshMap()
+    public async Task RefreshMap(SpatialBounds? bounds = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -175,7 +185,7 @@ public partial class ContentMapContext : IWebViewMessenger
         ContentBounds = mapInformation.bounds.ToEnvelope();
 
         JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
-            mapInformation.featureList,
+            mapInformation.featureList, bounds ??
             mapInformation.bounds.ExpandToMinimumMeters(1000))));
     }
 
@@ -291,11 +301,15 @@ public partial class ContentMapContext : IWebViewMessenger
 
         var allGuids = currentGuids.Union(searchResultGuids).ToList();
 
+        RefreshMapOnCollectionChanged = false;
+
         ListContext.ContentListLoader = new ContentListLoaderReport(async () =>
             (await (await Db.Context()).ContentFromContentIds(allGuids)).Cast<object>().ToList());
         await ListContext.LoadData(true);
 
-        await RefreshMap();
+        RefreshMapOnCollectionChanged = true;
+
+        await RefreshMap(MapBounds);
     }
 
     public IContentListItem? SelectedListItem()

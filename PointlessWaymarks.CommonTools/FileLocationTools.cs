@@ -76,7 +76,7 @@ public static class FileLocationTools
     public static DirectoryInfo TempStorageDirectory()
     {
         var directory = new DirectoryInfo(Path.Combine(
-            FileLocationTools.DefaultStorageDirectory().FullName, 
+            DefaultStorageDirectory().FullName, 
             "TemporaryFiles"));
 
         if (!directory.Exists) directory.Create();
@@ -88,18 +88,7 @@ public static class FileLocationTools
 
     public static DirectoryInfo TempStorageHtmlDirectory()
     {
-        var directory = new DirectoryInfo(Path.Combine(TempStorageDirectory().FullName, "Html"));
-
-        if (!directory.Exists) directory.Create();
-
-        directory.Refresh();
-
-        return directory;
-    }
-    
-    public static DirectoryInfo TempStorageHtmlImageDirectory()
-    {
-        var directory = new DirectoryInfo(Path.Combine(TempStorageHtmlDirectory().FullName, "Images"));
+        var directory = new DirectoryInfo(Path.Combine(DefaultStorageDirectory().FullName, "LocalHtml"));
 
         if (!directory.Exists) directory.Create();
 

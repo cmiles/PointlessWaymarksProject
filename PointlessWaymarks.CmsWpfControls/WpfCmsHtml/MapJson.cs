@@ -179,8 +179,10 @@ public static class MapJson
         {
             var featureCollection = new FeatureCollection();
 
-            foreach (var loopElements in frozenItems.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
-                         .ToList())
+            var photoListItems = frozenItems.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
+                .ToList();
+            
+            foreach (var loopElements in photoListItems)
             {
                 if (loopElements.DbEntry.Latitude is null || loopElements.DbEntry.Longitude is null) continue;
 
@@ -188,11 +190,11 @@ public static class MapJson
 
                 if (!string.IsNullOrWhiteSpace(loopElements.SmallImageUrl))
                 {
-                    var tempImg = Path.Combine(FileLocationTools.TempStorageHtmlDirectory().FullName,
-                        Path.GetFileName(loopElements.SmallImageUrl));
-                    File.Copy(loopElements.SmallImageUrl, tempImg, true);
+                    var tempImg = new FileInfo(Path.Combine(FileLocationTools.TempStorageHtmlDirectory().FullName,
+                        Path.GetFileName(loopElements.SmallImageUrl)));
+                    if(!tempImg.Exists) File.Copy(loopElements.SmallImageUrl, tempImg.FullName, false);
                     description = $"""
-                                   <img src="https://localcms.pointlesswaymarks.com/{Path.GetFileName(loopElements.SmallImageUrl)}"/>
+                                   <img src="https://localcmshtml.pointlesswaymarks.com/{tempImg.Name}"/>
                                    """;
                 }
                 else
@@ -309,11 +311,11 @@ public static class MapJson
 
                 if (smallImageUrl != null)
                 {
-                    var tempImg = Path.Combine(FileLocationTools.TempStorageHtmlDirectory().FullName,
-                        Path.GetFileName(smallImageUrl));
-                    File.Copy(smallImageUrl, tempImg, true);
+                    var tempImg = new FileInfo(Path.Combine(FileLocationTools.TempStorageHtmlDirectory().FullName,
+                        Path.GetFileName(smallImageUrl)));
+                    if(!tempImg.Exists) File.Copy(smallImageUrl, tempImg.FullName, false);
                     description = $"""
-                                   <img src="https://localcms.pointlesswaymarks.com/{Path.GetFileName(smallImageUrl)}"/>
+                                   <img src="https://localcmshtml.pointlesswaymarks.com/{Path.GetFileName(smallImageUrl)}"/>
                                    """;
                 }
                 else

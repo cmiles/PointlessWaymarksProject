@@ -1,4 +1,14 @@
-﻿using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.FileList;
+using PointlessWaymarks.CmsWpfControls.GeoJsonList;
+using PointlessWaymarks.CmsWpfControls.ImageList;
+using PointlessWaymarks.CmsWpfControls.LineList;
+using PointlessWaymarks.CmsWpfControls.LinkList;
+using PointlessWaymarks.CmsWpfControls.MapComponentList;
+using PointlessWaymarks.CmsWpfControls.NoteList;
+using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.PointList;
+using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
@@ -31,6 +41,49 @@ public static class ContentListSearch
 
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterStringContains(cameraMakeModel, searchString, "Camera"),
+            searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchContentType(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        searchString = searchString[5..].TrimNullToEmpty();
+
+        //!!Content Type List!!
+        var matchFound =
+            (searchString.Equals("File", StringComparison.OrdinalIgnoreCase) && toFilter is FileListListItem)
+            || (searchString.Equals("File", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is FileListListItem)
+            || (searchString.Equals("GeoJson", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is GeoJsonListListItem)
+            || (searchString.Equals("Image", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is ImageListListItem)
+            || (searchString.Equals("Line", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is LineListListItem)
+            || (searchString.Equals("Link", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is LinkListListItem)
+            || (searchString.Equals("Map", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is MapComponentListListItem)
+            || (searchString.Equals("Note", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is NoteListListItem)
+            || (searchString.Equals("Photo", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is PhotoListListItem)
+            || (searchString.Equals("Photograph", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is PhotoListListItem)
+            || (searchString.Equals("Point", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is PointListListItem)
+            || (searchString.Equals("Post", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is PostListListItem)
+            || (searchString.Equals("Video", StringComparison.OrdinalIgnoreCase) &&
+                toFilter is VideoListListItem);
+
+        if (!matchFound)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    $"Content Type did not Match Search String {searchString}"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            new ContentListSearchFunctionReturn(matchFound, $"Content Type did not Match Search String {searchString}"),
             searchResultModifier);
     }
 
@@ -255,6 +308,7 @@ public static class ContentListSearch
                 searchString.Trim(), "Title"), searchResultModifier);
     }
 
-    public record ContentListSearchReturn(ContentListSearchFunctionReturn SearchFunctionReturn,
+    public record ContentListSearchReturn(
+        ContentListSearchFunctionReturn SearchFunctionReturn,
         Func<bool, bool> ResultModifier);
 }

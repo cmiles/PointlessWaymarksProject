@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
+namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
 
 public static class SearchHelpMarkdown
 {
@@ -33,6 +33,7 @@ General
   - Summary: (string)
   - Tags: (string)
   - Title: (string)
+  - Type: (string) - this is the type of content - for example 'Photo' or 'Post'
 
 Photo Specific
   - Lens: (string)

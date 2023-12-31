@@ -137,6 +137,11 @@ public static class WpfCmsHtmlDocument
                              <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
                                 style="height: 98vh;"></div>
                             <script>
+                                function broadcastProgress(progress) {
+                                    console.log(progress);
+                                    window.chrome.webview.postMessage( { "messageType": "progress", "message": progress } );
+                                }
+                            
                                 {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
                         
                                 var map = L.map('mainMap', {
@@ -241,6 +246,7 @@ public static class WpfCmsHtmlDocument
                                 function postGeoJsonDataHandler(e, clearCurrent, center) {
                                     
                                     if(clearCurrent) {
+                                        broadcastProgress('Clearing Map Layers');
                                         if(Object.keys(mapLayers).length > 0) {
                                             mapLayers.forEach(item => map.removeLayer(item));
                                         }
@@ -252,13 +258,17 @@ public static class WpfCmsHtmlDocument
                                     if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
                         
                                     if(center) {
-                                        map.flyToBounds([
+                                        map.fitBounds([
                                             [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
                                             [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
                                         ]);
                                     }
                                     
+                                    var newLayerCount = mapData.GeoJsonLayers.length;
+                                    var currentCount = 0;
+                                    
                                     mapData.GeoJsonLayers.forEach(item => {
+                                        broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
                                         let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle});
                                         mapLayers.push(newLayer);
                                         map.addLayer(newLayer); });
@@ -295,6 +305,11 @@ public static class WpfCmsHtmlDocument
                              <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
                                 style="height: 98vh;"></div>
                             <script>
+                                function broadcastProgress(progress) {
+                                    console.log(progress);
+                                    window.chrome.webview.postMessage( { "messageType": "progress", "message": progress } );
+                                }
+
                                 {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
                         
                                 var map = L.map('mainMap', {
@@ -346,7 +361,7 @@ public static class WpfCmsHtmlDocument
                                     if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true, true);
                                     if(e.data.MessageType === 'AddFeatureCollection') postGeoJsonDataHandler(e, false, false);
                                     if(e.data.MessageType === 'CenterFeatureRequest') {
-                                        console.log('Center Feature Request');
+                                        broadcastProgress('Center Feature Request');
                                         map.eachLayer(function (l) {
                                             if (l.feature?.properties?.displayId === e.data.DisplayId) {
                                                 console.log(`l.feature?.geometry?.type ${l.feature?.geometry?.type}`);
@@ -361,7 +376,7 @@ public static class WpfCmsHtmlDocument
                                         })
                                     }
                                     if(e.data.MessageType === 'ShowPopupsFor') {
-                                        console.log(`Show Popups Request`);
+                                        broadcastProgress(`Show Popups Request`);
                                         map.eachLayer(function (l) {
                                             if(!l.feature?.properties?.displayId) return;
                                             if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
@@ -376,15 +391,15 @@ public static class WpfCmsHtmlDocument
                                         })
                                     }
                                     if(e.data.MessageType === 'CenterCoordinateRequest') {
-                                        console.log('Center Coordinate Request');
+                                        broadcastProgress('Center Coordinate Request');
                                         map.flyTo([e.data.Latitude, e.data.Longitude]);
                                     }
                                     if(e.data.MessageType === 'CenterBoundingBoxRequest') {
-                                        console.log('Center Bounding Box Request');
+                                        broadcastProgress('Center Bounding Box Request');
                                         map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
                                     }
                                     if(e.data.MessageType === 'MoveUserLocationSelection') {
-                                        console.log('Mover User Location Selection Request');
+                                        broadcastProgress('Mover User Location Selection Request');
                                         pointContentMarker.setLatLng([e.data.Latitude,e.data.Longitude]);
                                         map.setView([e.data.Latitude,e.data.Longitude], map.getZoom());
                                     }
@@ -429,6 +444,7 @@ public static class WpfCmsHtmlDocument
                                 function postGeoJsonDataHandler(e, clearCurrent, center) {
                                     
                                     if(clearCurrent) {
+                                        broadcastProgress('Clearing Map Layers');
                                         if(Object.keys(mapLayers).length > 0) {
                                             mapLayers.forEach(item => map.removeLayer(item));
                                         }
@@ -446,7 +462,11 @@ public static class WpfCmsHtmlDocument
                                         ]);
                                     }
                         
+                                    var newLayerCount = mapData.GeoJsonLayers.length;
+                                    var currentCount = 0;
+                        
                                     mapData.GeoJsonLayers.forEach(item => {
+                                        broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
                                         let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle, pointToLayer: function (feature, latlng) { return L.circleMarker(latlng, geojsonMarkerOptions) } });
                                         mapLayers.push(newLayer);
                                         map.addLayer(newLayer); });

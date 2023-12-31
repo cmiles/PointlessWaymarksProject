@@ -377,7 +377,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                 // ReSharper disable All
                 ((dynamic)existingItem).DbEntry = (dynamic)loopItem;
-            // ReSharper restore All
+                // ReSharper restore All
 
             if (loopItem is IMainImage mainImage && existingItem is IContentListSmallImage itemWithSmallImage)
                 itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
@@ -488,32 +488,33 @@ public partial class ContentListContext : IDragSource, IDropTarget
             Func<IContentListItem, string, Func<bool, bool>, ContentListSearch.ContentListSearchReturn>
                 searchFilterFunction;
 
-            if (searchString.ToUpper().StartsWith("SUMMARY:")) searchFilterFunction = ContentListSearch.SearchSummary;
-            else if (searchString.ToUpper().StartsWith("TITLE:")) searchFilterFunction = ContentListSearch.SearchTitle;
-            else if (searchString.ToUpper().StartsWith("FOLDER:"))
+            if (searchString.StartsWith("SUMMARY:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchSummary;
+            else if (searchString.StartsWith("TITLE:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchTitle;
+            else if (searchString.StartsWith("TYPE:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchContentType;
+            else if (searchString.StartsWith("FOLDER:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchFolder;
-            else if (searchString.ToUpper().StartsWith("CREATED ON:"))
+            else if (searchString.StartsWith("CREATED ON:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchCreatedOn;
-            else if (searchString.ToUpper().StartsWith("CREATED BY:"))
+            else if (searchString.StartsWith("CREATED BY:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchCreatedBy;
-            else if (searchString.ToUpper().StartsWith("LAST UPDATED ON:"))
+            else if (searchString.StartsWith("LAST UPDATED ON:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedOn;
-            else if (searchString.ToUpper().StartsWith("LAST UPDATED BY:"))
+            else if (searchString.StartsWith("LAST UPDATED BY:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedBy;
-            else if (searchString.ToUpper().StartsWith("TAGS:")) searchFilterFunction = ContentListSearch.SearchTags;
-            else if (searchString.ToUpper().StartsWith("CAMERA:"))
+            else if (searchString.StartsWith("TAGS:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchTags;
+            else if (searchString.StartsWith("CAMERA:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchCamera;
-            else if (searchString.ToUpper().StartsWith("LENS:")) searchFilterFunction = ContentListSearch.SearchLens;
-            else if (searchString.ToUpper().StartsWith("LICENSE:"))
+            else if (searchString.StartsWith("LENS:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchLens;
+            else if (searchString.StartsWith("LICENSE:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLicense;
-            else if (searchString.ToUpper().StartsWith("PHOTO CREATED ON:"))
+            else if (searchString.StartsWith("PHOTO CREATED ON:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchPhotoCreatedOn;
-            else if (searchString.ToUpper().StartsWith("APERTURE:"))
+            else if (searchString.StartsWith("APERTURE:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchAperture;
-            else if (searchString.ToUpper().StartsWith("SHUTTER SPEED:"))
+            else if (searchString.StartsWith("SHUTTER SPEED:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchShutterSpeed;
-            else if (searchString.ToUpper().StartsWith("ISO:")) searchFilterFunction = ContentListSearch.SearchIso;
-            else if (searchString.ToUpper().StartsWith("FOCAL LENGTH:"))
+            else if (searchString.StartsWith("ISO:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchIso;
+            else if (searchString.StartsWith("FOCAL LENGTH:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchFocalLength;
             else searchFilterFunction = ContentListSearch.SearchGeneral;
 
