@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="DataGridExtensions" Version="2.5.15" />
+    <PackageReference Include="DataGridExtensions" Version="2.6.0" />
     <PackageReference Include="Fractions" Version="7.3.0" />
     <PackageReference Include="GitInfo" Version="3.3.3">
       <PrivateAssets>all</PrivateAssets>

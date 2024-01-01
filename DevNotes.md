@@ -1,10 +1,5 @@
-﻿## Todos
- - GPX Import
-   - Remove Item from Map when removed from List - or is having it on the list useful?
-   - Sync Item names? Or is having the original name on the map useful?
-   - Button on map to select in list
- - Photo Location Map Chooser
- - Better draft conflict protection - perhaps a check in site generation?
+## Todos
+ - Local HTML Cleanup - especially images... Review!
  - For geo types and notes review local file cleanup on delete
  - Is File Content being detected as changing more than intended?
  - Check whole site import - test(s)?
@@ -20,6 +15,10 @@
  - Could all in app font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
 
 ## Notes
+
+1/1/2024
+
+Happy near year! This project starts the New Year with over 1400 commits, new Spatial Content Map functionality in the CMS and Feed Reader and Cloud Backup programs that have been in use for months at this point. It is quite a prvelege to be able to take a purely personal project so far!
 
 7/30/2023
 
