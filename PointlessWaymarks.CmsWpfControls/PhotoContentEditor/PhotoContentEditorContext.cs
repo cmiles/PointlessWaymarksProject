@@ -66,6 +66,9 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     public PhotoContent DbEntry { get; set; }
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
     public StringDataEntryContext? FocalLengthEntry { get; set; }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public FileInfo? InitialPhoto { get; set; }
     public ConversionDataEntryContext<int?>? IsoEntry { get; set; }
@@ -78,7 +81,6 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     public StringDataEntryContext? PhotoCreatedByEntry { get; set; }
     public ConversionDataEntryContext<DateTime>? PhotoCreatedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? PhotoCreatedOnUtcEntry { get; set; }
-
 
     public string PhotoEditorHelpText =>
         @"
@@ -112,9 +114,6 @@ Photo Content Notes:
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
     }
-
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     [BlockingCommand]
     private async Task AddFeatureIntersectTags()
@@ -356,6 +355,23 @@ Photo Content Notes:
     }
 
     [BlockingCommand]
+    public async Task GetLocationOnMap()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await LocationChooserWindow.CreateInstance(LatitudeEntry!.UserValue, LongitudeEntry!.UserValue,
+            ElevationEntry!.UserValue, TitleSummarySlugFolder.TitleEntry.UserValue);
+
+        var result = await window.PositionWindowAndShowDialogOnUiThread();
+
+        if (!result ?? true) return;
+
+        LatitudeEntry.UserText = window.LocationChooser.LatitudeEntry.UserText;
+        LongitudeEntry.UserText = window.LocationChooser.LongitudeEntry.UserText;
+        ElevationEntry.UserText = window.LocationChooser.ElevationEntry.UserText;
+    }
+
+    [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -570,7 +586,8 @@ Photo Content Notes:
             InitialPhoto = null;
             var (generationReturn, metadataReturn) =
                 await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
-            if (!generationReturn.HasError && metadataReturn != null) await PhotoMetadataToCurrentContent(metadataReturn);
+            if (!generationReturn.HasError && metadataReturn != null)
+                await PhotoMetadataToCurrentContent(metadataReturn);
         }
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
@@ -776,7 +793,7 @@ Photo Content Notes:
         }
 
         SelectedFileBitmapSource = await ImageHelpers.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
-        
+
         TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
     }
 

@@ -63,7 +63,6 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
-
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public string PreviewHtml { get; set; }
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
@@ -72,7 +71,6 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
-
 
     public void CheckForChangesAndValidationIssues()
     {

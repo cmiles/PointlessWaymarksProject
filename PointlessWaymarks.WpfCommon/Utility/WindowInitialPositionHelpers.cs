@@ -101,8 +101,7 @@ public static class WindowInitialPositionHelpers
     /// <returns></returns>
     public static void PositionWindowAndShow(this Window toPosition)
     {
-        var positionReference = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ??
-                                Application.Current.Windows.OfType<Window>().FirstOrDefault();
+        var positionReference = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ?? Application.Current.Windows.OfType<Window>().FirstOrDefault();
 
         if (positionReference != null)
         {
@@ -113,6 +112,22 @@ public static class WindowInitialPositionHelpers
         EnsureWindowIsVisible(toPosition, positionReference);
 
         toPosition.Show();
+    }
+
+    public static bool? PositionWindowAndShowDialog(this Window toPosition)
+    {
+        var positionReference = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ?? Application.Current.Windows.OfType<Window>().FirstOrDefault();
+
+        if (positionReference != null)
+        {
+            toPosition.Owner = positionReference;
+        }
+        else
+        {
+            EnsureWindowIsVisible(toPosition, positionReference);
+        }
+
+        return toPosition.ShowDialog();
     }
 
     /// <summary>
@@ -127,6 +142,13 @@ public static class WindowInitialPositionHelpers
         await ThreadSwitcher.ResumeForegroundAsync();
 
         toPosition.PositionWindowAndShow();
+    }
+    
+    public static async Task<bool?> PositionWindowAndShowDialogOnUiThread(this Window toPosition)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return toPosition.PositionWindowAndShowDialog();
     }
 
     private enum DpiType

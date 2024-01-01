@@ -1,17 +1,72 @@
-﻿using System.Windows;
+using System.Windows;
 using Microsoft.Web.WebView2.Core;
+using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
+using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
+using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
-public partial class LocationChooserWindow : Window
+[NotifyPropertyChanged]
+public partial class LocationChooserWindow
 {
     public LocationChooserWindow()
     {
         InitializeComponent();
+        StatusContext = new StatusControlContext();
+        DataContext = this;
+        WindowTitle =
+            $"Location Chooser{(string.IsNullOrEmpty(ChooseFor) ? "" : $" - {ChooseFor}")} - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
-    private void PointContentWebView_OnCoreWebView2InitializationCompleted(object? sender, CoreWebView2InitializationCompletedEventArgs e)
+    public LocationChooserContext? LocationChooser { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public string WindowTitle { get; set; }
+    public string ChooseFor { get; set; }
+
+    /// <summary>
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed. Does not show the window - consider using
+    ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<LocationChooserWindow> CreateInstance(double? initialLatitude, double? initialLongitude,
+        double? initialElevation, string chooseForName)
     {
-        throw new NotImplementedException();
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = new LocationChooserWindow() { ChooseFor = chooseForName };
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        window.LocationChooser = await LocationChooserContext.CreateInstance(window.StatusContext, initialLatitude, initialLongitude,  initialElevation);
+        await window.LocationChooser.LoadData();
+        
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return window;
+    }
+
+    private async void CancelButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        DialogResult = false;
+    }
+
+    private async void ChooseLocationButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        if (LocationChooser.HasValidationIssues)
+        {
+            StatusContext.ToastError("Validation Error...");
+            return;
+        }
+        
+        DialogResult = true;
     }
 }

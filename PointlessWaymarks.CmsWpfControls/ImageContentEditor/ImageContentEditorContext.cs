@@ -60,7 +60,6 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
     public FileInfo? LoadedFile { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public bool ResizeSelectedFile { get; set; }
-
     public EventHandler<EventArgs>? Saved { get; set; }
     public FileInfo? SelectedFile { get; set; }
     public BitmapSource? SelectedFileBitmapSource { get; set; }

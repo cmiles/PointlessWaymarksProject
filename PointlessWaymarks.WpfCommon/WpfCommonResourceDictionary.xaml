@@ -4,6 +4,7 @@
                     xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <valueConverters:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+    <valueConverters:BooleanOrToNotVisibilityMultiConverter x:Key="BooleanNotToVisibilityMulti" />
     <valueConverters:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
     <valueConverters:NullOrWhiteSpaceStringToVisibleVisibilityConverter x:Key="NullOrWhiteSpaceStringToVisible" />
     <valueConverters:NullOrWhiteSpaceStringToDefaultConverter x:Key="NullOrWhiteSpaceStringToDefault" />

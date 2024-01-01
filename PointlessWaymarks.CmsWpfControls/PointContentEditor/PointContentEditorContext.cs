@@ -62,8 +62,6 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public PointContent DbEntry { get; set; }
-
-
     public List<Guid> DisplayedContentGuids { get; set; } = new();
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
     public bool HasChanges { get; set; }

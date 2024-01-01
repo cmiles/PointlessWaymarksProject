@@ -1,26 +1,93 @@
-﻿using PointlessWaymarks.CmsData.Content;
+using System.ComponentModel;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class LocationChooserContext
+public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndValidation,
+    IHasValidationIssues, IWebViewMessenger
 {
-    public bool BroadcastLatLongChange { get; set; } = true;
-    public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
-    public double? InitialElevation { get; set; }
+    public LocationChooserContext(StatusControlContext statusContext)
+    {
+        StatusContext = statusContext;
 
+        BuildCommands();
+
+        JsonToWebView = new WorkQueue<WebViewMessage>(true);
+
+        PropertyChanged += OnPropertyChanged;
+    }
+
+    public bool BroadcastLatLongChange { get; set; } = true;
+    public List<Guid> DisplayedContentGuids { get; set; } = new();
+    public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
+
+    public bool HasChanges { get; set; }
+
+    public bool HasValidationIssues { get; set; }
+    public double? InitialElevation { get; set; }
     public double InitialLatitude { get; set; }
     public double InitialLongitude { get; set; }
+    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
+    public SpatialBounds? MapBounds { get; set; }
+    public string PreviewHtml { get; set; } = string.Empty;
     public StatusControlContext StatusContext { get; set; }
+
+    public void CheckForChangesAndValidationIssues()
+    {
+        HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
+        HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
+    }
+
+    public void JsonFromWebView(object? o, WebViewMessage args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.Message))
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await MapMessageReceived(args.Message));
+    }
+
+    [NonBlockingCommand]
+    public async Task CenterMapOnSelectedLocation()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var centerData =
+            new MapJsonCoordinateDto(LatitudeEntry.UserValue, LongitudeEntry.UserValue, "CenterCoordinateRequest");
+
+        var serializedData = JsonSerializer.Serialize(centerData);
+
+        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+    }
+
+    public static async Task<LocationChooserContext> CreateInstance(StatusControlContext windowStatusContext,
+        double? initialLatitude, double? initialLongitude, double? initialElevation)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        return new LocationChooserContext(windowStatusContext)
+        {
+            InitialLatitude = initialLatitude ?? UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            InitialLongitude = initialLongitude ?? UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            InitialElevation = initialElevation
+        };
+    }
 
     [BlockingCommand]
     public async Task GetElevation()
@@ -40,8 +107,14 @@ public partial class LocationChooserContext
     private void LatitudeLongitudeChangeBroadcast()
     {
         if (BroadcastLatLongChange && !LatitudeEntry!.HasValidationIssues && !LongitudeEntry!.HasValidationIssues)
-            RaisePointLatitudeLongitudeChange?.Invoke(this,
-                new PointLatitudeLongitudeChange(LatitudeEntry.UserValue, LongitudeEntry.UserValue));
+        {
+            var centerData = new MapJsonCoordinateDto(LatitudeEntry.UserValue, LongitudeEntry.UserValue,
+                "MoveUserLocationSelection");
+
+            var serializedData = JsonSerializer.Serialize(centerData);
+
+            JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+        }
     }
 
     public async Task LoadData()
@@ -92,17 +165,97 @@ public partial class LocationChooserContext
             if (string.IsNullOrWhiteSpace(args.PropertyName)) return;
             if (args.PropertyName == nameof(LongitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
         };
+
+        PreviewHtml = await WpfCmsHtmlDocument.ToHtmlLeafletPointDocument("Point", Guid.NewGuid(),
+            LatitudeEntry.UserValue,
+            LongitudeEntry.UserValue, string.Empty);
+
+        var db = await Db.Context();
+        var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
+
+        var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds)).ToList();
+        var mapInformation = await MapJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
+        DisplayedContentGuids =
+            DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
+
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+            mapInformation.featureList,
+            mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
+        
+        PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    public void OnRaisePointLatitudeLongitudeChange(object? sender, PointLatitudeLongitudeChange e)
+    public async Task MapMessageReceived(string json)
     {
-        BroadcastLatLongChange = false;
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
-        LatitudeEntry!.UserText = e.Latitude.ToString("F6");
-        LongitudeEntry!.UserText = e.Longitude.ToString("F6");
+        var parsedJson = JsonNode.Parse(json);
 
-        BroadcastLatLongChange = true;
+        if (parsedJson == null) return;
+
+        var messageType = parsedJson["messageType"]?.ToString() ?? string.Empty;
+
+        if (messageType.Equals("userSelectedLatitudeLongitudeChanged",
+                StringComparison.InvariantCultureIgnoreCase))
+        {
+            var latitude = parsedJson["latitude"]?.GetValue<double>();
+            var longitude = parsedJson["longitude"]?.GetValue<double>();
+
+            if (latitude == null || longitude == null) return;
+
+            BroadcastLatLongChange = false;
+
+            LatitudeEntry!.UserText = latitude.Value.ToString("F6");
+            LongitudeEntry!.UserText = longitude.Value.ToString("F6");
+
+            BroadcastLatLongChange = true;
+        }
+
+        if (messageType == "mapBoundsChange")
+        {
+            MapBounds = new SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
+                parsedJson["bounds"]["_northEast"]["lng"].GetValue<double>(),
+                parsedJson["bounds"]["_southWest"]["lat"].GetValue<double>(),
+                parsedJson["bounds"]["_southWest"]["lng"].GetValue<double>());
+            return;
+        }
     }
 
-    public event EventHandler<PointLatitudeLongitudeChange>? RaisePointLatitudeLongitudeChange;
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
+            CheckForChangesAndValidationIssues();
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchInBounds()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapBounds == null)
+        {
+            StatusContext.ToastError("No Map Bounds?");
+            return;
+        }
+
+        var searchResult = (await (await Db.Context()).ContentFromBoundingBox(MapBounds)).ToList();
+
+        if (!searchResult.Any())
+        {
+            StatusContext.ToastWarning("No New Items Found");
+            return;
+        }
+
+        StatusContext.ToastSuccess($"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
+
+        var mapInformation = await MapJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
+        DisplayedContentGuids =
+            DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
+
+        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+            mapInformation.featureList,
+            mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));
+    }
 }

@@ -58,7 +58,6 @@ public partial class FileContentEditorContext : IHasChangesExtended, IHasValidat
     public FileContent DbEntry { get; set; }
     public BoolDataEntryContext? EmbedFile { get; set; }
 
-
     public string FileEditorHelpText =>
         @"
 ### File Content
@@ -83,9 +82,7 @@ Notes:
 
     public bool FileIsMp4 { get; set; }
     public bool FileIsPdf { get; set; }
-
     public bool HasChanges { get; set; }
-
     public List<(bool hasChanges, string description)> HasChangesChangedList { get; set; } = new();
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }

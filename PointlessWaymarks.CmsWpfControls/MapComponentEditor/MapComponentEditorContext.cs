@@ -9,7 +9,6 @@ using NetTopologySuite.Features;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
@@ -73,7 +72,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public List<MapElement> DbElements { get; set; } = new();
     public MapComponent DbEntry { get; set; }
-
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext HelpContext { get; set; }
