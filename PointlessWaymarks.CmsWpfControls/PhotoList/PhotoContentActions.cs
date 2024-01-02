@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +9,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
@@ -29,9 +30,11 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
         BuildCommands();
     }
 
+    public StatusControlContext StatusContext { get; set; }
+
     public string DefaultBracketCode(PhotoContent? content)
     {
-        return content?.ContentId == null ? string.Empty : @$"{BracketCodePhotos.Create(content)}";
+        return content?.ContentId == null ? string.Empty : $"{BracketCodePhotos.Create(content)}";
     }
 
     [BlockingCommand]
@@ -45,7 +48,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
             return;
         }
 
-        var finalString = @$"{BracketCodePhotos.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodePhotos.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -144,7 +147,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(PhotoContent? content)
@@ -192,13 +195,11 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.PhotoPageUrl(content)}";
+        var url = $"{settings.PhotoPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     private static async Task<List<object>> ApertureFilter(PhotoContent? content)
     {
@@ -358,6 +359,38 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
                 await PhotoListWithActionsContext.CreateInstance(null, null, reportLoader));
         await newWindow.PositionWindowAndShowOnUiThread();
         newWindow.WindowTitle = title;
+    }
+
+    [NonBlockingCommand]
+    public async Task ShowOnMap(PhotoContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        if (content.Id < 1)
+        {
+            StatusContext.ToastError("Entry is not saved - Skipping?");
+            return;
+        }
+
+        if (content.Latitude == null || content.Longitude == null)
+        {
+            StatusContext.ToastError("No Location Data?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var mapWindow =
+            await ContentMapWindow.CreateInstance(new ContentMapListLoader("Mapped Content",
+                new List<Guid> { content.ContentId }));
+
+        await mapWindow.PositionWindowAndShowOnUiThread();
     }
 
     public static async Task<List<object>> ShutterSpeedSearch(PhotoContent? content)

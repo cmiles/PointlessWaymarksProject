@@ -274,7 +274,7 @@ public static class WpfCmsHtmlDocument
                                         map.addLayer(newLayer); });
                                 };
                         
-                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
+                                window.chrome.webview.postMessage( { "messageType": "scriptFinished" } );
                         
                             </script>
                         </body>
@@ -323,13 +323,13 @@ public static class WpfCmsHtmlDocument
                                 var baseMaps = {
                                     {{string.Join(",", layers.Select(x => $"\"{x.LayerName}\" : {x.LayerVariableName}"))}}
                                 };
-                                
-                                L.control.layers(baseMaps).addTo(map);
-                        
+
                                 map.on('moveend', function(e) {
                                     window.chrome.webview.postMessage( { "messageType": "mapBoundsChange", "bounds": map.getBounds() } );
                                 });
                                 
+                                L.control.layers(baseMaps).addTo(map);
+                        
                                 map.on('dblclick', function (e) {
                                     console.log(e);
                                     pointContentMarker.setLatLng(e.latlng);
@@ -472,7 +472,7 @@ public static class WpfCmsHtmlDocument
                                         map.addLayer(newLayer); });
                                 };
                         
-                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
+                                window.chrome.webview.postMessage( { "messageType": "scriptFinished" } );
                         
                             </script>
                         </body>

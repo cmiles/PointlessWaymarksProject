@@ -1,4 +1,4 @@
-﻿<ResourceDictionary
+<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
@@ -20,7 +20,8 @@
     xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList">
+    xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
+    xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -29,7 +30,8 @@
     <utility:ListItemTypeToReadableNameConverter x:Key="ListItemTypeToReadableName" />
     <lineList:LineHasRecordedOnVisibilityConverter x:Key="LineListHasRecordedOnVisibility" />
     <lineList:LineRecordedOnSearchLabelConverter x:Key="LineRecordedOnSearchLabel" />
-
+    <lineList:LineRecordedOnToStringConverter x:Key="LineRecordedOnToString" />
+    <wpfHelpers:DbEntryHasLocationToCollapsedVisibilityConverter x:Key="DbEntryHasLocationToCollapsedVisibility" />
 
     <Style x:Key="DataEntryComboBoxStyle" TargetType="ComboBox">
         <Setter Property="Margin" Value="6,0,0,0" />
@@ -184,6 +186,7 @@
             FontWeight="Bold"
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="(Main Feed)"
+            Margin="6,0,0,0"
             Visibility="{Binding DbEntry.ShowInMainSiteFeed, TargetNullValue=Collapsed, FallbackValue=Collapsed, Converter={StaticResource BooleanToVisibility}}"
             TextWrapping="Wrap">
             <TextBox.InputBindings>
@@ -291,6 +294,12 @@
                     ToolTip="Last Updated On - click to search for other content last updated on the same date"
                     ToolTipService.ShowOnDisabled="True" />
             </Button.Content>
+        </Button>
+        <Button
+            Command="{Binding DataContext.ItemActions.ShowOnMapCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+            CommandParameter="{Binding DbEntry}"
+            Visibility="{Binding DbEntry, Converter={StaticResource DbEntryHasLocationToCollapsedVisibility}}">
+            Map
         </Button>
     </WrapPanel>
     <WrapPanel
@@ -534,6 +543,29 @@
                         <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                        <WrapPanel
+                            Margin="4,4,0,0"
+                            Orientation="Horizontal"
+                            Visibility="{Binding DbEntry, Converter={StaticResource LineListHasRecordedOnVisibility}}">
+                            <WrapPanel.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Margin" Value="8,0,0,0"></Setter>
+                                </Style>
+                            </WrapPanel.Resources>
+                            <TextBlock>Stats:</TextBlock>
+                            <TextBlock Text="{Binding DbEntry.LineDistance, StringFormat='{}{0} Miles'}">
+                            </TextBlock>
+                            <TextBlock Text="{Binding DbEntry.ClimbElevation, StringFormat='{}{0}\' Climb'}">
+                            </TextBlock>
+                            <TextBlock Text="{Binding DbEntry.DescentElevation, StringFormat='{}{0}\' Descent'}">
+                            </TextBlock>
+                            <TextBlock Text="{Binding DbEntry.MinimumElevation, StringFormat='{}{0}\' Min Elevation'}">
+                            </TextBlock>
+                            <TextBlock Text="{Binding DbEntry.MaximumElevation, StringFormat='{}{0}\' Max Elevation'}">
+                            </TextBlock>
+                            <TextBlock Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}}">
+                            </TextBlock>
+                        </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
                         <WrapPanel
                             Margin="0,4,0,0"
@@ -755,6 +787,12 @@
                                 </Button.Content>
                             </Button>
                             <Button
+                                Command="{Binding DataContext.ItemActions.ShowOnMapCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                CommandParameter="{Binding DbEntry}"
+                                Visibility="{Binding DbEntry, Converter={StaticResource DbEntryHasLocationToCollapsedVisibility}}">
+                                Map
+                            </Button>
+                            <Button
                                 ToolTip="Photo Created On - click to search for other content created on the same date">
                                 <Button.InputBindings>
                                     <MouseBinding
@@ -831,7 +869,7 @@
                                 ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
                                 <Button.InputBindings>
                                     <MouseBinding
-                                        Command="{Binding ItemActions.ShutterSpeedSearchCommand}"
+                                        Command="{Binding ItemActions.ShutterSpeedSearchSearchCommand}"
                                         CommandParameter="{Binding DbEntry}"
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>

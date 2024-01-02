@@ -348,7 +348,7 @@ Photo Content Notes:
             return;
         }
 
-        var possibleElevation = await ElevationGuiHelper.GetElevation(LongitudeEntry.UserValue.Value,
+        var possibleElevation = await ElevationGuiHelper.GetElevation(LatitudeEntry.UserValue.Value,
             LongitudeEntry.UserValue.Value, StatusContext);
 
         if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.ToString("F2");

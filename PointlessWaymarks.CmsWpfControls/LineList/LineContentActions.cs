@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +9,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.Utility;
@@ -29,6 +30,8 @@ public partial class LineContentActions : IContentActions<LineContent>
         StatusContext = statusContext;
         BuildCommands();
     }
+
+    public StatusControlContext StatusContext { get; set; }
 
     public string DefaultBracketCode(LineContent content)
     {
@@ -153,7 +156,7 @@ public partial class LineContentActions : IContentActions<LineContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(LineContent? content)
@@ -207,8 +210,6 @@ public partial class LineContentActions : IContentActions<LineContent>
         Process.Start(ps);
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     public static async Task<LineListListItem> ListItemFromDbItem(LineContent content, LineContentActions itemActions,
         bool showType)
     {
@@ -217,6 +218,19 @@ public partial class LineContentActions : IContentActions<LineContent>
         item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
         item.ShowType = showType;
         return item;
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchRecordedDatesForPhotoContent(LineContent? lineContent)
+    {
+        if (lineContent == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        await PhotoContentActions.RunReport(async () => await SearchRecordedDatesForPhotoContentFilter(lineContent),
+            $"Line {lineContent.Title ?? string.Empty} - {SearchRecordedDatesForPhotoContentDateRange(lineContent).start:M/d/yyyy hh:mm:ss tt} to {SearchRecordedDatesForPhotoContentDateRange(lineContent).end:M/d/yyyy hh:mm:ss tt}");
     }
 
     /// <summary>
@@ -274,16 +288,30 @@ public partial class LineContentActions : IContentActions<LineContent>
                 .ToListAsync()).Cast<object>().ToList();
     }
 
+
     [NonBlockingCommand]
-    public async Task SearchRecordedDatesForPhotoContent(LineContent? lineContent)
+    public async Task ShowOnMap(LineContent? content)
     {
-        if (lineContent == null)
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
         {
             StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
-        await PhotoContentActions.RunReport(async () => await SearchRecordedDatesForPhotoContentFilter(lineContent),
-            $"Line {lineContent.Title ?? string.Empty} - {SearchRecordedDatesForPhotoContentDateRange(lineContent).start:M/d/yyyy hh:mm:ss tt} to {SearchRecordedDatesForPhotoContentDateRange(lineContent).end:M/d/yyyy hh:mm:ss tt}");
+        if (content.Id < 1)
+        {
+            StatusContext.ToastError("Entry is not saved - Skipping?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var mapWindow =
+            await ContentMapWindow.CreateInstance(new ContentMapListLoader("Mapped Content",
+                new List<Guid> { content.ContentId }));
+
+        await mapWindow.PositionWindowAndShowOnUiThread();
     }
 }

@@ -18,14 +18,12 @@ public partial class LocationChooserWindow
         InitializeComponent();
         StatusContext = new StatusControlContext();
         DataContext = this;
-        WindowTitle =
-            $"Location Chooser{(string.IsNullOrEmpty(ChooseFor) ? "" : $" - {ChooseFor}")} - {UserSettingsSingleton.CurrentSettings().SiteName}";
+
     }
 
     public LocationChooserContext? LocationChooser { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; }
-    public string ChooseFor { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will
@@ -38,7 +36,10 @@ public partial class LocationChooserWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new LocationChooserWindow() { ChooseFor = chooseForName };
+        var window = new LocationChooserWindow
+        {
+            WindowTitle = $"Location Chooser{(string.IsNullOrEmpty(chooseForName) ? "" : $" - {chooseForName}")} - {UserSettingsSingleton.CurrentSettings().SiteName}"
+        };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

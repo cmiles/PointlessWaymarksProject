@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +9,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
@@ -28,6 +29,8 @@ public partial class PointContentActions : IContentActions<PointContent>
         StatusContext = statusContext;
         BuildCommands();
     }
+
+    public StatusControlContext StatusContext { get; set; }
 
     public string DefaultBracketCode(PointContent? content)
     {
@@ -153,7 +156,7 @@ public partial class PointContentActions : IContentActions<PointContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(PointContent? content)
@@ -207,8 +210,6 @@ public partial class PointContentActions : IContentActions<PointContent>
         Process.Start(ps);
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     public static async Task<PointListListItem> ListItemFromDbItem(PointContent content,
         PointContentActions itemActions,
         bool showType)
@@ -218,5 +219,31 @@ public partial class PointContentActions : IContentActions<PointContent>
         item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
         item.ShowType = showType;
         return item;
+    }
+
+    [NonBlockingCommand]
+    public async Task ShowOnMap(PointContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        if (content.Id < 1)
+        {
+            StatusContext.ToastError("Entry is not saved - Skipping?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var mapWindow =
+            await ContentMapWindow.CreateInstance(new ContentMapListLoader("Mapped Content",
+                new List<Guid> { content.ContentId }));
+
+        await mapWindow.PositionWindowAndShowOnUiThread();
     }
 }

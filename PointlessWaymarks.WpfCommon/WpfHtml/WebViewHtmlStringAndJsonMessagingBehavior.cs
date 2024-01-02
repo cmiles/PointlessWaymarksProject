@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
@@ -66,6 +66,12 @@ public class WebViewHtmlStringAndJsonMessagingBehavior : Behavior<WebView2>
     /// <param name="args"></param>
     private async void OnCoreWebView2OnWebMessageReceived(object? o, CoreWebView2WebMessageReceivedEventArgs args)
     {
+        if (args.WebMessageAsJson.Contains("scriptFinished"))
+        {
+            WebViewMessenger.JsonToWebView.Suspend(false);
+            return;
+        }
+
         OnJsonFromWebView?.Invoke(this,
             new WebViewMessage(args.WebMessageAsJson));
     }
@@ -98,7 +104,7 @@ public class WebViewHtmlStringAndJsonMessagingBehavior : Behavior<WebView2>
                         $"TempHtml-{Guid.NewGuid()}.html"));
                     await File.WriteAllTextAsync(newFile.FullName, newString);
                     bindingBehavior.AssociatedObject.CoreWebView2.Navigate(
-                        $"https://localcmshtml.pointlesswaymarks.com/{newFile.FullName}");
+                        $"https://localcmshtml.pointlesswaymarks.com/{newFile.Name}");
 
                     bindingBehavior._previousTempFiles.Add(newFile);
                     bindingBehavior._currentTempFile = newFile;
@@ -127,8 +133,6 @@ public class WebViewHtmlStringAndJsonMessagingBehavior : Behavior<WebView2>
                 {
                     Log.Error(ex, "OnHtmlChanged Exception");
                 }
-
-                bindingBehavior.WebViewMessenger.JsonToWebView.Suspend(false);
             }
             else
             {
@@ -177,28 +181,26 @@ public class WebViewHtmlStringAndJsonMessagingBehavior : Behavior<WebView2>
     /// <param name="e"></param>
     private async void OnReady(object? sender, EventArgs e)
     {
+        AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
+
         if (!string.IsNullOrWhiteSpace(_webViewOnReadyCachedHtml))
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            AssociatedObject.NavigationCompleted += OnReadyHtmlCacheLoadCompleted;
             AssociatedObject.NavigateToString(_webViewOnReadyCachedHtml);
-            _webViewOnReadyCachedHtml = string.Empty;
-            AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
-        }
-    }
 
-    /// <summary>
-    ///     Fires when the OnReady Event of the WebView fires if CachedHtml is loaded this event is wired up to process the
-    ///     Json after the cached Html navigation completes - note this method detaches itself so the it doesn't fire on
-    ///     Subsequent NavigationCompleted events.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnReadyHtmlCacheLoadCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
-    {
-        WebViewMessenger.JsonToWebView.Suspend(false);
-        AssociatedObject.NavigationCompleted -= OnReadyHtmlCacheLoadCompleted;
+            var newFile = new FileInfo(Path.Combine(
+                FileLocationTools.TempStorageHtmlDirectory().FullName,
+                $"TempHtml-{Guid.NewGuid()}.html"));
+            await File.WriteAllTextAsync(newFile.FullName, _webViewOnReadyCachedHtml);
+            AssociatedObject.CoreWebView2.Navigate(
+                $"https://localcmshtml.pointlesswaymarks.com/{newFile.Name}");
+
+            _previousTempFiles.Add(newFile);
+            _currentTempFile = newFile;
+
+            _webViewOnReadyCachedHtml = string.Empty;
+        }
     }
 
     private static void OnWebViewManagerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
