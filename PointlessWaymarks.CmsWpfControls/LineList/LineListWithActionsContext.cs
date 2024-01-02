@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Xml;
+using HtmlTableHelper;
 using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using Omu.ValueInjecter;
@@ -12,6 +13,8 @@ using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.HtmlViewer;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
@@ -61,6 +64,10 @@ public partial class LineListWithActionsContext
             },
             new()
             {
+                ItemName = "Monthly Stats", ItemCommand = MonthSummaryStatsForSelectedCommand
+            },
+            new()
+            {
                 ItemName = "Elevation Chart Code to Clipboard",
                 ItemCommand = ElevationChartBracketCodesToClipboardForSelectedCommand
             },
@@ -69,7 +76,10 @@ public partial class LineListWithActionsContext
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand },
+            new()
+            {
+                ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
+            },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         };
 
@@ -279,6 +289,40 @@ public partial class LineListWithActionsContext
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    private async Task MonthSummaryStatsForSelected()
+    {
+        var frozenSelected = SelectedListItems();
+
+        var grouped = frozenSelected.Where(x => x.DbEntry.RecordingStartedOn != null).GroupBy(x =>
+                new { x.DbEntry.RecordingStartedOn.Value.Year, x.DbEntry.RecordingStartedOn.Value.Month })
+            .OrderByDescending(x => x.Key.Year).ThenByDescending(x => x.Key.Month);
+
+        var reportRows = grouped.Select(x => new
+        {
+            Year = x.Key.Year,
+            Month = x.Key.Month,
+            Activities = x.Count(),
+            Distance = x.Sum(y => y.DbEntry.LineDistance).ToString("N1"),
+            Time = DateTimeTools.LineDurationInHoursAndMinutes(new TimeSpan(0, (int)x
+                .Where(x => x.DbEntry is { RecordingStartedOn: not null, RecordingEndedOn: not null } &&
+                            x.DbEntry.RecordingStartedOn < x.DbEntry.RecordingEndedOn)
+                .Select(y => y.DbEntry.RecordingEndedOn.Value - y.DbEntry.RecordingStartedOn.Value).Sum(y => y.TotalMinutes), 0)).presentationString,
+            MinElevation = x.Min(y => y.DbEntry.MinimumElevation).ToString("N0"),
+            MaxElevation = x.Max(y => y.DbEntry.MaximumElevation).ToString("N0"),
+            Climb = x.Sum(y => y.DbEntry.ClimbElevation).ToString("N0"),
+            Descent = x.Sum(y => y.DbEntry.DescentElevation).ToString("N0")
+        }).ToList();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var reportWindow =
+            await HtmlViewerWindow.CreateInstance(await reportRows.ToHtmlTable()
+                .ToHtmlDocumentWithPureCss("Monthly Activity Report", string.Empty));
+        await reportWindow.PositionWindowAndShowOnUiThread();
     }
 
     [BlockingCommand]

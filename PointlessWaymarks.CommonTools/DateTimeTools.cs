@@ -98,7 +98,8 @@ public static class DateTimeTools
                 try
                 {
                     return (new DateOnly(int.Parse(possibleTitleDate[..4]),
-                            MonthEnglishNameToMonthInt(possibleTitleDate.Substring(5, possibleTitleDate.Length - 5))!.Value,
+                            MonthEnglishNameToMonthInt(possibleTitleDate.Substring(5, possibleTitleDate.Length - 5))!
+                                .Value,
                             1),
                         $"{toProcess[possibleTitleDate.Length..]}".TrimNullToEmpty());
                 }
@@ -164,7 +165,8 @@ public static class DateTimeTools
                 try
                 {
                     return (new DateOnly(int.Parse(possibleTitleDate[..4]),
-                            MonthEnglishNameToMonthInt(possibleTitleDate.Substring(5, possibleTitleDate.Length - 5))!.Value,
+                            MonthEnglishNameToMonthInt(possibleTitleDate.Substring(5, possibleTitleDate.Length - 5))!
+                                .Value,
                             1),
                         $"{toProcess[possibleTitleDate.Length..]}".TrimNullToEmpty());
                 }
@@ -175,6 +177,26 @@ public static class DateTimeTools
         }
 
         return null;
+    }
+
+    public static (int totalMinutes, string? presentationString) LineDurationInHoursAndMinutes(TimeSpan timeSpan)
+    {
+        var minuteDuration = (int)timeSpan.TotalMinutes;
+
+        if (minuteDuration > 1)
+        {
+            var hours = minuteDuration / 60;
+            var minutes = minuteDuration - hours * 60;
+
+            if (hours == 0)
+                return (minuteDuration, $"{minutes} Minutes");
+            if (minutes == 0)
+                return (minuteDuration, $"{hours} Hour{(hours > 1 ? "s" : "")}");
+            return (minuteDuration,
+                $"{hours} Hour{(hours > 1 ? "s" : "")} {minutes} Minute{(minutes > 1 ? "s" : "")}");
+        }
+
+        return (minuteDuration, null);
     }
 
     public static int? MonthEnglishNameToMonthInt(string? toConvert)
