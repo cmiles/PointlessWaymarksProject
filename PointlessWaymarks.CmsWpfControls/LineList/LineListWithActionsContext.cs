@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Xml;
 using HtmlTableHelper;
@@ -306,22 +307,68 @@ public partial class LineListWithActionsContext
             Year = x.Key.Year,
             Month = x.Key.Month,
             Activities = x.Count(),
-            Distance = x.Sum(y => y.DbEntry.LineDistance).ToString("N1"),
-            Time = DateTimeTools.LineDurationInHoursAndMinutes(new TimeSpan(0, (int)x
-                .Where(x => x.DbEntry is { RecordingStartedOn: not null, RecordingEndedOn: not null } &&
-                            x.DbEntry.RecordingStartedOn < x.DbEntry.RecordingEndedOn)
-                .Select(y => y.DbEntry.RecordingEndedOn.Value - y.DbEntry.RecordingStartedOn.Value).Sum(y => y.TotalMinutes), 0)).presentationString,
-            MinElevation = x.Min(y => y.DbEntry.MinimumElevation).ToString("N0"),
-            MaxElevation = x.Max(y => y.DbEntry.MaximumElevation).ToString("N0"),
-            Climb = x.Sum(y => y.DbEntry.ClimbElevation).ToString("N0"),
-            Descent = x.Sum(y => y.DbEntry.DescentElevation).ToString("N0")
+            Distance = Math.Floor(x.Sum(y => y.DbEntry.LineDistance)),
+            Hours = Math.Floor(new TimeSpan(0, (int)x
+                .Where(y => y.DbEntry is { RecordingStartedOn: not null, RecordingEndedOn: not null } && y.DbEntry.RecordingStartedOn < y.DbEntry.RecordingEndedOn)
+                .Select(y => y.DbEntry.RecordingEndedOn.Value - y.DbEntry.RecordingStartedOn.Value).Sum(y => y.TotalMinutes), 0).TotalHours),
+            MinElevation = Math.Floor(x.Min(y => y.DbEntry.MinimumElevation)),
+            MaxElevation = Math.Floor(x.Max(y => y.DbEntry.MaximumElevation)),
+            Climb = Math.Floor(x.Sum(y => y.DbEntry.ClimbElevation)),
+            Descent = Math.Floor(x.Sum(y => y.DbEntry.DescentElevation))
         }).ToList();
 
+        var serializedRows = JsonSerializer.Serialize(reportRows);
+
+        var page = $$"""
+                      <html lang="en">
+                        <head>
+                          <!-- Includes all JS & CSS for AG Grid -->
+                            <link
+                             rel="stylesheet"
+                             href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.1/styles/ag-grid.css" />
+                            <link
+                             rel="stylesheet"
+                             href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.1/styles/ag-theme-quartz.css" />
+                          <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+                        </head>
+                        <body>
+                          <!-- Your grid container -->
+                          <div id="myGrid" class="ag-theme-quartz"></div>
+                          <script>
+                              // Grid Options: Contains all of the grid configurations
+                      // Grid Options: Contains all of the grid configurations
+                      const gridOptions = {
+                        // Row Data: The data to be displayed.
+                        rowData: {{serializedRows}},
+                        // Column Definitions: Defines & controls grid columns.
+                            columnDefs: [
+                                { field: "Year", filter: "agNumberColumnFilter" },
+                                { field: "Month" , filter: "agNumberColumnFilter" },
+                                { field: "Activities", filter: "agNumberColumnFilter" },
+                                { field: "Distance", filter: "agNumberColumnFilter" },
+                                { field: "Hours", filter: "agNumberColumnFilter" },
+                                { field: "MinElevation", filter: "agNumberColumnFilter" },
+                                { field: "MaxElevation", filter: "agNumberColumnFilter" },
+                                { field: "Climb", filter: "agNumberColumnFilter" },
+                                { field: "Descent", filter: "agNumberColumnFilter" }
+                            ],
+                            autoSizeStrategy: {
+                                 type: 'fitCellContents'
+                             }
+                            };
+                              
+                              // Your Javascript code to create the grid
+                              const myGridElement = document.querySelector('#myGrid');
+                              agGrid.createGrid(myGridElement, gridOptions);
+                          </script>
+                        </body>
+                      </html>
+                     """;
+        
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var reportWindow =
-            await HtmlViewerWindow.CreateInstance(await reportRows.ToHtmlTable()
-                .ToHtmlDocumentWithPureCss("Monthly Activity Report", string.Empty));
+            await HtmlViewerWindow.CreateInstance(page);
         await reportWindow.PositionWindowAndShowOnUiThread();
     }
 
