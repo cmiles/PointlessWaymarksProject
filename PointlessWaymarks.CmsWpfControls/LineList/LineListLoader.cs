@@ -1,15 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.WpfCommon.ColumnSort;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
-public class LineListLoader : ContentListLoaderBase
+public class LineListLoader : ContentListLoaderBase, IContentListLoader
 {
     public LineListLoader(int? partialLoadQuantity) : base("Lines", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Line};
+        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> { DataNotificationContentType.Line };
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)
@@ -33,5 +35,57 @@ public class LineListLoader : ContentListLoaderBase
 
         return (await db.LineContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
             .ToListAsync()).Cast<object>().ToList();
+    }
+
+    public ColumnSortControlContext SortContext()
+    {
+        return SortContextLineDefault();
+    }
+
+    public static ColumnSortControlContext SortContextLineDefault()
+    {
+        return new ColumnSortControlContext
+        {
+            Items = new List<ColumnSortControlSortItem>
+            {
+                new()
+                {
+                    DisplayName = "Updated",
+                    ColumnName = "DbEntry.LatestUpdate",
+                    Order = 1,
+                    DefaultSortDirection = ListSortDirection.Descending
+                },
+                new()
+                {
+                    DisplayName = "Recorded On",
+                    ColumnName = "DbEntry.RecordingStartedOn",
+                    DefaultSortDirection = ListSortDirection.Descending
+                },
+                new()
+                {
+                    DisplayName = "Title",
+                    ColumnName = "DbEntry.Title",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                },
+                new()
+                {
+                    DisplayName = "Distance",
+                    ColumnName = "DbEntry.LineDistance",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                },
+                new()
+                {
+                    DisplayName = "Climb",
+                    ColumnName = "DbEntry.ClimbElevation",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                },
+                new()
+                {
+                    DisplayName = "Max Elevation",
+                    ColumnName = "DbEntry.MaximumElevation",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                }
+            }
+        };
     }
 }
