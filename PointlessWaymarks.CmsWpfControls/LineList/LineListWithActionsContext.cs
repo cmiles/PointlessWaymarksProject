@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Xml;
-using HtmlTableHelper;
 using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using Omu.ValueInjecter;
@@ -15,7 +14,6 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.HtmlViewer;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
@@ -62,6 +60,10 @@ public partial class LineListWithActionsContext
             new()
             {
                 ItemName = "Save Gpx File", ItemCommand = SelectedToGpxFileCommand
+            },
+            new()
+            {
+                ItemName = "Monthly Stats Window", ItemCommand = MonthSummaryStatsWindowForSelectedCommand
             },
             new()
             {
@@ -309,8 +311,10 @@ public partial class LineListWithActionsContext
             Activities = x.Count(),
             Distance = Math.Floor(x.Sum(y => y.DbEntry.LineDistance)),
             Hours = Math.Floor(new TimeSpan(0, (int)x
-                .Where(y => y.DbEntry is { RecordingStartedOn: not null, RecordingEndedOn: not null } && y.DbEntry.RecordingStartedOn < y.DbEntry.RecordingEndedOn)
-                .Select(y => y.DbEntry.RecordingEndedOn.Value - y.DbEntry.RecordingStartedOn.Value).Sum(y => y.TotalMinutes), 0).TotalHours),
+                .Where(y => y.DbEntry is { RecordingStartedOn: not null, RecordingEndedOn: not null } &&
+                            y.DbEntry.RecordingStartedOn < y.DbEntry.RecordingEndedOn)
+                .Select(y => y.DbEntry.RecordingEndedOn.Value - y.DbEntry.RecordingStartedOn.Value)
+                .Sum(y => y.TotalMinutes), 0).TotalHours),
             MinElevation = Math.Floor(x.Min(y => y.DbEntry.MinimumElevation)),
             MaxElevation = Math.Floor(x.Max(y => y.DbEntry.MaximumElevation)),
             Climb = Math.Floor(x.Sum(y => y.DbEntry.ClimbElevation)),
@@ -364,12 +368,24 @@ public partial class LineListWithActionsContext
                         </body>
                       </html>
                      """;
-        
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var reportWindow =
             await HtmlViewerWindow.CreateInstance(page);
         await reportWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    private async Task MonthSummaryStatsWindowForSelected()
+    {
+        var frozenSelected = SelectedListItems();
+
+        var window =
+            await LineMonthlySummaryWindow.CreateInstance(frozenSelected.Select(x => x.DbEntry.ContentId).ToList());
+
+        await window.PositionWindowAndShowOnUiThread();
     }
 
     [BlockingCommand]

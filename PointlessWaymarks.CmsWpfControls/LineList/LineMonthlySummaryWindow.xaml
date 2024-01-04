@@ -1,0 +1,81 @@
+﻿<Window x:Class="PointlessWaymarks.CmsWpfControls.LineList.LineMonthlySummaryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList"
+        xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
+        xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+        mc:Ignorable="d"
+        Title="Line/Activity Summary" Height="600" Width="800"
+        d:DataContext="{d:DesignInstance local:LineMonthlySummaryWindow}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="proxy" Data="{Binding}" />
+            <behaviors:SimpleNumberFirstToStringCompare x:Key="NumberFriendlyComp"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <DataGrid
+            x:Name="LineStatsDataGrid"
+            Margin="4"
+            AlternatingRowBackground="Gainsboro"
+            AlternationCount="1"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            CanUserResizeColumns="True"
+            IsReadOnly="True"
+            ItemsSource="{Binding Items}"
+            SelectedItem="{Binding SelectedItem}"
+            SelectionChanged="Selector_OnSelectionChanged"
+            dgx:DataGridFilter.IsAutoFilterEnabled="True"
+            dgx:DataGridFilter.ContentFilterFactory="{x:Static local:ExactMatchContentFilterFactory.Default}"
+            behaviors:DataGridCustomSortBehavior.AllowCustomSort="True"
+            >
+            <DataGrid.Resources>
+                <Style TargetType="DataGridCell">
+                    <Style.Setters>
+                        <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                    </Style.Setters>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Year}" SortMemberPath="Year" Header="Year" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding Month}" SortMemberPath="Month" Header="Month" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding Activities}" Header="Activities" SortMemberPath="Activities" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding Miles, StringFormat={}{0:N0}}"  SortMemberPath="Miles" Header="Miles" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding Hours, StringFormat={}{0:N0}}" SortMemberPath="Hours" Header="Hours" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding Climb, StringFormat='{}{0:N0}\''}" SortMemberPath="Climb" Header="Climb" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding Descent, StringFormat='{}{0:N0}\''}" SortMemberPath="Descent" Header="Descent" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding MinElevation, StringFormat='{}{0:N0}\''}" SortMemberPath="MinElevation" Header="Min Elevation" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding MaxElevation, StringFormat='{}{0:N0}\''}" SortMemberPath="MaxElevation" Header="Max Elevation" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTemplateColumn dgx:DataGridFilterColumn.IsFilterVisible="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Command="{Binding Data.ContentMapCommand, Source={StaticResource proxy}}" CommandParameter="{Binding .}">
+                                Map
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <windowScreenShot:WindowScreenShotControl
+            Grid.Row="0"
+            Grid.Column="0"
+            HorizontalContentAlignment="Right"
+            VerticalContentAlignment="Bottom"
+            d:IsHidden="true" />
+        <status:StatusControl
+            Grid.Row="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>

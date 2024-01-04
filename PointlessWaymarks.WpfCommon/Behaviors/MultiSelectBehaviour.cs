@@ -18,7 +18,6 @@ public static class MultiSelectorBehaviors
         "SynchronizationManager", typeof(MultiSelectSynchronizationManager), typeof(MultiSelectorBehaviors),
         new PropertyMetadata(null));
 
-
     private static MultiSelectSynchronizationManager? GetSynchronizationManager(DependencyObject dependencyObject)
     {
         return (MultiSelectSynchronizationManager)dependencyObject.GetValue(SynchronizationManagerProperty);

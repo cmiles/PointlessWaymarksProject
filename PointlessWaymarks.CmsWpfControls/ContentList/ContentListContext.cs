@@ -757,6 +757,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [StopAndWarnIfNoSelectedListItems]
     public async Task SpatialItemsToContentMapWindowSelected(CancellationToken cancelToken)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
         var currentSelected = SelectedListItems();
 
         var spatialContent =
