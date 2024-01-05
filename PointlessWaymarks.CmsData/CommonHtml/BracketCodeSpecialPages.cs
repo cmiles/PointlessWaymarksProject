@@ -28,7 +28,8 @@ public static class BracketCodeSpecialPages
                 $"{UserSettingsSingleton.CurrentSettings().LatestContentGalleryUrl()}"),
             ("searchpage", "Search", $"{UserSettingsSingleton.CurrentSettings().AllContentListUrl()}"),
             ("tagspage", "Tags", $"{UserSettingsSingleton.CurrentSettings().AllTagsListUrl()}"),
-            ("linklistpage", "Links", $"{UserSettingsSingleton.CurrentSettings().LinkListUrl()}")
+            ("linklistpage", "Links", $"{UserSettingsSingleton.CurrentSettings().LinkListUrl()}"),
+            ("monthlyactivity", "Monthly Activities", $"{UserSettingsSingleton.CurrentSettings().LineMonthlyActivitySummaryUrl()}")
             // ReSharper restore StringLiteralTypo
         };
 

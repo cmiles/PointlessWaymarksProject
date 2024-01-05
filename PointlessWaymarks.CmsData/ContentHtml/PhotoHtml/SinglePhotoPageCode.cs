@@ -42,13 +42,10 @@ public partial class SinglePhotoPage
     public DateTime? GenerationVersion { get; set; }
     public string LangAttribute { get; set; }
     public List<IContentCommon> LaterPosts { get; }
-
     public PhotoContent? NextPhoto { get; set; }
     public string PageUrl { get; }
     public PictureSiteInformation PictureInformation { get; }
-
     public PhotoContent? PreviousPhoto { get; set; }
-
     public List<IContentCommon> PreviousPosts { get; }
     public string SiteName { get; }
     public string SiteUrl { get; }

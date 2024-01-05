@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
 using PointlessWaymarks.CmsData.ContentHtml.IndexHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
+using PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
 using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
@@ -284,6 +285,9 @@ public static class HtmlGenerationGroups
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
             await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
+
+        await MapComponentGenerator.GenerateAllLinesData();
+        await new LineMonthlyActivitySummaryPage(generationVersion).WriteLocalHtml();
     }
 
     public static async Task GenerateAllListHtml(DateTime? generationVersion, IProgress<string>? progress = null)
@@ -469,13 +473,6 @@ public static class HtmlGenerationGroups
     public static async Task GenerateCameraRollHtml(DateTime? generationVersion, IProgress<string>? progress = null)
     {
         var cameraRollPage = await CameraRollGalleryPageGenerator.CameraRoll(generationVersion, progress)
-            .ConfigureAwait(false);
-        await cameraRollPage.WriteLocalHtml().ConfigureAwait(false);
-    }
-
-    public static async Task GenerateLatestContentGalleryHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var cameraRollPage = await ContentGalleryPageGenerators.LatestContentGallery(generationVersion, progress)
             .ConfigureAwait(false);
         await cameraRollPage.WriteLocalHtml().ConfigureAwait(false);
     }
@@ -1221,7 +1218,11 @@ public static class HtmlGenerationGroups
             await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
 
-        if (allItems.Any()) await MapComponentGenerator.GenerateAllLinesData();
+        if (allItems.Any())
+        {
+            await MapComponentGenerator.GenerateAllLinesData();
+            await new LineMonthlyActivitySummaryPage(generationVersion).WriteLocalHtml();
+        }
     }
 
     public static async Task GenerateChangeFilteredMapData(DateTime generationVersion,
@@ -1427,6 +1428,14 @@ public static class HtmlGenerationGroups
     {
         var index = new IndexPage { GenerationVersion = generationVersion };
         await index.WriteLocalHtml().ConfigureAwait(false);
+    }
+
+    public static async Task GenerateLatestContentGalleryHtml(DateTime? generationVersion,
+        IProgress<string>? progress = null)
+    {
+        var cameraRollPage = await ContentGalleryPageGenerators.LatestContentGallery(generationVersion, progress)
+            .ConfigureAwait(false);
+        await cameraRollPage.WriteLocalHtml().ConfigureAwait(false);
     }
 
     public static async Task GenerateMainFeedContent(DateTime generationVersion, IProgress<string>? progress = null)

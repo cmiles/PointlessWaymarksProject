@@ -1,0 +1,52 @@
+<#@ template language="C#" debug="true" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
+<#@ import namespace="PointlessWaymarks.CommonTools" #>
+<!DOCTYPE html>
+<html lang="en">
+<head data-generationversion="<#=
+                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>">
+    <meta charset="utf-8" lang="<#= LangAttribute #>" dir="<#= DirAttribute #>">
+    <title>Monthly Activity Summary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <#= Tags.CssStyleFileString() #>
+    <#= Tags.FavIconFileString() #>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.1/styles/ag-grid.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.1/styles/ag-theme-quartz.css" />
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+</head>
+
+<body>
+    <#= Tags.StandardHeader().Result.ToString() #>
+    <#= HorizontalRule.StandardRule() #>
+    <#= Tags.TitleDiv("Monthly Activity Summary").ToString() #>
+
+    <div id="monthlyActivityGrid" class="ag-theme-quartz" style="width: 95%; text-align: center; margin: 1rem;"></div>
+    <script>
+        const gridOptions = {
+            rowData: <#= SerializedRows #>,
+            columnDefs: [
+              { field: "Year", filter: "agNumberColumnFilter" },
+              { field: "Month" , filter: "agNumberColumnFilter" },
+              { field: "Activities", filter: "agNumberColumnFilter" },
+              { field: "Hours", filter: "agNumberColumnFilter" },
+              { field: "Miles", filter: "agNumberColumnFilter" },
+              { field: "Climb", filter: "agNumberColumnFilter" },
+              { field: "Descent", filter: "agNumberColumnFilter" },
+              { field: "MinElevation", filter: "agNumberColumnFilter" },
+              { field: "MaxElevation", filter: "agNumberColumnFilter" }
+            ],
+            autoSizeStrategy: { type: 'fitCellContents' },
+            domLayout: 'autoHeight'
+        };
+        
+        const monthlyActivityGridElement = document.querySelector('#monthlyActivityGrid');
+        agGrid.createGrid(monthlyActivityGridElement, gridOptions);
+    </script>
+
+    <#= HorizontalRule.StandardRule() #>
+    <#= Footer.StandardFooterDiv().Result #>
+</body>
+
+</html>

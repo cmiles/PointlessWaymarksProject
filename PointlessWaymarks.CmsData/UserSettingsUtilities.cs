@@ -343,6 +343,11 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Lines/Data/Line-{content.ContentId}.json";
     }
 
+    public static string LineMonthlyActivitySummaryUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/Lines/LineMonthlyActivitySummary.html";
+    }
+
     public static string LinePageUrl(this UserSettings settings, LineContent content)
     {
         return $"{settings.SiteUrl()}/Lines/{content.Folder}/{content.Slug}/{content.Slug}.html";
@@ -812,6 +817,12 @@ public static class UserSettingsUtilities
     {
         var directory = settings.LocalSiteLineDirectory();
         return new FileInfo($"{Path.Combine(directory.FullName, "LineList")}.html");
+    }
+
+    public static FileInfo LocalSiteLineMonthlyActivityHtmlFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteLineDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "LineMonthlyActivitySummary")}.html");
     }
 
     public static FileInfo LocalSiteLineRssFile(this UserSettings settings)

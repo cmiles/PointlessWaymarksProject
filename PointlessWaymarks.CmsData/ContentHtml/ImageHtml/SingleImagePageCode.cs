@@ -40,7 +40,6 @@ public partial class SingleImagePage
     public List<IContentCommon> LaterPosts { get; }
     public string PageUrl { get; }
     public PictureSiteInformation PictureInformation { get; }
-
     public List<IContentCommon> PreviousPosts { get; }
     public string SiteName { get; }
     public string SiteUrl { get; }

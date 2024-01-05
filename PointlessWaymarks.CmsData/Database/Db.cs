@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
@@ -145,17 +144,6 @@ public static class Db
         return points.Union(lines).Union(geoJson).Union(photos).ToList();
     }
 
-    public static async Task<List<Guid>> ContentIdsFromBoundingBox(this PointlessWaymarksContext db,
-        SpatialBounds bounds)
-    {
-        var points = (await PointContentIdsFromBoundingBox(db, bounds)).ToList();
-        var lines = (await LineContentIdsFromBoundingBox(db, bounds)).ToList();
-        var geoJson = (await GeoJsonContentIdsFromBoundingBox(db, bounds)).ToList();
-        var photos = (await PhotoContentIdsFromBoundingBox(db, bounds)).ToList();
-
-        return points.Union(lines).Union(geoJson).Union(photos).ToList();
-    }
-
     /// <summary>
     ///     Takes in a ContentId and returns the Entry as a dynamic, or null if not found. Points are returned as
     ///     a PointContentDto (as dynamic). Because the ContentIds are unique this allows finding content regardless
@@ -288,6 +276,17 @@ public static class Db
                 .Select(x => x.ContentId).ToListAsync());
 
         return returnList;
+    }
+
+    public static async Task<List<Guid>> ContentIdsFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds)
+    {
+        var points = (await PointContentIdsFromBoundingBox(db, bounds)).ToList();
+        var lines = (await LineContentIdsFromBoundingBox(db, bounds)).ToList();
+        var geoJson = (await GeoJsonContentIdsFromBoundingBox(db, bounds)).ToList();
+        var photos = (await PhotoContentIdsFromBoundingBox(db, bounds)).ToList();
+
+        return points.Union(lines).Union(geoJson).Union(photos).ToList();
     }
 
     public static async Task<List<object>> ContentInFolder(string folderName)
@@ -1308,6 +1307,14 @@ public static class Db
             .ToListAsync().ConfigureAwait(false);
     }
 
+    public static IQueryable<LineContent> LineContentFilteredForActivities(this IQueryable<LineContent> lineContent)
+    {
+        return lineContent.Where(x => x.RecordingStartedOn != null
+                                      && x.RecordingEndedOn != null
+                                      && x.RecordingStartedOn < x.RecordingEndedOn
+                                      && !x.IsDraft);
+    }
+
     public static async Task<List<LineContent>> LineContentFromBoundingBox(this PointlessWaymarksContext db,
         SpatialBounds bounds)
     {
@@ -1687,6 +1694,18 @@ public static class Db
         return returnList;
     }
 
+    public static async Task<PointContentDto> PointContentDtoFromPoint(PointContent content,
+        PointlessWaymarksContext context)
+    {
+        var toReturn = new PointContentDto();
+
+        toReturn.InjectFrom(content);
+
+        toReturn.PointDetails = await PointDetailsForPoint(content.ContentId, context);
+
+        return toReturn;
+    }
+
     public static PointContentDto PointContentDtoFromPointContentAndDetails(PointContent content,
         List<PointDetail> details)
     {
@@ -1695,17 +1714,6 @@ public static class Db
         toReturn.InjectFrom(content);
 
         toReturn.PointDetails = details;
-
-        return toReturn;
-    }
-    
-    public static async Task<PointContentDto> PointContentDtoFromPoint(PointContent content, PointlessWaymarksContext context)
-    {
-        var toReturn = new PointContentDto();
-
-        toReturn.InjectFrom(content);
-
-        toReturn.PointDetails = await PointDetailsForPoint(content.ContentId, context);
 
         return toReturn;
     }

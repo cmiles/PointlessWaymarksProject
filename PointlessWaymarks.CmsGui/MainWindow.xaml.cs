@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
 using HtmlTableHelper;
 using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
@@ -11,6 +10,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
@@ -363,12 +363,6 @@ public partial class MainWindow
         await HtmlGenerationGroups.GenerateCameraRollHtml(null, StatusContext.ProgressTracker());
     }
 
-    [BlockingCommand]
-    public async Task GenerateLatestContentGallery()
-    {
-        await HtmlGenerationGroups.GenerateLatestContentGalleryHtml(null, StatusContext.ProgressTracker());
-    }
-
 
     [BlockingCommand]
     public async Task GenerateChangedHtml()
@@ -452,6 +446,18 @@ public partial class MainWindow
     public async Task GenerateIndex()
     {
         await HtmlGenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateLatestContentGallery()
+    {
+        await HtmlGenerationGroups.GenerateLatestContentGalleryHtml(null, StatusContext.ProgressTracker());
+    }
+
+    [BlockingCommand]
+    public async Task GenerateMonthlyActivitySummaryHtml()
+    {
+        await new LineMonthlyActivitySummaryPage(null).WriteLocalHtml();
     }
 
 

@@ -35,15 +35,12 @@ public partial class SingleFilePage
 
 
     public FileContent DbEntry { get; set; }
-
     public string DirAttribute { get; set; }
     public DateTime? GenerationVersion { get; init; }
-
     public string LangAttribute { get; set; }
     public List<IContentCommon> LaterPosts { get; }
     public PictureSiteInformation? MainImage { get; }
     public string PageUrl { get; set; }
-
     public List<IContentCommon> PreviousPosts { get; }
     public string SiteName { get; set; }
     public string SiteUrl { get; set; }

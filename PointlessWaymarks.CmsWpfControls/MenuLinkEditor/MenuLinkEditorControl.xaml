@@ -161,6 +161,9 @@
                                     <Button Command="{Binding DataContext.InsertTagSearchCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Tags
                                     </Button>
+                                    <Button Command="{Binding DataContext.InsertMonthlyActivityCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
+                                        Activity Summary
+                                    </Button>
                                 </WrapPanel>
                             </Grid>
                         </Border>

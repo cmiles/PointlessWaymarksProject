@@ -10,7 +10,7 @@
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="Line/Activity Summary" Height="600" Width="800"
+        Title="Line/Activity Summary" Height="600" Width="640"
         d:DataContext="{d:DesignInstance local:LineMonthlySummaryWindow}">
     <Window.Resources>
         <ResourceDictionary>

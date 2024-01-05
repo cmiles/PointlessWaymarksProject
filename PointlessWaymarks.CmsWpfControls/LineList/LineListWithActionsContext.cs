@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Xml;
+using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Features;
 using NetTopologySuite.IO;
 using Omu.ValueInjecter;
@@ -64,10 +65,6 @@ public partial class LineListWithActionsContext
             new()
             {
                 ItemName = "Monthly Stats Window", ItemCommand = MonthSummaryStatsWindowForSelectedCommand
-            },
-            new()
-            {
-                ItemName = "Monthly Stats", ItemCommand = MonthSummaryStatsForSelectedCommand
             },
             new()
             {
@@ -295,91 +292,26 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedListItems]
-    private async Task MonthSummaryStatsForSelected()
+    private async Task MonthSummaryStatsWindowForAllLineContent()
     {
-        var frozenSelected = SelectedListItems();
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        var db = await Db.Context();
 
-        var grouped = frozenSelected.Where(x => x.DbEntry.RecordingStartedOn != null).GroupBy(x =>
-                new { x.DbEntry.RecordingStartedOn.Value.Year, x.DbEntry.RecordingStartedOn.Value.Month })
-            .OrderByDescending(x => x.Key.Year).ThenByDescending(x => x.Key.Month);
+        var allActivities = await db.LineContents.LineContentFilteredForActivities().Select(x => x.ContentId).ToListAsync();
+        
+        var window =
+            await LineMonthlySummaryWindow.CreateInstance(allActivities);
 
-        var reportRows = grouped.Select(x => new
-        {
-            Year = x.Key.Year,
-            Month = x.Key.Month,
-            Activities = x.Count(),
-            Distance = Math.Floor(x.Sum(y => y.DbEntry.LineDistance)),
-            Hours = Math.Floor(new TimeSpan(0, (int)x
-                .Where(y => y.DbEntry is { RecordingStartedOn: not null, RecordingEndedOn: not null } &&
-                            y.DbEntry.RecordingStartedOn < y.DbEntry.RecordingEndedOn)
-                .Select(y => y.DbEntry.RecordingEndedOn.Value - y.DbEntry.RecordingStartedOn.Value)
-                .Sum(y => y.TotalMinutes), 0).TotalHours),
-            MinElevation = Math.Floor(x.Min(y => y.DbEntry.MinimumElevation)),
-            MaxElevation = Math.Floor(x.Max(y => y.DbEntry.MaximumElevation)),
-            Climb = Math.Floor(x.Sum(y => y.DbEntry.ClimbElevation)),
-            Descent = Math.Floor(x.Sum(y => y.DbEntry.DescentElevation))
-        }).ToList();
-
-        var serializedRows = JsonSerializer.Serialize(reportRows);
-
-        var page = $$"""
-                      <html lang="en">
-                        <head>
-                          <!-- Includes all JS & CSS for AG Grid -->
-                            <link
-                             rel="stylesheet"
-                             href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.1/styles/ag-grid.css" />
-                            <link
-                             rel="stylesheet"
-                             href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.1/styles/ag-theme-quartz.css" />
-                          <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
-                        </head>
-                        <body>
-                          <!-- Your grid container -->
-                          <div id="myGrid" class="ag-theme-quartz"></div>
-                          <script>
-                              // Grid Options: Contains all of the grid configurations
-                      // Grid Options: Contains all of the grid configurations
-                      const gridOptions = {
-                        // Row Data: The data to be displayed.
-                        rowData: {{serializedRows}},
-                        // Column Definitions: Defines & controls grid columns.
-                            columnDefs: [
-                                { field: "Year", filter: "agNumberColumnFilter" },
-                                { field: "Month" , filter: "agNumberColumnFilter" },
-                                { field: "Activities", filter: "agNumberColumnFilter" },
-                                { field: "Distance", filter: "agNumberColumnFilter" },
-                                { field: "Hours", filter: "agNumberColumnFilter" },
-                                { field: "MinElevation", filter: "agNumberColumnFilter" },
-                                { field: "MaxElevation", filter: "agNumberColumnFilter" },
-                                { field: "Climb", filter: "agNumberColumnFilter" },
-                                { field: "Descent", filter: "agNumberColumnFilter" }
-                            ],
-                            autoSizeStrategy: {
-                                 type: 'fitCellContents'
-                             }
-                            };
-                              
-                              // Your Javascript code to create the grid
-                              const myGridElement = document.querySelector('#myGrid');
-                              agGrid.createGrid(myGridElement, gridOptions);
-                          </script>
-                        </body>
-                      </html>
-                     """;
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var reportWindow =
-            await HtmlViewerWindow.CreateInstance(page);
-        await reportWindow.PositionWindowAndShowOnUiThread();
+        await window.PositionWindowAndShowOnUiThread();
     }
-
+    
     [BlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
     private async Task MonthSummaryStatsWindowForSelected()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
         var frozenSelected = SelectedListItems();
 
         var window =

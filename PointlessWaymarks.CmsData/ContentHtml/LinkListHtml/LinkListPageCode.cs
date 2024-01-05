@@ -19,9 +19,7 @@ public partial class LinkListPage
     }
 
     public object DirAttribute { get; set; }
-
     public DateTime? GenerationVersion { get; set; }
-
     public string LangAttribute { get; set; }
     public string ListTitle { get; set; }
     public string RssUrl { get; set; }

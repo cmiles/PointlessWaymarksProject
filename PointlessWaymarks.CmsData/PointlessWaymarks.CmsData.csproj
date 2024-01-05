@@ -20,6 +20,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ErrorPage.tt</DependentUpon>
     </Compile>
+    <None Update="ContentHtml\LineMonthlyActivitySummaryHtml\LineMonthlyActivitySummaryPage.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml</CustomToolNamespace>
+      <LastGenOutput>LineMonthlyActivitySummaryPage.cs</LastGenOutput>
+    </None>
+    <Compile Update="ContentHtml\LineMonthlyActivitySummaryHtml\LineMonthlyActivitySummaryPage.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>LineMonthlyActivitySummaryPage.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

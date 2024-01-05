@@ -43,6 +43,10 @@
                 <MenuItem Command="{Binding ListContext.GenerateHtmlSelectedCommand}" Header="Generate Html" />
                 <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
             </MenuItem>
+            <MenuItem Header="Stats">
+                <MenuItem Command="{Binding MonthSummaryStatsWindowForAllLineContentCommand}" Header="Monthly Stats - All Line Content" />
+                <MenuItem Command="{Binding MonthSummaryStatsForSelectedCommand}" Header="Monthly Stats - Selected Line Content" />
+            </MenuItem>
             <StaticResource ResourceKey="ViewMenu" />
             <StaticResource ResourceKey="SiteMenu" />
         </Menu>

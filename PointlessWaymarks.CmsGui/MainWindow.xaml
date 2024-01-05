@@ -206,6 +206,7 @@
                                         <Button Command="{Binding GenerateLatestContentGalleryCommand}">Content Gallery</Button>
                                         <Button Command="{Binding GenerateCameraRollCommand}">Camera Roll</Button>
                                         <Button Command="{Binding GenerateDailyGalleryHtmlCommand}">Daily Photos</Button>
+                                        <Button Command="{Binding GenerateMonthlyActivitySummaryHtmlCommand}">Monthly Activity Summary</Button>
                                     </WrapPanel>
                                 </Grid>
                             </GroupBox>

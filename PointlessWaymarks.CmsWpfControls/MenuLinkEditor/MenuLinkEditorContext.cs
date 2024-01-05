@@ -131,6 +131,12 @@ public partial class MenuLinkEditorContext
     {
         await InsertIntoLinkTag(listItem, "{{tagspage; text Tags;}}");
     }
+    
+    [BlockingCommand]
+    public async Task InsertMonthlyActivity(MenuLinkListItem? listItem)
+    {
+        await InsertIntoLinkTag(listItem, "{{monthlyactivity; text Activity Summary;}}");
+    }
 
     public async Task LoadData()
     {

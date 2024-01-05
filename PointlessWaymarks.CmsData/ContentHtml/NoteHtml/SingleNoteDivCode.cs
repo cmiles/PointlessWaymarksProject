@@ -15,12 +15,8 @@ public partial class SingleNoteDiv
     }
 
     public NoteContent DbEntry { get; set; }
-
     public DateTime? GenerationVersion { get; set; }
-
     public string PageUrl { get; set; }
-
     public string SiteName { get; set; }
-
     public string SiteUrl { get; set; }
 }
