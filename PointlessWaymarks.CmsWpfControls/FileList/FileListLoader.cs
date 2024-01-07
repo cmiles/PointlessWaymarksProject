@@ -9,7 +9,7 @@ public class FileListLoader : ContentListLoaderBase
 {
     public FileListLoader(int? partialLoadQuantity) : base("Files", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.File};
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.File];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

@@ -83,7 +83,7 @@ Notes:
     public bool FileIsMp4 { get; set; }
     public bool FileIsPdf { get; set; }
     public bool HasChanges { get; set; }
-    public List<(bool hasChanges, string description)> HasChangesChangedList { get; set; } = new();
+    public List<(bool hasChanges, string description)> HasChangesChangedList { get; set; } = [];
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public FileInfo? InitialFile { get; set; }
@@ -350,10 +350,9 @@ Notes:
             }
         };
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
+        HelpContext = new HelpDisplayContext([
             FileEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        ]);
 
         EmbedFile = await BoolDataEntryContext.CreateInstance();
         EmbedFile.Title = "Embed File in Page";
@@ -379,8 +378,7 @@ Notes:
         UserMainPictureEntry =
             await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
                 .GuidNullableAndBracketCodeConversion);
-        UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
-            { CommonContentValidation.ValidateUserMainPicture };
+        UserMainPictureEntry.ValidationFunctions = [CommonContentValidation.ValidateUserMainPicture];
         UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
         UserMainPictureEntry.UserText = DbEntry.UserMainPicture.ToString() ?? string.Empty;
         UserMainPictureEntry.Title = "Link Image";

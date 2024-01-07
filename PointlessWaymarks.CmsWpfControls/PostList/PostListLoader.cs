@@ -9,7 +9,7 @@ public class PostListLoader : ContentListLoaderBase
 {
     public PostListLoader(int? partialLoadQuantity) : base("Posts", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Post};
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Post];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

@@ -28,7 +28,7 @@ public static class ListTools
 
     public static List<T> AsList<T>(this T item)
     {
-        return new List<T> { item };
+        return [item];
     }
 
     /// <summary>

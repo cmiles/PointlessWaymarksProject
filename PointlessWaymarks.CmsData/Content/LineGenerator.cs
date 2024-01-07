@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using GeoTimeZone;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -39,7 +39,7 @@ public static class LineGenerator
             var stateCounty =
                 await StateCountyService.GetStateCounty(trackInformation.Track.First().Y,
                     trackInformation.Track.First().X);
-            tagList = new List<string> { stateCounty.state, stateCounty.county };
+            tagList = [stateCounty.state, stateCounty.county];
         }
 
         if (trackInformation.Track.Any() && UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagOnImport &&

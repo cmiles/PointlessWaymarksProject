@@ -9,7 +9,7 @@ public class MapComponentListLoader : ContentListLoaderBase
 {
     public MapComponentListLoader(int? partialLoadQuantity) : base("Maps", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> { DataNotificationContentType.Map };
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Map];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

@@ -156,10 +156,9 @@ Notes:
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
+        HelpContext = new HelpDisplayContext([
             PostEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        ]);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }

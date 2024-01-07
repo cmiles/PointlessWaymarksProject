@@ -97,15 +97,15 @@ public class ElevationServiceAndGpxTests
     {
         //These elevations were verified as the return value from MapZen on 12/4 - and confirmed that these are close to the GNIS values
         // ReSharper disable StringLiteralTypo
-        return new()
-        {
+        return
+        [
             new ElevationTestData("Eremita Tank", 36.0716876, -112.2542091, 1940),
             new ElevationTestData("Vesta Temple", 36.0935096, -112.2689987, 1912),
             new ElevationTestData("Whites Butte", 36.0975983, -112.2312066, 1462),
             new ElevationTestData("Bass Tank", 36.094258, -112.3739584, 1906),
             new ElevationTestData("Pima Point", 36.0719269, -112.2001712, 1995),
             new ElevationTestData("Tower of Set", 36.1211306, -112.1780426, 1830)
-        };
+        ];
         // ReSharper restore StringLiteralTypo
     }
 
@@ -113,15 +113,15 @@ public class ElevationServiceAndGpxTests
     {
         //These elevations were verified as the return value from MapZen on 12/4 - and confirmed that these are close to the GNIS values
         // ReSharper disable StringLiteralTypo
-        return new()
-        {
+        return
+        [
             new ElevationTestData("Eremita Tank", 36.0716876, -112.2542091, 1939.62),
             new ElevationTestData("Vesta Temple", 36.0935096, -112.2689987, 1920.14),
             new ElevationTestData("Whites Butte", 36.0975983, -112.2312066, 1466.52),
             new ElevationTestData("Bass Tank", 36.094258, -112.3739584, 1900.92),
             new ElevationTestData("Pima Point", 36.0719269, -112.2001712, 1988.03),
             new ElevationTestData("Tower of Set", 36.1211306, -112.1780426, 1830.97)
-        };
+        ];
         // ReSharper restore StringLiteralTypo
     }
 

@@ -61,11 +61,10 @@ public partial class MainWindow
 
         UpdateMessageContext = new ProgramUpdateMessageContext();
 
-        HelpTabContext = new HelpDisplayContext(new List<string>
-        {
+        HelpTabContext = new HelpDisplayContext([
             HelpText,
             HelpMarkdown.SoftwareUsedBlock
-        });
+        ]);
 
         StatusContext.RunFireAndForgetBlockingTask(async () =>
         {
@@ -116,7 +115,7 @@ public partial class MainWindow
         {
             var nextAction = await StatusContext.ShowMessage("Database Does Not Exist",
                 $"The database file does not exist? You can create a new database or pick another file...",
-                new List<string> { "New", "Choose a File" });
+                ["New", "Choose a File"]);
 
             if (nextAction.Equals("New"))
                 return UniqueFileTools.UniqueFile(

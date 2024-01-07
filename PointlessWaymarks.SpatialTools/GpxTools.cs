@@ -49,7 +49,7 @@ public static class GpxTools
         var feature = new Feature
         {
             Geometry = newLine,
-            BoundingBox = GeoJsonTools.GeometryBoundingBox(new List<Geometry> { newLine }),
+            BoundingBox = GeoJsonTools.GeometryBoundingBox([newLine]),
             Attributes = new AttributesTable()
         };
 
@@ -66,7 +66,7 @@ public static class GpxTools
         var feature = new Feature
         {
             Geometry = newLine,
-            BoundingBox = GeoJsonTools.GeometryBoundingBox(new List<Geometry> { newLine }),
+            BoundingBox = GeoJsonTools.GeometryBoundingBox([newLine]),
             Attributes = new AttributesTable()
         };
 

@@ -40,23 +40,26 @@ public partial class PhotoListWithActionsContext
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new()
             {
                 ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
             },
+
             new()
             {
                 ItemName = "Daily Photo Page Code to Clipboard",
                 ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand
             },
+
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "Photos to Point Content Editors", ItemCommand = PhotoToPointContentEditorCommand },
             new() { ItemName = "View Photos", ItemCommand = ViewSelectedFilesCommand },
@@ -66,6 +69,7 @@ public partial class PhotoListWithActionsContext
             {
                 ItemName = "Rescan Metadata/Fill Blanks - Selected", ItemCommand = RescanMetadataAndFillBlanksCommand
             },
+
             new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new()
@@ -73,11 +77,15 @@ public partial class PhotoListWithActionsContext
                 ItemName = "Generate Html/Process/Resize Selected",
                 ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand
             },
+
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand },
+            new()
+            {
+                ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
+            },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        ];
 
         
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
@@ -302,7 +310,7 @@ public partial class PhotoListWithActionsContext
             {
                 if (await StatusContext.ShowMessage("Error Resizing",
                         $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}{Environment.NewLine}{Environment.NewLine}Continue?",
-                        new List<string> { "Yes", "No" }) == "No") return;
+                        ["Yes", "No"]) == "No") return;
             }
             else
             {
@@ -748,7 +756,7 @@ public partial class PhotoListWithActionsContext
         if (errorMessages.Any())
             if (await StatusContext.ShowMessage("Errors getting Metadata",
                     $"There were errors during processing, continue and see changes? {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, errorMessages)}",
-                    new List<string> { "Yes", "No" }) == "No")
+                    ["Yes", "No"]) == "No")
                 return;
 
         var changeMessages = string.Join(Environment.NewLine,
@@ -756,7 +764,7 @@ public partial class PhotoListWithActionsContext
 
         if (await StatusContext.ShowMessage("Metadata Updates",
                 $"Update {updates.Count} Photos where blanks were replaced based on current Metadata? {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, changeMessages)}",
-                new List<string> { "Yes", "No" }) == "No") return;
+                ["Yes", "No"]) == "No") return;
 
         var updateErrorMessages = new List<string>();
         var successCount = 0;
@@ -807,7 +815,7 @@ public partial class PhotoListWithActionsContext
     public List<PhotoListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
-            .ToList() ?? new List<PhotoListListItem>();
+            .ToList() ?? [];
     }
 
     [BlockingCommand]

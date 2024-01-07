@@ -41,36 +41,42 @@ public partial class LineListWithActionsContext
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Map Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new() { ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand },
             new()
             {
                 ItemName = "Stats Code to Clipboard", ItemCommand = StatsBracketCodesToClipboardForSelectedCommand
             },
+
             new()
             {
                 ItemName = "GeoJson to Clipboard", ItemCommand = GeoJsonToClipboardForSelectedCommand
             },
+
             new()
             {
                 ItemName = "Save Gpx File", ItemCommand = SelectedToGpxFileCommand
             },
+
             new()
             {
                 ItemName = "Monthly Stats Window", ItemCommand = MonthSummaryStatsWindowForSelectedCommand
             },
+
             new()
             {
                 ItemName = "Elevation Chart Code to Clipboard",
                 ItemCommand = ElevationChartBracketCodesToClipboardForSelectedCommand
             },
+
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
@@ -80,8 +86,9 @@ public partial class LineListWithActionsContext
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
             },
+
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
@@ -119,8 +126,8 @@ public partial class LineListWithActionsContext
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<LineContent> dbEntriesToProcess = new();
-        List<IntersectResult> intersectResults = new();
+        List<LineContent> dbEntriesToProcess = [];
+        List<IntersectResult> intersectResults = [];
 
         foreach (var loopSelected in frozenSelect)
         {
@@ -331,7 +338,7 @@ public partial class LineListWithActionsContext
     public List<LineListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is LineListListItem).Cast<LineListListItem>()
-            .ToList() ?? new List<LineListListItem>();
+            .ToList() ?? [];
     }
 
     [BlockingCommand]

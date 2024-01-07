@@ -62,7 +62,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public PointContent DbEntry { get; set; }
-    public List<Guid> DisplayedContentGuids { get; set; } = new();
+    public List<Guid> DisplayedContentGuids { get; set; } = [];
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
@@ -287,10 +287,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         ElevationEntry =
             await ConversionDataEntryContext<double?>.CreateInstance(
                 ConversionDataEntryHelpers.DoubleNullableConversion);
-        ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
-        {
-            CommonContentValidation.ElevationValidation
-        };
+        ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => (o == null && u == null) || o.IsApproximatelyEqualTo(u, .001);
         ElevationEntry.Title = "Elevation";
         ElevationEntry.HelpText = "Elevation in Feet";
@@ -299,10 +296,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         LatitudeEntry =
             await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
-        LatitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
-        {
-            CommonContentValidation.LatitudeValidation
-        };
+        LatitudeEntry.ValidationFunctions = [CommonContentValidation.LatitudeValidation];
         LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
         LatitudeEntry.Title = "Latitude";
         LatitudeEntry.HelpText = "In DDD.DDDDDD°";
@@ -316,10 +310,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         LongitudeEntry =
             await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
-        LongitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
-        {
-            CommonContentValidation.LongitudeValidation
-        };
+        LongitudeEntry.ValidationFunctions = [CommonContentValidation.LongitudeValidation];
         LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
         LongitudeEntry.Title = "Longitude";
         LongitudeEntry.HelpText = "In DDD.DDDDDD°";
@@ -333,10 +324,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         PointDetails = await PointDetailListContext.CreateInstance(StatusContext, DbEntry);
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
         PreviewHtml = await WpfCmsHtmlDocument.ToHtmlLeafletPointDocument("Point", DbEntry.ContentId,
             LatitudeEntry.UserValue,

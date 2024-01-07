@@ -9,7 +9,7 @@ public class LinkListLoader : ContentListLoaderBase
 {
     public LinkListLoader(int? partialLoadQuantity) : base("Links", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> { DataNotificationContentType.Link };
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Link];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

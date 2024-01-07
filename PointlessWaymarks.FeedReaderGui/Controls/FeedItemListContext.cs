@@ -30,11 +30,11 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     public string DisplayBasicAuthUsername { get; set; } = string.Empty;
     public string DisplayUrl { get; set; } = string.Empty;
     public string FeedDisplayHtml { get; set; } = string.Empty;
-    public List<Guid> FeedList { get; set; } = new();
+    public List<Guid> FeedList { get; set; } = [];
     public required ObservableCollection<FeedItemListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
     public FeedItemListListItem? SelectedItem { get; set; }
-    public List<FeedItemListListItem> SelectedItems { get; set; } = new();
+    public List<FeedItemListListItem> SelectedItems { get; set; } = [];
     public bool ShowUnread { get; set; }
     public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
@@ -109,13 +109,13 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
         {
             Items = factoryItemsList,
             StatusContext = statusContext,
-            FeedList = feedList ?? new List<Guid>(),
+            FeedList = feedList ?? [],
             ShowUnread = showUnread,
             ContextDb = feedQueries,
             ListSort = new ColumnSortControlContext
             {
-                Items = new List<ColumnSortControlSortItem>
-                {
+                Items =
+                [
                     new()
                     {
                         DisplayName = "Posted",
@@ -123,25 +123,28 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                         Order = 1,
                         DefaultSortDirection = ListSortDirection.Descending
                     },
+
                     new()
                     {
                         DisplayName = "Item Name",
                         ColumnName = "DbItem.Title",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
+
                     new()
                     {
                         DisplayName = "Feed Name",
                         ColumnName = "DbReaderFeed.Name",
                         DefaultSortDirection = ListSortDirection.Ascending
                     },
+
                     new()
                     {
                         DisplayName = "Item Author",
                         ColumnName = "DbItem.Author",
                         DefaultSortDirection = ListSortDirection.Ascending
                     }
-                }
+                ]
             }
         };
 

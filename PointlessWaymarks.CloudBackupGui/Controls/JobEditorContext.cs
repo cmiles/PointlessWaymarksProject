@@ -52,7 +52,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                                       Jobs in the list will have the last progress message from any backups running on your local machine. This can make it easy to quickly see which jobs are running especially if a Task Runner like Windows Scheduler is set to hide the console window the backup is running in. To see more progress use the 'Progress to Window' button. This progress display only tracks progress for processes on the local machine.
                                       """;
 
-    public List<string> AwsRegionChoices { get; set; } = new();
+    public List<string> AwsRegionChoices { get; set; } = [];
     public bool AwsRegionHasChanges { get; set; }
     public bool AwsRegionHasValidationIssues { get; set; }
     public string AwsRegionOriginal { get; set; } = string.Empty;
@@ -62,15 +62,15 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public required ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
     public bool ExcludedDirectoriesHasChanges { get; set; }
     public string ExcludedDirectoriesHasChangesMessage { get; set; } = string.Empty;
-    public required List<DirectoryInfo> ExcludedDirectoriesOriginal { get; set; } = new();
+    public required List<DirectoryInfo> ExcludedDirectoriesOriginal { get; set; } = [];
     public required ObservableCollection<string> ExcludedDirectoryPatterns { get; set; }
     public bool ExcludedDirectoryPatternsHasChanges { get; set; }
     public string ExcludedDirectoryPatternsHasChangesMessage { get; set; } = string.Empty;
-    public required List<string> ExcludedDirectoryPatternsOriginal { get; set; } = new();
+    public required List<string> ExcludedDirectoryPatternsOriginal { get; set; } = [];
     public required ObservableCollection<string> ExcludedFilePatterns { get; set; }
     public bool ExcludedFilePatternsHasChanges { get; set; }
     public string ExcludedFilePatternsHasChangesMessage { get; set; } = string.Empty;
-    public required List<string> ExcludedFilePatternsOriginal { get; set; } = new();
+    public required List<string> ExcludedFilePatternsOriginal { get; set; } = [];
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
@@ -233,15 +233,15 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             "A name for the job - you must give the job a name, but there are no requirements - just use anything that will help you remember what you are backing up!";
         nameEntry.ReferenceValue = initialJob.Name;
         nameEntry.UserValue = initialJob.Name;
-        nameEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
+        nameEntry.ValidationFunctions =
+        [
             x =>
             {
                 if (string.IsNullOrWhiteSpace(x))
                     return Task.FromResult(new IsValid(false, "A name is required for the job"));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
-        };
+        ];
 
         var cloudBucketEntry = StringDataEntryContext.CreateInstance();
         cloudBucketEntry.Title = "Cloud Bucket";
@@ -249,8 +249,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             "The S3/Cloud Bucket for the job.";
         cloudBucketEntry.ReferenceValue = initialJob.CloudBucket;
         cloudBucketEntry.UserValue = initialJob.CloudBucket;
-        cloudBucketEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
+        cloudBucketEntry.ValidationFunctions =
+        [
             x =>
             {
                 if (string.IsNullOrWhiteSpace(x))
@@ -259,7 +259,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                     return Task.FromResult(new IsValid(false, "S3 Bucket names can only consist of a-z, 0-9, . and -"));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
-        };
+        ];
 
         var cloudDirectoryEntry = StringDataEntryContext.CreateInstance();
         cloudDirectoryEntry.Title = "Cloud Directory";
@@ -267,8 +267,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             "The S3/Cloud Directory for the job - for simplicity can be as simple as a single descriptive folder name";
         cloudDirectoryEntry.ReferenceValue = initialJob.CloudDirectory;
         cloudDirectoryEntry.UserValue = initialJob.CloudDirectory;
-        cloudDirectoryEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
+        cloudDirectoryEntry.ValidationFunctions =
+        [
             x =>
             {
                 if (string.IsNullOrWhiteSpace(x))
@@ -284,15 +284,15 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                         "// should not appear in a Cloud Directory - root path starts without / or //."));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
-        };
+        ];
 
         var initialDirectoryEntry = ExistingDirectoryDataEntryContext.CreateInstance(statusContext);
         initialDirectoryEntry.Title = "Initial Local Directory";
         initialDirectoryEntry.HelpText = "Pick a single starting directory for the backup";
         initialDirectoryEntry.ReferenceValue = initialJob.LocalDirectory;
         initialDirectoryEntry.UserValue = initialJob.LocalDirectory;
-        initialDirectoryEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
+        initialDirectoryEntry.ValidationFunctions =
+        [
             x =>
             {
                 if (string.IsNullOrWhiteSpace(x))
@@ -303,7 +303,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                     return Task.FromResult(new IsValid(false, "Please choose a directory not a file..."));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
-        };
+        ];
 
         initialDirectoryEntry.GetInitialDirectory =
             () => Task.FromResult(CloudBackupGuiSettingTools.ReadSettings().LastDirectory ?? string.Empty);
@@ -323,10 +323,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             "Each file name will be compared to the File Exclusion Patterns and if there is a match it will be excluded. You can use * (match anything) and ? (match any single character) in your patterns.";
         filePatternEntry.ReferenceValue = string.Empty;
         filePatternEntry.UserValue = string.Empty;
-        filePatternEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
-            _ => Task.FromResult(new IsValid(true, string.Empty))
-        };
+        filePatternEntry.ValidationFunctions = [_ => Task.FromResult(new IsValid(true, string.Empty))];
 
         var directoryPatternEntry = StringDataEntryContext.CreateInstance();
         directoryPatternEntry.Title = "New File Pattern Exclusion";
@@ -334,10 +331,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             "Each directory name will be compared to the Directory Exclusion Patterns and if there is a match it will be excluded. You can use * (match anything) and ? (match any single character) in your patterns.";
         directoryPatternEntry.ReferenceValue = string.Empty;
         directoryPatternEntry.UserValue = string.Empty;
-        directoryPatternEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
-            _ => Task.FromResult(new IsValid(true, string.Empty))
-        };
+        directoryPatternEntry.ValidationFunctions = [_ => Task.FromResult(new IsValid(true, string.Empty))];
 
         var maximumRuntimeHoursEntry =
             await ConversionDataEntryContext<int>.CreateInstance(ConversionDataEntryHelpers.IntConversion);
@@ -346,8 +340,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             "The maximum number of hours during which new uploads will be started.";
         maximumRuntimeHoursEntry.ReferenceValue = initialJob.MaximumRunTimeInHours;
         maximumRuntimeHoursEntry.UserText = initialJob.MaximumRunTimeInHours.ToString();
-        maximumRuntimeHoursEntry.ValidationFunctions = new List<Func<int, Task<IsValid>>>
-        {
+        maximumRuntimeHoursEntry.ValidationFunctions =
+        [
             x =>
             {
                 if (x < 1)
@@ -356,7 +350,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                     return Task.FromResult(new IsValid(false, "The maximum runtime hours must be less than 24"));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
-        };
+        ];
 
         var dbExcludedDirectory = initialJob.ExcludedDirectories
             .Select(x => new DirectoryInfo(x.Directory)).ToList();
@@ -720,10 +714,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         ExcludedDirectoryPatterns.CollectionChanged += ExcludedDirectoryPatternsOnCollectionChanged;
         ExcludedFilePatterns.CollectionChanged += ExcludedFilePatternsOnCollectionChanged;
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            HelpText
-        });
+        HelpContext = new HelpDisplayContext([HelpText]);
 
         AwsRegionCheckForChangesAndValidationIssues();
         CloudCredentialsCheckForValidationIssues();

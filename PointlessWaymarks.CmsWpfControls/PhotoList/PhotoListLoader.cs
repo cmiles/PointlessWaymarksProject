@@ -11,10 +11,7 @@ public class PhotoListLoader : ContentListLoaderBase, IContentListLoader
 {
     public PhotoListLoader(int? partialLoadQuantity) : base("Photos", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-        {
-            DataNotificationContentType.Photo
-        };
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Photo];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)
@@ -49,8 +46,8 @@ public class PhotoListLoader : ContentListLoaderBase, IContentListLoader
     {
         return new()
         {
-            Items = new List<ColumnSortControlSortItem>
-            {
+            Items =
+            [
                 new()
                 {
                     DisplayName = "Updated",
@@ -58,19 +55,21 @@ public class PhotoListLoader : ContentListLoaderBase, IContentListLoader
                     Order = 1,
                     DefaultSortDirection = ListSortDirection.Descending
                 },
+
                 new()
                 {
                     DisplayName = "Photo Date",
                     ColumnName = "DbEntry.PhotoCreatedOn",
                     DefaultSortDirection = ListSortDirection.Descending
                 },
+
                 new()
                 {
                     DisplayName = "Title",
                     ColumnName = "DbEntry.Title",
                     DefaultSortDirection = ListSortDirection.Ascending
                 }
-            }
+            ]
         };
     }
 }

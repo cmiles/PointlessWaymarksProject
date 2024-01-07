@@ -207,7 +207,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        if (content == null) return new List<object>();
+        if (content == null) return [];
 
         return (await db.PhotoContents.Where(x => x.Aperture == content.Aperture).ToListAsync()).Cast<object>()
             .ToList();
@@ -225,7 +225,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        if (content == null) return new List<object>();
+        if (content == null) return [];
 
         return (await db.PhotoContents.Where(x => x.CameraMake == content.CameraMake).ToListAsync()).Cast<object>()
             .ToList();
@@ -244,7 +244,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        if (content == null) return new List<object>();
+        if (content == null) return [];
 
         return (await db.PhotoContents.Where(x => x.CameraModel == content.CameraModel).ToListAsync()).Cast<object>()
             .ToList();
@@ -263,7 +263,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        if (content == null) return new List<object>();
+        if (content == null) return [];
 
         return (await db.PhotoContents.Where(x => x.FocalLength == content.FocalLength).ToListAsync()).Cast<object>()
             .ToList();
@@ -282,7 +282,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        if (content == null) return new List<object>();
+        if (content == null) return [];
 
         return (await db.PhotoContents.Where(x => x.Iso == content.Iso).ToListAsync()).Cast<object>().ToList();
     }
@@ -299,7 +299,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        if (content == null) return new List<object>();
+        if (content == null) return [];
 
         return (await db.PhotoContents.Where(x => x.Lens == content.Lens).ToListAsync()).Cast<object>().ToList();
     }
@@ -328,7 +328,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var db = await Db.Context();
 
-        if (content == null) return new List<object>();
+        if (content == null) return [];
 
         //Todo: I think this should be possible via something like DbFunctions or EF functions?
         //I didn't understand what approach to take from a few google searches...
@@ -388,7 +388,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var mapWindow =
             await ContentMapWindow.CreateInstance(new ContentMapListLoader("Mapped Content",
-                new List<Guid> { content.ContentId }));
+                [content.ContentId]));
 
         await mapWindow.PositionWindowAndShowOnUiThread();
     }
@@ -397,7 +397,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (content == null) return new List<object>();
+        if (content == null) return [];
 
         var db = await Db.Context();
 

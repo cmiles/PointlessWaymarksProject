@@ -11,7 +11,7 @@ public abstract class ContentListLoaderBase : IContentListLoader
     private bool _addNewItemsFromDataNotifications = true;
     private bool _allItemsLoaded;
 
-    private List<DataNotificationContentType> _dataNotificationTypesToRespondTo = new();
+    private List<DataNotificationContentType> _dataNotificationTypesToRespondTo = [];
 
     private int? _partialLoadQuantity;
 
@@ -94,8 +94,8 @@ public abstract class ContentListLoaderBase : IContentListLoader
     {
         return new ColumnSortControlContext
         {
-            Items = new List<ColumnSortControlSortItem>
-            {
+            Items =
+            [
                 new()
                 {
                     DisplayName = "Updated",
@@ -103,19 +103,21 @@ public abstract class ContentListLoaderBase : IContentListLoader
                     Order = 1,
                     DefaultSortDirection = ListSortDirection.Descending
                 },
+
                 new()
                 {
                     DisplayName = "Created",
                     ColumnName = "DbEntry.CreatedOn",
                     DefaultSortDirection = ListSortDirection.Descending
                 },
+
                 new()
                 {
                     DisplayName = "Title",
                     ColumnName = "DbEntry.Title",
                     DefaultSortDirection = ListSortDirection.Ascending
                 }
-            }
+            ]
         };
     }
 }

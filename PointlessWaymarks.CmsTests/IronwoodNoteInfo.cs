@@ -72,7 +72,7 @@ public static class IronwoodNoteInfo
 
         var compareLogic = new CompareLogic
         {
-            Config = { MembersToIgnore = new List<string> { "ContentId", "ContentVersion", "Id" } }
+            Config = { MembersToIgnore = ["ContentId", "ContentVersion", "Id"] }
         };
 
         var compareResult = compareLogic.Compare(reference, toCompare);
@@ -101,7 +101,7 @@ public static class IronwoodNoteInfo
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<NoteContent>(
-            new List<string> { jsonFile.FullName }, Names.NoteContentPrefix).Single();
+            [jsonFile.FullName], Names.NoteContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

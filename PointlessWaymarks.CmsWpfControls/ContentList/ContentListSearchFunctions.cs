@@ -8,14 +8,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 public static class ContentListSearchFunctions
 {
     public static List<string> FilterListTokenOperatorList =>
-        new()
-        {
-            "==",
-            ">",
-            "<",
-            ">=",
-            "<="
-        };
+    [
+        "==",
+        ">",
+        "<",
+        ">=",
+        "<="
+    ];
 
     public static ContentListSearchFunctionReturn FilterAperture(string? itemApertureString, string? searchString)
     {

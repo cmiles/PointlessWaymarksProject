@@ -57,7 +57,7 @@ public partial class FilesWrittenLogListContext
     public ObservableCollection<FileWrittenLogListDateTimeFilterChoice> GenerationChoices { get; set; }
     public ObservableCollection<FilesWrittenLogListListItem> Items { get; set; }
     public FileWrittenLogListDateTimeFilterChoice? SelectedGenerationChoice { get; set; }
-    public List<FilesWrittenLogListListItem> SelectedItems { get; set; } = new();
+    public List<FilesWrittenLogListListItem> SelectedItems { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
     public string UserBucketName { get; set; } = string.Empty;
     public string UserBucketRegion { get; set; } = string.Empty;
@@ -566,7 +566,7 @@ public partial class FilesWrittenLogListContext
             {
                 var cancelOrContinue = await StatusContext.ShowMessage("Files For Deletion Report Error",
                     $"The report returned {results.S3KeysToDelete.Count} results and the errors below - Cancel or Continue?{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}",
-                    new List<string> { "Cancel", "Continue" });
+                    ["Cancel", "Continue"]);
 
                 if (cancelOrContinue == "Cancel") return;
             }
@@ -602,7 +602,7 @@ public partial class FilesWrittenLogListContext
             {
                 var cancelOrContinue = await StatusContext.ShowMessage("Missing And Changed Files Report Error",
                     $"The report returned {results.FileSizeMismatches.Count + results.MissingFiles.Count} results and the errors below - Cancel or Continue?{Environment.NewLine}{Environment.NewLine}{string.Join($"{{Environment.NewLine}}{Environment.NewLine}", results.ErrorMessages)}",
-                    new List<string> { "Cancel", "Continue" });
+                    ["Cancel", "Continue"]);
 
                 if (cancelOrContinue == "Cancel") return;
             }

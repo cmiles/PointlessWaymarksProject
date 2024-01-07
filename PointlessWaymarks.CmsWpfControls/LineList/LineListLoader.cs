@@ -11,7 +11,7 @@ public class LineListLoader : ContentListLoaderBase, IContentListLoader
 {
     public LineListLoader(int? partialLoadQuantity) : base("Lines", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> { DataNotificationContentType.Line };
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Line];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)
@@ -46,8 +46,8 @@ public class LineListLoader : ContentListLoaderBase, IContentListLoader
     {
         return new ColumnSortControlContext
         {
-            Items = new List<ColumnSortControlSortItem>
-            {
+            Items =
+            [
                 new()
                 {
                     DisplayName = "Updated",
@@ -55,37 +55,42 @@ public class LineListLoader : ContentListLoaderBase, IContentListLoader
                     Order = 1,
                     DefaultSortDirection = ListSortDirection.Descending
                 },
+
                 new()
                 {
                     DisplayName = "Recorded On",
                     ColumnName = "DbEntry.RecordingStartedOn",
                     DefaultSortDirection = ListSortDirection.Descending
                 },
+
                 new()
                 {
                     DisplayName = "Title",
                     ColumnName = "DbEntry.Title",
                     DefaultSortDirection = ListSortDirection.Ascending
                 },
+
                 new()
                 {
                     DisplayName = "Distance",
                     ColumnName = "DbEntry.LineDistance",
                     DefaultSortDirection = ListSortDirection.Ascending
                 },
+
                 new()
                 {
                     DisplayName = "Climb",
                     ColumnName = "DbEntry.ClimbElevation",
                     DefaultSortDirection = ListSortDirection.Ascending
                 },
+
                 new()
                 {
                     DisplayName = "Max Elevation",
                     ColumnName = "DbEntry.MaximumElevation",
                     DefaultSortDirection = ListSortDirection.Ascending
                 }
-            }
+            ]
         };
     }
 }

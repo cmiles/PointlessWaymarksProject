@@ -28,7 +28,7 @@ public partial class JobListContext
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<JobListListItem> Items { get; set; }
     public JobListListItem? SelectedJob { get; set; }
-    public List<JobListListItem> SelectedJobs { get; set; } = new();
+    public List<JobListListItem> SelectedJobs { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
     [NonBlockingCommand]
@@ -401,8 +401,7 @@ public partial class JobListContext
             null);
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>
-            await Program.Main(new[]
-                { CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "auto" }));
+            await Program.Main([CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "auto"]));
 
         StatusContext.ToastSuccess("Starting Backup Runner...");
     }

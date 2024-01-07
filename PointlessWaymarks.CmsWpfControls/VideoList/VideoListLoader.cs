@@ -9,7 +9,7 @@ public class VideoListLoader : ContentListLoaderBase
 {
     public VideoListLoader(int? partialLoadQuantity) : base("Videos", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> { DataNotificationContentType.Video };
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Video];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

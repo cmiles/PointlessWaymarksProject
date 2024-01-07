@@ -116,7 +116,7 @@ public static class IronwoodVideoInfo
             Config =
             {
                 MembersToIgnore =
-                    new List<string> { "ContentId", "ContentVersion", "Id", "OriginalFileName" }
+                    ["ContentId", "ContentVersion", "Id", "OriginalFileName"]
             }
         };
 
@@ -175,7 +175,7 @@ public static class IronwoodVideoInfo
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<VideoContent>(
-            new List<string> { jsonFile.FullName }, Names.VideoContentPrefix).Single();
+            [jsonFile.FullName], Names.VideoContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

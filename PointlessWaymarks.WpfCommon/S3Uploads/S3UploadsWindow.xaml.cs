@@ -53,7 +53,7 @@ public partial class S3UploadsWindow
 
         var userAction = await StatusContext.ShowMessage("Running Upload...",
             "Exiting this window with an upload running could create errors on S3:",
-            new List<string> { "Close Immediately", "Cancel and Close", "Return to Upload" });
+            ["Close Immediately", "Cancel and Close", "Return to Upload"]);
 
         switch (userAction)
         {

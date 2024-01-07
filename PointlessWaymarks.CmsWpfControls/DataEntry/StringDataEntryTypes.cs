@@ -15,8 +15,7 @@ public static class StringDataEntryTypes
         newContext.HelpText = "This will be the Folder and File Name used in URLs - limited to a-z 0-9 _ -";
         newContext.ReferenceValue = dbEntry?.Slug ?? string.Empty;
         newContext.UserValue = StringTools.NullToEmptyTrim(dbEntry?.Slug);
-        newContext.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-            { CommonContentValidation.ValidateSlugLocal };
+        newContext.ValidationFunctions = [CommonContentValidation.ValidateSlugLocal];
 
         await newContext.CheckForChangesAndValidationIssues();
 
@@ -31,8 +30,7 @@ public static class StringDataEntryTypes
         newContext.HelpText = "A short text entry that will show in Search and short references to the content";
         newContext.ReferenceValue = dbEntry?.Summary ?? string.Empty;
         newContext.UserValue = StringTools.NullToEmptyTrim(dbEntry?.Summary);
-        newContext.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-            { CommonContentValidation.ValidateSummary };
+        newContext.ValidationFunctions = [CommonContentValidation.ValidateSummary];
 
         await newContext.CheckForChangesAndValidationIssues();
 
@@ -47,8 +45,7 @@ public static class StringDataEntryTypes
         newContext.HelpText = "Title Text";
         newContext.ReferenceValue = dbEntry?.Title ?? string.Empty;
         newContext.UserValue = StringTools.NullToEmptyTrim(dbEntry?.Title);
-        newContext.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-            { CommonContentValidation.ValidateTitle };
+        newContext.ValidationFunctions = [CommonContentValidation.ValidateTitle];
 
         await newContext.CheckForChangesAndValidationIssues();
 

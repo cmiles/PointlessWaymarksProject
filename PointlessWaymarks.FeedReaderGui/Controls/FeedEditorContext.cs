@@ -125,15 +125,15 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             "Your name for the feed - the program might be able to determine a value but change it as you like.";
         userNameEntry.ReferenceValue = feedItem.Id > 0 ? feedItem.Name : string.Empty;
         userNameEntry.UserValue = feedItem.Name;
-        userNameEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
+        userNameEntry.ValidationFunctions =
+        [
             x =>
             {
                 if (string.IsNullOrWhiteSpace(x))
                     return Task.FromResult(new IsValid(false, "A Name is required"));
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
-        };
+        ];
 
         var userNoteEntry = StringDataEntryContext.CreateInstance();
         userNoteEntry.Title = "Notes";
@@ -141,10 +141,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             "Use for any notes that you want about the feed - this might not be useful for all feeds but over time notes might help you remember what a feed is and why you subscribed!";
         userNoteEntry.ReferenceValue = feedItem.Id > 0 ? feedItem.Note : string.Empty;
         userNoteEntry.UserValue = feedItem.Note;
-        userNoteEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
-            _ => Task.FromResult(new IsValid(true, string.Empty))
-        };
+        userNoteEntry.ValidationFunctions = [_ => Task.FromResult(new IsValid(true, string.Empty))];
 
         var userUrlEntry = StringDataEntryContext.CreateInstance();
         userUrlEntry.Title = "URL";
@@ -160,10 +157,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             "A comma separated list of tags - this can be used for filtering the feeds.";
         userTagEntry.ReferenceValue = feedItem.Id > 0 ? feedItem.Tags : string.Empty;
         userTagEntry.UserValue = feedItem.Tags;
-        userTagEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
-            _ => Task.FromResult(new IsValid(true, string.Empty))
-        };
+        userTagEntry.ValidationFunctions = [_ => Task.FromResult(new IsValid(true, string.Empty))];
 
         var userUseBasicAuthEntry = await BoolDataEntryContext.CreateInstance();
         userUseBasicAuthEntry.Title = "Use Basic Auth";
@@ -206,10 +200,8 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             ContextDb = feedQueries
         };
 
-        newContext.UserUrlEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
-            async x => await newContext.ProcessCheckFeedUrl(x ?? string.Empty)
-        };
+        newContext.UserUrlEntry.ValidationFunctions =
+            [async x => await newContext.ProcessCheckFeedUrl(x ?? string.Empty)];
 
         newContext.UserUseBasicAuthEntry.PropertyChanged += newContext.UserBasicAuthPropertyChanged;
         newContext.UserBasicAuthPasswordEntry.PropertyChanged += newContext.UserBasicAuthPropertyChanged;
@@ -384,10 +376,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
     {
         BuildCommands();
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            HelpText
-        });
+        HelpContext = new HelpDisplayContext([HelpText]);
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;

@@ -34,7 +34,7 @@ public partial class BatchListContext
     public required ObservableCollection<BatchListListItem> Items { get; set; }
     public required int JobId { get; set; }
     public BatchListListItem? SelectedBatch { get; set; }
-    public List<BatchListListItem> SelectedBatches { get; set; } = new();
+    public List<BatchListListItem> SelectedBatches { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
     [BlockingCommand]
@@ -226,10 +226,7 @@ public partial class BatchListContext
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            HelpText
-        });
+        HelpContext = new HelpDisplayContext([HelpText]);
 
         BuildCommands();
 

@@ -96,11 +96,10 @@ public partial class MainWindow
 
         UpdateMessageContext = new ProgramUpdateMessageContext();
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
+        HelpContext = new HelpDisplayContext([
             HelpText,
             HelpMarkdown.SoftwareUsedBlock
-        });
+        ]);
 
         SettingsContext = new AppSettingsContext();
 

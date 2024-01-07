@@ -286,12 +286,11 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
             "whether a download link is shown.";
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
+        HelpContext = new HelpDisplayContext([
             CommonFields.TitleSlugFolderSummary,
             BracketCodeHelpMarkdown.HelpBlock,
             GeoJsonContentHelpMarkdown.HelpBlock
-        });
+        ]);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }

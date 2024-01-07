@@ -89,8 +89,9 @@ public partial class MainWindow
         ConnectGeoTaggerContext = await ConnectBasedGeoTaggerContext.CreateInstance(StatusContext, WindowStatus);
         FeatureIntersectContext = await FeatureIntersectTaggerContext.CreateInstance(StatusContext, WindowStatus);
         GarminConnectDownloadContext = await ConnectDownloadContext.CreateInstance(StatusContext, WindowStatus);
-        AboutContext = new HelpDisplayContext(new List<string>
-            { HelpMarkdown.GeoToolsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock });
+        AboutContext = new HelpDisplayContext([
+            HelpMarkdown.GeoToolsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock
+        ]);
         SettingsContext = new AppSettingsContext();
 
         await CheckForProgramUpdate(_currentDateVersion);

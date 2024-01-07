@@ -141,7 +141,7 @@ public static class TestFileInfo
             Config =
             {
                 MembersToIgnore =
-                    new List<string> { "ContentId", "ContentVersion", "Id", "OriginalFileName" }
+                    ["ContentId", "ContentVersion", "Id", "OriginalFileName"]
             }
         };
 
@@ -200,7 +200,7 @@ public static class TestFileInfo
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<FileContent>(
-            new List<string> { jsonFile.FullName }, Names.FileContentPrefix).Single();
+            [jsonFile.FullName], Names.FileContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

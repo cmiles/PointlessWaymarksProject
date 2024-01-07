@@ -326,7 +326,7 @@ public static class ContentImport
         IProgress<string>? progress = null)
     {
         if (toProcess == null || toProcess.Count < 2)
-            return new ContentImportResults(true, "Nothing to Process", new List<ContentImportUpdateSuggestion>());
+            return new ContentImportResults(true, "Nothing to Process", []);
 
         var headerInfo = new ContentImportHeaderRow(toProcess.First().Values);
 
@@ -391,7 +391,7 @@ public static class ContentImport
 
                 var compareLogic = new CompareLogic
                 {
-                    Config = { MembersToIgnore = new List<string> { "LastUpdatedBy" }, MaxDifferences = 100 }
+                    Config = { MembersToIgnore = ["LastUpdatedBy"], MaxDifferences = 100 }
                 };
                 ComparisonResult comparisonResult =
                     compareLogic.Compare(currentDbEntry, importResult.processContent);

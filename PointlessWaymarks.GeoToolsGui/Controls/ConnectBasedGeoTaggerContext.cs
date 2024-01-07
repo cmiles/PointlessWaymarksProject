@@ -229,7 +229,7 @@ public partial class ConnectBasedGeoTaggerContext
                     { ConnectUsername = credentials.userName, ConnectPassword = credentials.password });
         var tagger = new GeoTag();
         PreviewResults = await tagger.ProduceGeoTagActions(FilesToTagFileList.Files!.ToList(),
-            new List<IGpxService> { fileListGpxService },
+            [fileListGpxService],
             Settings.PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes,
             Settings.OverwriteExistingGeoLocation,
             StatusContext.ProgressTracker(),
@@ -271,10 +271,7 @@ public partial class ConnectBasedGeoTaggerContext
         FilesToTagSettings = new ConnectBasedGeoTagFilesToTagSettings(this);
 
         FilesToTagFileList = await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
-            new List<ContextMenuItemData>
-            {
-                new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
-            });
+            [new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }]);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

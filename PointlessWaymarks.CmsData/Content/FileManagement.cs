@@ -1017,8 +1017,8 @@ public static class FileManagement
     /// <returns></returns>
     public static List<GenerationReturn> VerifyOrCreateLocalTopLevelSiteFolders(this UserSettings settings)
     {
-        return new List<GenerationReturn>
-        {
+        return
+        [
             settings.LocalSiteDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteFileDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteGeoJsonDirectory().CreateIfItDoesNotExist(),
@@ -1039,7 +1039,7 @@ public static class FileManagement
             settings.LocalSiteVideoDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteTagsDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteSiteResourcesDirectory().CreateIfItDoesNotExist()
-        };
+        ];
     }
 
     /// <summary>
@@ -1049,15 +1049,15 @@ public static class FileManagement
     /// <returns></returns>
     public static List<GenerationReturn> VerifyOrCreateMediaArchiveFolders(this UserSettings settings)
     {
-        return new List<GenerationReturn>
-        {
+        return
+        [
             settings.LocalMediaArchiveFullDirectory().CreateIfItDoesNotExist(),
             settings.LocalMediaArchiveFileDirectory().CreateIfItDoesNotExist(),
             settings.LocalMediaArchiveImageDirectory().CreateIfItDoesNotExist(),
             settings.LocalMediaArchivePhotoDirectory().CreateIfItDoesNotExist(),
             settings.LocalMediaArchiveVideoDirectory().CreateIfItDoesNotExist(),
             settings.LocalMediaArchiveLogsDirectory().CreateIfItDoesNotExist()
-        };
+        ];
     }
 
     public static async Task WriteAllTextToFileAndLog(string path, string contents)

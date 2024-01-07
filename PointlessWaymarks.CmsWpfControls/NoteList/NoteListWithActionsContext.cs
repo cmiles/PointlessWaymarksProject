@@ -22,21 +22,22 @@ public partial class NoteListWithActionsContext
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
@@ -84,6 +85,6 @@ public partial class NoteListWithActionsContext
     public List<NoteListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is NoteListListItem).Cast<NoteListListItem>()
-            .ToList() ?? new List<NoteListListItem>();
+            .ToList() ?? [];
     }
 }

@@ -9,10 +9,7 @@ public class ImageListLoader : ContentListLoaderBase
 {
     public ImageListLoader(int? partialLoadQuantity) : base("Images", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-        {
-            DataNotificationContentType.Image
-        };
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Image];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

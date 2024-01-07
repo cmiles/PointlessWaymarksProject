@@ -27,19 +27,21 @@ public partial class ImageListWithActionsContext
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new()
             {
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = ImageBracketLinkCodesToClipboardForSelectedCommand
             },
+
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Images", ItemCommand = ViewSelectedFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
@@ -50,10 +52,11 @@ public partial class ImageListWithActionsContext
                 ItemName = "Generate Html/Process/Resize Selected",
                 ItemCommand = RegenerateHtmlAndReprocessImageForSelectedCommand
             },
+
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
@@ -115,7 +118,7 @@ public partial class ImageListWithActionsContext
             {
                 if (await StatusContext.ShowMessage("Error Resizing",
                         $"There was an error resizing the image {loopSelected.DbEntry.OriginalFileName} in {loopSelected.DbEntry.Title}{Environment.NewLine}{Environment.NewLine}{resizeResult.GenerationNote}{Environment.NewLine}{Environment.NewLine}Continue?",
-                        new List<string> { "Yes", "No" }) == "No") return;
+                        ["Yes", "No"]) == "No") return;
             }
             else
             {
@@ -227,7 +230,7 @@ public partial class ImageListWithActionsContext
     public List<ImageListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is ImageListListItem).Cast<ImageListListItem>()
-            .ToList() ?? new List<ImageListListItem>();
+            .ToList() ?? [];
     }
 
     [BlockingCommand]

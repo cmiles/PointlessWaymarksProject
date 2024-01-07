@@ -53,19 +53,24 @@ public partial class AllContentListWithActionsContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand },
-        };
+            new()
+            {
+                ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
+            }
+
+        ];
 
         await ListContext.LoadData();
     }

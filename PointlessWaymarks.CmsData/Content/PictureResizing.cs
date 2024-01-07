@@ -354,8 +354,8 @@ public static class PictureResizing
 
     public static List<(int size, int quality)> SrcSetSizeAndQualityList()
     {
-        return new()
-        {
+        return
+        [
             (4000, 80),
             (3000, 80),
             (1920, 80),
@@ -367,6 +367,6 @@ public static class PictureResizing
             (320, 70),
             (210, 70),
             (100, 70)
-        };
+        ];
     }
 }

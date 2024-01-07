@@ -108,10 +108,7 @@ public partial class FeaturePointDetailContext : IHasChanges, IHasValidationIssu
         await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 
         TypeEditor = StringDataEntryContext.CreateInstance();
-        TypeEditor.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
-            CommonContentValidation.ValidateFeatureType
-        };
+        TypeEditor.ValidationFunctions = [CommonContentValidation.ValidateFeatureType];
         TypeEditor.Title = "Type";
         TypeEditor.HelpText =
             "The type for this feature - this could be something unique or something recorded for many points";

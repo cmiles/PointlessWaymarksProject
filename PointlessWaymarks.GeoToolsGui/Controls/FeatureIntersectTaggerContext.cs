@@ -42,7 +42,7 @@ public partial class FeatureIntersectTaggerContext
         Settings = new FeatureIntersectTaggerSettings();
 
         FeatureFileToEdit =
-            new FeatureFileEditorContext(StatusContext, new FeatureFileContext(), new List<FeatureFileContext>());
+            new FeatureFileEditorContext(StatusContext, new FeatureFileContext(), []);
         FeatureFileToEdit.EndEdit += EndEdit;
     }
 
@@ -90,14 +90,14 @@ public partial class FeatureIntersectTaggerContext
 
     public string? PreviewGeoJsonDto { get; set; }
     public string PreviewHtml { get; set; } = string.Empty;
-    public List<IntersectFileTaggingResult> PreviewResults { get; set; } = new();
+    public List<IntersectFileTaggingResult> PreviewResults { get; set; } = [];
     public FeatureFileContext? SelectedFeatureFile { get; set; }
     public string? SelectedPadUsAttribute { get; set; }
     public int SelectedTab { get; set; }
     public FeatureIntersectTaggerSettings Settings { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus WindowStatus { get; set; }
-    public List<IntersectFileTaggingResult> WriteToFileResults { get; set; } = new();
+    public List<IntersectFileTaggingResult> WriteToFileResults { get; set; } = [];
 
     [NonBlockingCommand]
     public async Task AddPadUsAttribute()
@@ -265,7 +265,7 @@ public partial class FeatureIntersectTaggerContext
 
         if (newFile.Exists && await StatusContext.ShowMessage("Overwrite Existing File?",
                 $"The file {newFile.FullName} already exists - Overwrite that File?",
-                new List<string> { "Yes", "No" }) == "No") return;
+                ["Yes", "No"]) == "No") return;
 
         var settings = await CurrentSettingsAsIntersectSettings();
 
@@ -368,14 +368,13 @@ public partial class FeatureIntersectTaggerContext
 
         FilesToTagFileList =
             await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
-                new List<ContextMenuItemData>
+            [
+                new()
                 {
-                    new()
-                    {
-                        ItemCommand = MetadataForSelectedFilesToTagCommand,
-                        ItemName = "Metadata Report for Selected"
-                    }
-                });
+                    ItemCommand = MetadataForSelectedFilesToTagCommand,
+                    ItemName = "Metadata Report for Selected"
+                }
+            ]);
 
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Tagged Features and Intersect Features",
             32.12063, -110.52313, string.Empty);

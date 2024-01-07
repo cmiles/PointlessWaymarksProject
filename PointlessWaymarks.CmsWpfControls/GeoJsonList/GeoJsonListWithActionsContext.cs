@@ -33,26 +33,31 @@ public partial class GeoJsonListWithActionsContext
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Map Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new()
             {
                 ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand
             },
+
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand },
+            new()
+            {
+                ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
+            },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
@@ -97,8 +102,8 @@ public partial class GeoJsonListWithActionsContext
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<GeoJsonContent> dbEntriesToProcess = new();
-        List<IntersectResult> intersectResults = new();
+        List<GeoJsonContent> dbEntriesToProcess = [];
+        List<IntersectResult> intersectResults = [];
 
         foreach (var loopSelected in frozenSelect)
         {

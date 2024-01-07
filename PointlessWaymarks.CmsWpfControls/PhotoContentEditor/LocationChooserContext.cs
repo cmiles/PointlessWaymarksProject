@@ -35,7 +35,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
     }
 
     public bool BroadcastLatLongChange { get; set; } = true;
-    public List<Guid> DisplayedContentGuids { get; set; } = new();
+    public List<Guid> DisplayedContentGuids { get; set; } = [];
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
 
     public bool HasChanges { get; set; }
@@ -122,10 +122,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         ElevationEntry =
             await ConversionDataEntryContext<double?>.CreateInstance(
                 ConversionDataEntryHelpers.DoubleNullableConversion);
-        ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
-        {
-            CommonContentValidation.ElevationValidation
-        };
+        ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => (o == null && u == null) || o.IsApproximatelyEqualTo(u, .001);
         ElevationEntry.Title = "Elevation";
         ElevationEntry.HelpText = "Elevation in Feet";
@@ -134,10 +131,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
 
         LatitudeEntry =
             await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
-        LatitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
-        {
-            CommonContentValidation.LatitudeValidation
-        };
+        LatitudeEntry.ValidationFunctions = [CommonContentValidation.LatitudeValidation];
         LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
         LatitudeEntry.Title = "Latitude";
         LatitudeEntry.HelpText = "In DDD.DDDDDD°";
@@ -151,10 +145,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
 
         LongitudeEntry =
             await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);
-        LongitudeEntry.ValidationFunctions = new List<Func<double, Task<IsValid>>>
-        {
-            CommonContentValidation.LongitudeValidation
-        };
+        LongitudeEntry.ValidationFunctions = [CommonContentValidation.LongitudeValidation];
         LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .000001);
         LongitudeEntry.Title = "Longitude";
         LongitudeEntry.HelpText = "In DDD.DDDDDD°";

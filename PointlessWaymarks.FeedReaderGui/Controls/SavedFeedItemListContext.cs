@@ -27,11 +27,11 @@ public partial class SavedFeedItemListContext
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
     public string FeedDisplayHtml { get; set; } = string.Empty;
-    public List<Guid> FeedList { get; set; } = new();
+    public List<Guid> FeedList { get; set; } = [];
     public required ObservableCollection<SavedFeedItemListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
     public SavedFeedItemListListItem? SelectedItem { get; set; }
-    public List<SavedFeedItemListListItem> SelectedItems { get; set; } = new();
+    public List<SavedFeedItemListListItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; init; }
     public string UserFilterText { get; set; } = string.Empty;
 
@@ -93,12 +93,12 @@ public partial class SavedFeedItemListContext
         {
             Items = factoryItemsList,
             StatusContext = statusContext,
-            FeedList = feedList ?? new List<Guid>(),
+            FeedList = feedList ?? [],
             ContextDb = FeedQueries,
             ListSort = new ColumnSortControlContext
             {
-                Items = new List<ColumnSortControlSortItem>
-                {
+                Items =
+                [
                     new()
                     {
                         DisplayName = "Posted",
@@ -106,25 +106,28 @@ public partial class SavedFeedItemListContext
                         Order = 1,
                         DefaultSortDirection = ListSortDirection.Descending
                     },
+
                     new()
                     {
                         DisplayName = "Item Name",
                         ColumnName = "DbItem.Title",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
+
                     new()
                     {
                         DisplayName = "Feed Name",
                         ColumnName = "DbReaderFeed.Name",
                         DefaultSortDirection = ListSortDirection.Ascending
                     },
+
                     new()
                     {
                         DisplayName = "Item Author",
                         ColumnName = "DbItem.Author",
                         DefaultSortDirection = ListSortDirection.Ascending
                     }
-                }
+                ]
             }
         };
 

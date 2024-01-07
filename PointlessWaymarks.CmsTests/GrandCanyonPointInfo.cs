@@ -29,8 +29,8 @@ public static class GrandCanyonPointInfo
             Latitude = 36.079982,
             Longitude = -112.229061,
             MapLabel = "vp",
-            PointDetails = new List<PointDetail>
-            {
+            PointDetails =
+            [
                 new()
                 {
                     ContentId = Guid.NewGuid(),
@@ -41,7 +41,7 @@ public static class GrandCanyonPointInfo
                     StructuredDataAsJson =
                         "{\"DataTypeIdentifier\":\"Peak\",\"Notes\":\"GNIS Data...\",\"NotesContentFormat\":\"MarkdigMarkdown01\"}"
                 }
-            }
+            ]
         };
 
     public static PointContentDto YumaPointContent02 =>
@@ -66,8 +66,8 @@ public static class GrandCanyonPointInfo
             MapLabel = "vp",
             LastUpdatedBy = "Elevation Updater",
             LastUpdatedOn = new DateTime(2020, 9, 21, 8, 20, 16),
-            PointDetails = new List<PointDetail>
-            {
+            PointDetails =
+            [
                 new()
                 {
                     ContentId = Guid.NewGuid(),
@@ -79,7 +79,7 @@ public static class GrandCanyonPointInfo
                         "{\"DataTypeIdentifier\":\"Peak\",\"Notes\":\"Yuma Point|Cliff|AZ|04|Coconino|005|360448N|1121345W|36.0799823|-112.229061\",\"NotesContentFormat\":\"MarkdigMarkdown01\"}",
                     LastUpdatedOn = new DateTime(2020, 9, 21, 8, 20, 16)
                 }
-            }
+            ]
         };
 
     public static Guid YumaPointContentId => Guid.Parse("6a32fa16-bdff-4690-ada9-0da017e99d0e");
@@ -147,7 +147,7 @@ public static class GrandCanyonPointInfo
         {
             Config =
             {
-                MembersToIgnore = new List<string> { "ContentId", "ContentVersion", "Id", "PointDetails" }
+                MembersToIgnore = ["ContentId", "ContentVersion", "Id", "PointDetails"]
             }
         };
 
@@ -194,7 +194,7 @@ public static class GrandCanyonPointInfo
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<PointContent>(
-            new List<string> { jsonFile.FullName }, Names.PointContentPrefix).Single();
+            [jsonFile.FullName], Names.PointContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

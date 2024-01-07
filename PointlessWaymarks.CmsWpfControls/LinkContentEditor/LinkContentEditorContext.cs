@@ -137,7 +137,7 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         LinkUrlEntry = StringDataEntryContext.CreateInstance();
         LinkUrlEntry.Title = "URL";
         LinkUrlEntry.HelpText = "Link address";
-        LinkUrlEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>> { ValidateUrl };
+        LinkUrlEntry.ValidationFunctions = [ValidateUrl];
         LinkUrlEntry.ReferenceValue = DbEntry.Url.TrimNullToEmpty();
         LinkUrlEntry.UserValue = DbEntry.Url.TrimNullToEmpty();
 
@@ -152,8 +152,7 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         TitleEntry.HelpText = "Title Text";
         TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
         TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-        TitleEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-            { CommonContentValidation.ValidateTitle };
+        TitleEntry.ValidationFunctions = [CommonContentValidation.ValidateTitle];
 
         SiteEntry = StringDataEntryContext.CreateInstance();
         SiteEntry.Title = "Site";
@@ -192,10 +191,7 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
         if (extractDataOnLoad) await ExtractDataFromLink();
 

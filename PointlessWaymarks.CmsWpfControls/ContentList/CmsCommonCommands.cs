@@ -169,7 +169,7 @@ public partial class CmsCommonCommands
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
-        var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+        var selectedFiles = dialog.FileNames?.ToList() ?? [];
 
         if (!selectedFiles.Any()) return;
 
@@ -263,7 +263,7 @@ public partial class CmsCommonCommands
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
-        var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+        var selectedFiles = dialog.FileNames?.ToList() ?? [];
 
         if (!selectedFiles.Any()) return;
 
@@ -348,7 +348,7 @@ public partial class CmsCommonCommands
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
-        var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+        var selectedFiles = dialog.FileNames?.ToList() ?? [];
 
         if (!selectedFiles.Any()) return;
 
@@ -388,7 +388,7 @@ public partial class CmsCommonCommands
             !string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
             skipFeatureIntersectionTagging = await statusContext.ShowMessage("Slow Feature Intersection Tag Warning",
                 $"You are importing {selectedFileInfos.Count} files, checking for Feature Intersection Tags on these will be slow, it will be faster to select all of the new entries in the Line List after they have been created/saved and generate Feature Intersection Tags then - skip Feature Intersection Tagging?",
-                new List<string> { "Yes", "No" }) == "Yes";
+                ["Yes", "No"]) == "Yes";
 
         foreach (var loopFile in selectedFileInfos)
         {
@@ -557,7 +557,7 @@ public partial class CmsCommonCommands
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
-        var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+        var selectedFiles = dialog.FileNames?.ToList() ?? [];
 
         if (!selectedFiles.Any()) return;
 
@@ -740,7 +740,7 @@ public partial class CmsCommonCommands
 
         if (!(dialog.ShowDialog() ?? false)) return;
 
-        var selectedFiles = dialog.FileNames?.ToList() ?? new List<string>();
+        var selectedFiles = dialog.FileNames?.ToList() ?? [];
 
         if (!selectedFiles.Any()) return;
 

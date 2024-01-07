@@ -131,7 +131,7 @@ public partial class FileBasedGeoTaggerContext
         var fileListGpxService = new FileListGpxService(GpxFileList.Files!.ToList());
         var tagger = new GeoTag();
         PreviewResults = await tagger.ProduceGeoTagActions(FilesToTagFileList.Files!.ToList(),
-            new List<IGpxService> { fileListGpxService },
+            [fileListGpxService],
             PointsMustBeWithinMinutes, OffsetPhotoTimeInMinutes, OverwriteExistingGeoLocation,
             StatusContext.ProgressTracker(),
             Settings.ExifToolFullName);
@@ -169,16 +169,12 @@ public partial class FileBasedGeoTaggerContext
         GpxFilesSettings = new FileBasedGeoTaggerGpxFilesSettings(this);
 
         FilesToTagFileList = await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
-            new List<ContextMenuItemData>
-            {
-                new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
-            });
+            [new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }]);
 
         GpxFileList = await FileListContext.CreateInstance(StatusContext, GpxFilesSettings,
-            new List<ContextMenuItemData>
-                { new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" } });
+            [new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" }]);
         GpxFileList.FileImportFilter = "gpx files (*.gpx)|*.gpx|All files (*.*)|*.*";
-        GpxFileList.DroppedFileExtensionAllowList = new List<string> { ".gpx" };
+        GpxFileList.DroppedFileExtensionAllowList = [".gpx"];
 
         PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Preview",
             32.12063, -110.52313, string.Empty);

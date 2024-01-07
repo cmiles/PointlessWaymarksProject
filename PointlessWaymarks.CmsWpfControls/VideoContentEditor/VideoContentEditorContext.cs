@@ -375,8 +375,7 @@ Notes:
         UserMainPictureEntry =
             await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
                 .GuidNullableAndBracketCodeConversion);
-        UserMainPictureEntry.ValidationFunctions = new List<Func<Guid?, Task<IsValid>>>
-            { CommonContentValidation.ValidateUserMainPicture };
+        UserMainPictureEntry.ValidationFunctions = [CommonContentValidation.ValidateUserMainPicture];
         UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
         UserMainPictureEntry.UserText = DbEntry.UserMainPicture.ToString() ?? string.Empty;
         UserMainPictureEntry.Title = "Link Image";
@@ -385,10 +384,9 @@ Notes:
         UserMainPictureEntry.PropertyChanged += UserMainPictureEntryOnPropertyChanged;
         await SetUserMainPicture();
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
+        HelpContext = new HelpDisplayContext([
             VideoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        ]);
 
         if (!skipMediaDirectoryCheck && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName) && DbEntry.Id > 0)
         {

@@ -18,8 +18,8 @@ public partial class StatusControlContext
                             ThreadSwitcher.PinnedDispatcher ?? Dispatcher.CurrentDispatcher;
 
         Toast = new ToastSource(ContextDispatcher);
-        StatusLog = new ObservableCollection<string>();
-        CancellationList = new ObservableCollection<UserCancellations>();
+        StatusLog = [];
+        CancellationList = [];
 
         UserMessageBoxResponseCommand = new RelayCommand<string>(UserMessageBoxResponse);
         UserStringEntryApprovedResponseCommand = new RelayCommand(UserStringEntryApprovedResponse);
@@ -390,7 +390,7 @@ public partial class StatusControlContext
 
     public async Task<string> ShowMessage(string title, string? body, List<string> buttons)
     {
-        if (buttons.Any() != true) buttons = new List<string> { "Ok" };
+        if (buttons.Any() != true) buttons = ["Ok"];
 
         return await ShowMessage(title, body,
             buttons.Select(x => new StatusControlMessageButton { MessageText = x }).ToList());
@@ -401,7 +401,7 @@ public partial class StatusControlContext
         await ThreadSwitcher.ResumeForegroundAsync();
 
         if (buttons == null || !buttons.Any())
-            buttons = new List<StatusControlMessageButton> { new() { IsDefault = true, MessageText = "Ok" } };
+            buttons = [new() { IsDefault = true, MessageText = "Ok" }];
 
         if (buttons.All(x => !x.IsDefault) || buttons.Count(x => x.IsDefault) > 1)
         {
@@ -441,7 +441,7 @@ public partial class StatusControlContext
 
         MessageBoxTitle = string.Empty;
         MessageBoxMessage = string.Empty;
-        MessageBoxButtonList = new List<StatusControlMessageButton>();
+        MessageBoxButtonList = [];
         ShowMessageResponse = string.Empty;
         MessageBoxVisible = false;
 

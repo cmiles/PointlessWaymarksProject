@@ -20,7 +20,7 @@ public record MemoriesSmtpEmailFromWebSettings
     public int SmtpPort { get; set; } = 587;
     [Required(ErrorMessage = "At Least One To Address is required - example: person@example.com;another@example.com;")]
     public string ToAddressList { get; set; } = string.Empty;
-    public List<int> YearsBack { get; set; } = new() { 10, 5, 2, 1 };
+    public List<int> YearsBack { get; set; } = [10, 5, 2, 1];
 
     public static string PasswordVaultResourceIdentifier(string loginCode)
     {

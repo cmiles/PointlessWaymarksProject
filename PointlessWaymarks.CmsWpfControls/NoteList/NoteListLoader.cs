@@ -9,7 +9,7 @@ public class NoteListLoader : ContentListLoaderBase
 {
     public NoteListLoader(int? partialLoadQuantity) : base("Notes", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType> {DataNotificationContentType.Note};
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Note];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

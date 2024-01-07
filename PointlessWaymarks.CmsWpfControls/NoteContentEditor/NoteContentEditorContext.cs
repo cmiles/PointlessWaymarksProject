@@ -144,13 +144,12 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
+        HelpContext = new HelpDisplayContext([
             NoteEditorHelpText,
             CommonFields.SummaryFieldBlock,
             CommonFields.FolderFieldBlock,
             BracketCodeHelpMarkdown.HelpBlock
-        });
+        ]);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }

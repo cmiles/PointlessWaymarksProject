@@ -538,10 +538,7 @@ Photo Content Notes:
         LatitudeEntry =
             await ConversionDataEntryContext<double?>.CreateInstance(
                 ConversionDataEntryHelpers.DoubleNullableConversion);
-        LatitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
-        {
-            CommonContentValidation.LatitudeValidationWithNullOk
-        };
+        LatitudeEntry.ValidationFunctions = [CommonContentValidation.LatitudeValidationWithNullOk];
         LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .0000001);
         LatitudeEntry.Title = "Latitude";
         LatitudeEntry.HelpText = "In DDD.DDDDDD°";
@@ -551,10 +548,7 @@ Photo Content Notes:
         LongitudeEntry =
             await ConversionDataEntryContext<double?>.CreateInstance(
                 ConversionDataEntryHelpers.DoubleNullableConversion);
-        LongitudeEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
-        {
-            CommonContentValidation.LongitudeValidationWithNullOk
-        };
+        LongitudeEntry.ValidationFunctions = [CommonContentValidation.LongitudeValidationWithNullOk];
         LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .0000001);
         LongitudeEntry.Title = "Longitude";
         LongitudeEntry.HelpText = "In DDD.DDDDDD°";
@@ -564,20 +558,16 @@ Photo Content Notes:
         ElevationEntry =
             await ConversionDataEntryContext<double?>.CreateInstance(
                 ConversionDataEntryHelpers.DoubleNullableConversion);
-        ElevationEntry.ValidationFunctions = new List<Func<double?, Task<IsValid>>>
-        {
-            CommonContentValidation.ElevationValidation
-        };
+        ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .001);
         ElevationEntry.Title = "Elevation";
         ElevationEntry.HelpText = "Elevation in Feet";
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
+        HelpContext = new HelpDisplayContext([
             PhotoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        ]);
 
         if (DbEntry.Id < 1 && InitialPhoto is { Exists: true } && FileHelpers.PhotoFileTypeIsSupported(InitialPhoto))
         {

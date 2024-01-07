@@ -60,8 +60,8 @@ public partial class GpxImportContext
 
         ListSort = new ColumnSortControlContext
         {
-            Items = new List<ColumnSortControlSortItem>
-            {
+            Items =
+            [
                 new()
                 {
                     DisplayName = "Name",
@@ -69,13 +69,14 @@ public partial class GpxImportContext
                     DefaultSortDirection = ListSortDirection.Ascending,
                     Order = 1
                 },
+
                 new()
                 {
                     DisplayName = "Created",
                     ColumnName = "CreatedOn",
                     DefaultSortDirection = ListSortDirection.Descending
                 }
-            }
+            ]
         };
 
         ListSort.SortUpdated += (_, list) =>
@@ -111,7 +112,7 @@ public partial class GpxImportContext
             PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(
                 new MapJsonNewFeatureCollectionDto(
                     Guid.NewGuid(),
-                    new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+                    new SpatialBounds(0, 0, 0, 0), []));
             return;
         }
 
@@ -162,7 +163,7 @@ public partial class GpxImportContext
 
         var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
             new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX),
-            new List<FeatureCollection> { featureCollection });
+            [featureCollection]);
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
         PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
@@ -230,8 +231,8 @@ public partial class GpxImportContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContext = new GpxImportContext(factoryContext, new ObservableCollection<IGpxImportListItem>(),
-            new ObservableCollection<IGpxImportListItem>(), factoryFolderEntry, factoryTagEntry);
+        var newContext = new GpxImportContext(factoryContext, [],
+            [], factoryFolderEntry, factoryTagEntry);
 
         return newContext;
     }
@@ -350,7 +351,7 @@ public partial class GpxImportContext
 
         var stateCounty =
             await StateCountyService.GetStateCounty(newPoint.Latitude, newPoint.Longitude);
-        List<string> tagList = new() { stateCounty.state, stateCounty.county };
+        List<string> tagList = [stateCounty.state, stateCounty.county];
 
         try
         {
@@ -773,7 +774,7 @@ public partial class GpxImportContext
         if (importWarnings.Any())
             if (await StatusContext.ShowMessage("GPX Import Warnings",
                     $"The GPX import of {fileInfo.FullName} generated the errors below - there were {waypoints.Count} Waypoints, {tracks.Count} Tracks and {routes.Count} Routes successfully imported. {Environment.NewLine}{Environment.NewLine}{string.Join($"{Environment.NewLine}", importWarnings)}",
-                    new List<string> { "Continue", "Cancel" }) == "Cancel")
+                    ["Continue", "Cancel"]) == "Cancel")
                 return;
 
         ImportFileName = fileInfo.FullName;
@@ -866,7 +867,7 @@ public partial class GpxImportContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var frozenSelected = SelectedItems?.ToList() ?? new List<IGpxImportListItem>();
+        var frozenSelected = SelectedItems?.ToList() ?? [];
 
         if (!frozenSelected.Any())
         {

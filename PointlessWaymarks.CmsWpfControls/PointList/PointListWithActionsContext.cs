@@ -38,33 +38,39 @@ public partial class PointListWithActionsContext
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Map Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new()
             {
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = PointLinkBracketCodesToClipboardForSelectedCommand
             },
+
             new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
             new() { ItemName = "Selected Points to GPX File", ItemCommand = SelectedToGpxFileCommand },
             new()
             {
                 ItemName = "Selected Points to Clipboard - GeoJson", ItemCommand = GeoJsonToClipboardForSelectedCommand
             },
+
             new() { ItemName = "Selected Points to Clipboard - Text", ItemCommand = ToClipboardForSelectedCommand },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand },
+            new()
+            {
+                ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
+            },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
@@ -233,7 +239,7 @@ public partial class PointListWithActionsContext
     public List<PointListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is PointListListItem).Cast<PointListListItem>()
-            .ToList() ?? new List<PointListListItem>();
+            .ToList() ?? [];
     }
 
     [BlockingCommand]
@@ -266,7 +272,7 @@ public partial class PointListWithActionsContext
                 loopItems.DbEntry.Elevation,
                 loopItems.DbEntry.LastUpdatedOn?.ToUniversalTime() ?? loopItems.DbEntry.CreatedOn.ToUniversalTime(),
                 null, null,
-                loopItems.DbEntry.Title, null, loopItems.DbEntry.Summary, null, new ImmutableArray<GpxWebLink>(), null,
+                loopItems.DbEntry.Title, null, loopItems.DbEntry.Summary, null, [], null,
                 null, null, null, null, null, null, null, null, null);
             waypointList.Add(toAdd);
         }

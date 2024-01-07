@@ -107,14 +107,14 @@ public static class IronwoodImageInfo
         {
             Config =
             {
-                MembersToIgnore = new List<string>
-                {
+                MembersToIgnore =
+                [
                     "ContentId",
                     "ContentVersion",
                     "Id",
                     "OriginalFileName",
                     "MainPicture"
-                }
+                ]
             }
         };
 
@@ -181,7 +181,7 @@ public static class IronwoodImageInfo
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<ImageContent>(
-            new List<string> { jsonFile.FullName }, Names.ImageContentPrefix).Single();
+            [jsonFile.FullName], Names.ImageContentPrefix).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

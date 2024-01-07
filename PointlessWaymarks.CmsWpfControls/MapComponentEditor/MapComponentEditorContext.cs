@@ -53,10 +53,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
         ListSort = SortContextMapElementsDefault();
 
@@ -70,7 +67,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
-    public List<MapElement> DbElements { get; set; } = new();
+    public List<MapElement> DbElements { get; set; } = [];
     public MapComponent DbEntry { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
@@ -238,7 +235,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         newEntry.UpdateNotes = UpdateNotes?.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes?.UpdateNotesFormat.SelectedContentFormatAsString ?? string.Empty;
 
-        var currentElementList = MapElements?.ToList() ?? new List<IMapElementListItem>();
+        var currentElementList = MapElements?.ToList() ?? [];
         var finalElementList = currentElementList.Select(x => new MapElement
         {
             MapComponentContentId = newEntry.ContentId,
@@ -363,16 +360,14 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         TitleEntry.HelpText = "Title Text";
         TitleEntry.ReferenceValue = DbEntry.Title.TrimNullToEmpty();
         TitleEntry.UserValue = DbEntry.Title.TrimNullToEmpty();
-        TitleEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-            { CommonContentValidation.ValidateTitle };
+        TitleEntry.ValidationFunctions = [CommonContentValidation.ValidateTitle];
 
         SummaryEntry = StringDataEntryContext.CreateInstance();
         SummaryEntry.Title = "Summary";
         SummaryEntry.HelpText = "A short text entry that will show in Search and short references to the content";
         SummaryEntry.ReferenceValue = DbEntry.Summary ?? string.Empty;
         SummaryEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.Summary);
-        SummaryEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-            { CommonContentValidation.ValidateSummary };
+        SummaryEntry.ValidationFunctions = [CommonContentValidation.ValidateSummary];
 
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
@@ -384,7 +379,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        MapElements ??= new ObservableCollection<IMapElementListItem>();
+        MapElements ??= [];
 
         MapElements.Clear();
 
@@ -461,7 +456,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         {
             PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonNewFeatureCollectionDto(
                 Guid.NewGuid(),
-                new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()));
+                new SpatialBounds(0, 0, 0, 0), []));
             return;
         }
 
@@ -583,8 +578,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     {
         return new ColumnSortControlContext
         {
-            Items = new List<ColumnSortControlSortItem>
-            {
+            Items =
+            [
                 new()
                 {
                     DisplayName = "Title",
@@ -592,13 +587,14 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                     Order = 1,
                     DefaultSortDirection = ListSortDirection.Ascending
                 },
+
                 new()
                 {
                     DisplayName = "Type",
                     ColumnName = "Type",
                     DefaultSortDirection = ListSortDirection.Ascending
                 }
-            }
+            ]
         };
     }
 

@@ -266,13 +266,13 @@ public partial class LineContentActions : IContentActions<LineContent>
         if (content == null)
         {
             StatusContext.ToastError("Nothing Selected?");
-            return new List<object>();
+            return [];
         }
 
         if (content.RecordingStartedOn == null && content.RecordingEndedOn == null)
         {
             StatusContext.ToastError("Line doesn't have Recorded On dates to work with?");
-            return new List<object>();
+            return [];
         }
 
         var dateSearchRange = SearchRecordedDatesForPhotoContentDateRangeUtc(content);
@@ -310,7 +310,7 @@ public partial class LineContentActions : IContentActions<LineContent>
 
         var mapWindow =
             await ContentMapWindow.CreateInstance(new ContentMapListLoader("Mapped Content",
-                new List<Guid> { content.ContentId }));
+                [content.ContentId]));
 
         await mapWindow.PositionWindowAndShowOnUiThread();
     }

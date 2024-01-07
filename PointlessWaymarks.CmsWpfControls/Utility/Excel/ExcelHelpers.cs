@@ -69,7 +69,7 @@ public static class ExcelHelpers
         var shouldContinue = await statusContext.ShowMessage("Confirm Import",
             $"Continue?{Environment.NewLine}{Environment.NewLine}{contentImportResult.ToUpdate.Count} updates from {newFile.FullName} {Environment.NewLine}" +
             $"{string.Join(Environment.NewLine, contentImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
-            new List<string> { "Yes", "No" });
+            ["Yes", "No"]);
 
         if (shouldContinue == "No") return;
 
@@ -118,7 +118,7 @@ public static class ExcelHelpers
         var shouldContinue = await statusContext.ShowMessage("Confirm Import",
             $"Continue?{Environment.NewLine}{Environment.NewLine}{contentImportResult.ToUpdate.Count} updates from Excel {Environment.NewLine}" +
             $"{string.Join(Environment.NewLine, contentImportResult.ToUpdate.Select(x => $"{Environment.NewLine}{x.Title}{Environment.NewLine}{x.DifferenceNotes}"))}",
-            new List<string> { "Yes", "No" });
+            ["Yes", "No"]);
 
         if (shouldContinue == "No") return;
 
@@ -249,7 +249,7 @@ public static class ExcelHelpers
             return;
         }
 
-        List<object> excelObjects = new();
+        List<object> excelObjects = [];
 
         var firstType = ((object)selected.First().DbEntry).GetType();
 

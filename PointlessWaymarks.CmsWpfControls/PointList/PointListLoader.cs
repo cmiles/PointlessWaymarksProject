@@ -9,10 +9,7 @@ public class PointListLoader : ContentListLoaderBase
 {
     public PointListLoader(int? partialLoadQuantity) : base("Points", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-        {
-            DataNotificationContentType.Point
-        };
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.Point];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

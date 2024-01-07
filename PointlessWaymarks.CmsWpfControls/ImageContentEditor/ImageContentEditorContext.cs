@@ -221,10 +221,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
         ShowSizes = await BoolDataEntryContext.CreateInstance();
         ShowSizes.Title = "Show Image Sizes";

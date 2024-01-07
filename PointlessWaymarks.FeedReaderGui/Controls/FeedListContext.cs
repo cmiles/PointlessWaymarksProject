@@ -28,7 +28,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
     public required ObservableCollection<FeedListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
     public FeedListListItem? SelectedItem { get; set; }
-    public List<FeedListListItem> SelectedItems { get; set; } = new();
+    public List<FeedListListItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
@@ -73,8 +73,8 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
             ContextDb = feedQueries,
             ListSort = new ColumnSortControlContext
             {
-                Items = new List<ColumnSortControlSortItem>
-                {
+                Items =
+                [
                     new()
                     {
                         DisplayName = "Feed Name",
@@ -82,25 +82,28 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
                         Order = 1,
                         DefaultSortDirection = ListSortDirection.Ascending
                     },
+
                     new()
                     {
                         DisplayName = "Unread Count",
                         ColumnName = "UnreadItemsCount",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
+
                     new()
                     {
                         DisplayName = "Last Successful Update",
                         ColumnName = "DbReaderFeed.LastSuccessfulUpdate",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
+
                     new()
                     {
                         DisplayName = "URL",
                         ColumnName = "DbReaderFeed.Url",
                         DefaultSortDirection = ListSortDirection.Ascending
                     }
-                }
+                ]
             }
         };
 

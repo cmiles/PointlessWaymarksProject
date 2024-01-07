@@ -12,7 +12,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
 {
     private ObservableCollection<CommandBinding>? _listBoxAppCommandBindings;
     private T? _selected;
-    private List<T>? _selectedItems = new();
+    private List<T>? _selectedItems = [];
 
     private ContentListSelected(StatusControlContext? statusContext = null)
     {
@@ -43,7 +43,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
 
     public List<T> SelectedItems
     {
-        get => _selectedItems ?? new List<T>();
+        get => _selectedItems ?? [];
         set
         {
             if (Equals(value, _selectedItems)) return;
@@ -76,7 +76,7 @@ public class ContentListSelected<T> : INotifyPropertyChanged where T : ISelected
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         ListBoxAppCommandBindings = new ObservableCollection<CommandBinding>(
-            new List<CommandBinding> {new(ApplicationCommands.Copy, ExecuteListBoxItemCopy)});
+            [new(ApplicationCommands.Copy, ExecuteListBoxItemCopy)]);
     }
 
     [NotifyPropertyChangedInvocator]

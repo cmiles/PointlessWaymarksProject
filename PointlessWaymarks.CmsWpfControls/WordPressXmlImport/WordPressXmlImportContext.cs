@@ -36,8 +36,8 @@ public partial class WordPressXmlImportContext
 
         ListSort = new ColumnSortControlContext
         {
-            Items = new List<ColumnSortControlSortItem>
-            {
+            Items =
+            [
                 new()
                 {
                     DisplayName = "Created",
@@ -45,19 +45,21 @@ public partial class WordPressXmlImportContext
                     DefaultSortDirection = ListSortDirection.Descending,
                     Order = 1
                 },
+
                 new()
                 {
                     DisplayName = "Title",
                     ColumnName = "Title",
                     DefaultSortDirection = ListSortDirection.Ascending
                 },
+
                 new()
                 {
                     DisplayName = "Category",
                     ColumnName = "Category",
                     DefaultSortDirection = ListSortDirection.Descending
                 }
-            }
+            ]
         };
 
         PropertyChanged += OnPropertyChanged;
@@ -74,7 +76,7 @@ public partial class WordPressXmlImportContext
     public ObservableCollection<WordPressXmlImportListItem>? Items { get; set; }
     public ContentListSelected<WordPressXmlImportListItem>? ListSelection { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
-    public List<WordPressXmlImportListItem> SelectedItems { get; set; } = new();
+    public List<WordPressXmlImportListItem> SelectedItems { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
     public Blog? WordPressData { get; set; }
@@ -214,7 +216,7 @@ public partial class WordPressXmlImportContext
 
         StatusContext.Progress("Setting up UI");
 
-        Items ??= new ObservableCollection<WordPressXmlImportListItem>();
+        Items ??= [];
         Items.Clear();
         processedContent.ForEach(x => Items.Add(x));
 

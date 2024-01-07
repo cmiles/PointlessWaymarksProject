@@ -25,32 +25,37 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand }, new()
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new()
             {
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = FilePageLinkCodesToClipboardForSelectedCommand
             },
+
             new()
             {
                 ItemName = "Download Code to Clipboard",
                 ItemCommand = FileDownloadLinkCodesToClipboardForSelectedCommand
             },
+
             new()
             {
                 ItemName = "Embed Code to Clipboard",
                 ItemCommand = FileEmbedCodesToClipboardForSelectedCommand
             },
+
             new()
             {
                 ItemName = "URL Code to Clipboard", ItemCommand = FileUrlLinkCodesToClipboardForSelectedCommand
             },
+
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Files", ItemCommand = ViewSelectedFilesCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
@@ -59,7 +64,7 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }

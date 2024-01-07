@@ -9,10 +9,7 @@ public class GeoJsonListLoader : ContentListLoaderBase
 {
     public GeoJsonListLoader(int? partialLoadQuantity) : base("GeoJson", partialLoadQuantity)
     {
-        DataNotificationTypesToRespondTo = new List<DataNotificationContentType>
-        {
-            DataNotificationContentType.GeoJson
-        };
+        DataNotificationTypesToRespondTo = [DataNotificationContentType.GeoJson];
     }
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)

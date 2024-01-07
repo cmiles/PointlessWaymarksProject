@@ -102,10 +102,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
         var factoryContext = statusContext ?? new StatusControlContext();
 
         var factoryCreatedByContext = StringDataEntryContext.CreateInstance();
-        factoryCreatedByContext.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
-            CommonContentValidation.ValidateCreatedBy
-        };
+        factoryCreatedByContext.ValidationFunctions = [CommonContentValidation.ValidateCreatedBy];
         factoryCreatedByContext.Title = "Created By";
         factoryCreatedByContext.HelpText = "Created By Name";
         factoryCreatedByContext.ReferenceValue =
@@ -116,8 +113,8 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
 
 
         var factoryUpdatedByEntry = StringDataEntryContext.CreateInstance();
-        factoryUpdatedByEntry.ValidationFunctions = new List<Func<string?, Task<IsValid>>>
-        {
+        factoryUpdatedByEntry.ValidationFunctions =
+        [
             x =>
             {
                 if (((IContentId)dbEntry).Id > 0 && string.IsNullOrWhiteSpace(x))
@@ -125,7 +122,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
 
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
-        };
+        ];
         factoryUpdatedByEntry.Title = "Updated By";
         factoryUpdatedByEntry.HelpText = "Last Updated By Name";
         factoryUpdatedByEntry.ReferenceValue = dbEntry.LastUpdatedBy ?? string.Empty;

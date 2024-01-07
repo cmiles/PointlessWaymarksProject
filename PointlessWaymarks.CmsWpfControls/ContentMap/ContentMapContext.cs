@@ -104,18 +104,19 @@ public partial class ContentMapContext : IWebViewMessenger
 
         RefreshMapOnCollectionChanged = false;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Center Map", ItemCommand = RequestMapCenterOnSelectedItemsCommand },
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
-        };
+        ];
 
         await ListContext.LoadData(true);
 
@@ -176,7 +177,7 @@ public partial class ContentMapContext : IWebViewMessenger
             JsonToWebView.Enqueue(new WebViewMessage(await GeoJsonTools.SerializeWithGeoJsonSerializer(
                 new MapJsonNewFeatureCollectionDto(
                     Guid.NewGuid(),
-                    new SpatialBounds(0, 0, 0, 0), new List<FeatureCollection>()))));
+                    new SpatialBounds(0, 0, 0, 0), []))));
             return;
         }
 

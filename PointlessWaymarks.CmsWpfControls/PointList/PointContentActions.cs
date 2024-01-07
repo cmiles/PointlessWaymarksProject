@@ -242,7 +242,7 @@ public partial class PointContentActions : IContentActions<PointContent>
 
         var mapWindow =
             await ContentMapWindow.CreateInstance(new ContentMapListLoader("Mapped Content",
-                new List<Guid> { content.ContentId }));
+                [content.ContentId]));
 
         await mapWindow.PositionWindowAndShowOnUiThread();
     }

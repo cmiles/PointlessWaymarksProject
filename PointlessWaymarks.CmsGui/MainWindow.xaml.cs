@@ -514,8 +514,7 @@ public partial class MainWindow
 
         SettingsEditorContext =
             await UserSettingsEditorContext.CreateInstance(null, UserSettingsSingleton.CurrentSettings());
-        AboutContext = new HelpDisplayContext(new List<string>
-            { HelpMarkdown.CmsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock });
+        AboutContext = new HelpDisplayContext([HelpMarkdown.CmsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock]);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -619,7 +618,7 @@ public partial class MainWindow
 
         StatusContext.Progress($"Using {UserSettingsUtilities.SettingsFileFullName}");
 
-        var fileList = settingReturn.fileList ?? new List<string>();
+        var fileList = settingReturn.fileList ?? [];
 
         if (fileList.Contains(UserSettingsUtilities.SettingsFileFullName))
             fileList.Remove(UserSettingsUtilities.SettingsFileFullName);

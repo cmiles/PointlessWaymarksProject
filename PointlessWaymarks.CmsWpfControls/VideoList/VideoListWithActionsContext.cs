@@ -24,24 +24,27 @@ public partial class VideoListWithActionsContext
 
         ListContext = listContext;
 
-        ListContext.ContextMenuItems = new List<ContextMenuItemData>
-        {
+        ListContext.ContextMenuItems =
+        [
             new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
             new()
             {
                 ItemName = "Embed Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
+
             new()
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = VideoCoverImageLinkCodesToClipboardForSelectedCommand
             },
+
             new()
             {
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = VideoPageLinkCodesToClipboardForSelectedCommand
             },
+
             new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
             new() { ItemName = "View Videos", ItemCommand = ViewSelectedVideosCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
@@ -50,7 +53,7 @@ public partial class VideoListWithActionsContext
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
             new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
-        };
+        ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
@@ -98,7 +101,7 @@ public partial class VideoListWithActionsContext
     public List<VideoListListItem> SelectedListItems()
     {
         return ListContext.ListSelection.SelectedItems?.Where(x => x is VideoListListItem).Cast<VideoListListItem>()
-            .ToList() ?? new List<VideoListListItem>();
+            .ToList() ?? [];
     }
 
     [BlockingCommand]

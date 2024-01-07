@@ -413,10 +413,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         DistanceEntry.ReferenceValue = DbEntry.LineDistance;
         DistanceEntry.UserText = DbEntry.LineDistance.ToString("F2");
 
-        HelpContext = new HelpDisplayContext(new List<string>
-        {
-            CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
-        });
+        HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
