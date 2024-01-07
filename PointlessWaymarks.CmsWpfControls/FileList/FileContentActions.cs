@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -33,8 +33,8 @@ public partial class FileContentActions : IContentActions<FileContent>
     {
         if (content?.ContentId == null) return string.Empty;
         return content.MainPicture != null
-            ? @$"{BracketCodeFileImage.Create(content)}"
-            : @$"{BracketCodeFiles.Create(content)}";
+            ? $"{BracketCodeFileImage.Create(content)}"
+            : $"{BracketCodeFiles.Create(content)}";
     }
 
     [BlockingCommand]
@@ -49,8 +49,8 @@ public partial class FileContentActions : IContentActions<FileContent>
         }
 
         var finalString = content.MainPicture != null
-            ? @$"{BracketCodeFileImage.Create(content)}{Environment.NewLine}"
-            : @$"{BracketCodeFiles.Create(content)}{Environment.NewLine}";
+            ? $"{BracketCodeFileImage.Create(content)}{Environment.NewLine}"
+            : $"{BracketCodeFiles.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -199,7 +199,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.FilePageUrl(content)}";
+        var url = $"{settings.FilePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

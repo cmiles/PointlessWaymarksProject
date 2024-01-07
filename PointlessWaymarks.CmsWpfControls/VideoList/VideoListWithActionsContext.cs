@@ -108,7 +108,7 @@ public partial class VideoListWithActionsContext
         var finalString = string.Empty;
 
         foreach (var loopSelected in SelectedListItems())
-            finalString += @$"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            finalString += $"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -130,11 +130,11 @@ public partial class VideoListWithActionsContext
             if (loopSelected.DbEntry.MainPicture == null)
             {
                 showNoImageWarning = true;
-                finalString += @$"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+                finalString += $"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
             }
             else
             {
-                finalString += @$"{BracketCodeVideoImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+                finalString += $"{BracketCodeVideoImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
             }
         }
 

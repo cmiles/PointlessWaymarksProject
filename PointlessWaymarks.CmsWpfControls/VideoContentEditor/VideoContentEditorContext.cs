@@ -695,7 +695,7 @@ Notes:
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.VideoPageUrl(DbEntry)}";
+        var url = $"{settings.VideoPageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

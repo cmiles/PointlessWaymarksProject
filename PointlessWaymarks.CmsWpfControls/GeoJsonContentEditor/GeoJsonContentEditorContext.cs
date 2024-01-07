@@ -372,7 +372,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.GeoJsonPageUrl(DbEntry)}";
+        var url = $"{settings.GeoJsonPageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

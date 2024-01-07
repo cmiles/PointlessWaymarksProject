@@ -35,7 +35,7 @@ public partial class PointContentActions : IContentActions<PointContent>
     public string DefaultBracketCode(PointContent? content)
     {
         if (content?.ContentId == null) return string.Empty;
-        return @$"{BracketCodePoints.Create(content)}";
+        return $"{BracketCodePoints.Create(content)}";
     }
 
     [BlockingCommand]
@@ -49,7 +49,7 @@ public partial class PointContentActions : IContentActions<PointContent>
             return;
         }
 
-        var finalString = @$"{BracketCodePoints.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodePoints.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -204,7 +204,7 @@ public partial class PointContentActions : IContentActions<PointContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.PointPageUrl(content)}";
+        var url = $"{settings.PointPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

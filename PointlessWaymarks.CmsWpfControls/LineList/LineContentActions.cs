@@ -35,7 +35,7 @@ public partial class LineContentActions : IContentActions<LineContent>
 
     public string DefaultBracketCode(LineContent content)
     {
-        return @$"{BracketCodeLines.Create(content)}";
+        return $"{BracketCodeLines.Create(content)}";
     }
 
     [BlockingCommand]
@@ -49,7 +49,7 @@ public partial class LineContentActions : IContentActions<LineContent>
             return;
         }
 
-        var finalString = @$"{BracketCodeLines.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodeLines.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -204,7 +204,7 @@ public partial class LineContentActions : IContentActions<LineContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.LinePageUrl(content)}";
+        var url = $"{settings.LinePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

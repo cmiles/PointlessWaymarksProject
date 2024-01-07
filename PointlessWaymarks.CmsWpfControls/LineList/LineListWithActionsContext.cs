@@ -229,7 +229,7 @@ public partial class LineListWithActionsContext
     {
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
-                current + @$"{BracketCodeLineElevationCharts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                current + $"{BracketCodeLineElevationCharts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -282,7 +282,7 @@ public partial class LineListWithActionsContext
     {
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
-                current + @$"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                current + $"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -375,7 +375,7 @@ public partial class LineListWithActionsContext
     {
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
-                current + @$"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                current + $"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +32,7 @@ public partial class PostContentActions : IContentActions<PostContent>
     public string DefaultBracketCode(PostContent? content)
     {
         if (content?.ContentId == null) return string.Empty;
-        return @$"{BracketCodePosts.Create(content)}";
+        return $"{BracketCodePosts.Create(content)}";
     }
 
     [BlockingCommand]
@@ -46,7 +46,7 @@ public partial class PostContentActions : IContentActions<PostContent>
             return;
         }
 
-        var finalString = @$"{BracketCodePosts.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodePosts.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -196,7 +196,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.PostPageUrl(content)}";
+        var url = $"{settings.PostPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

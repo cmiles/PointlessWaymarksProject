@@ -207,7 +207,7 @@ public partial class GeoJsonListWithActionsContext
     {
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
-                current + @$"{BracketCodeGeoJsonLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                current + $"{BracketCodeGeoJsonLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

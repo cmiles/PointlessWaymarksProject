@@ -30,7 +30,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
     public string DefaultBracketCode(MapComponent? content)
     {
-        return content?.ContentId == null ? string.Empty : @$"{BracketCodeMapComponents.Create(content)}";
+        return content?.ContentId == null ? string.Empty : $"{BracketCodeMapComponents.Create(content)}";
     }
 
     [BlockingCommand]
@@ -44,7 +44,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
             return;
         }
 
-        var finalString = @$"{BracketCodeMapComponents.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodeMapComponents.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

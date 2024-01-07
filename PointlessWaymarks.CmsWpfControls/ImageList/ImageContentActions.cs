@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +31,7 @@ public partial class ImageContentActions : IContentActions<ImageContent>
 
     public string DefaultBracketCode(ImageContent? content)
     {
-        return content?.ContentId == null ? string.Empty : @$"{BracketCodeImages.Create(content)}";
+        return content?.ContentId == null ? string.Empty : $"{BracketCodeImages.Create(content)}";
     }
 
     [BlockingCommand]
@@ -45,7 +45,7 @@ public partial class ImageContentActions : IContentActions<ImageContent>
             return;
         }
 
-        var finalString = @$"{BracketCodeImages.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodeImages.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -195,7 +195,7 @@ public partial class ImageContentActions : IContentActions<ImageContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.ImagePageUrl(content)}";
+        var url = $"{settings.ImagePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

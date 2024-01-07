@@ -760,7 +760,7 @@ Notes:
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.FilePageUrl(DbEntry)}";
+        var url = $"{settings.FilePageUrl(DbEntry)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

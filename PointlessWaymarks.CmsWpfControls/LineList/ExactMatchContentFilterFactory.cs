@@ -1,4 +1,4 @@
-﻿using DataGridExtensions;
+using DataGridExtensions;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
@@ -34,8 +34,6 @@ public class ExactMatchContentFilterFactory : IContentFilterFactory
     /// </summary>
     public StringComparison StringComparison { get; set; }
 
-    #region IFilterFactory Members
-
     /// <summary>
     ///     Creates the content filter for the specified content.
     /// </summary>
@@ -47,6 +45,4 @@ public class ExactMatchContentFilterFactory : IContentFilterFactory
     {
         return new ExactMatchContentFilter(content?.ToString() ?? string.Empty, StringComparison);
     }
-
-    #endregion
 }

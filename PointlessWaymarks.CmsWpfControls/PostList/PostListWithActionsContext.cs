@@ -58,7 +58,7 @@ public partial class PostListWithActionsContext
     {
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
-                current + @$"{BracketCodePosts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                current + $"{BracketCodePosts.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -34,7 +34,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
     public string DefaultBracketCode(GeoJsonContent content)
     {
-        return @$"{BracketCodeGeoJson.Create(content)}";
+        return $"{BracketCodeGeoJson.Create(content)}";
     }
 
     [BlockingCommand]
@@ -48,7 +48,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
             return;
         }
 
-        var finalString = @$"{BracketCodeGeoJson.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodeGeoJson.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -199,7 +199,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.GeoJsonPageUrl(content)}";
+        var url = $"{settings.GeoJsonPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

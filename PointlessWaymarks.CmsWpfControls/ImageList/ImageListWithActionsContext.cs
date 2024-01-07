@@ -131,7 +131,7 @@ public partial class ImageListWithActionsContext
     {
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
-                current + @$"{BracketCodeImageLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                current + $"{BracketCodeImageLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

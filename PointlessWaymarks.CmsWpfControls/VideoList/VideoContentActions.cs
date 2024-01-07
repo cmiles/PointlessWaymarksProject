@@ -49,8 +49,8 @@ public partial class VideoContentActions : IContentActions<VideoContent>
         }
 
         var finalString = content.MainPicture != null
-            ? @$"{BracketCodeVideoImage.Create(content)}{Environment.NewLine}"
-            : @$"{BracketCodeVideoEmbed.Create(content)}{Environment.NewLine}";
+            ? $"{BracketCodeVideoImage.Create(content)}{Environment.NewLine}"
+            : $"{BracketCodeVideoEmbed.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -196,7 +196,7 @@ public partial class VideoContentActions : IContentActions<VideoContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.VideoPageUrl(content)}";
+        var url = $"{settings.VideoPageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

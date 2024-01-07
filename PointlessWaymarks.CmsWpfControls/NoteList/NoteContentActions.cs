@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +31,7 @@ public partial class NoteContentActions : IContentActions<NoteContent>
 
     public string DefaultBracketCode(NoteContent? content)
     {
-        return content?.ContentId == null ? string.Empty : @$"{BracketCodeNotes.Create(content)}";
+        return content?.ContentId == null ? string.Empty : $"{BracketCodeNotes.Create(content)}";
     }
 
     [BlockingCommand]
@@ -45,7 +45,7 @@ public partial class NoteContentActions : IContentActions<NoteContent>
             return;
         }
 
-        var finalString = @$"{BracketCodeNotes.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodeNotes.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -192,7 +192,7 @@ public partial class NoteContentActions : IContentActions<NoteContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $@"{settings.NotePageUrl(content)}";
+        var url = $"{settings.NotePageUrl(content)}";
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);

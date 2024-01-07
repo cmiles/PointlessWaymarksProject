@@ -1,4 +1,4 @@
-﻿using DataGridExtensions;
+using DataGridExtensions;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
@@ -23,8 +23,6 @@ public class ExactMatchContentFilter : IContentFilter
         _stringComparison = stringComparison;
     }
 
-    #region IFilter Members
-
     /// <summary>
     ///     Determines whether the specified value matches the condition of this filter.
     /// </summary>
@@ -38,6 +36,4 @@ public class ExactMatchContentFilter : IContentFilter
                // ReSharper disable once ConstantConditionalAccessQualifier => net5.0 
                (value.ToString() ?? string.Empty).Equals(_content, _stringComparison);
     }
-
-    #endregion
 }
