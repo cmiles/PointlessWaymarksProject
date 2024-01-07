@@ -25,10 +25,8 @@ public class AddPublicDownloadLinkTo : Migration
         };
 
         foreach (var loopTable in tableList)
-        {
             Execute.Sql(@$"ALTER TABLE {loopTable} 
                     ADD COLUMN PublicDownloadLink INTEGER 
                     NOT NULL DEFAULT 0");
-        }
     }
 }

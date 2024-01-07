@@ -24,7 +24,6 @@ public static class NewContentModels
         return returnEntry;
     }
 
-
     public static GeoJsonContent InitializeGeoJsonContent(GeoJsonContent? dbEntry)
     {
         var created = DateTime.Now;
@@ -62,7 +61,6 @@ public static class NewContentModels
 
         return returnEntry;
     }
-
 
     public static LineContent InitializeLineContent(LineContent? dbEntry)
     {
@@ -174,6 +172,20 @@ public static class NewContentModels
         return returnEntry;
     }
 
+    public static PointDetail InitializePointDetail(PointDetail? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new PointDetail
+        {
+            ContentId = Guid.NewGuid(),
+            CreatedOn = created,
+            ContentVersion = Db.ContentVersionDateTime()
+        };
+
+        return returnEntry;
+    }
+
     public static PostContent InitializePostContent(PostContent? dbEntry)
     {
         var created = DateTime.Now;
@@ -186,20 +198,6 @@ public static class NewContentModels
             CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             CreatedOn = created,
             FeedOn = created,
-            ContentVersion = Db.ContentVersionDateTime()
-        };
-
-        return returnEntry;
-    }
-    
-    public static PointDetail InitializePointDetail(PointDetail? dbEntry)
-    {
-        var created = DateTime.Now;
-
-        var returnEntry = dbEntry ?? new PointDetail
-        {
-            ContentId = Guid.NewGuid(),
-            CreatedOn = created,
             ContentVersion = Db.ContentVersionDateTime()
         };
 

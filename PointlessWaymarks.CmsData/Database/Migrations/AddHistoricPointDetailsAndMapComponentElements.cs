@@ -8,7 +8,8 @@ public class AddHistoricPointDetailsAndMapComponentElements : Migration
 {
     public override void Down()
     {
-        throw new DataException($"No Down Available for Migration {nameof(AddHistoricPointDetailsAndMapComponentElements)}");
+        throw new DataException(
+            $"No Down Available for Migration {nameof(AddHistoricPointDetailsAndMapComponentElements)}");
     }
 
     public override void Up()
