@@ -385,7 +385,7 @@ public static class Export
 
         var db = await Db.Context().ConfigureAwait(false);
 
-        var dtoToArchive = Db.PointContentDtoFromPoint(dbEntry, db);
+        var dtoToArchive = await Db.PointContentDtoFromPoint(dbEntry, db);
 
         //This top process archives just the current Point rather than the DTO since the 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePointDataDirectory().FullName,
