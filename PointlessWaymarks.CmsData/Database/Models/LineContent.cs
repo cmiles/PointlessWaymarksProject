@@ -1,10 +1,13 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
+[JsonAlphabeticalPropertyOrdering]
 public class LineContent : IUpdateNotes, IContentCommon
 {
     public string? BodyContent { get; set; }
@@ -17,6 +20,7 @@ public class LineContent : IUpdateNotes, IContentCommon
     public double DescentElevation { get; set; }
     public required DateTime FeedOn { get; set; }
     public string? Folder { get; set; }
+    [JsonPropertyOrder(0)]
     public int Id { get; set; }
     public double InitialViewBoundsMaxLatitude { get; set; }
     public double InitialViewBoundsMaxLongitude { get; set; }
@@ -25,7 +29,7 @@ public class LineContent : IUpdateNotes, IContentCommon
     public bool IsDraft { get; set; }
     public string? LastUpdatedBy { get; set; }
     public DateTime? LastUpdatedOn { get; set; }
-    [NotMapped] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
+    [NotMapped][JsonIgnore] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
     public string? Line { get; set; }
     public double LineDistance { get; set; }
     public Guid? MainPicture { get; set; }

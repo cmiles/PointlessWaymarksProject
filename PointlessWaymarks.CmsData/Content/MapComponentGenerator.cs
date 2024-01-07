@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
 using PointlessWaymarks.CmsData.Database;
@@ -65,7 +65,7 @@ public static class MapComponentGenerator
 
         var savedComponent = await Db.SaveMapComponent(mapDto).ConfigureAwait(false);
 
-        await Export.WriteLocalDbJson(savedComponent.Map).ConfigureAwait(false);
+        await Export.WriteLocalDbJson(savedComponent.Map, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
             DataNotificationUpdateType.LocalContent, new List<Guid> { mapDto.Map.ContentId });
@@ -96,7 +96,7 @@ public static class MapComponentGenerator
 
         await GenerateData(savedComponent, progress).ConfigureAwait(false);
 
-        await Export.WriteLocalDbJson(savedComponent.Map).ConfigureAwait(false);
+        await Export.WriteLocalDbJson(savedComponent.Map, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
             DataNotificationUpdateType.LocalContent, new List<Guid> { savedComponent.Map.ContentId });

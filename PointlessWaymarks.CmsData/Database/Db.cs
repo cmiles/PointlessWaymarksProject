@@ -914,11 +914,15 @@ public static class Db
             newHistoric.LastUpdatedOn = lastUpdatedOnForHistoric;
             if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
                 newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+
+            var elements = await context.MapComponentElements.Where(x => x.MapComponentContentId == loopToHistoric.ContentId).ToListAsync().ConfigureAwait(false);
+            newHistoric.Elements = JsonSerializer.Serialize(elements);
+            
             await context.HistoricMapComponents.AddAsync(newHistoric).ConfigureAwait(false);
             context.MapComponents.Remove(loopToHistoric);
         }
 
-        var elementsToDelete = context.MapComponentElements.Where(x => x.MapComponentContentId == contentId).ToList();
+        var elementsToDelete = await context.MapComponentElements.Where(x => x.MapComponentContentId == contentId).ToListAsync().ConfigureAwait(false);
         var elementsToDeleteContentIds = elementsToDelete.Select(x => x.ElementContentId).ToList();
 
         foreach (var loopElements in elementsToDelete)
@@ -1046,6 +1050,10 @@ public static class Db
             newHistoric.LastUpdatedOn = DateTime.Now;
             if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
                 newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+
+            var pointDetails = await context.PointDetails.Where(x => x.PointContentId == loopToHistoric.ContentId).ToListAsync().ConfigureAwait(false);
+            newHistoric.PointDetails = JsonSerializer.Serialize(pointDetails);
+
             await context.HistoricPointContents.AddAsync(newHistoric).ConfigureAwait(false);
             context.PointContents.Remove(loopToHistoric);
         }
@@ -1054,7 +1062,7 @@ public static class Db
 
         progress?.Report($"{toHistoric.First().Title} Deleted");
 
-        var relatedDetails = context.PointDetails.Where(x => x.PointContentId == contentId).ToList();
+        var relatedDetails = await context.PointDetails.Where(x => x.PointContentId == contentId).ToListAsync().ConfigureAwait(false);
 
         foreach (var loopToHistoric in relatedDetails)
         {
@@ -2085,6 +2093,10 @@ public static class Db
             newHistoric.LastUpdatedOn = groupLastUpdateOn;
             if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
                 newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+            
+            var elements = await context.MapComponentElements.Where(x => x.MapComponentContentId == loopToHistoric.ContentId).ToListAsync().ConfigureAwait(false);
+            newHistoric.Elements = JsonSerializer.Serialize(elements);
+
             await context.HistoricMapComponents.AddAsync(newHistoric).ConfigureAwait(false);
             context.MapComponents.Remove(loopToHistoric);
         }
@@ -2264,6 +2276,10 @@ public static class Db
             newHistoric.LastUpdatedOn = DateTime.Now;
             if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
                 newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+
+            var pointDetails = await context.PointDetails.Where(x => x.PointContentId == loopToHistoric.ContentId).ToListAsync().ConfigureAwait(false);
+            newHistoric.PointDetails = JsonSerializer.Serialize(pointDetails);
+
             await context.HistoricPointContents.AddAsync(newHistoric).ConfigureAwait(false);
             context.PointContents.Remove(loopToHistoric);
         }

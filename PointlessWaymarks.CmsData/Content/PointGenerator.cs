@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
+using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
@@ -30,7 +30,7 @@ public static class PointGenerator
         var savedPoint = await Db.SavePointContent(toSave).ConfigureAwait(false);
 
         await GenerateHtml(savedPoint!, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content)
+        await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content, progress)
             .ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,

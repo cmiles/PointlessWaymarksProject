@@ -188,7 +188,7 @@ public static class HtmlGenerationGroups
 
             var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -313,7 +313,7 @@ public static class HtmlGenerationGroups
                 var linkListPage = new LinkListPage { GenerationVersion = generationVersion };
                 await linkListPage.WriteLocalHtmlRssAndJson().ConfigureAwait(false);
                 progress?.Report("Creating Link List Json");
-                await Export.WriteLinkListJson().ConfigureAwait(false);
+                await Export.WriteLinkListJson(progress).ConfigureAwait(false);
             }
         };
 
@@ -337,7 +337,7 @@ public static class HtmlGenerationGroups
             progress?.Report($"Writing Data for {loopItem.Title}");
 
             await MapData.WriteJsonData(loopItem.ContentId).ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -412,7 +412,7 @@ public static class HtmlGenerationGroups
 
             var htmlModel = new SinglePointPage(dto) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -432,7 +432,7 @@ public static class HtmlGenerationGroups
 
             var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -444,10 +444,10 @@ public static class HtmlGenerationGroups
     public static async Task GenerateAllUtilityJson(IProgress<string>? progress = null)
     {
         progress?.Report("Creating Menu Links Json");
-        await Export.WriteMenuLinksJson().ConfigureAwait(false);
+        await Export.WriteMenuLinksJson(progress).ConfigureAwait(false);
 
         progress?.Report("Creating Tag Exclusion Json");
-        await Export.WriteTagExclusionsJson().ConfigureAwait(false);
+        await Export.WriteTagExclusionsJson(progress).ConfigureAwait(false);
     }
 
     public static async Task GenerateAllVideoHtml(DateTime? generationVersion, IProgress<string>? progress = null)
@@ -844,7 +844,7 @@ public static class HtmlGenerationGroups
         var linkListPage = new LinkListPage { GenerationVersion = generationVersion };
         await linkListPage.WriteLocalHtmlRssAndJson().ConfigureAwait(false);
         progress?.Report("Creating Link List Json");
-        await Export.WriteLinkListJson().ConfigureAwait(false);
+        await Export.WriteLinkListJson(progress).ConfigureAwait(false);
     }
 
 
@@ -1173,7 +1173,7 @@ public static class HtmlGenerationGroups
 
             var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -1243,7 +1243,7 @@ public static class HtmlGenerationGroups
             progress?.Report($"Writing Data for {loopItem.Title}");
 
             await MapData.WriteJsonData(loopItem.ContentId).ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -1319,7 +1319,7 @@ public static class HtmlGenerationGroups
 
             var htmlModel = new SinglePointPage(loopItemAndDetails) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -1343,7 +1343,7 @@ public static class HtmlGenerationGroups
 
             var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
 
             loopCount++;
         }).ConfigureAwait(false);

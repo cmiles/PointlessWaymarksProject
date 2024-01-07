@@ -8,7 +8,7 @@ public class AddPublicDownloadLinkTo : Migration
 {
     public override void Down()
     {
-        throw new DataException("No Down Available for Migration AddAndReviseGenerationSupportTables");
+        throw new DataException("No Down Available for Migration AddPublicDownloadLinkTo");
     }
 
     public override void Up()

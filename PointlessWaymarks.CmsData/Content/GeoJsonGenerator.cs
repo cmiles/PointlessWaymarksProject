@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
+using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
@@ -29,7 +29,7 @@ public static class GeoJsonGenerator
 
         await Db.SaveGeoJsonContent(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);
+        await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("GeoJson Generator", DataNotificationContentType.GeoJson,
             DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});

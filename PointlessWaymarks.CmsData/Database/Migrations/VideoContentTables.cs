@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using FluentMigrator;
 
 namespace PointlessWaymarks.CmsData.Database.Migrations;
@@ -8,7 +8,7 @@ public class VideoContentTables : Migration
 {
     public override void Down()
     {
-        throw new DataException("No Down Available for Migration UtcToPhotosAndLines");
+        throw new DataException("No Down Available for Migration VideoContentTables");
     }
 
     public override void Up()
