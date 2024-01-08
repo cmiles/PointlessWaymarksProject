@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="FluentMigrator" Version="5.0.0" />
+    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="5.0.0" />
     <PackageReference Include="GitInfo" Version="3.3.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -15,22 +17,5 @@
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="FluentMigrator">
-      <HintPath>..\FluentMigratorBuild\FluentMigrator.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentMigrator.Abstractions">
-      <HintPath>..\FluentMigratorBuild\FluentMigrator.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentMigrator.Runner">
-      <HintPath>..\FluentMigratorBuild\FluentMigrator.Runner.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentMigrator.Runner.Core">
-      <HintPath>..\FluentMigratorBuild\FluentMigrator.Runner.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentMigrator.Runner.SQLite">
-      <HintPath>..\FluentMigratorBuild\FluentMigrator.Runner.SQLite.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>
