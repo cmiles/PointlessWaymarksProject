@@ -443,7 +443,7 @@ public class TestSeries03TrailInfoGuiContextTest
         Assert.That(validationResult.HasError, Is.False);
 
         var (generationReturn, _) = await FileGenerator.SaveAndGenerateHtml(
-            newFileContext.CurrentStateToFileContent(), newFileContext.SelectedFile, false, null,
+            newFileContext.CurrentStateToFileContent(), newFileContext.SelectedFile, null,
             DebugTrackers.DebugProgressTracker());
 
         Assert.That(generationReturn.HasError, Is.False);

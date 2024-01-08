@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -22,7 +22,7 @@ public static class FileGenerator
 
 
     public static async Task<(GenerationReturn generationReturn, FileContent? fileContent)> SaveAndGenerateHtml(
-        FileContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
+        FileContent toSave, FileInfo selectedFile, DateTime? generationVersion,
         IProgress<string>? progress = null)
     {
         var validationReturn = await Validate(toSave, selectedFile).ConfigureAwait(false);
@@ -35,7 +35,7 @@ public static class FileGenerator
         toSave.OriginalFileName = selectedFile.Name;
         await FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
         await Db.SaveFileContent(toSave).ConfigureAwait(false);
-        await WriteFileFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles).ConfigureAwait(false);
+        await WriteFileFromMediaArchiveToLocalSiteIfNeeded(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
         await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
 
@@ -94,7 +94,7 @@ public static class FileGenerator
         return GenerationReturn.Success("File Content Validation Successful");
     }
 
-    public static async Task WriteFileFromMediaArchiveToLocalSite(FileContent fileContent, bool overwriteExisting)
+    public static async Task WriteFileFromMediaArchiveToLocalSiteIfNeeded(FileContent fileContent)
     {
         if (string.IsNullOrWhiteSpace(fileContent.OriginalFileName))
         {
@@ -111,12 +111,15 @@ public static class FileGenerator
         var targetFile = new FileInfo(Path.Combine(userSettings.LocalSiteFileContentDirectory(fileContent).FullName,
             fileContent.OriginalFileName));
 
-        if (targetFile.Exists && overwriteExisting)
+        if (!targetFile.Exists || sourceFile.CalculateMD5() != targetFile.CalculateMD5())
         {
-            targetFile.Delete();
-            targetFile.Refresh();
-        }
+            if (targetFile.Exists)
+            {
+                targetFile.Delete();
+                targetFile.Refresh();
+            }
 
-        if (!targetFile.Exists) await sourceFile.CopyToAndLog(targetFile.FullName).ConfigureAwait(false);
+            await sourceFile.CopyToAndLog(targetFile.FullName).ConfigureAwait(false);
+        }
     }
 }

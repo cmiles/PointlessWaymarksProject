@@ -15,10 +15,8 @@ public class AddHistoricPointDetailsAndMapComponentElements : Migration
     public override void Up()
     {
         if (!Schema.Table("HistoricPointContents").Column("PointDetails").Exists())
-            Execute.Sql(@"ALTER TABLE HistoricPointContents 
-                    ADD COLUMN PointDetails TEXT NULL");
+            Execute.Sql("ALTER TABLE HistoricPointContents ADD COLUMN PointDetails TEXT NULL");
         if (!Schema.Table("HistoricMapComponents").Column("Elements").Exists())
-            Execute.Sql(@"ALTER TABLE HistoricMapComponents 
-                    ADD COLUMN Elements TEXT NULL");
+            Execute.Sql("ALTER TABLE HistoricMapComponents ADD COLUMN Elements TEXT NULL");
     }
 }

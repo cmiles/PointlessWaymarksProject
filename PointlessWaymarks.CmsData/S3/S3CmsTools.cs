@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -102,7 +102,11 @@ public static class S3CmsTools
     /// <returns></returns>
     public static async Task S3UploaderItemsToS3UploaderJsonFile(List<S3UploadRequest> items, string fileName)
     {
-        var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
+        var deDuplicatedItems =
+            items.GroupBy(x => new { x.ToUpload.LocalFile.FullName, x.BucketName, x.Region, x.S3Key })
+                .Select(x => x.First()).ToList();
+
+        var jsonInfo = JsonSerializer.Serialize(deDuplicatedItems.Select(x =>
             new S3UploadFileEntry(x.ToUpload.LocalFile.FullName, x.S3Key, x.BucketName, x.Region, x.Note)));
 
         var file = new FileInfo(fileName);
@@ -123,6 +127,7 @@ public static class S3CmsTools
         public bool IsInGenerationDirectory { get; set; }
         public string TransformedFile { get; set; } = string.Empty;
         public string WrittenFile { get; set; } = string.Empty;
+
         public DateTime WrittenOn { get; set; }
         // ReSharper restore UnusedAutoPropertyAccessor.Local
     }

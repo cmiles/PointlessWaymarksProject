@@ -330,7 +330,6 @@ public static class Export
 
         var dtoToArchive = await Db.MapComponentDtoFromContentId(dbEntry.ContentId);
 
-        //This top process archives just the current MapComponent rather than the DTO since the 
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteMapComponentDataDirectory().FullName,
             $"{Names.MapComponentContentPrefix}{dbEntry.ContentId}.json"));
 

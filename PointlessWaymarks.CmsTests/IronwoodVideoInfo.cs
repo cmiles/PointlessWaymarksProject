@@ -1,4 +1,4 @@
-﻿using KellermanSoftware.CompareNetObjects;
+using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
@@ -136,7 +136,7 @@ public static class IronwoodVideoInfo
         var validationReturn = await VideoGenerator.Validate(contentToSave, testFile);
         Assert.That(validationReturn.HasError, Is.False, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
-        var (generationReturn, newContent) = await VideoGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
+        var (generationReturn, newContent) = await VideoGenerator.SaveAndGenerateHtml(contentToSave, testFile, 
             null, DebugTrackers.DebugProgressTracker());
         Assert.That(generationReturn.HasError, Is.False, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 

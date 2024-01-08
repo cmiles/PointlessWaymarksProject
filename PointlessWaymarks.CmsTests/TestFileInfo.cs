@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Presentation;
 using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
@@ -161,7 +161,7 @@ public static class TestFileInfo
         var validationReturn = await FileGenerator.Validate(contentToSave, testFile);
         Assert.That(validationReturn.HasError, Is.False, $"Unexpected Validation Error - {validationReturn.GenerationNote}");
 
-        var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(contentToSave, testFile, true,
+        var (generationReturn, newContent) = await FileGenerator.SaveAndGenerateHtml(contentToSave, testFile,
             null, DebugTrackers.DebugProgressTracker());
         Assert.That(generationReturn.HasError, Is.False, $"Unexpected Save Error - {generationReturn.GenerationNote}");
 

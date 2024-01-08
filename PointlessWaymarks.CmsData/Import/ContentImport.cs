@@ -627,7 +627,7 @@ public static class ContentImport
                     }
 
                     generationResult = (await FileGenerator.SaveAndGenerateHtml(file,
-                        archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
+                        archiveFile, null, progress).ConfigureAwait(false)).generationReturn;
                     break;
                 }
                 case VideoContent video:
@@ -644,7 +644,7 @@ public static class ContentImport
                     }
 
                     generationResult = (await VideoGenerator.SaveAndGenerateHtml(video,
-                        archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
+                        archiveFile,  null, progress).ConfigureAwait(false)).generationReturn;
                     break;
                 }
                 case ImageContent image:

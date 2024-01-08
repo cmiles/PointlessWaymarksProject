@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.ContentHtml;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -22,7 +22,7 @@ public static class VideoGenerator
 
 
     public static async Task<(GenerationReturn generationReturn, VideoContent? VideoContent)> SaveAndGenerateHtml(
-        VideoContent toSave, FileInfo selectedVideo, bool overwriteExistingVideos, DateTime? generationVersion,
+        VideoContent toSave, FileInfo selectedVideo, DateTime? generationVersion,
         IProgress<string>? progress = null)
     {
         var validationReturn = await Validate(toSave, selectedVideo).ConfigureAwait(false);
@@ -35,7 +35,7 @@ public static class VideoGenerator
         toSave.OriginalFileName = selectedVideo.Name;
         await FileManagement.WriteSelectedVideoContentFileToMediaArchive(selectedVideo).ConfigureAwait(false);
         await Db.SaveVideoContent(toSave).ConfigureAwait(false);
-        await WriteVideoFromMediaArchiveToLocalSite(toSave, overwriteExistingVideos).ConfigureAwait(false);
+        await WriteVideoFromMediaArchiveToLocalSiteIfNeeded(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
         await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
 
@@ -90,12 +90,12 @@ public static class VideoGenerator
         if (await (await Db.Context().ConfigureAwait(false))
             .VideoFilenameExistsInDatabase(selectedVideo.Name, videoContent.ContentId).ConfigureAwait(false))
             return GenerationReturn.Error(
-                "This Videoname already exists in the database - Video names must be unique.", videoContent.ContentId);
+                "This Video Name already exists in the database - Video names must be unique.", videoContent.ContentId);
 
         return GenerationReturn.Success("Video Content Validation Successful");
     }
 
-    public static async Task WriteVideoFromMediaArchiveToLocalSite(VideoContent videoContent, bool overwriteExisting)
+    public static async Task WriteVideoFromMediaArchiveToLocalSiteIfNeeded(VideoContent videoContent)
     {
         if (string.IsNullOrWhiteSpace(videoContent.OriginalFileName))
         {
@@ -112,12 +112,15 @@ public static class VideoGenerator
         var targetVideo = new FileInfo(Path.Combine(userSettings.LocalSiteVideoContentDirectory(videoContent).FullName,
             videoContent.OriginalFileName));
 
-        if (targetVideo.Exists && overwriteExisting)
+        if (!targetVideo.Exists || sourceVideo.CalculateMD5() != targetVideo.CalculateMD5())
         {
-            targetVideo.Delete();
-            targetVideo.Refresh();
-        }
+            if (targetVideo.Exists)
+            {
+                targetVideo.Delete();
+                targetVideo.Refresh();
+            }
 
-        if (!targetVideo.Exists) await sourceVideo.CopyToAndLog(targetVideo.FullName).ConfigureAwait(false);
+            await sourceVideo.CopyToAndLog(targetVideo.FullName).ConfigureAwait(false);
+        }
     }
 }

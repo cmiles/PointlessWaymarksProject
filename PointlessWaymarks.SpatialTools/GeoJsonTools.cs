@@ -32,6 +32,14 @@ public static class GeoJsonTools
         return serializer.Deserialize<FeatureCollection>(jsonReader);
     }
 
+    public static T? DeserializeWithGeoJsonSerializer<T>(string toDeserialize)
+    {
+        var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
+            Wgs84GeometryFactory(), 3);
+
+        return serializer.Deserialize<T>(new JsonTextReader(new StringReader(toDeserialize)));
+    }
+
     public static List<Geometry> GeoJsonToGeometries(string geoJson)
     {
         var featureCollection = DeserializeStringToFeatureCollection(geoJson);

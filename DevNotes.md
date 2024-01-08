@@ -16,6 +16,16 @@
 
 ## Notes
 
+1/8/2024
+
+Interesting to continue to use the CMS and note the changes is priorities over time. 'Extra' file writes really weren't overly important to me in the first few years - of course avoid egregious numbers of writes but some extra file writes to ensure correctness was not something I was concerned with...
+
+But working on the site with my location data where there are over a thousand lines - and working on the Backup program has - spurred me to do some work recently to avoid extra writes from the CMS because of both transfer times and, maybe more importantly, because of Amazon S3 costs! Fascinating to see how priorities change over time...
+
+1/7/2024
+
+Annoyed by how many files were written with a recent Menu change to a site in the CMS I briefly experimented with HTMX and switching out the Page Header/Footer with it on load. It basically worked and I suspect I could have made it work well enough but in the end it didn't seem worth it - powerful idea of course but more javascript and less static HTML is not a direction I want to go in...
+
 1/1/2024
 
 Happy near year! This project starts the New Year with over 1400 commits, new Spatial Content Map functionality in the CMS and Feed Reader and Cloud Backup programs that have been in use for months at this point. It is quite a prvelege to be able to take a purely personal project so far!

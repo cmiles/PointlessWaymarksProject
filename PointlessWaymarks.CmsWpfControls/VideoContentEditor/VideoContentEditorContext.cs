@@ -531,13 +531,13 @@ Notes:
     [BlockingCommand]
     public async Task Save()
     {
-        await SaveAndGenerateHtml(true, false);
+        await SaveAndGenerateHtml(false);
     }
 
     [BlockingCommand]
     public async Task SaveAndClose()
     {
-        await SaveAndGenerateHtml(true, true);
+        await SaveAndGenerateHtml(true);
     }
 
     [BlockingCommand]
@@ -550,7 +550,7 @@ Notes:
         }
 
         var (generationReturn, fileContent) = await VideoGenerator.SaveAndGenerateHtml(CurrentStateToVideoContent(),
-            SelectedFile, true, null, StatusContext.ProgressTracker());
+            SelectedFile,  null, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError)
         {
@@ -570,7 +570,7 @@ Notes:
         UserMainPictureEntry!.UserText = autoSaveResult.Value.ToString();
     }
 
-    public async Task SaveAndGenerateHtml(bool overwriteExistingVideos, bool closeAfterSave)
+    public async Task SaveAndGenerateHtml(bool closeAfterSave)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -581,7 +581,7 @@ Notes:
         }
 
         var (generationReturn, newContent) = await VideoGenerator.SaveAndGenerateHtml(CurrentStateToVideoContent(),
-            SelectedFile, overwriteExistingVideos, null, StatusContext.ProgressTracker());
+            SelectedFile, null, StatusContext.ProgressTracker());
 
         if (generationReturn.HasError || newContent == null)
         {

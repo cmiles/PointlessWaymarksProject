@@ -378,7 +378,7 @@ public class TestSeries01Ironwood
         mapFile.LastUpdatedOn = DateTime.Now;
 
         var (generationReturn, _) = await FileGenerator.SaveAndGenerateHtml(mapFile,
-            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(mapFile), false, null,
+            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(mapFile), null,
             DebugTrackers.DebugProgressTracker());
 
         Assert.That(generationReturn.HasError, Is.False, generationReturn.GenerationNote);
