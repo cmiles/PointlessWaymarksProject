@@ -11,6 +11,7 @@
         xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="650" Width="800" d:DataContext="{d:DesignInstance local:LocationChooserWindow}">
     <Window.Resources>
@@ -60,7 +61,7 @@
             Grid.Row="1" 
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
-                <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewMessenger="{Binding LocationChooser}" HtmlString="{Binding LocationChooser.PreviewHtml}" />
+                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding LocationChooser}"  />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">

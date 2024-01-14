@@ -6,7 +6,7 @@ using Microsoft.Xaml.Behaviors;
 using PointlessWaymarks.CommonTools;
 using Serilog;
 
-namespace PointlessWaymarks.WpfCommon.WpfHtml;
+namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
 /// <summary>
 ///     This behavior targets dealing with string Html binding and sending Json data to a WebView2 - the challenges to this
@@ -14,7 +14,7 @@ namespace PointlessWaymarks.WpfCommon.WpfHtml;
 ///     the Html during which the Javascript may not yet be active to process Json data. This is a particular pain point in
 ///     a View Model setup where the model doesn't have direct access to the WebView2.
 /// </summary>
-public class WebViewHtmlStringAndJsonMessagingBehaviorV02 : Behavior<WebView2>
+public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 {
     // Example Usage in Xaml
     // <b:Interaction.Behaviors>
@@ -26,19 +26,18 @@ public class WebViewHtmlStringAndJsonMessagingBehaviorV02 : Behavior<WebView2>
     /// </summary>
     public static readonly DependencyProperty WebViewMessengerProperty = DependencyProperty.Register(
         nameof(WebViewMessenger),
-        typeof(IWebViewMessengerV02), typeof(WebViewHtmlStringAndJsonMessagingBehaviorV02),
+        typeof(IWebViewMessenger), typeof(WebViewGeneratedVirtualDomainBehavior),
         new PropertyMetadata(default(IWebViewMessenger), OnWebViewManagerChanged));
 
-    private WebViewMessageV02? _currentMessage;
     private DirectoryInfo _targetDirectory;
     private string _virtualDomain;
 
     private bool _webViewHasLoaded;
 
 
-    public IWebViewMessengerV02 WebViewMessenger
+    public IWebViewMessenger WebViewMessenger
     {
-        get => (IWebViewMessengerV02)GetValue(WebViewMessengerProperty);
+        get => (IWebViewMessenger)GetValue(WebViewMessengerProperty);
         set => SetValue(WebViewMessengerProperty, value);
     }
 
@@ -67,10 +66,10 @@ public class WebViewHtmlStringAndJsonMessagingBehaviorV02 : Behavior<WebView2>
         }
 
         OnJsonFromWebView?.Invoke(this,
-            new WebViewMessage(args.WebMessageAsJson));
+            new MessageFromWebView(args.WebMessageAsJson));
     }
 
-    public event EventHandler<WebViewMessage>? OnJsonFromWebView;
+    public event EventHandler<MessageFromWebView>? OnJsonFromWebView;
 
     /// <summary>
     ///     Setup the web environment.
@@ -108,10 +107,10 @@ public class WebViewHtmlStringAndJsonMessagingBehaviorV02 : Behavior<WebView2>
 
     private static async void OnWebViewManagerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is WebViewHtmlStringAndJsonMessagingBehaviorV02 bindingBehavior &&
-            e.NewValue is IWebViewMessengerV02 newMessenger)
+        if (d is WebViewGeneratedVirtualDomainBehavior bindingBehavior &&
+            e.NewValue is IWebViewMessenger newMessenger)
         {
-            bindingBehavior.OnJsonFromWebView += newMessenger.JsonFromWebView;
+            bindingBehavior.OnJsonFromWebView += newMessenger.FromWebView;
             bindingBehavior.WebViewMessenger = newMessenger;
             newMessenger.ToWebView.Processor = bindingBehavior.ToWebViewMessageProcessor;
 
@@ -120,13 +119,13 @@ public class WebViewHtmlStringAndJsonMessagingBehaviorV02 : Behavior<WebView2>
         }
     }
 
-    private async Task ProcessWebViewFileBuilder(WebViewFileBuilder webViewFileBuilder)
+    private async Task ProcessWebViewFileBuilder(FileBuilder fileBuilder)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var fileList = new List<string>();
 
-        foreach (var loopCreate in webViewFileBuilder.Create)
+        foreach (var loopCreate in fileBuilder.Create)
         {
             var targetFile = Path.Combine(_targetDirectory.FullName, loopCreate.filename);
             if (File.Exists(targetFile)) File.Delete(targetFile);
@@ -135,7 +134,7 @@ public class WebViewHtmlStringAndJsonMessagingBehaviorV02 : Behavior<WebView2>
             fileList.Add(targetFile);
         }
 
-        foreach (var loopCopy in webViewFileBuilder.Copy)
+        foreach (var loopCopy in fileBuilder.Copy)
         {
             var targetFile = Path.Combine(_targetDirectory.FullName, Path.GetFileName(loopCopy));
             if (File.Exists(targetFile)) File.Delete(targetFile);
@@ -157,36 +156,34 @@ public class WebViewHtmlStringAndJsonMessagingBehaviorV02 : Behavior<WebView2>
                 Console.WriteLine(e);
                 Log.ForContext("ignoredException", e.ToString()).Debug(
                     "{method} - Temporary File Delete Error - Silent Error, Continuing...",
-                    nameof(WebViewHtmlStringAndJsonMessagingBehaviorV02));
+                    nameof(WebViewGeneratedVirtualDomainBehavior));
             }
     }
 
-    private async Task ProcessWebViewJson(WebViewJson webViewJson)
+    private async Task ProcessWebViewJson(JsonData jsonData)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        if (!string.IsNullOrWhiteSpace(webViewJson.Json))
-            AssociatedObject.CoreWebView2.PostWebMessageAsJson(webViewJson.Json);
+        if (!string.IsNullOrWhiteSpace(jsonData.Json))
+            AssociatedObject.CoreWebView2.PostWebMessageAsJson(jsonData.Json);
     }
 
-    private async Task ProcessWebViewNavigation(WebViewNavigation webViewNavigation)
+    private async Task ProcessWebViewNavigation(NavigateTo navigateTo)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        if (webViewNavigation.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
+        if (navigateTo.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
 
-        if (!string.IsNullOrWhiteSpace(webViewNavigation.NavigateTo))
+        if (!string.IsNullOrWhiteSpace(navigateTo.Url))
             AssociatedObject.CoreWebView2.Navigate(
-                $"https://{_virtualDomain}/{webViewNavigation.NavigateTo}");
+                $"https://{_virtualDomain}/{navigateTo.Url}");
     }
 
-    private async Task ToWebViewMessageProcessor(WebViewMessageV02 arg)
+    private async Task ToWebViewMessageProcessor(ToWebViewRequest arg)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        _currentMessage = arg;
-
-        await arg.Request.Match(
+        await arg.Match(
             ProcessWebViewFileBuilder,
             ProcessWebViewNavigation,
             ProcessWebViewJson

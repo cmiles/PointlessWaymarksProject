@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows.Data;
-using Microsoft.Web.WebView2.Core;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -13,7 +12,6 @@ using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
@@ -30,6 +28,8 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
 using ColumnSortControlContext = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlContext;
 using ColumnSortControlSortItem = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlSortItem;
@@ -38,7 +38,7 @@ namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class GpxImportContext
+public partial class GpxImportContext : IWebViewMessenger
 {
     private GpxImportContext(StatusControlContext statusContext, ObservableCollection<IGpxImportListItem> items,
         ObservableCollection<IGpxImportListItem> listSelection, ContentFolderContext folderContext,
@@ -54,15 +54,23 @@ public partial class GpxImportContext
         FolderEntry = folderContext;
         TagEntry = tagsEditor;
 
-        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Map",
+        ToWebView = new WorkQueue<ToWebViewRequest>(true);
+
+        var initialWebFilesMessage = new FileBuilder();
+
+        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
+
+        ToWebView.Enqueue(initialWebFilesMessage);
+
+        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         ListSort = new ColumnSortControlContext
         {
             Items =
             [
-                new()
+                new ColumnSortControlSortItem
                 {
                     DisplayName = "Name",
                     ColumnName = "UserContentName",
@@ -70,7 +78,7 @@ public partial class GpxImportContext
                     Order = 1
                 },
 
-                new()
+                new ColumnSortControlSortItem
                 {
                     DisplayName = "Created",
                     ColumnName = "CreatedOn",
@@ -91,13 +99,18 @@ public partial class GpxImportContext
     public ObservableCollection<IGpxImportListItem> Items { get; set; }
     public ObservableCollection<IGpxImportListItem> ListSelection { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
-    public string PreviewHtml { get; set; }
-    public string PreviewMapJsonDto { get; set; } = string.Empty;
     public IGpxImportListItem? SelectedItem { get; set; }
     public List<IGpxImportListItem>? SelectedItems { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext TagEntry { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
+
+    public void FromWebView(object? o, MessageFromWebView args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.Message))
+            StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
+    }
 
     public async Task BuildMap()
     {
@@ -109,10 +122,10 @@ public partial class GpxImportContext
 
         if (!itemList.Any())
         {
-            PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(
+            ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(
                 new MapJsonNewFeatureCollectionDto(
                     Guid.NewGuid(),
-                    new SpatialBounds(0, 0, 0, 0), []));
+                    new SpatialBounds(0, 0, 0, 0), []))));
             return;
         }
 
@@ -166,7 +179,7 @@ public partial class GpxImportContext
             [featureCollection]);
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
+        ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(dto)));
     }
 
     [BlockingCommand]
@@ -792,18 +805,11 @@ public partial class GpxImportContext
         await BuildMap();
     }
 
-    [NonBlockingCommand]
-    private async Task MapMessageReceived(CoreWebView2WebMessageReceivedEventArgs? mapMessage)
+    private async Task MapMessageReceived(string json)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        if (mapMessage == null) return;
-
-        var rawMessage = mapMessage.WebMessageAsJson;
-
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var parsedJson = JsonNode.Parse(rawMessage);
+        var parsedJson = JsonNode.Parse(json);
 
         if (parsedJson == null) return;
 

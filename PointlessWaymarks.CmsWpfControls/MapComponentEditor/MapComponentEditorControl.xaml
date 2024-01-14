@@ -17,6 +17,7 @@
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     x:Name="MapComponentEditorControlXaml"
     d:DataContext="{d:DesignInstance mapComponentEditor:MapComponentEditorContext}"
     d:DesignHeight="450"
@@ -252,8 +253,7 @@
                         Grid.Row="1"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
-                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
-                            <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewMapJsonDto}" />
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>

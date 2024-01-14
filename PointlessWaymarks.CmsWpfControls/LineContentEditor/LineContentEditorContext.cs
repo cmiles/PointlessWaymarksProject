@@ -28,6 +28,7 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
@@ -45,11 +46,19 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         BuildCommands();
 
-        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Line",
-            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+        ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        JsonToWebView = new WorkQueue<WebViewMessage>(true);
+        var initialWebFilesMessage = new FileBuilder();
+
+        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
+            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
+
+        ToWebView.Enqueue(initialWebFilesMessage);
+
+        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+
+        JsonFromWebView = new WorkQueue<MessageFromWebView>(true);
 
         DbEntry = dbEntry;
 
@@ -66,12 +75,11 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
-    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
+    public WorkQueue<MessageFromWebView> JsonFromWebView { get; set; }
     public string LineGeoJson { get; set; } = string.Empty;
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public ConversionDataEntryContext<double>? MaximumElevationEntry { get; set; }
     public ConversionDataEntryContext<double>? MinimumElevationEntry { get; set; }
-    public string PreviewHtml { get; set; }
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingEndedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingStartedOnEntry { get; set; }
@@ -79,6 +87,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
     public bool UpdateStatsOnImport { get; set; } = true;
 
@@ -88,7 +97,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public void JsonFromWebView(object? o, WebViewMessage args)
+    public void FromWebView(object? o, MessageFromWebView args)
     {
     }
 
@@ -439,7 +448,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson)));
+        JsonFromWebView.Enqueue(
+            new MessageFromWebView(await MapJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson)));
     }
 
     [BlockingCommand]

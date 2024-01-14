@@ -14,6 +14,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
@@ -29,7 +30,17 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
 
         BuildCommands();
 
-        JsonToWebView = new WorkQueue<WebViewMessage>(true);
+        ToWebView = new WorkQueue<ToWebViewRequest>(true);
+
+        var initialWebFilesMessage = new FileBuilder();
+
+        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletPointChooserMapHtmlAndJs("Map",
+            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
+
+        ToWebView.Enqueue(initialWebFilesMessage);
+
+        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -44,12 +55,11 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
     public double? InitialElevation { get; set; }
     public double InitialLatitude { get; set; }
     public double InitialLongitude { get; set; }
-    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
     public SpatialBounds? MapBounds { get; set; }
-    public string PreviewHtml { get; set; } = string.Empty;
     public StatusControlContext StatusContext { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -57,7 +67,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public void JsonFromWebView(object? o, WebViewMessage args)
+    public void FromWebView(object? o, MessageFromWebView args)
     {
         if (!string.IsNullOrWhiteSpace(args.Message))
             StatusContext.RunFireAndForgetNonBlockingTask(async () => await MapMessageReceived(args.Message));
@@ -73,7 +83,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
 
         var serializedData = JsonSerializer.Serialize(centerData);
 
-        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+        ToWebView.Enqueue(JsonData.CreateRequest(serializedData));
     }
 
     public static async Task<LocationChooserContext> CreateInstance(StatusControlContext windowStatusContext,
@@ -113,7 +123,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
 
             var serializedData = JsonSerializer.Serialize(centerData);
 
-            JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+            ToWebView.Enqueue(JsonData.CreateRequest(serializedData));
         }
     }
 
@@ -157,10 +167,6 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
             if (args.PropertyName == nameof(LongitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
         };
 
-        PreviewHtml = await WpfCmsHtmlDocument.ToHtmlLeafletPointDocument("Point", Guid.NewGuid(),
-            LatitudeEntry.UserValue,
-            LongitudeEntry.UserValue, string.Empty);
-
         var db = await Db.Context();
         var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
@@ -169,10 +175,10 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         DisplayedContentGuids =
             DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+        ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
-        
+
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
@@ -245,7 +251,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+        ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));
     }

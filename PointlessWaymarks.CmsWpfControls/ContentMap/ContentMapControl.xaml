@@ -9,6 +9,7 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:ContentMapContext}">
     <UserControl.Resources>
@@ -39,7 +40,7 @@
             Grid.Column="2"
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
-                <wpfHtml:WebViewHtmlStringAndJsonMessagingBehaviorV02 WebViewMessenger="{Binding .}" />
+                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">

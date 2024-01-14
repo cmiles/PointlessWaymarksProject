@@ -28,6 +28,7 @@ using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
@@ -43,11 +44,17 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         BuildCommands();
 
-        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("GeoJson",
-            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+        ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        JsonToWebView = new WorkQueue<WebViewMessage>(true);
+        var initialWebFilesMessage = new FileBuilder();
+
+        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
+            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
+
+        ToWebView.Enqueue(initialWebFilesMessage);
+
+        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         DbEntry = dbEntry;
 
@@ -62,14 +69,13 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
-    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
-    public string PreviewHtml { get; set; }
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
 
     public void CheckForChangesAndValidationIssues()
@@ -78,7 +84,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public void JsonFromWebView(object? o, WebViewMessage args)
+    public void FromWebView(object? o, MessageFromWebView args)
     {
     }
 
@@ -319,7 +325,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(GeoJsonText)));
+        ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(GeoJsonText)));
     }
 
     [BlockingCommand]

@@ -29,6 +29,8 @@ using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 using ColumnSortControlContext = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlContext;
 using ColumnSortControlSortItem = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlSortItem;
 using Point = NetTopologySuite.Geometries.Point;
@@ -38,8 +40,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
 public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssues,
-    ICheckForChangesAndValidation,
-    IDropTarget
+    ICheckForChangesAndValidation, IDropTarget, IWebViewMessenger
 {
     public EventHandler? RequestContentEditorWindowClose;
 
@@ -49,9 +50,17 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         BuildCommands();
 
-        PreviewHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Map",
+        ToWebView = new WorkQueue<ToWebViewRequest>(true);
+
+        var initialWebFilesMessage = new FileBuilder();
+
+        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
+
+        ToWebView.Enqueue(initialWebFilesMessage);
+
+        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
@@ -74,11 +83,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public HelpDisplayContext HelpContext { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
     public ObservableCollection<IMapElementListItem>? MapElements { get; set; }
-    public string PreviewHtml { get; set; }
-    public string? PreviewMapJsonDto { get; set; } = string.Empty;
     public StatusControlContext StatusContext { get; set; }
     public StringDataEntryContext? SummaryEntry { get; set; }
     public StringDataEntryContext? TitleEntry { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
+
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
     public string UserGeoContentInput { get; set; } = string.Empty;
@@ -113,6 +122,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         foreach (var loopGuids in contentIds) await TryAddSpatialType(loopGuids);
 
         await RefreshMapPreview();
+    }
+
+    public void FromWebView(object? o, MessageFromWebView args)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
@@ -454,9 +468,10 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         if (MapElements == null || !MapElements.Any())
         {
-            PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(new MapJsonNewFeatureCollectionDto(
-                Guid.NewGuid(),
-                new SpatialBounds(0, 0, 0, 0), []));
+            ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(
+                new MapJsonNewFeatureCollectionDto(
+                    Guid.NewGuid(),
+                    new SpatialBounds(0, 0, 0, 0), []))));
             return;
         }
 
@@ -510,7 +525,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), geoJsonList);
 
         //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        PreviewMapJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
+        ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(dto)));
     }
 
     [BlockingCommand]
@@ -580,7 +595,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         {
             Items =
             [
-                new()
+                new ColumnSortControlSortItem
                 {
                     DisplayName = "Title",
                     ColumnName = "Title",
@@ -588,7 +603,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                     DefaultSortDirection = ListSortDirection.Ascending
                 },
 
-                new()
+                new ColumnSortControlSortItem
                 {
                     DisplayName = "Type",
                     ColumnName = "Type",

@@ -1,6 +1,6 @@
 using PointlessWaymarks.CommonTools;
 
-namespace PointlessWaymarks.WpfCommon.WpfHtml;
+namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
 public interface IWebViewMessenger
 {
@@ -12,7 +12,7 @@ public interface IWebViewMessenger
     ///     well before the WebView and Xaml Bindings are initialized and able to accept
     ///     messages.
     /// </summary>
-    WorkQueue<WebViewMessage> JsonToWebView { get; set; }
+    WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
-    void JsonFromWebView(object? o, WebViewMessage args);
+    void FromWebView(object? o, MessageFromWebView args);
 }

@@ -12,6 +12,7 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance local:GpxImportContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -237,14 +238,8 @@
             Header="Import Data"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <wpf:WebView2 x:Name="GpxImportWebView" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
-                <b:Interaction.Triggers>
-                    <b:EventTrigger EventName="WebMessageReceived">
-                        <behaviors:EventToCommand Command="{Binding MapMessageReceivedCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
-                    </b:EventTrigger>
-                </b:Interaction.Triggers>
                 <b:Interaction.Behaviors>
-                    <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
-                    <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewMapJsonDto}" />
+                    <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
                 </b:Interaction.Behaviors>
             </wpf:WebView2>
         </GroupBox>

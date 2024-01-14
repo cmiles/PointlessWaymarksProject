@@ -32,6 +32,7 @@ using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using Point = NetTopologySuite.Geometries.Point;
 
@@ -52,7 +53,17 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         DbEntry = pointContent;
 
-        JsonToWebView = new WorkQueue<WebViewMessage>(true);
+        ToWebView = new WorkQueue<ToWebViewRequest>(true);
+
+        var initialWebFilesMessage = new FileBuilder();
+
+        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletPointChooserMapHtmlAndJs("Map",
+            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
+
+        ToWebView.Enqueue(initialWebFilesMessage);
+
+        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -67,17 +78,16 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
-    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public StringDataEntryContext? MapLabelContent { get; set; }
     public PointDetailListContext? PointDetails { get; set; }
-    public string PreviewHtml { get; set; } = string.Empty;
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
 
     public void CheckForChangesAndValidationIssues()
@@ -86,7 +96,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
 
-    public void JsonFromWebView(object? o, WebViewMessage args)
+    public void FromWebView(object? o, MessageFromWebView args)
     {
         if (!string.IsNullOrWhiteSpace(args.Message))
             StatusContext.RunFireAndForgetNonBlockingTask(async () => await MapMessageReceived(args.Message));
@@ -135,7 +145,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         var serializedData = JsonSerializer.Serialize(centerData);
 
-        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+        ToWebView.Enqueue(JsonData.CreateRequest(serializedData));
     }
 
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext? statusContext,
@@ -238,7 +248,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
             var serializedData = JsonSerializer.Serialize(centerData);
 
-            JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+            ToWebView.Enqueue(JsonData.CreateRequest(serializedData));
         }
     }
 
@@ -326,10 +336,6 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
-        PreviewHtml = await WpfCmsHtmlDocument.ToHtmlLeafletPointDocument("Point", DbEntry.ContentId,
-            LatitudeEntry.UserValue,
-            LongitudeEntry.UserValue, string.Empty);
-
         var db = await Db.Context();
         var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
@@ -339,7 +345,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         DisplayedContentGuids =
             DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+        ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
 
@@ -451,7 +457,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
+        ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));
     }
