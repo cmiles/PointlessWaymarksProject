@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
+using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
@@ -216,6 +217,17 @@ public partial class PointContentActions : IContentActions<PointContent>
     {
         var item = await PointListListItem.CreateInstance(itemActions);
         item.DbEntry = content;
+        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        item.ShowType = showType;
+        return item;
+    }
+
+    public static async Task<PointListListItem> ListItemFromDbItem(PointContentDto content,
+        PointContentActions itemActions,
+        bool showType)
+    {
+        var item = await PointListListItem.CreateInstance(itemActions);
+        item.DbEntry = content.ToDbObject();
         item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
         item.ShowType = showType;
         return item;

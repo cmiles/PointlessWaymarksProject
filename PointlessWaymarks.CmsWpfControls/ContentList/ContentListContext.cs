@@ -623,6 +623,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 ContentListLoader.ShowType),
             PointContent pt => await PointContentActions.ListItemFromDbItem(pt, PointItemActions,
                 ContentListLoader.ShowType),
+            PointContentDto ptd => await PointContentActions.ListItemFromDbItem(ptd, PointItemActions,
+                ContentListLoader.ShowType),
             PostContent po => await PostContentActions.ListItemFromDbItem(po, PostItemActions,
                 ContentListLoader.ShowType),
             VideoContent v => await VideoContentActions.ListItemFromDbItem(v, VideoItemActions,

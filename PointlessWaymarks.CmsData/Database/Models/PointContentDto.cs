@@ -51,4 +51,35 @@ public class PointContentDto : IUpdateNotes, IContentCommon
         if (Elevation is null) return new Point(Longitude, Latitude);
         return new Point(Longitude, Latitude, Elevation.Value);
     }
+
+    public PointContent ToDbObject()
+    {
+        return new()
+        {
+            BodyContent = BodyContent,
+            BodyContentFormat = BodyContentFormat,
+            ContentId = ContentId,
+            ContentVersion = ContentVersion,
+            CreatedBy = CreatedBy,
+            CreatedOn = CreatedOn,
+            Elevation = Elevation,
+            FeedOn = FeedOn,
+            Folder = Folder,
+            Id = Id,
+            IsDraft = IsDraft,
+            LastUpdatedBy = LastUpdatedBy,
+            LastUpdatedOn = LastUpdatedOn,
+            Latitude = Latitude,
+            Longitude = Longitude,
+            MainPicture = MainPicture,
+            MapLabel = MapLabel,
+            ShowInMainSiteFeed = ShowInMainSiteFeed,
+            Slug = Slug,
+            Summary = Summary,
+            Tags = Tags,
+            Title = Title,
+            UpdateNotes = UpdateNotes,
+            UpdateNotesFormat = UpdateNotesFormat
+        };
+    }
 }

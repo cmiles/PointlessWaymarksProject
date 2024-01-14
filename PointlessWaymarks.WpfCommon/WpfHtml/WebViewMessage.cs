@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.WpfCommon.WpfHtml;
+namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public class WebViewMessage : EventArgs
 {

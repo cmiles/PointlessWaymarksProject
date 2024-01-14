@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 
 namespace PointlessWaymarks.CommonTools;
 
@@ -116,6 +116,27 @@ public static class UniqueFileTools
         if (!file.Exists) return file;
 
         throw new Exception("Can not create a Unique Directory for {fullName}");
+    }
+
+    public static DirectoryInfo UniqueRandomLetterNameDirectory(string parentDirectory, int nameLength)
+    {
+        var parent = new DirectoryInfo(parentDirectory);
+
+        if (!parent.Exists) parent.Create();
+
+        for (var i = 0; i < 1000; i++)
+        {
+            var random = SlugTools.RandomLowerCaseString(nameLength);
+            if (!Directory.Exists(Path.Combine(parent.FullName, random)))
+            {
+                var toReturn = new DirectoryInfo(Path.Combine(parent.FullName, random));
+                toReturn.Create();
+                toReturn.Refresh();
+                return toReturn;
+            }
+        }
+
+        throw new Exception($"Can not create a Unique Directory for {parentDirectory}");
     }
 
     public static bool WriteFileToDefaultStorageDirectoryBackupDirectory(DateTime executionTime,

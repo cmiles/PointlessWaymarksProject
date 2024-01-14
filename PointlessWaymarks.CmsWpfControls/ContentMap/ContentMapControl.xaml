@@ -39,8 +39,7 @@
             Grid.Column="2"
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
-                <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewMessenger="{Binding .}"
-                                                                   HtmlString="{Binding MapHtml}" />
+                <wpfHtml:WebViewHtmlStringAndJsonMessagingBehaviorV02 WebViewMessenger="{Binding .}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">

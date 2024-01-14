@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using Serilog;
 
@@ -33,7 +33,14 @@ public class WorkQueue<T>
         foreach (var job in _jobs.GetConsumingEnumerable(CancellationToken.None))
             try
             {
-                Processor?.Invoke(job).Wait();
+                if (_suspended)
+                {
+                    _pausedQueue.Add(job);
+                }
+                else
+                {
+                    Processor?.Invoke(job).Wait();
+                }
             }
             catch (Exception e)
             {
@@ -45,6 +52,10 @@ public class WorkQueue<T>
     public void Suspend(bool suspend)
     {
         _suspended = suspend;
-        if (!_suspended && _pausedQueue.Any()) _pausedQueue.ForEach(x => _jobs.Add(x));
+        if (!_suspended && _pausedQueue.Any())
+        {
+            _pausedQueue.ForEach(x => _jobs.Add(x));
+            _pausedQueue.Clear();
+        }
     }
 }

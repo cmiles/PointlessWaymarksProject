@@ -1,8 +1,6 @@
 using System.Collections.Specialized;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using DocumentFormat.OpenXml.Spreadsheet;
-using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
@@ -21,7 +19,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class ContentMapContext : IWebViewMessenger
+public partial class ContentMapContext : IWebViewMessengerV02
 {
     private ContentMapContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
         ContentListContext factoryListContext, bool loadInBackground = true)
@@ -29,29 +27,34 @@ public partial class ContentMapContext : IWebViewMessenger
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
 
-        MapHtml = WpfCmsHtmlDocument.ToHtmlLeafletMapDocument("Map",
-            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, string.Empty);
+        ToWebView = new WorkQueue<WebViewMessageV02>(true);
 
-        JsonToWebView = new WorkQueue<WebViewMessage>(true);
+        var initialWebFilesMessage = new WebViewFileBuilder();
+
+        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocumentV02.CmsLeafletMapHtmlAndJs("Map",
+            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
+
+        ToWebView.Enqueue(new WebViewMessageV02(initialWebFilesMessage));
+
+        var initialNavigation = new WebViewMessageV02(new WebViewNavigation() { WaitForScriptFinished = true, NavigateTo = "Index.html" });
+
+        ToWebView.Enqueue(initialNavigation);
 
         CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
         ListContext = factoryListContext;
-
         BuildCommands();
-
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
 
     public CmsCommonCommands CommonCommands { get; set; }
     public Envelope? ContentBounds { get; set; }
-    public WorkQueue<WebViewMessage> JsonToWebView { get; set; }
     public ContentListContext ListContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
-    public string MapHtml { get; set; }
 
     public bool RefreshMapOnCollectionChanged { get; set; }
     public StatusControlContext StatusContext { get; set; }
+    public WorkQueue<WebViewMessageV02> ToWebView { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
 
     public void JsonFromWebView(object? o, WebViewMessage args)
@@ -106,16 +109,16 @@ public partial class ContentMapContext : IWebViewMessenger
 
         ListContext.ContextMenuItems =
         [
-            new() { ItemName = "Center Map", ItemCommand = RequestMapCenterOnSelectedItemsCommand },
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Center Map", ItemCommand = RequestMapCenterOnSelectedItemsCommand },
+            new ContextMenuItemData { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
 
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
+            new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
         ];
 
         await ListContext.LoadData(true);
@@ -160,7 +163,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         var serializedData = JsonSerializer.Serialize(popupData);
 
-        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+        ToWebView.Enqueue(new WebViewMessageV02(new WebViewJson { Json = serializedData }));
     }
 
     [BlockingCommand]
@@ -174,10 +177,13 @@ public partial class ContentMapContext : IWebViewMessenger
 
         if (frozenItems.Count < 1)
         {
-            JsonToWebView.Enqueue(new WebViewMessage(await GeoJsonTools.SerializeWithGeoJsonSerializer(
-                new MapJsonNewFeatureCollectionDto(
-                    Guid.NewGuid(),
-                    new SpatialBounds(0, 0, 0, 0), []))));
+            ToWebView.Enqueue(new WebViewMessageV02( new WebViewJson()
+            {
+                Json = await GeoJsonTools.SerializeWithGeoJsonSerializer(
+                    new MapJsonNewFeatureCollectionDto(
+                        Guid.NewGuid(),
+                        new SpatialBounds(0, 0, 0, 0), []))
+            }));
             return;
         }
 
@@ -185,9 +191,12 @@ public partial class ContentMapContext : IWebViewMessenger
 
         ContentBounds = mapInformation.bounds.ToEnvelope();
 
-        JsonToWebView.Enqueue(new WebViewMessage(await MapJson.NewMapFeatureCollectionDtoSerialized(
-            mapInformation.featureList, bounds ??
-            mapInformation.bounds.ExpandToMinimumMeters(1000))));
+        ToWebView.Enqueue(new WebViewMessageV02(new WebViewJson()
+        {
+            Json = await MapJson.NewMapFeatureCollectionDtoSerialized(
+                mapInformation.featureList, bounds ??
+                                            mapInformation.bounds.ExpandToMinimumMeters(1000))
+        }));
     }
 
     [NonBlockingCommand]
@@ -212,10 +221,11 @@ public partial class ContentMapContext : IWebViewMessenger
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var centerData = new MapJsonFeatureDto(toCenter.ContentId()!.Value, "CenterFeatureRequest");
+        var serializedData = JsonSerializer.Serialize(centerData);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        JsonToWebView.Enqueue(new WebViewMessage(JsonSerializer.Serialize(centerData)));
+        ToWebView.Enqueue(new WebViewMessageV02(new WebViewJson { Json = serializedData }));
     }
 
     public async Task RequestMapCenterOnEnvelope(Envelope toCenter)
@@ -236,7 +246,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         var serializedData = JsonSerializer.Serialize(centerData);
 
-        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+        ToWebView.Enqueue(new WebViewMessageV02(new WebViewJson { Json = serializedData }));
     }
 
     [NonBlockingCommand]
@@ -265,7 +275,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         var serializedData = JsonSerializer.Serialize(centerData);
 
-        JsonToWebView.Enqueue(new WebViewMessage(serializedData));
+        ToWebView.Enqueue(new WebViewMessageV02(new WebViewJson { Json = serializedData }));
     }
 
     [NonBlockingCommand]
