@@ -82,7 +82,7 @@ public static class WpfCmsHtmlDocument
                                             console.log(`l.feature?.geometry?.type ${l.feature?.geometry?.type}`);
                                             
                                             if(l.feature?.geometry?.type === 'Point') {
-                                                map.flyTo([l.feature.geometry.coordinates[1l.feature.geometry.coordinates[0]]);
+                                                map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
                                             }
                                             
                                             if(l.feature?.geometry?.type === 'LineString') {
