@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
@@ -35,7 +36,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     private bool _webViewHasLoaded;
 
 
-    public IWebViewMessenger WebViewMessenger
+    public IWebViewMessenger? WebViewMessenger
     {
         get => (IWebViewMessenger)GetValue(WebViewMessengerProperty);
         set => SetValue(WebViewMessengerProperty, value);
@@ -60,6 +61,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     {
         if (args.WebMessageAsJson.Contains("scriptFinished"))
         {
+            Debug.WriteLine("scriptFinished Received");
             await ThreadSwitcher.ResumeForegroundAsync();
             WebViewMessenger.ToWebView.Suspend(false);
             return;
@@ -79,9 +81,6 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         if (!_webViewHasLoaded)
-        {
-            _webViewHasLoaded = true;
-
             try
             {
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -95,14 +94,15 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                 AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
 
                 await ThreadSwitcher.ResumeForegroundAsync();
-                WebViewMessenger.ToWebView.Suspend(false);
+
+                WebViewMessenger?.ToWebView.Suspend(false);
+                _webViewHasLoaded = true;
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
                 Log.Error(exception, "Error in the OnLoaded method with the WebView2.");
             }
-        }
     }
 
     private static async void OnWebViewManagerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -112,10 +112,10 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         {
             bindingBehavior.OnJsonFromWebView += newMessenger.FromWebView;
             bindingBehavior.WebViewMessenger = newMessenger;
-            newMessenger.ToWebView.Processor = bindingBehavior.ToWebViewMessageProcessor;
 
-            await ThreadSwitcher.ResumeForegroundAsync();
             bindingBehavior.WebViewMessenger.ToWebView.Suspend(!bindingBehavior._webViewHasLoaded);
+
+            newMessenger.ToWebView.Processor = bindingBehavior.ToWebViewMessageProcessor;
         }
     }
 
@@ -123,54 +123,86 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var fileList = new List<string>();
+        Debug.WriteLine(
+            $"{nameof(ProcessWebViewFileBuilder)} - Tag {fileBuilder.RequestTag} - Create {fileBuilder.Create.Count}, Copy {fileBuilder.Copy.Count}, Overwrite {fileBuilder.TryToOverwriteExistingFiles}");
 
         foreach (var loopCreate in fileBuilder.Create)
         {
             var targetFile = Path.Combine(_targetDirectory.FullName, loopCreate.filename);
-            if (File.Exists(targetFile)) File.Delete(targetFile);
+
+            if (!File.Exists(targetFile))
+            {
+                await File.WriteAllTextAsync(targetFile,
+                    loopCreate.body.Replace("[[VirtualDomain]]", _virtualDomain, StringComparison.OrdinalIgnoreCase));
+                continue;
+            }
+
+            //We know the file exists at this point
+            if (!fileBuilder.TryToOverwriteExistingFiles) continue;
+
+            try
+            {
+                File.Delete(targetFile);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Log.Verbose(
+                    "Silent Error in {method} - Create Branch - trying to delete file {file}, some errors are expected...",
+                    nameof(ProcessWebViewFileBuilder), targetFile);
+            }
+
             await File.WriteAllTextAsync(targetFile,
                 loopCreate.body.Replace("[[VirtualDomain]]", _virtualDomain, StringComparison.OrdinalIgnoreCase));
-            fileList.Add(targetFile);
         }
 
         foreach (var loopCopy in fileBuilder.Copy)
         {
             var targetFile = Path.Combine(_targetDirectory.FullName, Path.GetFileName(loopCopy));
-            if (File.Exists(targetFile)) File.Delete(targetFile);
-            File.Copy(loopCopy, targetFile);
-            fileList.Add(targetFile);
-        }
 
-        var currentFiles = _targetDirectory.GetFiles("*.*", SearchOption.TopDirectoryOnly).Select(x => x.FullName)
-            .ToList();
-        var toDelete = fileList.Except(currentFiles).ToList();
+            if (!File.Exists(targetFile))
+            {
+                File.Copy(loopCopy, targetFile);
+                continue;
+            }
 
-        foreach (var loopDelete in toDelete)
+            //We know the file exists at this point
+            if (!fileBuilder.TryToOverwriteExistingFiles) continue;
+
             try
             {
-                File.Delete(loopDelete);
+                File.Delete(targetFile);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                Log.ForContext("ignoredException", e.ToString()).Debug(
-                    "{method} - Temporary File Delete Error - Silent Error, Continuing...",
-                    nameof(WebViewGeneratedVirtualDomainBehavior));
+                Log.Verbose(
+                    "Silent Error in {method} - Copy Branch - trying to delete file {file}, some errors are expected...",
+                    nameof(ProcessWebViewFileBuilder), targetFile);
             }
+
+            File.Copy(loopCopy, targetFile);
+        }
     }
 
     private async Task ProcessWebViewJson(JsonData jsonData)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        Debug.WriteLine(
+            $"{nameof(ProcessWebViewJson)} - Tag {jsonData.RequestTag} - Json Starts: {jsonData.Json[..Math.Min(jsonData.Json.Length, 100)]}");
+
         if (!string.IsNullOrWhiteSpace(jsonData.Json))
-            AssociatedObject.CoreWebView2.PostWebMessageAsJson(jsonData.Json);
+            AssociatedObject.CoreWebView2.PostWebMessageAsJson(jsonData.Json.Replace("[[VirtualDomain]]",
+                _virtualDomain, StringComparison.OrdinalIgnoreCase));
     }
 
     private async Task ProcessWebViewNavigation(NavigateTo navigateTo)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
+
+        Debug.WriteLine(
+            $"{nameof(ProcessWebViewNavigation)} - Tag {navigateTo.RequestTag} - To: {navigateTo.Url} - WaitForScriptFinished: {navigateTo.WaitForScriptFinished}");
 
         if (navigateTo.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
 

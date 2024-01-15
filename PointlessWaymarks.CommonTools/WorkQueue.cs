@@ -7,9 +7,9 @@ namespace PointlessWaymarks.CommonTools;
 public class WorkQueue<T>
 {
     //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
-    private readonly BlockingCollection<T> _jobs = new();
+    private readonly BlockingCollection<(DateTime created, T job)> _jobs = new();
 
-    private readonly List<T> _pausedQueue = new();
+    private readonly List<(DateTime created, T job)> _pausedQueue = new();
 
     private bool _suspended;
 
@@ -24,8 +24,8 @@ public class WorkQueue<T>
 
     public void Enqueue(T job)
     {
-        if (_suspended) _pausedQueue.Add(job);
-        else _jobs.Add(job);
+        if (_suspended) _pausedQueue.Add((DateTime.Now,  job));
+        else _jobs.Add((DateTime.Now, job));
     }
 
     private void OnStart()
@@ -39,7 +39,7 @@ public class WorkQueue<T>
                 }
                 else
                 {
-                    Processor?.Invoke(job).Wait();
+                    Processor?.Invoke(job.job).Wait();
                 }
             }
             catch (Exception e)
@@ -52,9 +52,9 @@ public class WorkQueue<T>
     public void Suspend(bool suspend)
     {
         _suspended = suspend;
-        if (!_suspended && _pausedQueue.Any())
+        if (!_suspended && _pausedQueue.Count != 0)
         {
-            _pausedQueue.ForEach(x => _jobs.Add(x));
+            _pausedQueue.OrderBy(x => x.created).ToList().ForEach(x => _jobs.Add(x));
             _pausedQueue.Clear();
         }
     }

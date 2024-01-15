@@ -243,10 +243,10 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     {
         if (BroadcastLatLongChange && !LatitudeEntry!.HasValidationIssues && !LongitudeEntry!.HasValidationIssues)
         {
-            var centerData = new MapJsonCoordinateDto(LatitudeEntry.UserValue, LongitudeEntry.UserValue,
+            var pointLocationData = new MapJsonCoordinateDto(LatitudeEntry.UserValue, LongitudeEntry.UserValue,
                 "MoveUserLocationSelection");
 
-            var serializedData = JsonSerializer.Serialize(centerData);
+            var serializedData = JsonSerializer.Serialize(pointLocationData);
 
             ToWebView.Enqueue(JsonData.CreateRequest(serializedData));
         }
@@ -336,6 +336,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
+        LatitudeLongitudeChangeBroadcast();
+        
         var db = await Db.Context();
         var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
@@ -345,6 +347,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         DisplayedContentGuids =
             DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
+        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList, new(), false));
         ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
@@ -457,6 +460,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
+        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList, new(), false));
         ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));

@@ -48,9 +48,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
     public bool BroadcastLatLongChange { get; set; } = true;
     public List<Guid> DisplayedContentGuids { get; set; } = [];
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
-
     public bool HasChanges { get; set; }
-
     public bool HasValidationIssues { get; set; }
     public double? InitialElevation { get; set; }
     public double InitialLatitude { get; set; }
@@ -167,6 +165,8 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
             if (args.PropertyName == nameof(LongitudeEntry.UserValue)) LatitudeLongitudeChangeBroadcast();
         };
 
+        LatitudeLongitudeChangeBroadcast();
+        
         var db = await Db.Context();
         var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
@@ -175,6 +175,8 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         DisplayedContentGuids =
             DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
+        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList, new(), false));
+        
         ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
@@ -250,6 +252,8 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         var mapInformation = await MapJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
+
+        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList, new(), false));
 
         ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,

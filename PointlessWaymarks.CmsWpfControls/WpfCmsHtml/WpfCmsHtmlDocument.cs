@@ -195,12 +195,12 @@ public static class WpfCmsHtmlDocument
     public static List<(string fileName, string content)> CmsLeafletPointChooserMapHtmlAndJs(string title,
         double initialLatitude, double initialLongitude)
     {
-        var htmlString = $$"""
+        var htmlString = $"""
                            <!doctype html>
                            <html lang=en>
                            <head>
-                               {{LeafletStandardHeaderContent(title)}}
-                               <script src="https://[[VirtualDomain]]/CmsLeafletPointMap.js"></script>
+                               {LeafletStandardHeaderContent(title)}
+                               <script src="https://[[VirtualDomain]]/CmsLeafletPointChooserMap.js"></script>
                            </head>
                            <body onload="initialMapLoad();">
                                 <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
@@ -211,7 +211,7 @@ public static class WpfCmsHtmlDocument
 
         var javascriptString = ToHtmlLeafletPointChooserJs(initialLatitude, initialLongitude);
 
-        return [("Index.html", htmlString), ("CmsLeafletMap.js", javascriptString)];
+        return [("Index.html", htmlString), ("CmsLeafletPointChooserMap.js", javascriptString)];
     }
 
     public static List<WpfHtmlDocument.LeafletLayerEntry> LeafletLayerList()
@@ -332,6 +332,15 @@ public static class WpfCmsHtmlDocument
                         var map;
                         {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
 
+                        var geojsonMarkerOptions = {
+                            radius: 8,
+                            fillColor: "#ff7800",
+                            color: "#000",
+                            weight: 1,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        };
+                        
                         function broadcastProgress(progress) {
                             console.log(progress);
                             window.chrome.webview.postMessage( { "messageType": "progress", "message": progress } );
@@ -372,15 +381,6 @@ public static class WpfCmsHtmlDocument
                                 console.log(e);
                                 window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.target._latlng.lat, longitude: e.target._latlng.lng });
                             });
-                        
-                            var geojsonMarkerOptions = {
-                                radius: 8,
-                                fillColor: "#ff7800",
-                                color: "#000",
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            };
                         
                             window.chrome.webview.addEventListener('message', function (e) {
                                 
@@ -444,8 +444,9 @@ public static class WpfCmsHtmlDocument
                                     broadcastProgress('Mover User Location Selection Request');
                                     pointContentMarker.setLatLng([e.data.Latitude,e.data.Longitude]);
                                     map.setView([e.data.Latitude,e.data.Longitude], map.getZoom());
-                                }
-                                });
+                                } });
+                                
+                                window.chrome.webview.postMessage( { "messageType": "scriptFinished" } );
                             }
                         
                              function onEachMapGeoJsonFeature(feature, layer) {

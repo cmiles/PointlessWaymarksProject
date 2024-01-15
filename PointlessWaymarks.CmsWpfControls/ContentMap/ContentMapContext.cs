@@ -185,7 +185,7 @@ public partial class ContentMapContext : IWebViewMessenger
             return;
         }
 
-        var mapInformation = MapJson.ProcessContentToMapInformation(frozenItems);
+        var mapInformation = await MapJson.ProcessContentToMapInformation(frozenItems);
 
         ContentBounds = mapInformation.bounds.ToEnvelope();
 
