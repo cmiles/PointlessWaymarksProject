@@ -31,7 +31,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         new PropertyMetadata(default(IWebViewMessenger), OnWebViewManagerChanged));
 
     private DirectoryInfo _targetDirectory;
-    private string _virtualDomain;
+    private string _virtualDomain = "localweb.pointlesswaymarks.com";
 
     private bool _webViewHasLoaded;
 
@@ -47,7 +47,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         _targetDirectory = UniqueFileTools
             .UniqueRandomLetterNameDirectory(FileLocationTools.TempStorageHtmlDirectory().FullName, 4);
 
-        _virtualDomain = $"local-{_targetDirectory.Name}.pointlesswaymarks.com";
+        _virtualDomain = $@"localweb.pointlesswaymarks.com\{_targetDirectory.Name}\";
 
         AssociatedObject.Loaded += OnLoaded;
     }
@@ -67,11 +67,8 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
             return;
         }
 
-        OnJsonFromWebView?.Invoke(this,
-            new MessageFromWebView(args.WebMessageAsJson));
+        WebViewMessenger.FromWebView.Enqueue(new FromWebViewMessage(args.WebMessageAsJson));
     }
-
-    public event EventHandler<MessageFromWebView>? OnJsonFromWebView;
 
     /// <summary>
     ///     Setup the web environment.
@@ -87,8 +84,8 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 
                 await AssociatedObject.EnsureCoreWebView2Async();
                 AssociatedObject.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                    $"local-{_targetDirectory.Name}.pointlesswaymarks.com",
-                    _targetDirectory.FullName
+                    $"localweb.pointlesswaymarks.com",
+                    _targetDirectory.Parent.FullName
                     , CoreWebView2HostResourceAccessKind.Allow);
 
                 AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
@@ -110,7 +107,6 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         if (d is WebViewGeneratedVirtualDomainBehavior bindingBehavior &&
             e.NewValue is IWebViewMessenger newMessenger)
         {
-            bindingBehavior.OnJsonFromWebView += newMessenger.FromWebView;
             bindingBehavior.WebViewMessenger = newMessenger;
 
             bindingBehavior.WebViewMessenger.ToWebView.Suspend(!bindingBehavior._webViewHasLoaded);
@@ -119,12 +115,12 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         }
     }
 
-    private async Task ProcessWebViewFileBuilder(FileBuilder fileBuilder)
+    private async Task ProcessToWebViewFileBuilder(FileBuilder fileBuilder)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         Debug.WriteLine(
-            $"{nameof(ProcessWebViewFileBuilder)} - Tag {fileBuilder.RequestTag} - Create {fileBuilder.Create.Count}, Copy {fileBuilder.Copy.Count}, Overwrite {fileBuilder.TryToOverwriteExistingFiles}");
+            $"{nameof(ProcessToWebViewFileBuilder)} - Tag {fileBuilder.RequestTag} - Create {fileBuilder.Create.Count}, Copy {fileBuilder.Copy.Count}, Overwrite {fileBuilder.TryToOverwriteExistingFiles}");
 
         foreach (var loopCreate in fileBuilder.Create)
         {
@@ -149,7 +145,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                 Console.WriteLine(e);
                 Log.Verbose(
                     "Silent Error in {method} - Create Branch - trying to delete file {file}, some errors are expected...",
-                    nameof(ProcessWebViewFileBuilder), targetFile);
+                    nameof(ProcessToWebViewFileBuilder), targetFile);
             }
 
             await File.WriteAllTextAsync(targetFile,
@@ -178,31 +174,31 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                 Console.WriteLine(e);
                 Log.Verbose(
                     "Silent Error in {method} - Copy Branch - trying to delete file {file}, some errors are expected...",
-                    nameof(ProcessWebViewFileBuilder), targetFile);
+                    nameof(ProcessToWebViewFileBuilder), targetFile);
             }
 
             File.Copy(loopCopy, targetFile);
         }
     }
 
-    private async Task ProcessWebViewJson(JsonData jsonData)
+    private async Task ProcessToWebViewJson(JsonData jsonData)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Debug.WriteLine(
-            $"{nameof(ProcessWebViewJson)} - Tag {jsonData.RequestTag} - Json Starts: {jsonData.Json[..Math.Min(jsonData.Json.Length, 100)]}");
+            $"{nameof(ProcessToWebViewJson)} - Tag {jsonData.RequestTag} - Json Starts: {jsonData.Json[..Math.Min(jsonData.Json.Length, 100)]}");
 
         if (!string.IsNullOrWhiteSpace(jsonData.Json))
             AssociatedObject.CoreWebView2.PostWebMessageAsJson(jsonData.Json.Replace("[[VirtualDomain]]",
                 _virtualDomain, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async Task ProcessWebViewNavigation(NavigateTo navigateTo)
+    private async Task ProcessToWebViewNavigation(NavigateTo navigateTo)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Debug.WriteLine(
-            $"{nameof(ProcessWebViewNavigation)} - Tag {navigateTo.RequestTag} - To: {navigateTo.Url} - WaitForScriptFinished: {navigateTo.WaitForScriptFinished}");
+            $"{nameof(ProcessToWebViewNavigation)} - Tag {navigateTo.RequestTag} - To: {navigateTo.Url} - WaitForScriptFinished: {navigateTo.WaitForScriptFinished}");
 
         if (navigateTo.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
 
@@ -216,9 +212,9 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         await arg.Match(
-            ProcessWebViewFileBuilder,
-            ProcessWebViewNavigation,
-            ProcessWebViewJson
+            ProcessToWebViewFileBuilder,
+            ProcessToWebViewNavigation,
+            ProcessToWebViewJson
         );
     }
 }

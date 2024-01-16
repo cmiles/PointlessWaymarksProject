@@ -18,6 +18,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using XmpCore;
 using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
@@ -51,16 +52,14 @@ public partial class FileBasedGeoTaggerContext
     public int OffsetPhotoTimeInMinutes { get; set; }
     public bool OverwriteExistingGeoLocation { get; set; }
     public int PointsMustBeWithinMinutes { get; set; } = 10;
-    public string PreviewGeoJsonDto { get; set; } = string.Empty;
     public bool PreviewHasWritablePoints { get; set; }
-    public string PreviewHtml { get; set; } = string.Empty;
+    public WebViewMessenger PreviewMap { get; set; } = new();
     public GeoTag.GeoTagProduceActionsResult? PreviewResults { get; set; }
     public int SelectedTab { get; set; }
     public FileBasedGeoTaggerSettings Settings { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
-    public string WriteToFileGeoJsonDto { get; set; } = string.Empty;
-    public string WriteToFileHtml { get; set; } = string.Empty;
+    public WebViewMessenger WriteMap { get; set; } = new();
     public GeoTag.GeoTagWriteMetadataToFilesResult? WriteToFileResults { get; set; }
 
     public async Task CheckThatExifToolExists(bool saveSettings)
@@ -126,7 +125,7 @@ public partial class FileBasedGeoTaggerContext
         }
 
         WriteToFileResults = null;
-        WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
+        WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await ResetMapGeoJsonDto()));
 
         var fileListGpxService = new FileListGpxService(GpxFileList.Files!.ToList());
         var tagger = new GeoTag();
@@ -155,7 +154,7 @@ public partial class FileBasedGeoTaggerContext
             var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
                 new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
-            PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+            PreviewMap.ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto)));
         }
 
         SelectedTab = 3;
@@ -169,18 +168,18 @@ public partial class FileBasedGeoTaggerContext
         GpxFilesSettings = new FileBasedGeoTaggerGpxFilesSettings(this);
 
         FilesToTagFileList = await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
-            [new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }]);
+        [
+            new ContextMenuItemData
+                { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
+        ]);
 
         GpxFileList = await FileListContext.CreateInstance(StatusContext, GpxFilesSettings,
-            [new() { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" }]);
+            [new ContextMenuItemData { ItemCommand = ShowSelectedGpxFilesCommand, ItemName = "Show  Selected" }]);
         GpxFileList.FileImportFilter = "gpx files (*.gpx)|*.gpx|All files (*.*)|*.*";
         GpxFileList.DroppedFileExtensionAllowList = [".gpx"];
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Preview",
-            32.12063, -110.52313, string.Empty);
-
-        WriteToFileHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("WrittenFiles",
-            32.12063, -110.52313, string.Empty);
+        PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313, string.Empty);
+        WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313, string.Empty);
 
         await CheckThatExifToolExists(false);
     }
@@ -358,16 +357,12 @@ public partial class FileBasedGeoTaggerContext
 
         var previewDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
 
-        var previewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
-            32.12063, -110.52313, string.Empty);
-
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newPreviewWindow = new WebViewWindow();
+        var newPreviewWindow = await WebViewWindow.CreateInstance();
         newPreviewWindow.PositionWindowAndShow();
-        newPreviewWindow.WindowTitle = "GPX Preview";
-        newPreviewWindow.PreviewHtml = previewHtml;
-        newPreviewWindow.PreviewGeoJsonDto = previewDto;
+        newPreviewWindow.SetupCmsLeafletMapHtmlAndJs("GPX Preview", 32.12063, -110.52313);
+        newPreviewWindow.ToWebView.Enqueue(JsonData.CreateRequest(previewDto));
     }
 
     [BlockingCommand]
@@ -392,7 +387,7 @@ public partial class FileBasedGeoTaggerContext
 
         if (!writtenResults.Any())
         {
-            WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
+            WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await ResetMapGeoJsonDto()));
         }
         else
         {
@@ -409,7 +404,7 @@ public partial class FileBasedGeoTaggerContext
             var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
                 new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
-            WriteToFileGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+            WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto)));
         }
 
         SelectedTab = 4;

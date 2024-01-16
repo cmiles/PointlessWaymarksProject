@@ -9,6 +9,7 @@
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:fileList="clr-namespace:PointlessWaymarks.WpfCommon.FileList;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
+             xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance controls:FileBasedGeoTaggerContext}">
@@ -185,8 +186,7 @@
                         <wpf:WebView2 Grid.Row="2"
                                       Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
-                                <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
-                                <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewGeoJsonDto}" />
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding PreviewMap}" />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>
                     </Grid>
@@ -222,8 +222,7 @@
                         <wpf:WebView2 Grid.Row="2"
                                       Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
-                                <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding WriteToFileHtml}" />
-                                <wpfHtml:WebViewPostJsonOnChangeBehavior JsonData="{Binding WriteToFileGeoJsonDto}" />
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding WriteMap}" />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>
                     </Grid>

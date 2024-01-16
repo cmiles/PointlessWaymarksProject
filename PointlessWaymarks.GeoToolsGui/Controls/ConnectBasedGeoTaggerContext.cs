@@ -20,6 +20,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.FileList;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using XmpCore;
 using Directory = System.IO.Directory;
@@ -34,7 +35,7 @@ public partial class ConnectBasedGeoTaggerContext
     {
         StatusContext = statusContext;
         WindowStatus = windowStatus;
-        
+
         BuildCommands();
 
         Settings = new ConnectBasedGeoTaggerSettings();
@@ -49,18 +50,15 @@ public partial class ConnectBasedGeoTaggerContext
     public FileListContext? FilesToTagFileList { get; set; }
     public ConnectBasedGeoTagFilesToTagSettings? FilesToTagSettings { get; set; }
     public int OffsetPhotoTimeInMinutes { get; set; }
-    public string? PreviewGeoJsonDto { get; set; }
     public bool PreviewHasWritablePoints { get; set; }
-    public string? PreviewHtml { get; set; }
+    public WebViewMessenger PreviewMap { get; set; } = new();
     public GeoTag.GeoTagProduceActionsResult? PreviewResults { get; set; }
     public int SelectedTab { get; set; }
     public ConnectBasedGeoTaggerSettings Settings { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
-    public string? WriteToFileGeoJsonDto { get; set; }
-    public string? WriteToFileHtml { get; set; }
+    public WebViewMessenger WriteMap { get; set; } = new();
     public GeoTag.GeoTagWriteMetadataToFilesResult? WriteToFileResults { get; set; }
-
 
     public async Task CheckThatArchiveDirectoryExists(bool writeSettings)
     {
@@ -204,7 +202,7 @@ public partial class ConnectBasedGeoTaggerContext
         }
 
         WriteToFileResults = null;
-        WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
+        WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await ResetMapGeoJsonDto()));
 
         var credentials = GarminConnectCredentialTools.GetGarminConnectCredentials();
 
@@ -255,7 +253,7 @@ public partial class ConnectBasedGeoTaggerContext
             var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
                 new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
-            PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+            PreviewMap.ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto)));
         }
 
         SelectedTab = 3;
@@ -271,18 +269,18 @@ public partial class ConnectBasedGeoTaggerContext
         FilesToTagSettings = new ConnectBasedGeoTagFilesToTagSettings(this);
 
         FilesToTagFileList = await FileListContext.CreateInstance(StatusContext, FilesToTagSettings,
-            [new() { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }]);
+        [
+            new ContextMenuItemData
+                { ItemCommand = MetadataForSelectedFilesToTagCommand, ItemName = "Metadata Report for Selected" }
+        ]);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Settings.ExifToolFullName = Settings.ExifToolFullName;
 
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Preview",
-            32.12063, -110.52313, string.Empty);
-
-        WriteToFileHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("WrittenFiles",
-            32.12063, -110.52313, string.Empty);
-
+        PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313, string.Empty);
+        WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313, string.Empty);
+        
         await UpdateCredentialsNote();
         await CheckThatExifToolExists(false);
         await CheckThatArchiveDirectoryExists(false);
@@ -416,7 +414,7 @@ public partial class ConnectBasedGeoTaggerContext
         StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
     }
 
-    private async Task<string?> ResetMapGeoJsonDto()
+    private async Task<string> ResetMapGeoJsonDto()
     {
         var features = new FeatureCollection();
 
@@ -499,7 +497,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (!writtenResults.Any())
         {
-            WriteToFileGeoJsonDto = await ResetMapGeoJsonDto();
+            WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await ResetMapGeoJsonDto()));
         }
         else
         {
@@ -516,7 +514,7 @@ public partial class ConnectBasedGeoTaggerContext
             var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
                 new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
 
-            WriteToFileGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+            WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto)));
         }
 
         SelectedTab = 4;

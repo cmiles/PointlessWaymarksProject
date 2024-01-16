@@ -30,7 +30,6 @@ using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 using ColumnSortControlContext = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlContext;
 using ColumnSortControlSortItem = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlSortItem;
 using Point = NetTopologySuite.Geometries.Point;
@@ -49,6 +48,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         StatusContext = statusContext;
 
         BuildCommands();
+
+        FromWebView = new WorkQueue<FromWebViewMessage>
+        {
+            Processor = ProcessFromWebView
+        };
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
@@ -78,6 +82,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public List<MapElement> DbElements { get; set; } = [];
     public MapComponent DbEntry { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext HelpContext { get; set; }
@@ -122,11 +127,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         foreach (var loopGuids in contentIds) await TryAddSpatialType(loopGuids);
 
         await RefreshMapPreview();
-    }
-
-    public void FromWebView(object? o, MessageFromWebView args)
-    {
-        throw new NotImplementedException();
     }
 
     private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
@@ -459,6 +459,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 await Edit(g.DbEntry);
                 break;
         }
+    }
+
+    public Task ProcessFromWebView(FromWebViewMessage args)
+    {
+        return Task.CompletedTask;
     }
 
     [BlockingCommand]

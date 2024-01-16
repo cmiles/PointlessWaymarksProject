@@ -88,8 +88,6 @@ public partial class FeatureIntersectTaggerContext
             - Ensure that the GeoJson has the expected coordinate reference system and format - for example  \ogr2ogr.exe -f GeoJSON -t_srs crs:84 C:\PointlessWaymarksPadUs\PADUS3_0Combined_Region1.geojson C:\PointlessWaymarksPadUs\PADUS3_0Combined_Region1.json.
         """;
 
-    public string? PreviewGeoJsonDto { get; set; }
-    public string PreviewHtml { get; set; } = string.Empty;
     public List<IntersectFileTaggingResult> PreviewResults { get; set; } = [];
     public FeatureFileContext? SelectedFeatureFile { get; set; }
     public string? SelectedPadUsAttribute { get; set; }
@@ -375,10 +373,7 @@ public partial class FeatureIntersectTaggerContext
                     ItemName = "Metadata Report for Selected"
                 }
             ]);
-
-        PreviewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("Tagged Features and Intersect Features",
-            32.12063, -110.52313, string.Empty);
-
+        
         Debug.Assert(Settings != null, nameof(Settings) + " != null");
 
         Settings.PropertyChanged += OnSettingsPropertyChanged;
@@ -569,20 +564,5 @@ public partial class FeatureIntersectTaggerContext
                 Settings.ExifToolFullName, CancellationToken.None, 1024, StatusContext.ProgressTracker());
 
         SelectedTab = 5;
-
-        var allFeatures = PreviewResults.Where(x => x.IntersectInformation?.Features != null)
-            .SelectMany(x => x.IntersectInformation!.Features)
-            .Union(PreviewResults.Where(x => x.IntersectInformation?.IntersectsWith != null)
-                .SelectMany(x => x.IntersectInformation!.IntersectsWith)).Distinct(new FeatureComparer()).ToList();
-
-        var bounds = GeoJsonTools.GeometryBoundingBox(allFeatures.Select(x => x.Geometry).ToList());
-
-        var featureCollection = new FeatureCollection();
-        allFeatures.ForEach(x => featureCollection.Add(x));
-
-        var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), featureCollection);
-
-        PreviewGeoJsonDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
 }

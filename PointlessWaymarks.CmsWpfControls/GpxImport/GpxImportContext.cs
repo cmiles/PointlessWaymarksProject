@@ -29,7 +29,6 @@ using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
 using ColumnSortControlContext = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlContext;
 using ColumnSortControlSortItem = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlSortItem;
@@ -53,6 +52,11 @@ public partial class GpxImportContext : IWebViewMessenger
 
         FolderEntry = folderContext;
         TagEntry = tagsEditor;
+
+        FromWebView = new WorkQueue<FromWebViewMessage>
+        {
+            Processor = ProcessFromWebView
+        };
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
@@ -95,6 +99,7 @@ public partial class GpxImportContext : IWebViewMessenger
 
     public bool AutoSaveImports { get; set; }
     public ContentFolderContext FolderEntry { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public string ImportFileName { get; set; } = string.Empty;
     public ObservableCollection<IGpxImportListItem> Items { get; set; }
     public ObservableCollection<IGpxImportListItem> ListSelection { get; set; }
@@ -105,12 +110,6 @@ public partial class GpxImportContext : IWebViewMessenger
     public TagsEditorContext TagEntry { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
-
-    public void FromWebView(object? o, MessageFromWebView args)
-    {
-        if (!string.IsNullOrWhiteSpace(args.Message))
-            StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
-    }
 
     public async Task BuildMap()
     {
@@ -848,6 +847,13 @@ public partial class GpxImportContext : IWebViewMessenger
 
         if (e.PropertyName == nameof(UserFilterText))
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
+    }
+
+    public Task ProcessFromWebView(FromWebViewMessage args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.Message))
+            StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
+        return Task.CompletedTask;
     }
 
     public async Task RemoveFromList(Guid displayId)

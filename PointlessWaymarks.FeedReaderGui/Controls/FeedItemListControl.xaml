@@ -10,6 +10,7 @@
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
              xmlns:local="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
+             xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1200" d:DataContext="{d:DesignInstance local:FeedItemListContext}">
     <UserControl.Resources>
@@ -188,7 +189,7 @@
                         CoreWebView2InitializationCompleted="RssContentWebView_OnCoreWebView2InitializationCompleted"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
-                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding FeedDisplayHtml}" />
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding FeedDisplayPage}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </TabItem>

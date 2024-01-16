@@ -354,7 +354,6 @@
                                 <DataGridTextColumn Header="Existing Tags" Binding="{Binding ExistingTagString}" />
                             </DataGrid.Columns>
                         </DataGrid>
-
                     </Grid>
                 </GroupBox>
             </TabItem>

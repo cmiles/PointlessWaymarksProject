@@ -73,10 +73,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\PointlessWaymarks.CmsData\SiteResources\pointless-waymarks-spatial-common.js" Link="Scripts\pointless-waymarks-spatial-common.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="Icons\alert-octagon.svg" />
     <Resource Include="Icons\alert.svg" />
     <Resource Include="Icons\arrow-down-thick.svg" />

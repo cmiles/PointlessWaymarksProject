@@ -24,20 +24,22 @@ public static class HtmlTools
     {
         var pureCss = await PureCssAsString();
 
-        var htmlDoc = $@"
-<!doctype html>
-<html lang=en>
-<head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <meta charset=""utf-8"">
-    <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <style>{pureCss}{styleBlock}</style>
-</head>
-<body>
-    {body}
-</body>
-</html>";
+        var htmlDoc = $"""
+
+                       <!doctype html>
+                       <html lang=en>
+                       <head>
+                           <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                           <meta charset="utf-8">
+                           <title>{HtmlEncoder.Default.Encode(title)}</title>
+                           <style>{pureCss}{styleBlock}</style>
+                       </head>
+                       <body>
+                           {body}
+                       </body>
+                       </html>
+                       """;
 
         return htmlDoc;
     }
@@ -60,20 +62,22 @@ public static class HtmlTools
     {
         var minimalCss = await MinimalCssAsString();
 
-        var htmlDoc = $@"
-<!doctype html>
-<html lang=en>
-<head>
-    <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"" />
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <meta charset=""utf-8"">
-    <title>{HtmlEncoder.Default.Encode(title)}</title>
-    <style>{minimalCss}{styleBlock}</style>
-</head>
-<body>
-    {body}
-</body>
-</html>";
+        var htmlDoc = $"""
+
+                       <!doctype html>
+                       <html lang=en>
+                       <head>
+                           <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                           <meta charset="utf-8">
+                           <title>{HtmlEncoder.Default.Encode(title)}</title>
+                           <style>{minimalCss}{styleBlock}</style>
+                       </head>
+                       <body>
+                           {body}
+                       </body>
+                       </html>
+                       """;
 
         return htmlDoc;
     }

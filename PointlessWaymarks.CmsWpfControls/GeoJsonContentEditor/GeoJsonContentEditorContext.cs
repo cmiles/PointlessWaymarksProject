@@ -29,7 +29,6 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
@@ -43,6 +42,11 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         StatusContext = statusContext;
 
         BuildCommands();
+
+        FromWebView = new WorkQueue<FromWebViewMessage>
+        {
+            Processor = ProcessFromWebView
+        };
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
@@ -65,6 +69,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public GeoJsonContent DbEntry { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public string GeoJsonText { get; set; } = string.Empty;
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
@@ -82,10 +87,6 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
-    }
-
-    public void FromWebView(object? o, MessageFromWebView args)
-    {
     }
 
     [BlockingCommand]
@@ -312,6 +313,11 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             CheckForChangesAndValidationIssues();
 
         if (e.PropertyName == nameof(GeoJsonText)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
+    }
+
+    public Task ProcessFromWebView(FromWebViewMessage args)
+    {
+        return Task.CompletedTask;
     }
 
     [BlockingCommand]

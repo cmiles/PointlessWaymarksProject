@@ -14,6 +14,8 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -29,7 +31,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     public string DisplayBasicAuthPassword { get; set; } = string.Empty;
     public string DisplayBasicAuthUsername { get; set; } = string.Empty;
     public string DisplayUrl { get; set; } = string.Empty;
-    public string FeedDisplayHtml { get; set; } = string.Empty;
+    public WebViewMessenger FeedDisplayPage { get; set; } = new();
     public List<Guid> FeedList { get; set; } = [];
     public required ObservableCollection<FeedItemListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
@@ -68,7 +70,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     {
         if (item == null)
         {
-            FeedDisplayHtml = await "No Valid Item?".ToHtmlDocumentWithMinimalCss("Nothing...", string.Empty);
+            await FeedDisplayPage.SetupDocumentWithMinimalCss("""<p>"No Valid Item?"</p>""", "Nothing...");
             return;
         }
 
@@ -91,7 +93,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                         </ul>
                         """;
 
-        FeedDisplayHtml = await htmlBody.ToHtmlDocumentWithMinimalCss(item.DbItem.Title ?? "No Title?", string.Empty);
+        await FeedDisplayPage.SetupDocumentWithMinimalCss(htmlBody, item.DbItem.Title ?? "No Title?");
     }
 
     public static async Task<FeedItemListContext> CreateInstance(StatusControlContext statusContext, string dbFile,
@@ -172,10 +174,16 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     }
 
     [NonBlockingCommand]
-    public async Task FeedEditorForFeedItem(FeedItemListListItem listItem)
+    public async Task FeedEditorForFeedItem(FeedItemListListItem? listItem)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        if (listItem == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+        
         var db = await ContextDb.GetInstance();
         var currentFeed =
             await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == listItem.DbReaderFeed.PersistentId);
@@ -345,7 +353,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                 catch (Exception exception)
                 {
                     Log.Error(exception, "Error With Display URL in the FeedItemListContext");
-                    FeedDisplayHtml = string.Empty;
+                    await FeedDisplayPage.SetupDocumentWithMinimalCss($"""<h2>Exception</h2><p>{exception}</p>""", "Error");
                     DisplayUrl = "about:blank";
                 }
             });

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.Encodings.Web;
 using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
@@ -196,22 +197,49 @@ public static class WpfCmsHtmlDocument
         double initialLatitude, double initialLongitude)
     {
         var htmlString = $"""
-                           <!doctype html>
-                           <html lang=en>
-                           <head>
-                               {LeafletStandardHeaderContent(title)}
-                               <script src="https://[[VirtualDomain]]/CmsLeafletPointChooserMap.js"></script>
-                           </head>
-                           <body onload="initialMapLoad();">
-                                <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
-                                   style="height: 98vh;"></div>
-                           </body>
-                           </html>
-                           """;
+                          <!doctype html>
+                          <html lang=en>
+                          <head>
+                              {LeafletStandardHeaderContent(title)}
+                              <script src="https://[[VirtualDomain]]/CmsLeafletPointChooserMap.js"></script>
+                          </head>
+                          <body onload="initialMapLoad();">
+                               <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
+                                  style="height: 98vh;"></div>
+                          </body>
+                          </html>
+                          """;
 
         var javascriptString = ToHtmlLeafletPointChooserJs(initialLatitude, initialLongitude);
 
         return [("Index.html", htmlString), ("CmsLeafletPointChooserMap.js", javascriptString)];
+    }
+
+    public static async Task<List<(string fileName, string content)>> CmsLeafletSpatialScriptHtmlAndJs(string body,
+        string title, string styleBlock)
+    {
+        var spatialScript = await FileManagement.SpatialScriptsAsString();
+
+        var htmlString = $"""
+                          <!doctype html>
+                          <html lang=en>
+                          <head>
+                              <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                              <meta charset="utf-8">
+                              <title>{HtmlEncoder.Default.Encode(title)}</title>
+                              <style>{styleBlock}</style>
+                              <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+                              <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+                              <script src="pointless-waymarks-spatial-common.js"></script>
+                          </head>
+                          <body>
+                              {body}
+                          </body>
+                          </html>
+                          """;
+
+        return [("Index.html", htmlString), ("pointless-waymarks-spatial-common.js", spatialScript)];
     }
 
     public static List<WpfHtmlDocument.LeafletLayerEntry> LeafletLayerList()
@@ -340,7 +368,7 @@ public static class WpfCmsHtmlDocument
                             opacity: 1,
                             fillOpacity: 0.8
                         };
-                        
+
                         function broadcastProgress(progress) {
                             console.log(progress);
                             window.chrome.webview.postMessage( { "messageType": "progress", "message": progress } );

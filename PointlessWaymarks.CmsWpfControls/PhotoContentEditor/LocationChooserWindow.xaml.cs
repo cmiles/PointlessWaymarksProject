@@ -18,12 +18,11 @@ public partial class LocationChooserWindow
         InitializeComponent();
         StatusContext = new StatusControlContext();
         DataContext = this;
-
     }
 
     public LocationChooserContext? LocationChooser { get; set; }
     public StatusControlContext StatusContext { get; set; }
-    public string WindowTitle { get; set; }
+    public string WindowTitle { get; set; } = "Location Chooser";
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will

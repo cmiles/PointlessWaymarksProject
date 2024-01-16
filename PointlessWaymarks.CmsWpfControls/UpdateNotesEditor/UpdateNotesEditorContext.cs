@@ -3,18 +3,20 @@ using System.Web;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.WpfHtml;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
 namespace PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation,
+    IWebViewMessenger
 {
     private UpdateNotesEditorContext(StatusControlContext statusContext, IUpdateNotes dbEntry,
         ContentFormatChooserContext contentChooser)
@@ -26,9 +28,17 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
         UpdateNotesFormat = contentChooser;
 
         DbEntry = dbEntry;
+
         UserValue = DbEntry.UpdateNotes ?? string.Empty;
 
         UpdateNotesFormat = contentChooser;
+
+        FromWebView = new WorkQueue<FromWebViewMessage>
+        {
+            Processor = ProcessFromWebView
+        };
+
+        ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
         PropertyChanged += OnPropertyChanged;
 
@@ -36,11 +46,17 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
     }
 
     public IUpdateNotes DbEntry { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public StatusControlContext StatusContext { get; set; }
-    public string UserValue { get; set; }
+
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public ContentFormatChooserContext UpdateNotesFormat { get; set; }
     public bool UpdateNotesHasChanges { get; set; }
     public string? UpdateNotesHtmlOutput { get; set; }
+    public string UserValue { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -49,9 +65,6 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
         HasChanges = UpdateNotesHasChanges || PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     public static async Task<UpdateNotesEditorContext> CreateInstance(StatusControlContext statusContext,
         IUpdateNotes dbEntry)
@@ -100,6 +113,11 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
             StatusContext.RunFireAndForgetNonBlockingTask(RefreshPreview);
     }
 
+    private Task ProcessFromWebView(FromWebViewMessage arg)
+    {
+        return Task.CompletedTask;
+    }
+
     [BlockingCommand]
     public async Task RefreshPreview()
     {
@@ -111,14 +129,27 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
                 await BracketCodeCommon.ProcessCodesForLocalDisplay(UserValue, StatusContext.ProgressTracker());
             var processResults =
                 ContentProcessing.ProcessContent(preprocessResults, UpdateNotesFormat.SelectedContentFormat);
-            UpdateNotesHtmlOutput = processResults.ToHtmlDocumentWithLeaflet("Update Notes", string.Empty);
+
+            var initialWebFilesMessage = new FileBuilder();
+
+            initialWebFilesMessage.Create.AddRange(
+                await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(processResults, "Update Preview",
+                    string.Empty));
+
+            ToWebView.Enqueue(initialWebFilesMessage);
+
+            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
         }
         catch (Exception e)
         {
-            UpdateNotesHtmlOutput =
-                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocumentWithLeaflet(
-                    "Invalid",
-                    string.Empty);
+            var initialWebFilesMessage = new FileBuilder();
+
+            initialWebFilesMessage.Create.AddRange(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(
+                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>", "Body Preview", string.Empty));
+
+            ToWebView.Enqueue(initialWebFilesMessage);
+
+            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
         }
     }
 }

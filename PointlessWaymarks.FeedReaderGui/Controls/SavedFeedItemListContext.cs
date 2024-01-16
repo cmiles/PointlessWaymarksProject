@@ -14,6 +14,8 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -26,7 +28,8 @@ public partial class SavedFeedItemListContext
     public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
-    public string FeedDisplayHtml { get; set; } = string.Empty;
+
+    public WebViewMessenger FeedDisplayPage { get; set; } = new();
     public List<Guid> FeedList { get; set; } = [];
     public required ObservableCollection<SavedFeedItemListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
@@ -52,7 +55,7 @@ public partial class SavedFeedItemListContext
     {
         if (item == null)
         {
-            FeedDisplayHtml = await "No Valid Item?".ToHtmlDocumentWithMinimalCss("Nothing...", string.Empty);
+            await FeedDisplayPage.SetupDocumentWithMinimalCss("""<p>"No Valid Item?"</p>""", "Nothing...");
             return;
         }
 
@@ -75,7 +78,7 @@ public partial class SavedFeedItemListContext
                         </ul>
                         """;
 
-        FeedDisplayHtml = await htmlBody.ToHtmlDocumentWithMinimalCss(item.DbItem.Title ?? "No Title?", string.Empty);
+        await FeedDisplayPage.SetupDocumentWithMinimalCss(htmlBody, item.DbItem.Title ?? "No Title?");
     }
 
     public static async Task<SavedFeedItemListContext> CreateInstance(StatusControlContext statusContext, string dbFile,
@@ -87,19 +90,19 @@ public partial class SavedFeedItemListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var FeedQueries = new FeedQueries() { DbFileFullName = dbFile };
+        var feedQueries = new FeedQueries() { DbFileFullName = dbFile };
 
         var newContext = new SavedFeedItemListContext
         {
             Items = factoryItemsList,
             StatusContext = statusContext,
             FeedList = feedList ?? [],
-            ContextDb = FeedQueries,
+            ContextDb = feedQueries,
             ListSort = new ColumnSortControlContext
             {
                 Items =
                 [
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Posted",
                         ColumnName = "DbItem.PublishingDate",
@@ -107,21 +110,21 @@ public partial class SavedFeedItemListContext
                         DefaultSortDirection = ListSortDirection.Descending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Item Name",
                         ColumnName = "DbItem.Title",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Feed Name",
                         ColumnName = "DbReaderFeed.Name",
                         DefaultSortDirection = ListSortDirection.Ascending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Item Author",
                         ColumnName = "DbItem.Author",
@@ -186,8 +189,6 @@ public partial class SavedFeedItemListContext
             StatusContext.ToastWarning("This item isn't attached to an active feed...");
             return;
         }
-
-        ;
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

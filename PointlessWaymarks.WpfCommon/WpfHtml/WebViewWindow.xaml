@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml"
         xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance local:WebViewWindow}">
     <Grid>
         <wpf:WebView2>
             <b:Interaction.Behaviors>
-                <local:WebViewHtmlStringBindingBehavior HtmlString="{Binding PreviewHtml}" />
-                <local:WebViewPostJsonOnChangeBehavior JsonData="{Binding PreviewGeoJsonDto}" />
+                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
     </Grid>

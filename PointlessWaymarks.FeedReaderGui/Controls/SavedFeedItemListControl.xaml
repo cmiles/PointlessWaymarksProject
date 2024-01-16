@@ -10,6 +10,7 @@
              xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:SavedFeedItemListContext}">
     <UserControl.Resources>
@@ -124,7 +125,7 @@
                     x:Name="RssContentWebView"
                     Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                     <b:Interaction.Behaviors>
-                        <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString = "{Binding FeedDisplayHtml}" />
+                        <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding FeedDisplayPage}" />
                     </b:Interaction.Behaviors>
                 </wpf:WebView2>
             </TabItem>

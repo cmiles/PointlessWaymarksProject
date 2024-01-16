@@ -14,6 +14,7 @@ using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
@@ -373,16 +374,13 @@ public partial class ConnectDownloadContext
 
         var previewDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
 
-        var previewHtml = WpfHtmlDocument.ToHtmlLeafletBasicGeoJsonDocument("GeoJson",
-            32.12063, -110.52313, string.Empty);
-
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newPreviewWindow = new WebViewWindow();
+        var newPreviewWindow = await WebViewWindow.CreateInstance();
         newPreviewWindow.PositionWindowAndShow();
         newPreviewWindow.WindowTitle = "GPX Preview";
-        newPreviewWindow.PreviewHtml = previewHtml;
-        newPreviewWindow.PreviewGeoJsonDto = previewDto;
+        newPreviewWindow.SetupCmsLeafletMapHtmlAndJs("GeoJson", 32.12063, -110.52313, string.Empty);
+        newPreviewWindow.ToWebView.Enqueue(JsonData.CreateRequest(previewDto));
     }
 
     public async Task UpdateCredentialsNote()
@@ -399,14 +397,9 @@ public partial class ConnectDownloadContext
     }
 
     [NotifyPropertyChanged]
-    public partial class GarminActivityAndLocalFiles
+    public partial class GarminActivityAndLocalFiles(GarminActivity activity)
     {
-        public GarminActivityAndLocalFiles(GarminActivity activity)
-        {
-            Activity = activity;
-        }
-
-        public GarminActivity Activity { get; set; }
+        public GarminActivity Activity { get; set; } = activity;
         public FileInfo? ArchivedGpx { get; set; }
         public FileInfo? ArchivedJson { get; set; }
     }

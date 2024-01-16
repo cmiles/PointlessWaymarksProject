@@ -14,5 +14,11 @@ public interface IWebViewMessenger
     /// </summary>
     WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
-    void FromWebView(object? o, MessageFromWebView args);
+    WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+}
+
+public class WebViewMessenger : IWebViewMessenger
+{
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; } = new(true);
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; } = new();
 }

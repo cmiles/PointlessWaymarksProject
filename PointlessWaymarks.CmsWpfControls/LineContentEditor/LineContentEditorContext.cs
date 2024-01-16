@@ -45,6 +45,11 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         BuildCommands();
 
+        FromWebView = new WorkQueue<FromWebViewMessage>
+        {
+            Processor = ProcessFromWebView
+        };
+
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
         var initialWebFilesMessage = new FileBuilder();
@@ -57,7 +62,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
-        JsonFromWebView = new WorkQueue<MessageFromWebView>(true);
+        JsonFromWebView = new WorkQueue<FromWebViewMessage>(true);
 
         DbEntry = dbEntry;
 
@@ -71,10 +76,11 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public LineContent DbEntry { get; set; }
     public ConversionDataEntryContext<double>? DescentElevationEntry { get; set; }
     public ConversionDataEntryContext<double>? DistanceEntry { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
-    public WorkQueue<MessageFromWebView> JsonFromWebView { get; set; }
+    public WorkQueue<FromWebViewMessage> JsonFromWebView { get; set; }
     public string LineGeoJson { get; set; } = string.Empty;
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public ConversionDataEntryContext<double>? MaximumElevationEntry { get; set; }
@@ -94,10 +100,6 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
-    }
-
-    public void FromWebView(object? o, MessageFromWebView args)
-    {
     }
 
     [BlockingCommand]
@@ -434,6 +436,11 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             CheckForChangesAndValidationIssues();
 
         if (e.PropertyName == nameof(LineGeoJson)) StatusContext.RunNonBlockingTask(RefreshMapPreview);
+    }
+
+    public Task ProcessFromWebView(FromWebViewMessage args)
+    {
+        return Task.CompletedTask;
     }
 
     [BlockingCommand]

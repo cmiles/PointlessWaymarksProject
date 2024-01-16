@@ -4,12 +4,12 @@ using pinboard.net;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
-using PointlessWaymarks.CmsWpfControls.HtmlViewer;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkList;
 
@@ -139,10 +139,9 @@ public partial class LinkListWithActionsContext
             x.LastUpdatedOn
         }).ToHtmlTable(new { @class = "pure-table pure-table-striped" });
 
-        var htmlReportWindow =
-            await HtmlViewerWindow.CreateInstance(
-                await projectedNotFound.ToHtmlDocumentWithPureCss("Links Not In Pinboard", string.Empty));
+        var htmlReportWindow = await WebViewWindow.CreateInstance();
         await htmlReportWindow.PositionWindowAndShowOnUiThread();
+        await htmlReportWindow.SetupDocumentWithPureCss(projectedNotFound, "Links Not In Pinboard");
     }
 
     [BlockingCommand]
@@ -168,7 +167,7 @@ public partial class LinkListWithActionsContext
 
     public List<LinkListListItem> SelectedListItems()
     {
-        return ListContext.ListSelection.SelectedItems?.Where(x => x is LinkListListItem).Cast<LinkListListItem>()
+        return ListContext.ListSelection.SelectedItems.Where(x => x is LinkListListItem).Cast<LinkListListItem>()
             .ToList() ?? [];
     }
 }

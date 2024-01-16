@@ -12,6 +12,7 @@
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance updateNotesEditor:UpdateNotesEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -20,7 +21,6 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
             <wpfConverter:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
@@ -102,7 +102,7 @@
                             Grid.Row="1"
                             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
-                                <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding UpdateNotesHtmlOutput}" />
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
                                 <wpfHtml:WebViewRedirectLinksToBrowserBehavior />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>

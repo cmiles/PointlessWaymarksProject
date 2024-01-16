@@ -2,9 +2,8 @@
 using System.Web;
 using HtmlTableHelper;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsWpfControls.HtmlViewer;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.Diagnostics;
 
@@ -17,10 +16,10 @@ public static class Reports
         bodyBuilder.AppendLine($"<p>{HttpUtility.HtmlEncode(intro)}</p>");
         bodyBuilder.AppendLine(generationReturns.ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
 
-        var reportWindow =
-            await HtmlViewerWindow.CreateInstance(await bodyBuilder.ToString()
-                .ToHtmlDocumentWithPureCss(title, string.Empty));
+        var reportWindow = await WebViewWindow.CreateInstance();
         await reportWindow.PositionWindowAndShowOnUiThread();
+
+        await reportWindow.SetupDocumentWithPureCss(bodyBuilder.ToString(), title);
     }
 
     public static async Task InvalidBracketCodeContentIdsHtmlReport(List<GenerationReturn> generationReturns)

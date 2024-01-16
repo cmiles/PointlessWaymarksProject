@@ -14,7 +14,6 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
@@ -27,6 +26,11 @@ public partial class ContentMapContext : IWebViewMessenger
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
+
+        FromWebView = new WorkQueue<FromWebViewMessage>
+        {
+            Processor = ProcessFromWebView
+        };
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
@@ -48,18 +52,13 @@ public partial class ContentMapContext : IWebViewMessenger
 
     public CmsCommonCommands CommonCommands { get; set; }
     public Envelope? ContentBounds { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public ContentListContext ListContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public bool RefreshMapOnCollectionChanged { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
-
-    public void FromWebView(object? o, MessageFromWebView args)
-    {
-        if (!string.IsNullOrWhiteSpace(args.Message))
-            StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
-    }
 
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)
@@ -162,6 +161,13 @@ public partial class ContentMapContext : IWebViewMessenger
         var serializedData = JsonSerializer.Serialize(popupData);
 
         ToWebView.Enqueue(new JsonData { Json = serializedData });
+    }
+
+    public Task ProcessFromWebView(FromWebViewMessage args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.Message))
+            StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
+        return Task.CompletedTask;
     }
 
     [BlockingCommand]

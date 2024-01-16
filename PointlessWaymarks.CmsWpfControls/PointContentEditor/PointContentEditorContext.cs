@@ -33,7 +33,6 @@ using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
@@ -52,6 +51,11 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         BuildCommands();
 
         DbEntry = pointContent;
+
+        FromWebView = new WorkQueue<FromWebViewMessage>
+        {
+            Processor = ProcessFromWebView
+        };
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
@@ -75,6 +79,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public PointContent DbEntry { get; set; }
     public List<Guid> DisplayedContentGuids { get; set; } = [];
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
@@ -94,12 +99,6 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
-    }
-
-    public void FromWebView(object? o, MessageFromWebView args)
-    {
-        if (!string.IsNullOrWhiteSpace(args.Message))
-            StatusContext.RunFireAndForgetNonBlockingTask(async () => await MapMessageReceived(args.Message));
     }
 
     [BlockingCommand]
@@ -337,7 +336,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
         LatitudeLongitudeChangeBroadcast();
-        
+
         var db = await Db.Context();
         var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
@@ -347,7 +346,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         DisplayedContentGuids =
             DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList, new(), false));
+        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList,
+            new List<(string filename, string body)>(), false));
         ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
@@ -397,6 +397,13 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+    }
+
+    public Task ProcessFromWebView(FromWebViewMessage args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.Message))
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await MapMessageReceived(args.Message));
+        return Task.CompletedTask;
     }
 
     [BlockingCommand]
@@ -460,7 +467,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList, new(), false));
+        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList,
+            new List<(string filename, string body)>(), false));
         ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));

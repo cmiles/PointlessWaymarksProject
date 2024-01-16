@@ -6,19 +6,21 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
+using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
-using PointlessWaymarks.WpfCommon.WpfHtml;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
 namespace PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation
+public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssues, ICheckForChangesAndValidation,
+    IWebViewMessenger
 {
     private BodyContentEditorContext(StatusControlContext statusContext, IBodyContent dbEntry,
         ContentFormatChooserContext contentFormatChooser)
@@ -37,21 +39,32 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
 
         BuildCommands();
 
+        FromWebView = new WorkQueue<FromWebViewMessage>
+        {
+            Processor = ProcessFromWebView
+        };
+
+        ToWebView = new WorkQueue<ToWebViewRequest>(true);
+
         PropertyChanged += OnPropertyChanged;
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    public string? UserValue { get; set; }
     public ContentFormatChooserContext BodyContentFormat { get; set; }
     public bool BodyContentHasChanges { get; set; }
-    public string? BodyContentHtmlOutput { get; set; }
     public IBodyContent? DbEntry { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public string? SelectedBodyText { get; set; }
     public StatusControlContext StatusContext { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public int UserBodyContentUserSelectionLength { get; set; }
     public int UserBodyContentUserSelectionStart { get; set; }
     public string? UserHtmlSelectedText { get; set; }
+
+    public string? UserValue { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -60,9 +73,6 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
         HasChanges = BodyContentHasChanges || PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
     }
-
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         IBodyContent dbEntry)
@@ -92,6 +102,11 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
             CheckForChangesAndValidationIssues();
     }
 
+    private Task ProcessFromWebView(FromWebViewMessage arg)
+    {
+        return Task.CompletedTask;
+    }
+
     [BlockingCommand]
     public async Task RefreshPreview()
     {
@@ -114,14 +129,25 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
 
             if (possibleStyleFile.Exists) styleBlock += await File.ReadAllTextAsync(possibleStyleFile.FullName);
 
-            BodyContentHtmlOutput = processResults.ToHtmlDocumentWithLeaflet("Body Content", styleBlock);
+            var initialWebFilesMessage = new FileBuilder();
+
+            initialWebFilesMessage.Create.AddRange(
+                await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(processResults, "Body Preview", styleBlock));
+
+            ToWebView.Enqueue(initialWebFilesMessage);
+
+            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
         }
         catch (Exception e)
         {
-            BodyContentHtmlOutput =
-                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>".ToHtmlDocumentWithLeaflet(
-                    "Invalid",
-                    string.Empty);
+            var initialWebFilesMessage = new FileBuilder();
+
+            initialWebFilesMessage.Create.AddRange(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(
+                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>", "Body Preview", string.Empty));
+
+            ToWebView.Enqueue(initialWebFilesMessage);
+
+            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
         }
     }
 

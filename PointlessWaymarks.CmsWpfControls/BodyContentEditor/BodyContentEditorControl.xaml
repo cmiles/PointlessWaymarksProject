@@ -13,6 +13,7 @@
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -136,7 +137,7 @@
                         Grid.Row="1"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
-                            <wpfHtml:WebViewHtmlStringBindingBehavior HtmlString="{Binding BodyContentHtmlOutput}" />
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
                             <wpfHtml:WebViewRedirectLinksToBrowserBehavior />
                             <wpfHtml:WebViewSelectedTextBehavior WebViewSelectedText="{Binding UserHtmlSelectedText}" />
                         </b:Interaction.Behaviors>
