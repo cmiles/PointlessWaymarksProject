@@ -193,6 +193,14 @@ public partial class ContentMapContext : IWebViewMessenger
 
         var mapInformation = await MapJson.ProcessContentToMapInformation(frozenItems);
 
+        if (mapInformation.fileCopyList.Any())
+        {
+            var fileBuilder = new FileBuilder();
+            fileBuilder.Copy.AddRange(mapInformation.fileCopyList);
+
+            ToWebView.Enqueue(fileBuilder);
+        }
+
         ContentBounds = mapInformation.bounds.ToEnvelope();
 
         ToWebView.Enqueue(new JsonData

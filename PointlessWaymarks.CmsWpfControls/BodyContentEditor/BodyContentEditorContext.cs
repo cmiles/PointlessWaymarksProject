@@ -129,18 +129,18 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
 
             if (possibleStyleFile.Exists) styleBlock += await File.ReadAllTextAsync(possibleStyleFile.FullName);
 
-            var initialWebFilesMessage = new FileBuilder();
+            var initialWebFilesMessage = new FileBuilder { TryToOverwriteExistingFiles = true };
 
             initialWebFilesMessage.Create.AddRange(
                 await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(processResults, "Body Preview", styleBlock));
 
             ToWebView.Enqueue(initialWebFilesMessage);
 
-            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html"));
         }
         catch (Exception e)
         {
-            var initialWebFilesMessage = new FileBuilder();
+            var initialWebFilesMessage = new FileBuilder { TryToOverwriteExistingFiles = true };
 
             initialWebFilesMessage.Create.AddRange(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(
                 $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>", "Body Preview", string.Empty));

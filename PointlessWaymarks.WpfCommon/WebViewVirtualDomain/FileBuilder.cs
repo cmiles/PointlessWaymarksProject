@@ -6,10 +6,8 @@ public class FileBuilder
 {
     public List<string> Copy { get; set; } = new();
     public List<(string filename, string body)> Create { get; set; } = new();
-
     public string RequestTag { get; set; } = string.Empty;
     public bool TryToOverwriteExistingFiles { get; set; }
-
 
     public static ToWebViewRequest CreateRequest(List<string> copy,
         List<(string filename, string body)> create, bool tryToOverwriteExistingFiles,

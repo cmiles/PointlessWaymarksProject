@@ -183,6 +183,44 @@ public static class WpfHtmlDocument
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
     }
 
+    public static async Task SetupDocumentWithMinimalCss(this IWebViewMessenger messenger, string body,
+        string title, string styleBlock = "", string javascript = "")
+    {
+        var minimalCss = await HtmlTools.MinimalCssAsString();
+
+        var htmlDoc = $$"""
+
+                        <!doctype html>
+                        <html lang=en>
+                        <head>
+                            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <meta charset="utf-8">
+                            <title>{{HtmlEncoder.Default.Encode(title)}}</title>
+                            <link rel="stylesheet" href="https://[[VirtualDomain]]/pure.css" />
+                            {{(string.IsNullOrWhiteSpace(styleBlock) ? """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""" : string.Empty)}}
+                            {{(string.IsNullOrWhiteSpace(javascript) ? """<script src="https://[[VirtualDomain]]/customScript.js"></script>""" : string.Empty)}}
+                            <style>{{styleBlock}}</style>
+                        </head>
+                        <body>
+                            {{body}}
+                            <script>
+                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
+                            </script>
+                        </body>
+                        </html>
+                        """;
+
+        var initialWebFilesMessage = new FileBuilder();
+
+        initialWebFilesMessage.Create.Add(("Index.html", htmlDoc));
+        if (!string.IsNullOrWhiteSpace(minimalCss)) initialWebFilesMessage.Create.Add(("pure.css", minimalCss));
+        if (!string.IsNullOrWhiteSpace(javascript)) initialWebFilesMessage.Create.Add(("customScript.js", htmlDoc));
+
+        messenger.ToWebView.Enqueue(initialWebFilesMessage);
+        messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+    }
+
     public static async Task SetupDocumentWithPureCss(this IWebViewMessenger messenger, string body,
         string title, string styleBlock = "", string javascript = "")
     {
@@ -215,44 +253,6 @@ public static class WpfHtmlDocument
 
         initialWebFilesMessage.Create.Add(("Index.html", htmlDoc));
         if (!string.IsNullOrWhiteSpace(pureCss)) initialWebFilesMessage.Create.Add(("pure.css", pureCss));
-        if (!string.IsNullOrWhiteSpace(javascript)) initialWebFilesMessage.Create.Add(("customScript.js", htmlDoc));
-
-        messenger.ToWebView.Enqueue(initialWebFilesMessage);
-        messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
-    }
-    
-        public static async Task SetupDocumentWithMinimalCss(this IWebViewMessenger messenger, string body,
-        string title, string styleBlock = "", string javascript = "")
-    {
-        var minimalCss = await HtmlTools.MinimalCssAsString();
-
-        var htmlDoc = $$"""
-
-                        <!doctype html>
-                        <html lang=en>
-                        <head>
-                            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <meta charset="utf-8">
-                            <title>{{HtmlEncoder.Default.Encode(title)}}</title>
-                            <link rel="stylesheet" href="https://[[VirtualDomain]]/pure.css" />
-                            {{(string.IsNullOrWhiteSpace(styleBlock) ? """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""" : string.Empty)}}
-                            {{(string.IsNullOrWhiteSpace(javascript) ? """<script src="https://[[VirtualDomain]]/customScript.js"></script>""" : string.Empty)}}
-                            <style>{{styleBlock}}</style>
-                        </head>
-                        <body>
-                            {{body}}
-                            <script>
-                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
-                            </script>
-                        </body>
-                        </html>
-                        """;
-
-        var initialWebFilesMessage = new FileBuilder();
-
-        initialWebFilesMessage.Create.Add(("Index.html", htmlDoc));
-        if (!string.IsNullOrWhiteSpace(minimalCss)) initialWebFilesMessage.Create.Add(("pure.css", minimalCss));
         if (!string.IsNullOrWhiteSpace(javascript)) initialWebFilesMessage.Create.Add(("customScript.js", htmlDoc));
 
         messenger.ToWebView.Enqueue(initialWebFilesMessage);

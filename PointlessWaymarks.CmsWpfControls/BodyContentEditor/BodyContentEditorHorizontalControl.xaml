@@ -132,8 +132,7 @@
                         Grid.Row="1"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
-                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
-                            <wpfHtml:WebViewRedirectLinksToBrowserBehavior />
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" RedirectExternalLinksToBrowser="True"/>
                             <wpfHtml:WebViewSelectedTextBehavior WebViewSelectedText="{Binding UserHtmlSelectedText}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>

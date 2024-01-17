@@ -5,6 +5,7 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 
 namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
@@ -17,11 +18,6 @@ namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 /// </summary>
 public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 {
-    // Example Usage in Xaml
-    // <b:Interaction.Behaviors>
-    //      <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewJsonMessenger="{Binding .}" HtmlString="{Binding MapHtml}" />
-    // </b:Interaction.Behaviors>
-
     /// <summary>
     ///     String HTML - when changed the WebView2 will be reloaded with the new string
     /// </summary>
@@ -30,11 +26,25 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         typeof(IWebViewMessenger), typeof(WebViewGeneratedVirtualDomainBehavior),
         new PropertyMetadata(default(IWebViewMessenger), OnWebViewManagerChanged));
 
+    public static readonly DependencyProperty RedirectExternalLinksToBrowserProperty = DependencyProperty.Register(
+        nameof(RedirectExternalLinksToBrowser),
+        typeof(bool), typeof(WebViewGeneratedVirtualDomainBehavior),
+        new PropertyMetadata(default(bool)));
+    // Example Usage in Xaml
+    // <b:Interaction.Behaviors>
+    //      <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewJsonMessenger="{Binding .}" HtmlString="{Binding MapHtml}" />
+    // </b:Interaction.Behaviors>
+
+
     private DirectoryInfo _targetDirectory;
     private string _virtualDomain = "localweb.pointlesswaymarks.com";
-
     private bool _webViewHasLoaded;
 
+    public bool RedirectExternalLinksToBrowser
+    {
+        get => (bool)GetValue(RedirectExternalLinksToBrowserProperty);
+        set => SetValue(RedirectExternalLinksToBrowserProperty, value);
+    }
 
     public IWebViewMessenger? WebViewMessenger
     {
@@ -47,7 +57,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         _targetDirectory = UniqueFileTools
             .UniqueRandomLetterNameDirectory(FileLocationTools.TempStorageHtmlDirectory().FullName, 4);
 
-        _virtualDomain = $@"localweb.pointlesswaymarks.com\{_targetDirectory.Name}\";
+        _virtualDomain = $"localweb.pointlesswaymarks.com/{_targetDirectory.Name}";
 
         AssociatedObject.Loaded += OnLoaded;
     }
@@ -88,6 +98,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                     _targetDirectory.Parent.FullName
                     , CoreWebView2HostResourceAccessKind.Allow);
 
+                AssociatedObject.NavigationStarting += WebView_OnNavigationStarting;
                 AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
 
                 await ThreadSwitcher.ResumeForegroundAsync();
@@ -189,8 +200,11 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
             $"{nameof(ProcessToWebViewJson)} - Tag {jsonData.RequestTag} - Json Starts: {jsonData.Json[..Math.Min(jsonData.Json.Length, 100)]}");
 
         if (!string.IsNullOrWhiteSpace(jsonData.Json))
-            AssociatedObject.CoreWebView2.PostWebMessageAsJson(jsonData.Json.Replace("[[VirtualDomain]]",
-                _virtualDomain, StringComparison.OrdinalIgnoreCase));
+        {
+            var jsonModified =
+                jsonData.Json.Replace("[[VirtualDomain]]", _virtualDomain, StringComparison.OrdinalIgnoreCase);
+            AssociatedObject.CoreWebView2.PostWebMessageAsJson(jsonModified);
+        }
     }
 
     private async Task ProcessToWebViewNavigation(NavigateTo navigateTo)
@@ -216,5 +230,18 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
             ProcessToWebViewNavigation,
             ProcessToWebViewJson
         );
+    }
+
+    private void WebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
+    {
+        if (!RedirectExternalLinksToBrowser) return;
+        if (!e.IsUserInitiated) return;
+
+        if (string.IsNullOrWhiteSpace(e.Uri)) return;
+
+        if (e.Uri.Contains(_virtualDomain, StringComparison.OrdinalIgnoreCase)) return;
+
+        e.Cancel = true;
+        ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
     }
 }
