@@ -6,6 +6,7 @@
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.GpxImport"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     Title="{Binding WindowTitle}"
     Width="1000"
     Height="750"
@@ -13,6 +14,11 @@
     mc:Ignorable="d">
     <Grid Margin="4">
         <local:GpxImportControl DataContext="{Binding ImportContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            HorizontalContentAlignment="Left"
+            VerticalContentAlignment="Bottom"
+            Margin="4"
+        />
         <status:StatusControl
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />

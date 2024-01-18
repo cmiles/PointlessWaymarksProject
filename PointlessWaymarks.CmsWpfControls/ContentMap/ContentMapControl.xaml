@@ -29,20 +29,22 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <contentList:ContentListControl
-            Grid.Column="0"
-            Margin="4,5,4,6"
-            DataContext="{Binding ListContext}" />
-        <GridSplitter Grid.Row="0" Grid.Column="1" ResizeBehavior="PreviousAndNext" VerticalAlignment="Stretch"
-                      Width="4" />
+
         <wpf:WebView2
             Grid.Row="0"
-            Grid.Column="2"
+            Grid.Column="0"
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
                 <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
+        <GridSplitter Grid.Row="0" Grid.Column="1" ResizeBehavior="PreviousAndNext" VerticalAlignment="Stretch"
+                      Width="4" />
+        <contentList:ContentListControl
+            Grid.Row="0"
+            Grid.Column="2"
+            Margin="4,5,4,6"
+            DataContext="{Binding ListContext}" />
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel
                 Grid.Row="1"

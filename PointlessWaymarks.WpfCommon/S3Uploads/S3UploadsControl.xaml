@@ -368,6 +368,5 @@
                 </ListBox.InputBindings>
             </ListBox>
         </GroupBox>
-
     </Grid>
 </UserControl>

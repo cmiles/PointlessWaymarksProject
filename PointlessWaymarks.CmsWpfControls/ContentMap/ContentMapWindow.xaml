@@ -4,12 +4,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentMap"
+        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         Title="{Binding WindowTitle}"
         Width="1100"
         Height="800"
-        d:DataContext="{d:DesignInstance local:ContentMapContext}"
+        d:DataContext="{d:DesignInstance local:ContentMapWindow}"
         mc:Ignorable="d">
     <Grid>
         <local:ContentMapControl DataContext="{Binding ListContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            HorizontalContentAlignment="Left"
+            VerticalContentAlignment="Bottom"
+            Margin="4" />
+        <status:StatusControl
+            d:IsHidden="true"
+            DataContext="{Binding ListContext.StatusContext}" />
     </Grid>
 </Window>
