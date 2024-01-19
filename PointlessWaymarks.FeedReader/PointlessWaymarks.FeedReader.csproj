@@ -18,7 +18,7 @@
       </None>
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="AngleSharp" Version="1.0.7" />
+      <PackageReference Include="AngleSharp" Version="1.1.0" />
       <PackageReference Include="AngleSharp.Io" Version="1.0.0" />
       <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
     </ItemGroup>
