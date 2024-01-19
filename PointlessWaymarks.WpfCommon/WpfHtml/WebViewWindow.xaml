@@ -8,9 +8,9 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance local:WebViewWindow}">
+        Title="{Binding WindowTitle}" Height="650" Width="950" d:DataContext="{d:DesignInstance local:WebViewWindow}">
     <Grid>
-        <wpf:WebView2>
+        <wpf:WebView2 Margin="2,2,2,4">
             <b:Interaction.Behaviors>
                 <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
             </b:Interaction.Behaviors>

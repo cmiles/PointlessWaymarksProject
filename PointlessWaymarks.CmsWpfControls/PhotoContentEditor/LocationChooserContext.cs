@@ -15,6 +15,7 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
@@ -170,14 +171,14 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
         var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds)).ToList();
-        var mapInformation = await MapJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
         DisplayedContentGuids =
             DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
         ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList,
             new List<(string filename, string body)>(), false));
 
-        ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
+        ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
 
@@ -256,14 +257,14 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
 
         StatusContext.ToastSuccess($"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
 
-        var mapInformation = await MapJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
         ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList,
             new List<(string filename, string body)>(), false));
 
-        ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(
+        ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));
     }

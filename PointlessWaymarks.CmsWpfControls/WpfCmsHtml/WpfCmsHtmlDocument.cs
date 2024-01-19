@@ -67,60 +67,60 @@ public static class WpfCmsHtmlDocument
                             L.control.layers(baseMaps).addTo(map);
                         
                             window.chrome.webview.addEventListener('message', function (e) {
-                                
-                                console.log(e);
-                                
-                                if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, true, false);
-                                
-                                if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true, true);
-                                
-                                if(e.data.MessageType === 'AddFeatureCollection') postGeoJsonDataHandler(e, false, false);
-                                
-                                if(e.data.MessageType === 'CenterFeatureRequest') {
-                                    console.log('Center Feature Request');
-                                    map.eachLayer(function (l) {
-                                        if (l.feature?.properties?.displayId === e.data.DisplayId) {
-                                            console.log(`l.feature?.geometry?.type ${l.feature?.geometry?.type}`);
-                                            
-                                            if(l.feature?.geometry?.type === 'Point') {
-                                                map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
-                                            }
-                                            
-                                            if(l.feature?.geometry?.type === 'LineString') {
-                                                map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]],
-                                                    [l.feature.bbox[3], l.feature.bbox[2]]]);
-                                            }
-                                            l.openPopup();
-                                        }
-                                    })
-                                }
-                                
-                                if(e.data.MessageType === 'ShowPopupsFor') {
-                                    console.log(`Show Popups Request`);
-                                    map.eachLayer(function (l) {
-                                        if(!l.feature?.properties?.displayId) return;
-                                        if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
-                                            console.log(`opening popup for l.feature ${l.feature}`);
-                                            l.openPopup();
-                                        }
-                                        else {
-                                            console.log(`closing popup for l.feature ${l.feature}`);
-                                            l.closePopup();
-                                        }
-                                        console.log(l);
-                                    })
-                                }
-                                
-                                if(e.data.MessageType === 'CenterCoordinateRequest') {
-                                    console.log('Center Coordinate Request');
-                                    map.flyTo([e.data.Latitude, e.data.Longitude]);
-                                }
-                                
-                                if(e.data.MessageType === 'CenterBoundingBoxRequest') {
-                                    console.log('Center Bounding Box Request');
-                                    map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
-                                }
-                            });
+                                                               
+                                                               console.log(e);
+                                                               
+                                                               if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, true, false);
+                                                               
+                                                               if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true, true);
+                                                               
+                                                               if(e.data.MessageType === 'AddFeatureCollection') postGeoJsonDataHandler(e, false, false);
+                                                               
+                                                               if(e.data.MessageType === 'CenterFeatureRequest') {
+                                                                   console.log('Center Feature Request');
+                                                                   map.eachLayer(function (l) {
+                                                                       if (l.feature?.properties?.displayId === e.data.DisplayId) {
+                                                                           console.log(`l.feature?.geometry?.type ${l.feature?.geometry?.type}`);
+                                                                           
+                                                                           if(l.feature?.geometry?.type === 'Point') {
+                                                                               map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
+                                                                           }
+                                                                           
+                                                                           if(l.feature?.geometry?.type === 'LineString') {
+                                                                               map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]],
+                                                                                   [l.feature.bbox[3], l.feature.bbox[2]]]);
+                                                                           }
+                                                                           l.openPopup();
+                                                                       }
+                                                                   })
+                                                               }
+                                                               
+                                                               if(e.data.MessageType === 'ShowPopupsFor') {
+                                                                   console.log(`Show Popups Request`);
+                                                                   map.eachLayer(function (l) {
+                                                                       if(!l.feature?.properties?.displayId) return;
+                                                                       if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
+                                                                           console.log(`opening popup for l.feature ${l.feature}`);
+                                                                           l.openPopup();
+                                                                       }
+                                                                       else {
+                                                                           console.log(`closing popup for l.feature ${l.feature}`);
+                                                                           l.closePopup();
+                                                                       }
+                                                                       console.log(l);
+                                                                   })
+                                                               }
+                                                               
+                                                               if(e.data.MessageType === 'CenterCoordinateRequest') {
+                                                                   console.log('Center Coordinate Request');
+                                                                   map.flyTo([e.data.Latitude, e.data.Longitude]);
+                                                               }
+                                                               
+                                                               if(e.data.MessageType === 'CenterBoundingBoxRequest') {
+                                                                   console.log('Center Bounding Box Request');
+                                                                   map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
+                                                               }
+                                                           });
                             
                             window.chrome.webview.postMessage( { "messageType": "scriptFinished" } );
                         }

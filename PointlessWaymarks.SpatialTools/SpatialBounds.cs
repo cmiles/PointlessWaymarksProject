@@ -24,13 +24,20 @@ public record SpatialBounds(
         return new SpatialBounds(envelope.MaxY, envelope.MaxX, envelope.MinY, envelope.MinX);
     }
 
+    public double Height()
+    {
+        return DistanceTools.GetDistanceInMeters(MaxLongitude, MinLatitude, MaxLongitude, MaxLatitude);
+    }
+
     public Envelope ToEnvelope(double? minimumInMeters = null)
     {
         var currentEnvelope = new Envelope(MinLongitude, MaxLongitude, MinLatitude, MaxLatitude);
         if (minimumInMeters is not null) DistanceTools.MinimumEnvelopeInMeters(currentEnvelope, minimumInMeters.Value);
         return currentEnvelope;
     }
-    
-    public double Width() => DistanceTools.GetDistanceInMeters(MinLongitude, MinLatitude, MaxLongitude, MinLatitude);
-    public double Height() => DistanceTools.GetDistanceInMeters(MaxLongitude, MinLatitude, MaxLongitude, MaxLatitude);
+
+    public double Width()
+    {
+        return DistanceTools.GetDistanceInMeters(MinLongitude, MinLatitude, MaxLongitude, MinLatitude);
+    }
 }

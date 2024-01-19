@@ -29,6 +29,7 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
@@ -331,7 +332,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             return;
         }
 
-        ToWebView.Enqueue(JsonData.CreateRequest(await MapJson.NewMapFeatureCollectionDtoSerialized(GeoJsonText)));
+        ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(GeoJsonText)));
     }
 
     [BlockingCommand]

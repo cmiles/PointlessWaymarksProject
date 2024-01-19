@@ -20,7 +20,7 @@ public static class WpfHtmlDocument
                           </head>
                           <body onload="initialMapLoad();">
                                <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
-                                  style="height: 98vh;"></div>
+                                  style="height: 96vh;"></div>
                           </body>
                           </html>
                           """;
@@ -83,7 +83,7 @@ public static class WpfHtmlDocument
                             window.chrome.webview.postMessage( { "messageType": "progress", "message": progress } );
                         }
 
-                        {string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}
+                        {{string.Join($"{Environment.NewLine}", layers.Select(x => x.LayerDeclaration))}}
 
                         function geoJsonLayerStyle(feature) {
                             //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
@@ -104,23 +104,35 @@ public static class WpfHtmlDocument
                             }
                         }
 
-                        function postGeoJsonDataHandler(e) {
-                            if(mapLayer != null) map.removeLayer(mapLayer);
+                        function postGeoJsonDataHandler(e, clearCurrent, center) {
                         
-                            let mapLayer = e.data;
+                            if(clearCurrent) {
+                                broadcastProgress('Clearing Map Layers');
+                                if(Object.keys(mapLayers).length > 0) {
+                                    mapLayers.forEach(item => map.removeLayer(item));
+                                }
+                                mapLayers = [];
+                            }
                         
-                            if(Object.keys(mapLayer).length === 0) return;
+                            let mapData = e.data;
                         
-                            map.flyToBounds([
-                                [geoJsonData.Bounds.MinLatitude, geoJsonData.Bounds.MinLongitude],
-                                [geoJsonData.Bounds.MaxLatitude, geoJsonData.Bounds.MaxLongitude]
-                            ]);
+                            if(Object.keys(mapData.GeoJsonLayers).length === 0) return;
                         
-                            mapLayer = new L.geoJSON(geoJsonData.GeoJson, {
-                                onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
-                            });
+                            if(center) {
+                                map.fitBounds([
+                                    [mapData.Bounds.MinLatitude, mapData.Bounds.MinLongitude],
+                                    [mapData.Bounds.MaxLatitude, mapData.Bounds.MaxLongitude]
+                                ]);
+                            }
                         
-                            map.addLayer(mapLayer);
+                            var newLayerCount = mapData.GeoJsonLayers.length;
+                            var currentCount = 0;
+                        
+                            mapData.GeoJsonLayers.forEach(item => {
+                                broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
+                                let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle});
+                                mapLayers.push(newLayer);
+                                map.addLayer(newLayer); });
                         };
 
                         function initialMapLoad() {
@@ -143,9 +155,63 @@ public static class WpfHtmlDocument
                         
                           L.control.layers(baseMaps).addTo(map);
                         
-                          window.chrome.webview.addEventListener('message', postGeoJsonDataHandler);
+                          window.chrome.webview.addEventListener('message', function (e) {
+                              
+                              console.log(e);
+                              
+                              if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, true, false);
+                              
+                              if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true, true);
+                              
+                              if(e.data.MessageType === 'AddFeatureCollection') postGeoJsonDataHandler(e, false, false);
+                              
+                              if(e.data.MessageType === 'CenterFeatureRequest') {
+                                  console.log('Center Feature Request');
+                                  map.eachLayer(function (l) {
+                                      if (l.feature?.properties?.displayId === e.data.DisplayId) {
+                                          console.log(`l.feature?.geometry?.type ${l.feature?.geometry?.type}`);
+                                          
+                                          if(l.feature?.geometry?.type === 'Point') {
+                                              map.flyTo([l.feature.geometry.coordinates[1], l.feature.geometry.coordinates[0]]);
+                                          }
+                                          
+                                          if(l.feature?.geometry?.type === 'LineString') {
+                                              map.flyToBounds([[l.feature.bbox[1], l.feature.bbox[0]],
+                                                  [l.feature.bbox[3], l.feature.bbox[2]]]);
+                                          }
+                                          l.openPopup();
+                                      }
+                                  })
+                              }
+                              
+                              if(e.data.MessageType === 'ShowPopupsFor') {
+                                  console.log(`Show Popups Request`);
+                                  map.eachLayer(function (l) {
+                                      if(!l.feature?.properties?.displayId) return;
+                                      if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
+                                          console.log(`opening popup for l.feature ${l.feature}`);
+                                          l.openPopup();
+                                      }
+                                      else {
+                                          console.log(`closing popup for l.feature ${l.feature}`);
+                                          l.closePopup();
+                                      }
+                                      console.log(l);
+                                  })
+                              }
+                              
+                              if(e.data.MessageType === 'CenterCoordinateRequest') {
+                                  console.log('Center Coordinate Request');
+                                  map.flyTo([e.data.Latitude, e.data.Longitude]);
+                              }
+                              
+                              if(e.data.MessageType === 'CenterBoundingBoxRequest') {
+                                  console.log('Center Bounding Box Request');
+                                  map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
+                              }
+                          });
                           
-                          window.chrome.webview.postMessage( { "messageType": "script-finished" } );
+                          window.chrome.webview.postMessage( { "messageType": "scriptFinished" } );
                         }
                         """;
 
@@ -205,7 +271,7 @@ public static class WpfHtmlDocument
                         <body>
                             {{body}}
                             <script>
-                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
+                                window.chrome.webview.postMessage( { "messageType": "scriptFinished" } );
                             </script>
                         </body>
                         </html>
@@ -243,7 +309,7 @@ public static class WpfHtmlDocument
                         <body>
                             {{body}}
                             <script>
-                                window.chrome.webview.postMessage( { "messageType": "script-finished" } );
+                                window.chrome.webview.postMessage( { "messageType": "scriptFinished" } );
                             </script>
                         </body>
                         </html>

@@ -151,10 +151,10 @@ public partial class FileBasedGeoTaggerContext
 
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 
-            var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-                new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+            var jsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(features.AsList(),
+                SpatialBounds.FromEnvelope(bounds));
 
-            PreviewMap.ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto)));
+            PreviewMap.ToWebView.Enqueue(JsonData.CreateRequest(jsonDto));
         }
 
         SelectedTab = 3;
@@ -401,10 +401,10 @@ public partial class FileBasedGeoTaggerContext
 
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 
-            var jsonDto = new GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-                new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+            var jsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(features.AsList(),
+                SpatialBounds.FromEnvelope(bounds));
 
-            WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto)));
+            WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(jsonDto));
         }
 
         SelectedTab = 4;

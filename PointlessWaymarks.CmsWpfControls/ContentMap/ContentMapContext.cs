@@ -14,6 +14,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
@@ -191,7 +192,7 @@ public partial class ContentMapContext : IWebViewMessenger
             return;
         }
 
-        var mapInformation = await MapJson.ProcessContentToMapInformation(frozenItems);
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(frozenItems);
 
         if (mapInformation.fileCopyList.Any())
         {
@@ -205,7 +206,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         ToWebView.Enqueue(new JsonData
         {
-            Json = await MapJson.NewMapFeatureCollectionDtoSerialized(
+            Json = await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
                 mapInformation.featureList, bounds ??
                                             mapInformation.bounds.ExpandToMinimumMeters(1000))
         });
@@ -274,7 +275,7 @@ public partial class ContentMapContext : IWebViewMessenger
             return;
         }
 
-        var bounds = MapJson.GetBounds(filteredItems);
+        var bounds = MapCmsJson.GetBounds(filteredItems);
 
         await RequestMapCenterOnEnvelope(bounds);
     }
@@ -296,7 +297,7 @@ public partial class ContentMapContext : IWebViewMessenger
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var bounds = MapJson.GetBounds(ListContext.SelectedListItems());
+        var bounds = MapCmsJson.GetBounds(ListContext.SelectedListItems());
 
         await RequestMapCenterOnEnvelope(bounds);
     }

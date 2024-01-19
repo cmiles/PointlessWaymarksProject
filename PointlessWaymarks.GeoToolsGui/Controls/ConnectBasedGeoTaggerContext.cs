@@ -9,7 +9,6 @@ using MetadataExtractor.Formats.Xmp;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
-using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoTaggingService;
 using PointlessWaymarks.GeoToolsGui.Messages;
@@ -250,10 +249,10 @@ public partial class ConnectBasedGeoTaggerContext
 
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 
-            var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-                new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+            var jsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(features.AsList(),
+                SpatialBounds.FromEnvelope(bounds));
 
-            PreviewMap.ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto)));
+            PreviewMap.ToWebView.Enqueue(JsonData.CreateRequest(jsonDto));
         }
 
         SelectedTab = 3;
@@ -280,7 +279,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313, string.Empty);
         WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313, string.Empty);
-        
+
         await UpdateCredentialsNote();
         await CheckThatExifToolExists(false);
         await CheckThatArchiveDirectoryExists(false);
@@ -382,7 +381,6 @@ public partial class ConnectBasedGeoTaggerContext
         SelectedTab++;
     }
 
-
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -423,8 +421,8 @@ public partial class ConnectBasedGeoTaggerContext
         bounds.ExpandToInclude(basePoint.Coordinate);
         bounds.ExpandBy(1000);
 
-        var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+        var jsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(features.AsList(),
+            SpatialBounds.FromEnvelope(bounds));
 
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
     }
@@ -511,10 +509,10 @@ public partial class ConnectBasedGeoTaggerContext
 
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 
-            var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-                new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), features);
+            var jsonDto = await MapJson.NewMapFeatureCollectionDtoSerialized(features.AsList(),
+                SpatialBounds.FromEnvelope(bounds));
 
-            WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto)));
+            WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(jsonDto));
         }
 
         SelectedTab = 4;

@@ -5,7 +5,6 @@ using Garmin.Connect.Models;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Ookii.Dialogs.Wpf;
-using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Messages;
 using PointlessWaymarks.GeoToolsGui.Settings;
@@ -369,18 +368,18 @@ public partial class ConnectDownloadContext
         var newCollection = new FeatureCollection();
         featureList.ForEach(x => newCollection.Add(x));
 
-        var jsonDto = new GeoJsonData.GeoJsonSiteJsonData(Guid.NewGuid().ToString(),
-            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), newCollection);
-
-        var previewDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(jsonDto);
+        var jsonDto =
+            await MapJson.NewMapFeatureCollectionDtoSerialized(newCollection.AsList(),
+                SpatialBounds.FromEnvelope(bounds));
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newPreviewWindow = await WebViewWindow.CreateInstance();
         newPreviewWindow.PositionWindowAndShow();
-        newPreviewWindow.WindowTitle = "GPX Preview";
-        newPreviewWindow.SetupCmsLeafletMapHtmlAndJs("GeoJson", 32.12063, -110.52313, string.Empty);
-        newPreviewWindow.ToWebView.Enqueue(JsonData.CreateRequest(previewDto));
+        newPreviewWindow.WindowTitle = $"GPX Preview - {toShow.Activity.ActivityName}";
+        newPreviewWindow.SetupCmsLeafletMapHtmlAndJs($"{toShow.Activity.ActivityName}", 32.12063, -110.52313,
+            string.Empty);
+        newPreviewWindow.ToWebView.Enqueue(JsonData.CreateRequest(jsonDto));
     }
 
     public async Task UpdateCredentialsNote()

@@ -11,27 +11,13 @@ using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
-using PointlessWaymarks.CmsWpfControls.WpfHelpers;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 
-public record MapJsonBoundsDto(SpatialBounds Bounds, string MessageType = "JsonBounds");
-
-public record MapJsonCoordinateDto(double Latitude, double Longitude, string MessageType = "Coordinate");
-
-public record MapJsonFeatureDto(Guid Identifier, string MessageType = "Feature");
-
-public record MapJsonFeatureListDto(List<Guid> IdentifierList, string MessageType = "FeatureList");
-
-public record MapJsonNewFeatureCollectionDto(
-    Guid Identifier,
-    SpatialBounds Bounds,
-    List<FeatureCollection> GeoJsonLayers,
-    string MessageType = "NewFeatureCollectionAndCenter");
-
-public static class MapJson
+public static class MapCmsJson
 {
     public static Envelope GetBounds(List<IContentListItem> toMeasure)
     {
@@ -72,17 +58,6 @@ public static class MapJson
     }
 
     public static async Task<MapJsonNewFeatureCollectionDto> NewMapFeatureCollectionDto(
-        string featureCollection)
-    {
-        var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(featureCollection);
-
-        var envelope = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(featureCollection));
-
-        return await NewMapFeatureCollectionDto(contentFeatureCollection.AsList(),
-            SpatialBounds.FromEnvelope(envelope));
-    }
-
-    public static async Task<MapJsonNewFeatureCollectionDto> NewMapFeatureCollectionDto(
         List<FeatureCollection> featureCollections,
         SpatialBounds? bounds, string messageType = "NewFeatureCollectionAndCenter")
     {
@@ -98,17 +73,6 @@ public static class MapJson
         return mapJsonDto;
     }
 
-    public static async Task<string> NewMapFeatureCollectionDtoSerialized(
-        string featureCollection)
-    {
-        var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(featureCollection);
-
-        var envelope = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(featureCollection));
-
-        return await NewMapFeatureCollectionDtoSerialized(contentFeatureCollection.AsList(),
-            SpatialBounds.FromEnvelope(envelope));
-    }
-
     public static async Task<string> NewMapFeatureCollectionDtoSerialized(List<FeatureCollection> featureCollections,
         SpatialBounds? bounds, string messageType = "NewFeatureCollectionAndCenter")
     {
@@ -121,21 +85,40 @@ public static class MapJson
         return mapJsonDto;
     }
 
-    public static async Task<(SpatialBounds bounds, List<FeatureCollection> featureList, List<string> fileCopyList)> ProcessContentToMapInformation(
-        List<IContentListItem> frozenItems)
+    public static async Task<string> NewMapFeatureCollectionDtoSerialized(
+        string featureCollection)
+    {
+        var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(featureCollection);
+
+        var envelope = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(featureCollection));
+
+        return await NewMapFeatureCollectionDtoSerialized(contentFeatureCollection.AsList(),
+            SpatialBounds.FromEnvelope(envelope));
+    }
+
+    public static async Task<(SpatialBounds bounds, List<FeatureCollection> featureList, List<string> fileCopyList)>
+        ProcessContentToMapInformation(
+            List<IContentListItem> frozenItems)
     {
         var dbEntries = new List<object>();
-        
+
         foreach (var loopElements in frozenItems)
             switch (loopElements)
             {
-                case GeoJsonListListItem { DbEntry.GeoJson: not null } geoJson: dbEntries.Add(geoJson.DbEntry);
+                case GeoJsonListListItem { DbEntry.GeoJson: not null } geoJson:
+                    dbEntries.Add(geoJson.DbEntry);
                     break;
-                case LineListListItem { DbEntry.Line: not null } line: dbEntries.Add(line.DbEntry);break;
-                case PointListListItem point: dbEntries.Add(point.DbEntry);break;
-                case PhotoListListItem {DbEntry.Latitude: not null, DbEntry.Longitude: not null } photo: dbEntries.Add(photo.DbEntry);break;
+                case LineListListItem { DbEntry.Line: not null } line:
+                    dbEntries.Add(line.DbEntry);
+                    break;
+                case PointListListItem point:
+                    dbEntries.Add(point.DbEntry);
+                    break;
+                case PhotoListListItem { DbEntry.Latitude: not null, DbEntry.Longitude: not null } photo:
+                    dbEntries.Add(photo.DbEntry);
+                    break;
             }
-        
+
         return await ProcessContentToMapInformation(dbEntries);
     }
 
@@ -229,7 +212,7 @@ public static class MapJson
                 if (smallImageFile != null)
                 {
                     filesToCopy.Add(smallImageFile);
-                        
+
                     description = $"""
                                    <img src="https://[[VirtualDomain]]/{Path.GetFileName(smallImageFile)}"/>
                                    """;
