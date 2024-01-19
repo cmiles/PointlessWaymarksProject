@@ -96,28 +96,19 @@ public class DataGridCustomSortBehavior
         column.SetValue(CustomSortProperty, value);
     }
 
-    private class DataGridSortComparer : IComparer
+    private class DataGridSortComparer(IComparer comparer, ListSortDirection sortDirection, string propertyName)
+        : IComparer
     {
-        private readonly IComparer _comparer;
-        private readonly string _propertyName;
-        private readonly ListSortDirection _sortDirection;
         private PropertyInfo? _property;
-
-        public DataGridSortComparer(IComparer comparer, ListSortDirection sortDirection, string propertyName)
-        {
-            _comparer = comparer;
-            _sortDirection = sortDirection;
-            _propertyName = propertyName;
-        }
 
         public int Compare(object? x, object? y)
         {
-            var property = _property ??= x?.GetType().GetProperty(_propertyName);
+            var property = _property ??= x?.GetType().GetProperty(propertyName);
             var value1 = property?.GetValue(x);
             var value2 = property?.GetValue(y);
 
-            var result = _comparer.Compare(value1, value2);
-            if (_sortDirection == ListSortDirection.Descending) result = -result;
+            var result = comparer.Compare(value1, value2);
+            if (sortDirection == ListSortDirection.Descending) result = -result;
 
             return result;
         }

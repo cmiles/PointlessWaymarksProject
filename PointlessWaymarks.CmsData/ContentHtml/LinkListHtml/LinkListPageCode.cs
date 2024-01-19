@@ -10,19 +10,11 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
 
 public partial class LinkListPage
 {
-    public LinkListPage()
-    {
-        RssUrl = UserSettingsSingleton.CurrentSettings().LinkRssUrl();
-        ListTitle = "Links";
-        LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
-        DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute;
-    }
-
-    public object DirAttribute { get; set; }
+    public object DirAttribute { get; set; } = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute;
     public DateTime? GenerationVersion { get; set; }
-    public string LangAttribute { get; set; }
-    public string ListTitle { get; set; }
-    public string RssUrl { get; set; }
+    public string LangAttribute { get; set; } = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
+    public string ListTitle { get; set; } = "Links";
+    public string RssUrl { get; set; } = UserSettingsSingleton.CurrentSettings().LinkRssUrl();
 
     public static HtmlTag LinkTableTag()
     {

@@ -6,15 +6,10 @@ using PointlessWaymarks.WpfCommon;
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 
 [NotifyPropertyChanged]
-public partial class GpxImportWaypoint : IGpxImportListItem
+public partial class GpxImportWaypoint(GpxWaypoint waypoint) : IGpxImportListItem
 {
-    public GpxImportWaypoint(GpxWaypoint waypoint)
-    {
-        Waypoint = waypoint;
-    }
-
     public string UserMapLabel { get; set; } = string.Empty;
-    public GpxWaypoint Waypoint { get; set; }
+    public GpxWaypoint Waypoint { get; set; } = waypoint;
     public DateTime? CreatedOn { get; set; }
     public Guid DisplayId { get; set; } = Guid.NewGuid();
     public bool MarkedForImport { get; set; }

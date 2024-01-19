@@ -1,11 +1,6 @@
 ﻿namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
-public class ContentMapMapSelection : EventArgs
+public class ContentMapMapSelection(Guid selectedContentId) : EventArgs
 {
-    public ContentMapMapSelection(Guid selectedContentId)
-    {
-        SelectedContentId = selectedContentId;
-    }
-
-    public Guid SelectedContentId { get; set; }
+    public Guid SelectedContentId { get; set; } = selectedContentId;
 }

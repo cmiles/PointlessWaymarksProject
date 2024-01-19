@@ -3,14 +3,10 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
-public class ContentMapListLoader : ContentListLoaderBase
+public class ContentMapListLoader(string headerName, List<Guid> contentIdsToLoad)
+    : ContentListLoaderBase(headerName, null)
 {
-    public List<Guid> ContentIdsToLoad { get; set; }
-    
-    public ContentMapListLoader(string headerName, List<Guid> contentIdsToLoad) : base(headerName, null)
-    {
-        ContentIdsToLoad = contentIdsToLoad;
-    }
+    public List<Guid> ContentIdsToLoad { get; set; } = contentIdsToLoad;
 
     public override async Task<List<object>> LoadItems(IProgress<string>? progress = null)
     {

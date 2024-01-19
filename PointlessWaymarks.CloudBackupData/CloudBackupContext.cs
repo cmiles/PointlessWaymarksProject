@@ -8,13 +8,9 @@ using SQLitePCL;
 
 namespace PointlessWaymarks.CloudBackupData;
 
-public class CloudBackupContext : DbContext
+public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : DbContext(options)
 {
     public static string CurrentDatabaseFileName = string.Empty;
-
-    public CloudBackupContext(DbContextOptions<CloudBackupContext> options) : base(options)
-    {
-    }
 
     public DbSet<BackupJob> BackupJobs { get; set; } = null!;
     public DbSet<CloudCacheFile> CloudCacheFiles { get; set; } = null!;

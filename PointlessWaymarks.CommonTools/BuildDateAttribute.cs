@@ -6,14 +6,9 @@ namespace PointlessWaymarks.CommonTools;
 ///     This attribute can be used in a project file to write the Build Date into the Assembly info.
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly)]
-public class BuildDateAttribute : Attribute
+public class BuildDateAttribute(string value) : Attribute
 {
-    public BuildDateAttribute(string value)
-    {
-        DateTime = DateTime.ParseExact(value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None);
-    }
-
-    public DateTime DateTime { get; }
+    public DateTime DateTime { get; } = DateTime.ParseExact(value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None);
 
     //Approach from https://www.meziantou.net/getting-the-date-of-build-of-a-dotnet-assembly-at-runtime.htm
 

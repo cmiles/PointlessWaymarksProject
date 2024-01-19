@@ -6,16 +6,10 @@ namespace PointlessWaymarks.GeoTaggingService;
 
 /// <summary>
 /// </summary>
-public class GarminConnectGpxService : IGpxService
+public class GarminConnectGpxService(string archiveDirectory, IRemoteGpxService connectWrapper) : IGpxService
 {
-    public GarminConnectGpxService(string archiveDirectory, IRemoteGpxService connectWrapper)
-    {
-        ArchiveDirectory = archiveDirectory;
-        ConnectWrapper = connectWrapper;
-    }
-
-    public string ArchiveDirectory { get; }
-    public IRemoteGpxService ConnectWrapper { get; }
+    public string ArchiveDirectory { get; } = archiveDirectory;
+    public IRemoteGpxService ConnectWrapper { get; } = connectWrapper;
     public int SearchSurroundingDays { get; } = 7;
 
     public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,

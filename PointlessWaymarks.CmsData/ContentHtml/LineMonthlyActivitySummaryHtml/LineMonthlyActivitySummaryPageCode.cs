@@ -4,18 +4,11 @@ using PointlessWaymarks.CmsData.Database;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml;
 
-public partial class LineMonthlyActivitySummaryPage
+public partial class LineMonthlyActivitySummaryPage(DateTime? generationVersion)
 {
-    public LineMonthlyActivitySummaryPage(DateTime? generationVersion)
-    {
-        GenerationVersion = generationVersion;
-        LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
-        DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute;
-    }
-
-    public string DirAttribute { get; set; }
-    public DateTime? GenerationVersion { get; set; }
-    public string LangAttribute { get; set; }
+    public string DirAttribute { get; set; } = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute;
+    public DateTime? GenerationVersion { get; set; } = generationVersion;
+    public string LangAttribute { get; set; } = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
     public string SerializedRows { get; set; }
 
     public async Task WriteLocalHtml()

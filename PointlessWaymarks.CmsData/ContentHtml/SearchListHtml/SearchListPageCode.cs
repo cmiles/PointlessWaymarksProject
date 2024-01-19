@@ -6,26 +6,19 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml;
 
-public partial class SearchListPage
+public partial class SearchListPage(
+    string rssUrl,
+    Func<List<object>> contentFunction,
+    string listTitle,
+    DateTime? generationVersion)
 {
-    public SearchListPage(string rssUrl, Func<List<object>> contentFunction, string listTitle,
-        DateTime? generationVersion)
-    {
-        RssUrl = rssUrl;
-        ContentFunction = contentFunction;
-        ListTitle = listTitle;
-        GenerationVersion = generationVersion;
-        LangAttribute = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
-        DirAttribute = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute;
-    }
-
     public bool AddNoIndexTag { get; set; }
-    public Func<List<object>> ContentFunction { get; }
-    public string DirAttribute { get; set; }
-    public DateTime? GenerationVersion { get; }
-    public string LangAttribute { get; set; }
-    public string ListTitle { get; }
-    public string RssUrl { get; }
+    public Func<List<object>> ContentFunction { get; } = contentFunction;
+    public string DirAttribute { get; set; } = UserSettingsSingleton.CurrentSettings().SiteDirectionAttribute;
+    public DateTime? GenerationVersion { get; } = generationVersion;
+    public string LangAttribute { get; set; } = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
+    public string ListTitle { get; } = listTitle;
+    public string RssUrl { get; } = rssUrl;
 
     public HtmlTag ContentListTag()
     {

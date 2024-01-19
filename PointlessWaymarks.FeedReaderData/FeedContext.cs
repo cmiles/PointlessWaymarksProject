@@ -7,13 +7,9 @@ using SQLitePCL;
 
 namespace PointlessWaymarks.FeedReaderData;
 
-public class FeedContext : DbContext
+public class FeedContext(DbContextOptions<FeedContext> options) : DbContext(options)
 {
     public static readonly string FeedReaderDbIdKeyValueKey = "FeedReaderDbIdBasicAuthKey";
-
-    public FeedContext(DbContextOptions<FeedContext> options) : base(options)
-    {
-    }
 
     public DbSet<ReaderFeedItem> FeedItems { get; set; } = null!;
 

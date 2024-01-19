@@ -5,12 +5,8 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.Database;
 
-public class PointlessWaymarksContext : DbContext
+public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext> options) : DbContext(options)
 {
-    public PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext> options) : base(options)
-    {
-    }
-
     public DbSet<FileContent> FileContents { get; set; }
     public DbSet<GenerationChangedContentId> GenerationChangedContentIds { get; set; }
     public DbSet<GenerationDailyPhotoLog> GenerationDailyPhotoLogs { get; set; }

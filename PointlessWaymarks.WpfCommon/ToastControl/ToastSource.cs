@@ -5,29 +5,19 @@ using PointlessWaymarks.LlamaAspects;
 namespace PointlessWaymarks.WpfCommon.ToastControl;
 
 [NotifyPropertyChanged]
-public partial class ToastSource
+public partial class ToastSource(Dispatcher dispatcher)
 {
     public const int UnlimitedNotifications = -1;
     public static readonly TimeSpan NeverEndingNotification = TimeSpan.MaxValue;
-    private readonly DispatcherTimer _timer;
-
-    public ToastSource(Dispatcher dispatcher)
+    private readonly DispatcherTimer _timer = new(DispatcherPriority.Normal, dispatcher)
     {
-        NotificationMessages = new ObservableCollection<ToastContext>();
-
-        MaximumNotificationCount = 5;
-        NotificationLifeTime = TimeSpan.FromSeconds(6);
-
-        _timer = new DispatcherTimer(DispatcherPriority.Normal, dispatcher)
-        {
-            Interval = TimeSpan.FromMilliseconds(200)
-        };
-    }
+        Interval = TimeSpan.FromMilliseconds(200)
+    };
 
     public bool IsOpen { get; set; }
-    public int MaximumNotificationCount { get; set; }
-    public TimeSpan NotificationLifeTime { get; set; }
-    public ObservableCollection<ToastContext> NotificationMessages { get; }
+    public int MaximumNotificationCount { get; set; } = 5;
+    public TimeSpan NotificationLifeTime { get; set; } = TimeSpan.FromSeconds(6);
+    public ObservableCollection<ToastContext> NotificationMessages { get; } = new();
 
     public void Hide(Guid id)
     {

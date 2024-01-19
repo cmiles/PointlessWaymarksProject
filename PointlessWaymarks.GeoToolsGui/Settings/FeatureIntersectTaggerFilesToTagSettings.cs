@@ -4,18 +4,11 @@ using PointlessWaymarks.WpfCommon.FileList;
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public class FeatureIntersectTaggerFilesToTagSettings : IFileListSettings
+public class FeatureIntersectTaggerFilesToTagSettings(FeatureIntersectTaggerContext context) : IFileListSettings
 {
-    private readonly FeatureIntersectTaggerContext _context;
-
-    public FeatureIntersectTaggerFilesToTagSettings(FeatureIntersectTaggerContext context)
-    {
-        _context = context;
-    }
-
     public Task<DirectoryInfo?> GetLastDirectory()
     {
-        var lastDirectory = _context.Settings.FilesToTagLastDirectoryFullName;
+        var lastDirectory = context.Settings.FilesToTagLastDirectoryFullName;
 
         if (string.IsNullOrWhiteSpace(lastDirectory)) return Task.FromResult<DirectoryInfo?>(null);
 
@@ -28,7 +21,7 @@ public class FeatureIntersectTaggerFilesToTagSettings : IFileListSettings
 
     public Task SetLastDirectory(string newDirectory)
     {
-        _context.Settings.FilesToTagLastDirectoryFullName = newDirectory;
+        context.Settings.FilesToTagLastDirectoryFullName = newDirectory;
         return Task.CompletedTask;
     }
 }

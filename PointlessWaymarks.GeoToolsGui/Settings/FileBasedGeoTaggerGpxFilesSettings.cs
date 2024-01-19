@@ -4,18 +4,11 @@ using PointlessWaymarks.WpfCommon.FileList;
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
-public class FileBasedGeoTaggerGpxFilesSettings : IFileListSettings
+public class FileBasedGeoTaggerGpxFilesSettings(FileBasedGeoTaggerContext context) : IFileListSettings
 {
-    private readonly FileBasedGeoTaggerContext _context;
-
-    public FileBasedGeoTaggerGpxFilesSettings(FileBasedGeoTaggerContext context)
-    {
-        _context = context;
-    }
-
     public Task<DirectoryInfo?> GetLastDirectory()
     {
-        var lastDirectory = _context.Settings.GpxLastDirectoryFullName;
+        var lastDirectory = context.Settings.GpxLastDirectoryFullName;
 
         if (string.IsNullOrWhiteSpace(lastDirectory)) return Task.FromResult<DirectoryInfo?>(null);
 
@@ -28,7 +21,7 @@ public class FileBasedGeoTaggerGpxFilesSettings : IFileListSettings
 
     public Task SetLastDirectory(string newDirectory)
     {
-        _context.Settings.GpxLastDirectoryFullName = newDirectory;
+        context.Settings.GpxLastDirectoryFullName = newDirectory;
         return Task.CompletedTask;
     }
 }

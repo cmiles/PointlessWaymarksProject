@@ -1,17 +1,10 @@
 namespace PointlessWaymarks.CommonTools.S3;
 
-public class S3StandardMetadata
+public class S3StandardMetadata(string lastWriteTime, string fileSystemHash, long fileSize)
 {
-    public S3StandardMetadata(string lastWriteTime, string fileSystemHash, long fileSize)
-    {
-        LastWriteTime = lastWriteTime;
-        FileSystemHash = fileSystemHash;
-        FileSize = fileSize;
-    }
+    public long FileSize { get; init; } = fileSize;
 
-    public long FileSize { get; init; }
+    public string FileSystemHash { get; init; } = fileSystemHash;
 
-    public string FileSystemHash { get; init; }
-
-    public string LastWriteTime { get; init; }
+    public string LastWriteTime { get; init; } = lastWriteTime;
 }

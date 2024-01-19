@@ -8,17 +8,9 @@ namespace PointlessWaymarks.GeoTaggingService;
 ///     if needed. This Service IS NOT intended for situations where this routine is pulling files while edits
 ///     are being made to the files.
 /// </summary>
-public class DirectoryGpxService : IGpxService
+public class DirectoryGpxService(string directoryWithGpxFiles, bool includeSubdirectories) : IGpxService
 {
-    private readonly string _directoryWithGpxFiles;
-    private readonly bool _includeSubdirectories;
     private List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> _gpxFiles = new();
-
-    public DirectoryGpxService(string directoryWithGpxFiles, bool includeSubdirectories)
-    {
-        _directoryWithGpxFiles = directoryWithGpxFiles;
-        _includeSubdirectories = includeSubdirectories;
-    }
 
     public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
         IProgress<string>? progress)
@@ -61,11 +53,11 @@ public class DirectoryGpxService : IGpxService
 
     public async Task ScanGpxFiles(IProgress<string>? progress)
     {
-        var gpxDirectory = new DirectoryInfo(_directoryWithGpxFiles);
+        var gpxDirectory = new DirectoryInfo(directoryWithGpxFiles);
 
         if (!gpxDirectory.Exists)
         {
-            progress?.Report($"Directory Gpx Service - {_directoryWithGpxFiles} not found - nothing returned...");
+            progress?.Report($"Directory Gpx Service - {directoryWithGpxFiles} not found - nothing returned...");
             _gpxFiles = new List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)>();
             return;
         }
@@ -75,7 +67,7 @@ public class DirectoryGpxService : IGpxService
         var gpxFiles = gpxDirectory.EnumerateFiles("*.gpx",
             new EnumerationOptions
             {
-                RecurseSubdirectories = _includeSubdirectories, MatchCasing = MatchCasing.CaseInsensitive,
+                RecurseSubdirectories = includeSubdirectories, MatchCasing = MatchCasing.CaseInsensitive,
                 IgnoreInaccessible = true
             }).ToList();
 
@@ -152,12 +144,12 @@ public class DirectoryGpxService : IGpxService
             return;
         }
 
-        var gpxDirectory = new DirectoryInfo(_directoryWithGpxFiles);
+        var gpxDirectory = new DirectoryInfo(directoryWithGpxFiles);
 
         var countOfGpxFiles = gpxDirectory.EnumerateFiles("*.gpx",
             new EnumerationOptions
             {
-                RecurseSubdirectories = _includeSubdirectories,
+                RecurseSubdirectories = includeSubdirectories,
                 MatchCasing = MatchCasing.CaseInsensitive,
                 IgnoreInaccessible = true
             }).Count();

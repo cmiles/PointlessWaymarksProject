@@ -4,12 +4,7 @@ public struct Warning
 {
 }
 
-public struct Warning<T>
+public struct Warning<T>(T value)
 {
-    public Warning(T value)
-    {
-        Value = value;
-    }
-
-    public T Value { get; }
+    public T Value { get; } = value;
 }

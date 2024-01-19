@@ -2,15 +2,9 @@
 
 namespace PointlessWaymarks.GeoTaggingService;
 
-public class FileListGpxService : IGpxService
+public class FileListGpxService(List<FileInfo> listOfGpxFiles) : IGpxService
 {
-    private readonly List<FileInfo> _listOfGpxFiles;
     private List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)>? _gpxFiles;
-
-    public FileListGpxService(List<FileInfo> listOfGpxFiles)
-    {
-        _listOfGpxFiles = listOfGpxFiles;
-    }
 
     public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
         IProgress<string>? progress)
@@ -61,13 +55,13 @@ public class FileListGpxService : IGpxService
 
     public async Task ScanFiles(IProgress<string>? progress)
     {
-        if (!_listOfGpxFiles.Any())
+        if (!listOfGpxFiles.Any())
         {
             progress?.Report("No GPX files?");
             _gpxFiles = new List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)>();
         }
 
-        var filesNotPresent = _listOfGpxFiles.Where(x =>
+        var filesNotPresent = listOfGpxFiles.Where(x =>
         {
             x.Refresh();
             return x.Exists;
@@ -81,7 +75,7 @@ public class FileListGpxService : IGpxService
 
         var counter = 0;
 
-        var existingGpxFiles = _listOfGpxFiles.Where(x => x.Exists).ToList();
+        var existingGpxFiles = listOfGpxFiles.Where(x => x.Exists).ToList();
 
         foreach (var loopGpx in existingGpxFiles)
         {

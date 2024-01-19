@@ -1,13 +1,7 @@
 ﻿namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 
-public class PointLatitudeLongitudeChange : EventArgs
+public class PointLatitudeLongitudeChange(double latitude, double longitude) : EventArgs
 {
-    public PointLatitudeLongitudeChange(double latitude, double longitude)
-    {
-        Latitude = latitude;
-        Longitude = longitude;
-    }
-
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
+    public double Latitude { get; set; } = latitude;
+    public double Longitude { get; set; } = longitude;
 }
