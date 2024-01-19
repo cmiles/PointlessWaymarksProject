@@ -179,7 +179,7 @@ async function singleLineElevationChartInit(chartCanvas, contentId) {
 async function singleLineChartInitFromLineData(chartCanvas, lineData) {
 
     //This code is to help give the charts a slight bit more cross chart comparability - so the
-    //charts will alway end on a multiple of 5 miles and 5,000' of elevation. This is a compromise
+    //charts will always end on a multiple of 5 miles and 5,000' of elevation. This is a compromise
     //because the chart won't fill all available space (show max detail) and charts won't always
     //have the same scale, but having worked with this data for years I think this is a very simple
     //compromise that often works out nicely...

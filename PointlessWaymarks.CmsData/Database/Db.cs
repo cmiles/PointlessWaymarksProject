@@ -206,6 +206,7 @@ public static class Db
     /// </summary>
     /// <param name="db"></param>
     /// <param name="contentIds"></param>
+    /// <param name="pointsAsDtos"></param>
     /// <returns></returns>
     public static async Task<List<dynamic>> ContentFromContentIds(this PointlessWaymarksContext db,
         List<Guid> contentIds, bool pointsAsDtos = true)

@@ -108,7 +108,7 @@ public static class LineData
                 }
                 catch (Exception e)
                 {
-                    Log.Debug("Ignored Temporary File Delete Exception in {methodName}", nameof(WriteGpxData));
+                    Log.ForContext("exception", e.ToString()).Debug("Ignored Temporary File Delete Exception in {methodName}", nameof(WriteGpxData));
                 }
 
                 return;
