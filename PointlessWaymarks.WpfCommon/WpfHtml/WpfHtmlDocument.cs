@@ -8,15 +8,17 @@ namespace PointlessWaymarks.WpfCommon.WpfHtml;
 
 public static class WpfHtmlDocument
 {
-    public static List<(string fileName, string content)> CmsLeafletMapHtmlAndJs(string title, double initialLatitude,
-        double initialLongitude, string cssStyleBlock)
+    public static FileBuilder CmsLeafletMapHtmlAndJs(string title, double initialLatitude,
+        double initialLongitude, string styleBlock = "", string javascript = "")
     {
         var htmlString = $"""
                           <!doctype html>
                           <html lang=en>
                           <head>
-                              {LeafletStandardHeaderContent(title, cssStyleBlock)}
+                              {LeafletStandardHeaderContent(title)}
                               <script src="https://[[VirtualDomain]]/CmsLeafletMap.js"></script>
+                              {(string.IsNullOrWhiteSpace(styleBlock) ? string.Empty : """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""" )}
+                              {(string.IsNullOrWhiteSpace(javascript) ? string.Empty: """<script src="https://[[VirtualDomain]]/customScript.js"></script>""" )}
                           </head>
                           <body onload="initialMapLoad();">
                                <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
@@ -25,9 +27,14 @@ public static class WpfHtmlDocument
                           </html>
                           """;
 
-        var javascriptString = LeafletMapJs(initialLatitude, initialLongitude);
-
-        return [("Index.html", htmlString), ("CmsLeafletMap.js", javascriptString)];
+        var initialWebFilesMessage = new FileBuilder();
+        
+        if (!string.IsNullOrWhiteSpace(styleBlock)) initialWebFilesMessage.Create.Add(("customStyle.css", styleBlock));
+        if (!string.IsNullOrWhiteSpace(javascript)) initialWebFilesMessage.Create.Add(("customScript.js", javascript));
+        initialWebFilesMessage.Create.Add(("CmsLeafletMap.js", LeafletMapJs(initialLatitude, initialLongitude)));
+        initialWebFilesMessage.Create.Add(("Index.html",htmlString));
+        
+        return initialWebFilesMessage;
     }
 
     public static List<LeafletLayerEntry> LeafletLayerList()
@@ -98,9 +105,22 @@ public static class WpfHtmlDocument
                             return newStyle;
                         }
 
-                        function onEachMapGeoJsonFeature(feature, layer) {
-                            if (feature.properties && feature.properties.title) {
-                                layer.bindPopup(feature.properties.title);
+                         function onEachMapGeoJsonFeature(feature, layer) {
+                        
+                            if (feature.properties && (feature.properties.title || feature.properties.description)) {
+                                let popupHtml = "";
+                        
+                                if (feature.properties.title) {
+                                    popupHtml += feature.properties.title;
+                                }
+                        
+                                if (feature.properties.description) {
+                                    popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
+                                }
+                        
+                                layer.on('click', function (e) {
+                                    console.log(e);
+                                    window.chrome.webview.postMessage({ "messageType": "featureClicked", "data": e.target.feature.properties }); });
                             }
                         }
 
@@ -133,7 +153,7 @@ public static class WpfHtmlDocument
                                 let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle});
                                 mapLayers.push(newLayer);
                                 map.addLayer(newLayer); });
-                        };
+                        }
 
                         function initialMapLoad() {
                         
@@ -211,6 +231,7 @@ public static class WpfHtmlDocument
                               }
                           });
                           
+                          console.log('scriptFinished');
                           window.chrome.webview.postMessage( { "messageType": "scriptFinished" } );
                         }
                         """;
@@ -218,31 +239,23 @@ public static class WpfHtmlDocument
         return htmlDoc;
     }
 
-    public static string LeafletStandardHeaderContent(string title, string styleBlock)
+    public static string LeafletStandardHeaderContent(string title)
     {
         return $"""
-
-                <!doctype html>
-                <html lang=en>
-                <head>
                     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>{HtmlEncoder.Default.Encode(title)}</title>
                     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
                     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-                    <style>{styleBlock}</style>
-                </head>
                 """;
     }
 
     public static void SetupCmsLeafletMapHtmlAndJs(this IWebViewMessenger messenger, string title,
-        double initialLatitude, double initialLongitude, string cssStyleBlock = "")
+        double initialLatitude, double initialLongitude, string cssStyleBlock = "", string javascript = "")
     {
-        var initialWebFilesMessage = new FileBuilder();
-
-        initialWebFilesMessage.Create.AddRange(CmsLeafletMapHtmlAndJs(title,
-            initialLatitude, initialLongitude, cssStyleBlock));
+        var initialWebFilesMessage = CmsLeafletMapHtmlAndJs(title,
+            initialLatitude, initialLongitude, cssStyleBlock, javascript);
 
         messenger.ToWebView.Enqueue(initialWebFilesMessage);
 
@@ -263,10 +276,9 @@ public static class WpfHtmlDocument
                             <meta name="viewport" content="width=device-width, initial-scale=1.0">
                             <meta charset="utf-8">
                             <title>{{HtmlEncoder.Default.Encode(title)}}</title>
-                            <link rel="stylesheet" href="https://[[VirtualDomain]]/pure.css" />
-                            {{(string.IsNullOrWhiteSpace(styleBlock) ? """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""" : string.Empty)}}
-                            {{(string.IsNullOrWhiteSpace(javascript) ? """<script src="https://[[VirtualDomain]]/customScript.js"></script>""" : string.Empty)}}
-                            <style>{{styleBlock}}</style>
+                            <link rel="stylesheet" href="https://[[VirtualDomain]]/minimal.css" />
+                            {{(string.IsNullOrWhiteSpace(styleBlock) ? string.Empty :  """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""")}}
+                            {{(string.IsNullOrWhiteSpace(javascript) ? string.Empty :  """<script src="https://[[VirtualDomain]]/customScript.js"></script>""")}}
                         </head>
                         <body>
                             {{body}}
@@ -279,9 +291,10 @@ public static class WpfHtmlDocument
 
         var initialWebFilesMessage = new FileBuilder();
 
-        initialWebFilesMessage.Create.Add(("Index.html", htmlDoc));
-        if (!string.IsNullOrWhiteSpace(minimalCss)) initialWebFilesMessage.Create.Add(("pure.css", minimalCss));
+        if (!string.IsNullOrWhiteSpace(minimalCss)) initialWebFilesMessage.Create.Add(("minimal.css", minimalCss));
+        if (!string.IsNullOrWhiteSpace(styleBlock)) initialWebFilesMessage.Create.Add(("customStyle.js", htmlDoc));
         if (!string.IsNullOrWhiteSpace(javascript)) initialWebFilesMessage.Create.Add(("customScript.js", htmlDoc));
+        initialWebFilesMessage.Create.Add(("Index.html", htmlDoc));
 
         messenger.ToWebView.Enqueue(initialWebFilesMessage);
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
@@ -302,9 +315,8 @@ public static class WpfHtmlDocument
                             <meta charset="utf-8">
                             <title>{{HtmlEncoder.Default.Encode(title)}}</title>
                             <link rel="stylesheet" href="https://[[VirtualDomain]]/pure.css" />
-                            {{(string.IsNullOrWhiteSpace(styleBlock) ? """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""" : string.Empty)}}
-                            {{(string.IsNullOrWhiteSpace(javascript) ? """<script src="https://[[VirtualDomain]]/customScript.js"></script>""" : string.Empty)}}
-                            <style>{{styleBlock}}</style>
+                            {{(string.IsNullOrWhiteSpace(styleBlock) ? string.Empty : """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""")}}
+                            {{(string.IsNullOrWhiteSpace(javascript) ? string.Empty : """<script src="https://[[VirtualDomain]]/customScript.js"></script>""" )}}
                         </head>
                         <body>
                             {{body}}
@@ -317,9 +329,10 @@ public static class WpfHtmlDocument
 
         var initialWebFilesMessage = new FileBuilder();
 
-        initialWebFilesMessage.Create.Add(("Index.html", htmlDoc));
         if (!string.IsNullOrWhiteSpace(pureCss)) initialWebFilesMessage.Create.Add(("pure.css", pureCss));
-        if (!string.IsNullOrWhiteSpace(javascript)) initialWebFilesMessage.Create.Add(("customScript.js", htmlDoc));
+        if (!string.IsNullOrWhiteSpace(javascript)) initialWebFilesMessage.Create.Add(("customStyle.js", styleBlock));
+        if (!string.IsNullOrWhiteSpace(javascript)) initialWebFilesMessage.Create.Add(("customScript.js", javascript));
+        initialWebFilesMessage.Create.Add(("Index.html", htmlDoc));
 
         messenger.ToWebView.Enqueue(initialWebFilesMessage);
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));

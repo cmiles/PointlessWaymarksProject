@@ -241,11 +241,17 @@ public partial class ConnectBasedGeoTaggerContext
         {
             var features = new FeatureCollection();
 
-            foreach (var loopResults in resultsWithLocation)
+            var locationGroupedList = resultsWithLocation.GroupBy(x => new { x.Latitude, x.Longitude }).ToList();
+            
+            foreach (var loopResults in locationGroupedList)
+            {
+                var sources = loopResults.GroupBy(x => x.Source).SelectMany(x => x.Select(y => y.Source)).Distinct().ToList();
+                
                 features.Add(new Feature(
-                    PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
+                    PointTools.Wgs84Point(loopResults.Key.Longitude!.Value, loopResults.Key.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
-                        { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
+                        { { "title", $"From {string.Join(", ", sources)}" }, { "description", string.Join("<br>", loopResults.Select(x => x.FileName)) } })));
+            }
 
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 
@@ -478,13 +484,15 @@ public partial class ConnectBasedGeoTaggerContext
     [BlockingCommand]
     public async Task WriteResultsToFile()
     {
-        Debug.Assert(Settings != null, nameof(GeoToolsGui.Settings) + " != null");
         await ConnectBasedGeoTaggerSettingTools.WriteSettings(Settings);
 
+        if (PreviewResults == null)
+        {
+            StatusContext.ToastError("No Results to Write?");
+            return;
+        }
+        
         var tagger = new GeoTag();
-
-        Debug.Assert(PreviewResults != null, nameof(PreviewResults) + " != null");
-        Debug.Assert(Settings != null, nameof(GeoToolsGui.Settings) + " != null");
 
         WriteToFileResults = await tagger.WriteGeoTagActions(
             PreviewResults.FileResults.Where(x => x.ShouldWriteMetadata).ToList(),
@@ -501,11 +509,17 @@ public partial class ConnectBasedGeoTaggerContext
         {
             var features = new FeatureCollection();
 
-            foreach (var loopResults in writtenResults)
+            var locationGroupedList = writtenResults.GroupBy(x => new { x.Latitude, x.Longitude }).ToList();
+            
+            foreach (var loopResults in locationGroupedList)
+            {
+                var sources = loopResults.GroupBy(x => x.Source).SelectMany(x => x.Select(y => y.Source)).Distinct().ToList();
+                
                 features.Add(new Feature(
-                    PointTools.Wgs84Point(loopResults.Longitude!.Value, loopResults.Latitude!.Value),
+                    PointTools.Wgs84Point(loopResults.Key.Longitude!.Value, loopResults.Key.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
-                        { { "title", loopResults.FileName }, { "description", $"From {loopResults.Source}" } })));
+                        { { "title", $"From {string.Join(", ", sources)}" }, { "description", string.Join("<br>", loopResults.Select(x => x.FileName)) } })));
+            }
 
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
 

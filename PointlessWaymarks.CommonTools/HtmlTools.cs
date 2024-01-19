@@ -33,7 +33,10 @@ public static class HtmlTools
                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
                            <meta charset="utf-8">
                            <title>{HtmlEncoder.Default.Encode(title)}</title>
-                           <style>{pureCss}{styleBlock}</style>
+                           <style>
+                            {pureCss}
+                            {styleBlock}
+                            </style>
                        </head>
                        <body>
                            {body}
@@ -71,7 +74,10 @@ public static class HtmlTools
                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
                            <meta charset="utf-8">
                            <title>{HtmlEncoder.Default.Encode(title)}</title>
-                           <style>{minimalCss}{styleBlock}</style>
+                           <style>
+                            {minimalCss}
+                            {styleBlock}
+                            </style>
                        </head>
                        <body>
                            {body}

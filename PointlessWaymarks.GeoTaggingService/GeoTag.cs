@@ -58,7 +58,7 @@ public class GeoTag
         if (notSupportedFiles.Any())
         {
             var notSupportedFileExtensions = string.Join(", ",
-                supportedFiles.Select(x => x.Extension.ToUpperInvariant()).Distinct().OrderBy(x => x));
+                notSupportedFiles.Select(x => x.Extension.ToUpperInvariant()).Distinct().OrderBy(x => x));
 
             progress.Report(
                 $"GeoTag - Found {notSupportedFiles.Count} with extensions that are not supported");
