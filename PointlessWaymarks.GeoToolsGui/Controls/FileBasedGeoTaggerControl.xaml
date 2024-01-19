@@ -10,9 +10,17 @@
              xmlns:fileList="clr-namespace:PointlessWaymarks.WpfCommon.FileList;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.GeoToolsGui.Controls"
              xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance controls:FileBasedGeoTaggerContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/WpfCommonResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <TabControl SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             <TabItem Header="GPX Files">
@@ -76,15 +84,17 @@
                                             </Grid.ColumnDefinitions>
                                             <Label FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</Label>
                                             <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
-                                                     Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" />
+                                                     Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
+                                                     HorizontalAlignment="Left" />
                                             <TextBlock Grid.Column="2"
                                                        Visibility="{Binding ExifToolExists, Converter={StaticResource BooleanNotToVisibility}}"
-                                                       FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
+                                                       FontWeight="Bold" Foreground="Red" FontSize="20"
+                                                       VerticalAlignment="Center"
                                                        Margin="8,0,8,0" ToolTip="ExifTool.exe Does Not Exist?">
                                                 !
                                             </TextBlock>
                                         </Grid>
-                                        <Button Command="{Binding ChooseExifFileCommand}" Margin="16,8,4,8" Width="240" >Choose File</Button>
+                                        <Button Command="{Binding ChooseExifFileCommand}" Margin="16,8,4,8" Width="240">Choose File</Button>
                                         <TextBlock TextWrapping="Wrap" Margin="4">This program can write to a wider variety of file formats by using Phil Harvey's ExifTool - https://exiftool.org/. The recommended version of the program can be downloaded from https://oliverbetz.de/pages/Artikel/ExifTool-for-Windows - you must provide the full path and filename above for the program to use ExifTool.</TextBlock>
                                     </StackPanel>
                                 </GroupBox>
@@ -172,6 +182,17 @@
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
                                   CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
                             <DataGrid.Columns>
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Image ToolTip="{Binding Notes}"
+                                                   Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                                   Visibility="{Binding ShouldWriteMetadata, Converter={StaticResource BooleanNotToHidden}}"
+                                                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                            </Image>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
                                 <DataGridTextColumn Header="Will Write" Binding="{Binding ShouldWriteMetadata}" />
                                 <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
@@ -186,7 +207,8 @@
                         <wpf:WebView2 Grid.Row="2"
                                       Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
-                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding PreviewMap}" />
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
+                                    WebViewMessenger="{Binding PreviewMap}" />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>
                     </Grid>
@@ -222,7 +244,8 @@
                         <wpf:WebView2 Grid.Row="2"
                                       Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
-                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding WriteMap}" />
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
+                                    WebViewMessenger="{Binding WriteMap}" />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>
                     </Grid>

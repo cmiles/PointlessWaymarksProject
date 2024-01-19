@@ -10,9 +10,17 @@
              xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance controls:ConnectBasedGeoTaggerContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/WpfCommonResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <TabControl SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             <TabItem Header="Files To Tag">
@@ -59,8 +67,8 @@
                             </StackPanel>
                             <StackPanel Grid.Row="2" Margin="16,8,4,8" Orientation="Horizontal">
                                 <Button Width="240" Command="{Binding EnterGarminCredentialsCommand}">Enter Garmin Credentials</Button>
-                                <Button  Width="240" Margin="8,0,4,0"
-                                         Command="{Binding RemoveAllGarminCredentialsCommand}">
+                                <Button Width="240" Margin="8,0,4,0"
+                                        Command="{Binding RemoveAllGarminCredentialsCommand}">
                                     Delete All Garmin Credentials
                                 </Button>
                             </StackPanel>
@@ -74,7 +82,7 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <TextBlock Margin="4" TextWrapping="Wrap">Garmin Activities are cached to disk for local use and for later reference - an archive directory must be provided for this program to use.</TextBlock>
-                            <StackPanel Grid.Row="1" Orientation="Horizontal"  Margin="4,12,4,12">
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="4,12,4,12">
                                 <Label FontWeight="Bold" VerticalAlignment="Center" Target="ArchiveDirectoryTextBox">Archive Directory:</Label>
                                 <TextBox VerticalAlignment="Center" Margin="8,0,0,0" MinWidth="240"
                                          Name="ArchiveDirectoryTextBox" BorderThickness="1"
@@ -93,7 +101,8 @@
                             </StackPanel>
                         </Grid>
                     </GroupBox>
-                    <Button Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="240" Margin="0,8,12,0"
+                    <Button Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="240"
+                            Margin="0,8,12,0"
                             Command="{Binding NextTabCommand}">
                         Next - Settings ->
                     </Button>
@@ -118,11 +127,13 @@
                                             </Grid.ColumnDefinitions>
                                             <Label FontWeight="Bold" VerticalAlignment="Center">Path and Filename:</Label>
                                             <TextBox Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center"
-                                                     Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" />
+                                                     Text="{Binding Settings.ExifToolFullName, UpdateSourceTrigger=PropertyChanged}"
+                                                     HorizontalAlignment="Left" />
                                             <TextBlock Grid.Column="2"
-                                                Visibility="{Binding ExifToolExists, Converter={StaticResource BooleanNotToVisibility}}"
-                                                FontWeight="Bold" Foreground="Red" FontSize="20" VerticalAlignment="Center"
-                                                Margin="8,0,8,0" ToolTip="ExifTool.exe Does Not Exist?">
+                                                       Visibility="{Binding ExifToolExists, Converter={StaticResource BooleanNotToVisibility}}"
+                                                       FontWeight="Bold" Foreground="Red" FontSize="20"
+                                                       VerticalAlignment="Center"
+                                                       Margin="8,0,8,0" ToolTip="ExifTool.exe Does Not Exist?">
                                                 !
                                             </TextBlock>
                                         </Grid>
@@ -214,6 +225,17 @@
                                   CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="false"
                                   CanUserSortColumns="true" AutoGenerateColumns="false" FrozenColumnCount="1">
                             <DataGrid.Columns>
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Image ToolTip="{Binding Notes}"
+                                                   Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                                   Visibility="{Binding ShouldWriteMetadata, Converter={StaticResource BooleanNotToHidden}}"
+                                                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                            </Image>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" />
                                 <DataGridTextColumn Header="Will Write" Binding="{Binding ShouldWriteMetadata}" />
                                 <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" />
@@ -228,7 +250,8 @@
                         <wpf:WebView2 Grid.Row="2"
                                       Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
-                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding PreviewMap}" />
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
+                                    WebViewMessenger="{Binding PreviewMap}" />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>
                     </Grid>
@@ -264,7 +287,8 @@
                         <wpf:WebView2 Grid.Row="2"
                                       Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
-                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding WriteMap}" />
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
+                                    WebViewMessenger="{Binding WriteMap}" />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>
                     </Grid>

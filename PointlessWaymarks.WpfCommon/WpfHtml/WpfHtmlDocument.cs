@@ -117,6 +117,8 @@ public static class WpfHtmlDocument
                                 if (feature.properties.description) {
                                     popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
                                 }
+                                
+                                if(popupHtml !== "") layer.bindPopup(popupHtml, { autoClose: true });
                         
                                 layer.on('click', function (e) {
                                     console.log(e);

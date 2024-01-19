@@ -144,15 +144,19 @@ public partial class FileBasedGeoTaggerContext
             var features = new FeatureCollection();
 
             var locationGroupedList = pointsToWrite.GroupBy(x => new { x.Latitude, x.Longitude }).ToList();
-            
+
             foreach (var loopResults in locationGroupedList)
             {
-                var sources = loopResults.GroupBy(x => x.Source).SelectMany(x => x.Select(y => y.Source)).Distinct().ToList();
-                
+                var sources = loopResults.GroupBy(x => x.Source).SelectMany(x => x.Select(y => y.Source)).Distinct()
+                    .ToList();
+
                 features.Add(new Feature(
                     PointTools.Wgs84Point(loopResults.Key.Longitude!.Value, loopResults.Key.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
-                        { { "title", $"From {string.Join(", ", sources)}" }, { "description", string.Join("<br>", loopResults.Select(x => x.FileName)) } })));
+                    {
+                        { "title", $"From {string.Join(", ", sources)}" },
+                        { "description", string.Join("<br>", loopResults.Select(x => x.FileName)) }
+                    })));
             }
 
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
@@ -168,7 +172,10 @@ public partial class FileBasedGeoTaggerContext
 
     public async Task Load()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         Settings = await FileBasedGeoTaggerSettingTools.ReadSettings();
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
 
         FilesToTagSettings = new FileBasedGeoTaggerFilesToTagSettings(this);
         GpxFilesSettings = new FileBasedGeoTaggerGpxFilesSettings(this);
@@ -400,15 +407,19 @@ public partial class FileBasedGeoTaggerContext
             var features = new FeatureCollection();
 
             var locationGroupedList = writtenResults.GroupBy(x => new { x.Latitude, x.Longitude }).ToList();
-            
+
             foreach (var loopResults in locationGroupedList)
             {
-                var sources = loopResults.GroupBy(x => x.Source).SelectMany(x => x.Select(y => y.Source)).Distinct().ToList();
-                
+                var sources = loopResults.GroupBy(x => x.Source).SelectMany(x => x.Select(y => y.Source)).Distinct()
+                    .ToList();
+
                 features.Add(new Feature(
                     PointTools.Wgs84Point(loopResults.Key.Longitude!.Value, loopResults.Key.Latitude!.Value),
                     new AttributesTable(new Dictionary<string, object>
-                        { { "title", $"From {string.Join(", ", sources)}" }, { "description", string.Join("<br>", loopResults.Select(x => x.FileName)) } })));
+                    {
+                        { "title", $"From {string.Join(", ", sources)}" },
+                        { "description", string.Join("<br>", loopResults.Select(x => x.FileName)) }
+                    })));
             }
 
             var bounds = GeoJsonTools.GeometryBoundingBox(features.Select(x => x.Geometry).ToList());
