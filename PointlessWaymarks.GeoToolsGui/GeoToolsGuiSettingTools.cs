@@ -12,15 +12,14 @@ public static class GeoToolsGuiSettingTools
             "SiteViewerGuiSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 
-        if (!settingsFile.Exists)
-        {
-            File.WriteAllText(settingsFile.FullName, JsonSerializer.Serialize(new GeoToolsGuiSettings()));
+        if (settingsFile.Exists)
+            return JsonSerializer.Deserialize<GeoToolsGuiSettings>(FileAndFolderTools.ReadAllText(settingsFileName)) ??
+                   new GeoToolsGuiSettings();
+        
+        File.WriteAllText(settingsFile.FullName, JsonSerializer.Serialize(new GeoToolsGuiSettings()));
 
-            return new GeoToolsGuiSettings();
-        }
+        return new GeoToolsGuiSettings();
 
-        return JsonSerializer.Deserialize<GeoToolsGuiSettings>(FileAndFolderTools.ReadAllText(settingsFileName)) ??
-               new GeoToolsGuiSettings();
     }
 
     public static async Task WriteSettings(GeoToolsGuiSettings settings)
@@ -34,6 +33,5 @@ public static class GeoToolsGuiSettingTools
         var serializedNewSettings = JsonSerializer.Serialize(settings);
         await using var stream = File.Create(settingsFile.FullName);
         await JsonSerializer.SerializeAsync(stream, serializedNewSettings);
-        await stream.DisposeAsync();
     }
 }

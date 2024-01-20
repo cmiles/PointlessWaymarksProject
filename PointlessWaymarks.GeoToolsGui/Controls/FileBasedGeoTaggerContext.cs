@@ -137,7 +137,7 @@ public partial class FileBasedGeoTaggerContext
 
         var pointsToWrite = PreviewResults.FileResults.Where(x => x.ShouldWriteMetadata).ToList();
 
-        PreviewHasWritablePoints = pointsToWrite.Any();
+        PreviewHasWritablePoints = pointsToWrite.Count != 0;
 
         if (PreviewHasWritablePoints)
         {
@@ -210,7 +210,7 @@ public partial class FileBasedGeoTaggerContext
 
         var frozenSelected = FilesToTagFileList.SelectedFiles.ToList();
 
-        if (!frozenSelected.Any())
+        if (frozenSelected.Count == 0)
         {
             StatusContext.ToastWarning("Nothing Selected?");
             return;
@@ -398,7 +398,7 @@ public partial class FileBasedGeoTaggerContext
 
         var writtenResults = WriteToFileResults.FileResults.Where(x => x.WroteMetadata).ToList();
 
-        if (!writtenResults.Any())
+        if (writtenResults.Count == 0)
         {
             WriteMap.ToWebView.Enqueue(JsonData.CreateRequest(await ResetMapGeoJsonDto()));
         }

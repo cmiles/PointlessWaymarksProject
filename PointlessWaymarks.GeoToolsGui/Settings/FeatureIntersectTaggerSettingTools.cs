@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text.Json;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.GeoToolsGui.Settings;
 
@@ -19,7 +19,7 @@ public static class FeatureIntersectTaggerSettingTools
         {
             var blankSettings = new FeatureIntersectTaggerSettings();
             var serializedSettings =
-                JsonSerializer.Serialize(blankSettings, new JsonSerializerOptions { WriteIndented = true });
+                JsonSerializer.Serialize(blankSettings, JsonTools.WriteIndentedOptions);
             await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings);
             settingsFile.Refresh();
         }
@@ -37,7 +37,7 @@ public static class FeatureIntersectTaggerSettingTools
     public static async Task WriteSettings(FeatureIntersectTaggerSettings setting)
     {
         var settingsFile = await DefaultSettingsFile();
-        var serializedSettings = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
+        var serializedSettings = JsonSerializer.Serialize(setting, JsonTools.WriteIndentedOptions);
         SettingsWriteQueue.Enqueue(async () => await File.WriteAllTextAsync(settingsFile.FullName, serializedSettings));
     }
 }

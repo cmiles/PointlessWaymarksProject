@@ -7,7 +7,6 @@
              xmlns:fileList="clr-namespace:PointlessWaymarks.WpfCommon.FileList;assembly=PointlessWaymarks.WpfCommon"
              xmlns:numericUpDownLib="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
              xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"

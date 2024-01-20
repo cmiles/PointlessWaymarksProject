@@ -13,7 +13,7 @@ public partial class FeatureFileContext
         PropertyChanged += OnPropertyChanged;
     }
 
-    public List<string> AttributesForTags { get; set; } = new();
+    public List<string> AttributesForTags { get; set; } = [];
     public Guid ContentId { get; set; } = Guid.NewGuid();
     public string Downloaded { get; set; } = string.Empty;
     public string FileName { get; set; } = string.Empty;
@@ -22,7 +22,7 @@ public partial class FeatureFileContext
     public string Note { get; set; } = string.Empty;
     public string Source { get; set; } = string.Empty;
     public string TagAll { get; set; } = string.Empty;
-    public List<string> Warnings { get; } = new();
+    public List<string> Warnings { get; } = [];
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -31,7 +31,7 @@ public partial class FeatureFileContext
 
     private void Validate()
     {
-        if (string.IsNullOrEmpty(TagAll) && !AttributesForTags.Any())
+        if (string.IsNullOrEmpty(TagAll) && AttributesForTags.Count == 0)
         {
             HasWarnings = true;
             Warnings.Add("Without a value for Tag All or Attributes for Tags no tags will be produced.");

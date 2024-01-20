@@ -17,7 +17,7 @@ public partial class App
         DispatcherUnhandledException += OnDispatcherUnhandledException;
     }
 
-    public static bool HandleApplicationException(Exception ex)
+    private static bool HandleApplicationException(Exception ex)
     {
         Log.Error(ex, "Application Reached HandleApplicationException thru App_DispatcherUnhandledException");
 
@@ -31,7 +31,7 @@ public partial class App
         return res != MessageBoxResult.No;
     }
 
-    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         if (!HandleApplicationException(e.Exception))
             Environment.Exit(1);

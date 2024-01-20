@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CmsData.Json;
 
@@ -84,7 +85,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -135,7 +136,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -186,7 +187,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -237,7 +238,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -292,7 +293,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -351,7 +352,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dtoToArchive, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dtoToArchive, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -407,7 +408,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dtoToArchive, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dtoToArchive, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -456,7 +457,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -507,7 +508,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -558,7 +559,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, new JsonSerializerOptions { WriteIndented = true });
+        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
