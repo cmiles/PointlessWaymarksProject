@@ -16,20 +16,33 @@ public static class LineData
 {
     public static List<LineElevationPlotDataPoint> GenerateLineElevationDataList(List<CoordinateZ> lineCoordinates)
     {
-        if (!lineCoordinates.Any()) return new List<LineElevationPlotDataPoint>();
+        if (lineCoordinates.Count == 0) return [];
 
-        var returnList = new List<LineElevationPlotDataPoint> { new(0, lineCoordinates[0].Z) };
+        var returnList = new List<LineElevationPlotDataPoint> { new(0, lineCoordinates[0].Z, 0,0, lineCoordinates[0].Y, lineCoordinates[0].X) };
 
         if (lineCoordinates.Count == 1) return returnList;
 
-        var totalDistance = 0D;
+        var accumulatedDistance = 0D;
+        var accumulatedClimb = 0D;
+        var accumulatedDescent = 0D;
 
         for (var i = 1; i < lineCoordinates.Count; i++)
         {
-            totalDistance += DistanceTools.GetDistanceInMeters(lineCoordinates[i - 1].X, lineCoordinates[i - 1].Y,
+            var elevationChange = lineCoordinates[i - 1].Z - lineCoordinates[i].Z;
+            switch (elevationChange)
+            {
+                case > 0:
+                    accumulatedClimb += elevationChange;
+                    break;
+                case < 0:
+                    accumulatedDescent += elevationChange;
+                    break;
+            }
+
+            accumulatedDistance += DistanceTools.GetDistanceInMeters(lineCoordinates[i - 1].X, lineCoordinates[i - 1].Y,
                 lineCoordinates[i].X, lineCoordinates[i].Y);
 
-            returnList.Add(new LineElevationPlotDataPoint(totalDistance, lineCoordinates[i].Z));
+            returnList.Add(new LineElevationPlotDataPoint(accumulatedDistance, lineCoordinates[i].Z, accumulatedClimb, accumulatedDescent, lineCoordinates[i].Y, lineCoordinates[i].X));
         }
 
         return returnList;
@@ -37,7 +50,7 @@ public static class LineData
 
     public static List<LineElevationPlotDataPoint> GenerateLineElevationDataList(LineContent lineContent)
     {
-        if (string.IsNullOrWhiteSpace(lineContent.Line)) return new List<LineElevationPlotDataPoint>();
+        if (string.IsNullOrWhiteSpace(lineContent.Line)) return [];
 
         return GenerateLineElevationDataList(
             LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(lineContent.Line));
@@ -168,7 +181,7 @@ public static class LineData
             .ConfigureAwait(false);
     }
 
-    public record LineElevationPlotDataPoint(double DistanceFromOrigin, double? Elevation);
+    public record LineElevationPlotDataPoint(double AccumulatedDistance, double? Elevation, double AccumulatedClimb, double AccumulatedDescent, double Latitude, double Longitude);
 
     public record LineSiteJsonData(
         string PageUrl,

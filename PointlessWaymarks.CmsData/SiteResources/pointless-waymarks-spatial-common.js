@@ -183,7 +183,8 @@ async function singleLineChartInitFromLineData(chartCanvas, lineData) {
     //because the chart won't fill all available space (show max detail) and charts won't always
     //have the same scale, but having worked with this data for years I think this is a very simple
     //compromise that often works out nicely...
-    const maxDistanceInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.DistanceFromOrigin));
+    const sourceData = lineData;
+    const maxDistanceInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.AccumulatedDistance));
     const distanceFiveMileUnits = Math.floor((maxDistanceInMeters * 0.0006213711922) / 5);
     const distanceMax = (distanceFiveMileUnits + 1) * 5;
 
@@ -195,7 +196,7 @@ async function singleLineChartInitFromLineData(chartCanvas, lineData) {
     //the starting point on this!
 
     const chartData = {
-        labels: lineData.ElevationPlotData.map(x => x.DistanceFromOrigin * 0.0006213711922),
+        labels: lineData.ElevationPlotData.map(x => x.AccumulatedDistance * 0.0006213711922),
         datasets: [{
             data: lineData.ElevationPlotData.map(x => x.Elevation * 3.280839895),
             fill: true,
@@ -234,10 +235,13 @@ async function singleLineChartInitFromLineData(chartCanvas, lineData) {
                     displayColors: false,
                     callbacks: {
                         title: (tooltipItems) => {
-                            return "Distance: " + parseFloat(tooltipItems[0].label).toFixed(2).toLocaleString() + ' miles'
+                            return "Distance: " + parseFloat(tooltipItems[0].label).toFixed(2).toLocaleString() + " miles";
                         },
                         label: (tooltipItem) => {
-                            return "Elevation: " + Math.floor(tooltipItem.raw).toLocaleString() + ' feet'
+                            return ["Elevation: " + Math.floor(tooltipItem.raw).toLocaleString() + " feet",
+                                "Accumulated Climb: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedClimb).toLocaleString(),
+                                "Accumulated Descent: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedDescent).toLocaleString()
+                            ];
                         },
                     }
                 }
