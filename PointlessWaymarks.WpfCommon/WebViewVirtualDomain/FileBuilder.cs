@@ -4,18 +4,17 @@ namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
 public class FileBuilder
 {
-    public List<string> Copy { get; set; } = new();
-    public List<(string filename, string body)> Create { get; set; } = new();
+    public List<FileBuilderCopy> Copy { get; set; } = new();
+    public List<FileBuilderCreate> Create { get; set; } = new();
     public string RequestTag { get; set; } = string.Empty;
-    public bool TryToOverwriteExistingFiles { get; set; }
 
-    public static ToWebViewRequest CreateRequest(List<string> copy,
-        List<(string filename, string body)> create, bool tryToOverwriteExistingFiles,
+    public static ToWebViewRequest CreateRequest(List<FileBuilderCopy> copy,
+        List<FileBuilderCreate> create,
         [CallerMemberName] string requestTag = "None")
     {
         return new ToWebViewRequest(new FileBuilder
         {
-            Copy = copy, Create = create, TryToOverwriteExistingFiles = tryToOverwriteExistingFiles,
+            Copy = copy, Create = create,
             RequestTag = requestTag
         });
     }

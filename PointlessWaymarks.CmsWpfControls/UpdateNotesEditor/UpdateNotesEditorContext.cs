@@ -130,25 +130,17 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
             var processResults =
                 ContentProcessing.ProcessContent(preprocessResults, UpdateNotesFormat.SelectedContentFormat);
 
-            var initialWebFilesMessage = new FileBuilder { TryToOverwriteExistingFiles = true };
-
-            initialWebFilesMessage.Create.AddRange(
-                await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(processResults, "Update Preview",
-                    string.Empty));
-
-            ToWebView.Enqueue(initialWebFilesMessage);
+            ToWebView.Enqueue(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(processResults,
+                "Update Preview",
+                string.Empty));
 
             ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
         }
         catch (Exception e)
         {
-            var initialWebFilesMessage = new FileBuilder();
-
-            initialWebFilesMessage.Create.AddRange(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(
+            ToWebView.Enqueue(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(
                 $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>", "Update Preview",
                 string.Empty));
-
-            ToWebView.Enqueue(initialWebFilesMessage);
 
             ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html"));
         }

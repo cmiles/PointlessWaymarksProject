@@ -29,7 +29,6 @@ using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
-using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 
@@ -53,13 +52,9 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        var initialWebFilesMessage = new FileBuilder();
-
-        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
+        ToWebView.Enqueue(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault));
-
-        ToWebView.Enqueue(initialWebFilesMessage);
 
         ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 

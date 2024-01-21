@@ -46,10 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="leaflet-bing-layer.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />

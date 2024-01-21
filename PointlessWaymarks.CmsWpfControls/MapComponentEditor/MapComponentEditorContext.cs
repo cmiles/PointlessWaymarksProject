@@ -57,13 +57,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        var initialWebFilesMessage = new FileBuilder();
-
-        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
+        ToWebView.Enqueue(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault));
-
-        ToWebView.Enqueue(initialWebFilesMessage);
 
         ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 

@@ -99,4 +99,9 @@
     <Resource Include="Icons\plus-circle.svg" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="WpfHtmlResources\leafletBingLayer.js" />
+    <EmbeddedResource Include="WpfHtmlResources\localMapCommon.js" />
+  </ItemGroup>
+
 </Project>

@@ -60,13 +60,9 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        var initialWebFilesMessage = new FileBuilder();
-
-        initialWebFilesMessage.Create.AddRange(WpfCmsHtmlDocument.CmsLeafletPointChooserMapHtmlAndJs("Map",
+        ToWebView.Enqueue(WpfCmsHtmlDocument.CmsLeafletPointChooserMapHtmlAndJs("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             UserSettingsSingleton.CurrentSettings().LongitudeDefault));
-
-        ToWebView.Enqueue(initialWebFilesMessage);
 
         ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
@@ -347,8 +343,9 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         DisplayedContentGuids =
             DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList,
-            new List<(string filename, string body)>(), false));
+        ToWebView.Enqueue(
+            FileBuilder.CreateRequest(mapInformation.fileCopyList.Select(x => new FileBuilderCopy(x, false)).ToList(),
+                []));
         ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
@@ -468,8 +465,9 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        ToWebView.Enqueue(FileBuilder.CreateRequest(mapInformation.fileCopyList,
-            new List<(string filename, string body)>(), false));
+        ToWebView.Enqueue(
+            FileBuilder.CreateRequest(mapInformation.fileCopyList.Select(x => new FileBuilderCopy(x, false)).ToList(),
+                []));
         ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));

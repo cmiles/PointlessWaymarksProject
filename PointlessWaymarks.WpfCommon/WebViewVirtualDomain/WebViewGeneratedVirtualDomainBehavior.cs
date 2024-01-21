@@ -30,6 +30,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         nameof(RedirectExternalLinksToBrowser),
         typeof(bool), typeof(WebViewGeneratedVirtualDomainBehavior),
         new PropertyMetadata(default(bool)));
+
     // Example Usage in Xaml
     // <b:Interaction.Behaviors>
     //      <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewJsonMessenger="{Binding .}" HtmlString="{Binding MapHtml}" />
@@ -54,8 +55,12 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 
     protected override void OnAttached()
     {
+        var htmlTempDirectory = FileLocationTools.TempStorageHtmlDirectory();
+        if (!File.Exists(Path.Combine(htmlTempDirectory.FullName, "favicon.ico")))
+            File.WriteAllText(Path.Combine(htmlTempDirectory.FullName, "favicon.ico"), HtmlTools.FavIconIco());
+
         _targetDirectory = UniqueFileTools
-            .UniqueRandomLetterNameDirectory(FileLocationTools.TempStorageHtmlDirectory().FullName, 4);
+            .UniqueRandomLetterNameDirectory(htmlTempDirectory.FullName, 4);
 
         _virtualDomain = $"localweb.pointlesswaymarks.com/{_targetDirectory.Name}";
 
@@ -131,21 +136,22 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         Debug.WriteLine(
-            $"{nameof(ProcessToWebViewFileBuilder)} - Tag {fileBuilder.RequestTag} - Create {fileBuilder.Create.Count}, Copy {fileBuilder.Copy.Count}, Overwrite {fileBuilder.TryToOverwriteExistingFiles}");
+            $"{nameof(ProcessToWebViewFileBuilder)} - Tag {fileBuilder.RequestTag} - Create {fileBuilder.Create.Count}, Copy {fileBuilder.Copy.Count}");
 
         foreach (var loopCreate in fileBuilder.Create)
         {
-            var targetFile = Path.Combine(_targetDirectory.FullName, loopCreate.filename);
+            var targetFile = Path.Combine(_targetDirectory.FullName, loopCreate.FileName);
 
             if (!File.Exists(targetFile))
             {
                 await File.WriteAllTextAsync(targetFile,
-                    loopCreate.body.Replace("[[VirtualDomain]]", _virtualDomain, StringComparison.OrdinalIgnoreCase));
+                    loopCreate.Content.Replace("[[VirtualDomain]]", _virtualDomain,
+                        StringComparison.OrdinalIgnoreCase));
                 continue;
             }
 
             //We know the file exists at this point
-            if (!fileBuilder.TryToOverwriteExistingFiles) continue;
+            if (!loopCreate.TryToOverwrite) continue;
 
             try
             {
@@ -160,21 +166,21 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
             }
 
             await File.WriteAllTextAsync(targetFile,
-                loopCreate.body.Replace("[[VirtualDomain]]", _virtualDomain, StringComparison.OrdinalIgnoreCase));
+                loopCreate.Content.Replace("[[VirtualDomain]]", _virtualDomain, StringComparison.OrdinalIgnoreCase));
         }
 
         foreach (var loopCopy in fileBuilder.Copy)
         {
-            var targetFile = Path.Combine(_targetDirectory.FullName, Path.GetFileName(loopCopy));
+            var targetFile = Path.Combine(_targetDirectory.FullName, Path.GetFileName(loopCopy.FileToCopy));
 
             if (!File.Exists(targetFile))
             {
-                File.Copy(loopCopy, targetFile);
+                File.Copy(loopCopy.FileToCopy, targetFile);
                 continue;
             }
 
             //We know the file exists at this point
-            if (!fileBuilder.TryToOverwriteExistingFiles) continue;
+            if (!loopCopy.TryToOverwrite) continue;
 
             try
             {
@@ -188,7 +194,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                     nameof(ProcessToWebViewFileBuilder), targetFile);
             }
 
-            File.Copy(loopCopy, targetFile);
+            File.Copy(loopCopy.FileToCopy, targetFile);
         }
     }
 
