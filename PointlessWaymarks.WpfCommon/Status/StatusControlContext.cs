@@ -12,6 +12,9 @@ namespace PointlessWaymarks.WpfCommon.Status;
 [NotifyPropertyChanged]
 public partial class StatusControlContext
 {
+    private int _countOfRunningBlockingTasks;
+    private int _countOfRunningNonBlockingTasks;
+
     public StatusControlContext()
     {
         ContextDispatcher = Application.Current?.Dispatcher ??
@@ -29,8 +32,6 @@ public partial class StatusControlContext
     public bool BlockUi { get; set; }
     public ObservableCollection<UserCancellations> CancellationList { get; set; }
     public Dispatcher ContextDispatcher { get; set; }
-    public int CountOfRunningBlockingTasks { get; set; }
-    public int CountOfRunningNonBlockingTasks { get; set; }
     public CancellationTokenSource? CurrentFullScreenCancellationSource { get; set; }
     public List<StatusControlMessageButton>? MessageBoxButtonList { get; set; }
     public string? MessageBoxMessage { get; set; }
@@ -101,20 +102,14 @@ public partial class StatusControlContext
 
     private void DecrementBlockingTasks()
     {
-#pragma warning disable MVVMTK0034
-        //Disabling for ref usage
         Interlocked.Decrement(ref _countOfRunningBlockingTasks);
-#pragma warning restore MVVMTK0034
-        BlockUi = CountOfRunningBlockingTasks > 0;
+        BlockUi = _countOfRunningBlockingTasks > 0;
     }
 
     private void DecrementNonBlockingTasks()
     {
-#pragma warning disable MVVMTK0034
-        //Disabling for ref usage
         Interlocked.Decrement(ref _countOfRunningNonBlockingTasks);
-#pragma warning restore MVVMTK0034
-        NonBlockingTaskAreRunning = CountOfRunningNonBlockingTasks > 0;
+        NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
     }
 
     private async void FireAndForgetBlockingTaskCompleted(Task obj)
@@ -194,18 +189,14 @@ public partial class StatusControlContext
 
     private void IncrementBlockingTasks()
     {
-#pragma warning disable MVVMTK0034
         Interlocked.Increment(ref _countOfRunningBlockingTasks);
-#pragma warning restore MVVMTK0034
-        BlockUi = CountOfRunningBlockingTasks > 0;
+        BlockUi = _countOfRunningBlockingTasks > 0;
     }
 
     private void IncrementNonBlockingTasks()
     {
-#pragma warning disable MVVMTK0034
         Interlocked.Increment(ref _countOfRunningNonBlockingTasks);
         NonBlockingTaskAreRunning = _countOfRunningNonBlockingTasks > 0;
-#pragma warning restore MVVMTK0034
     }
 
     private void NonBlockTaskCompleted(Task obj)
@@ -401,7 +392,7 @@ public partial class StatusControlContext
         await ThreadSwitcher.ResumeForegroundAsync();
 
         if (buttons == null || !buttons.Any())
-            buttons = [new() { IsDefault = true, MessageText = "Ok" }];
+            buttons = [new StatusControlMessageButton { IsDefault = true, MessageText = "Ok" }];
 
         if (buttons.All(x => !x.IsDefault) || buttons.Count(x => x.IsDefault) > 1)
         {
