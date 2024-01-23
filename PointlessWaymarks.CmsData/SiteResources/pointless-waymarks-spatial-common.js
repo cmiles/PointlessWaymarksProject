@@ -1,6 +1,10 @@
+let globalLineMaps = [];
+let globalElevationCharts = [];
+let elevationChartLineMarker;
+
 const lazyInit = (elementToObserve, fn) => {
     const observer = new IntersectionObserver((entries) => {
-        if (entries.some(({ isIntersecting }) => isIntersecting)) {
+        if (entries.some(({isIntersecting}) => isIntersecting)) {
             observer.disconnect();
             fn();
         }
@@ -76,6 +80,29 @@ function onEachMapGeoJsonFeature(feature, layer) {
 
         if (popupHtml !== "") layer.bindPopup(popupHtml);
     }
+
+    if (feature.geometry.type === "LineString") {
+        layer.on('click', function (e) {
+            console.log(e);
+            let chartLookup = globalElevationCharts.filter(x => x.contentId === e.target.feature.properties["content-id"]);
+            let chart = chartLookup[0].elevationChart;
+
+            let distanceArray = [];
+            for (let i = 0; i < arrayLPoints.length; i++) {
+                distanceArray.push(e.latlng.distanceTo([arrayLPoints[i][1], arrayLPoints[i][0]]));
+            }
+            let closestPointIndex = distanceArray.indexOf(Math.min.apply(null, distanceArray));
+
+            const tooltip = chart.tooltip;
+
+            const chartArea = chart.chartArea;
+            tooltip.setActiveElements([
+                    {datasetIndex: 0, index: closestPointIndex,}],
+                {x: (chartArea.left + chartArea.right) / 2, y: (chartArea.top + chartArea.bottom) / 2,});
+
+            chart.update();
+        });
+    }
 }
 
 async function singleGeoJsonMapInit(mapElement, contentId) {
@@ -143,12 +170,13 @@ async function singleLineMapInit(mapElement, contentId) {
 
     let lineData = await lineDataResponse.json();
 
-    singleLineMapInitFromLineData(mapElement, lineData);
+    singleLineMapInitFromLineData(contentId, mapElement, lineData);
 }
 
-async function singleLineMapInitFromLineData(mapElement, lineData) {
+async function singleLineMapInitFromLineData(contentId, mapElement, lineData) {
 
     let map = standardMap(mapElement);
+    globalLineMaps.push({"contentId": contentId, "lineMap": map});
 
     map.fitBounds([
         [lineData.Bounds.MinLatitude, lineData.Bounds.MinLongitude],
@@ -173,10 +201,10 @@ async function singleLineElevationChartInit(chartCanvas, contentId) {
 
     if (lineData.ElevationPlotData.length === 0) return;
 
-    singleLineChartInitFromLineData(chartCanvas, lineData);
+    singleLineChartInitFromLineData(contentId, chartCanvas, lineData);
 }
 
-async function singleLineChartInitFromLineData(chartCanvas, lineData) {
+async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData) {
 
     //This code is to help give the charts a slight bit more cross chart comparability - so the
     //charts will always end on a multiple of 5 miles and 5,000' of elevation. This is a compromise
@@ -222,15 +250,15 @@ async function singleLineChartInitFromLineData(chartCanvas, lineData) {
         options: {
             animation: false,
             maintainAspectRatio: false,
-            interaction: { intersect: false, mode: 'index' },
-            tooltip: { position: 'nearest' },
+            interaction: {intersect: false, mode: 'index'},
+            tooltip: {position: 'nearest'},
             scales: {
-                x: { type: 'linear' },
-                y: { type: 'linear' },
+                x: {type: 'linear'},
+                y: {type: 'linear'},
             },
             plugins: {
-                title: { align: "center", display: true, text: "Distance: Miles, Elevation: Feet" },
-                legend: { display: false },
+                title: {align: "center", display: true, text: "Distance: Miles, Elevation: Feet"},
+                legend: {display: false},
                 tooltip: {
                     displayColors: false,
                     callbacks: {
@@ -250,6 +278,30 @@ async function singleLineChartInitFromLineData(chartCanvas, lineData) {
     };
 
     const chart = new Chart(chartCanvas.getContext("2d"), config);
+    globalElevationCharts.push({"contentId": contentId, "elevationChart": chart});
+
+    chart.canvas.onclick = (e) => {
+        const points = chart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
+        if (!points?.length) return;
+        console.log(points);
+        let connectedMap = globalLineMaps.filter(x => x.contentId === contentId);
+        if (!connectedMap?.length) {
+            broadcastProgress("Can't find connected map?")
+        }
+        var location = [lineData.ElevationPlotData[points[0].index].Latitude, lineData.ElevationPlotData[points[0].index].Longitude];
+        connectedMap[0].lineMap.flyTo(location);
+
+        if (!elevationChartLineMarker) {
+            elevationChartLineMarker = L.circle(location, {
+                color: '#f03',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 30
+            }).addTo(connectedMap[0].lineMap);
+        } else {
+            elevationChartLineMarker.setLatLng(location);
+        }
+    };
 }
 
 async function mapComponentInit(mapElement, contentId) {
@@ -279,7 +331,8 @@ async function mapComponentInit(mapElement, contentId) {
 
         for (let pagePoint of includedPoints) {
             AddTextOrCircleMarkerToMap(map, pagePoint);
-        };
+        }
+        ;
     }
 
     if (mapComponent.GeoJsonGuids != null && mapComponent.GeoJsonGuids.length > 0) {
@@ -298,7 +351,8 @@ async function mapComponentInit(mapElement, contentId) {
             });
 
             newMapLayer.addTo(map);
-        };
+        }
+        ;
     }
 
     if (mapComponent.LineGuids != null && mapComponent.LineGuids.length > 0) {
@@ -317,7 +371,8 @@ async function mapComponentInit(mapElement, contentId) {
             });
 
             newMapLayer.addTo(map);
-        };
+        }
+        ;
     }
 }
 
@@ -342,7 +397,7 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
 
     let map = L.map(mapElement,
         {
-            center: { lat: pagePoint.Latitude, lng: pagePoint.Longitude },
+            center: {lat: pagePoint.Latitude, lng: pagePoint.Longitude},
             zoom: 13,
             layers: [tnmTopo],
             doubleClickZoom: false,
@@ -370,7 +425,8 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
         if (circlePoint.Slug == displayedPointSlug) continue;
 
         AddTextOrCircleMarkerToMap(map, circlePoint);
-    };
+    }
+    ;
 }
 
 function AddTextOrCircleMarkerToMap(map, pointToAdd) {
@@ -384,21 +440,20 @@ function AddTextOrCircleMarkerToMap(map, pointToAdd) {
                     iconAnchor: [-6, 12]
                 })
             });
-        const textMarkerPopup = L.popup({ autoClose: false, autoPan: false })
+        const textMarkerPopup = L.popup({autoClose: false, autoPan: false})
             .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
         const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
         toAdd.addTo(map);
 
         let labelMarker = L.circleMarker([pointToAdd.Latitude, pointToAdd.Longitude],
-            { radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5 });
+            {radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5});
 
         labelMarker.addTo(map);
-    }
-    else {
+    } else {
         let toAdd = L.circleMarker([pointToAdd.Latitude, pointToAdd.Longitude],
-            { radius: 10, color: "blue", fillColor: "blue", fillOpacity: .5 });
+            {radius: 10, color: "blue", fillColor: "blue", fillOpacity: .5});
 
-        const circlePopup = L.popup({ autoClose: false, autoPan: false })
+        const circlePopup = L.popup({autoClose: false, autoPan: false})
             .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
         const boundCirclePopup = toAdd.bindPopup(circlePopup);
         toAdd.addTo(map);
@@ -416,21 +471,20 @@ function AddMarkerToMap(map, pointToAdd) {
                     iconAnchor: [0, 0]
                 })
             });
-        const textMarkerPopup = L.popup({ autoClose: false, autoPan: false })
+        const textMarkerPopup = L.popup({autoClose: false, autoPan: false})
             .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
         const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
         toAdd.addTo(map);
 
         let labelMarker = L.marker([pointToAdd.Latitude, pointToAdd.Longitude],
-            { draggable: false, autoPan: true, iconAnchor: [0, 0] });
+            {draggable: false, autoPan: true, iconAnchor: [0, 0]});
 
         labelMarker.addTo(map);
-    }
-    else {
+    } else {
         let toAdd = L.marker([pointToAdd.Latitude, pointToAdd.Longitude],
-            { draggable: false, autoPan: true, iconAnchor: [0, 0] });
+            {draggable: false, autoPan: true, iconAnchor: [0, 0]});
 
-        const circlePopup = L.popup({ autoClose: false, autoPan: false })
+        const circlePopup = L.popup({autoClose: false, autoPan: false})
             .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
         const boundCirclePopup = toAdd.bindPopup(circlePopup);
         toAdd.addTo(map);

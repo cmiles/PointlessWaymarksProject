@@ -155,11 +155,12 @@ public static class LineData
         {
             var onDiskDto = GeoJsonTools.DeserializeWithGeoJsonSerializer<LineSiteJsonData>(
                 await File.ReadAllTextAsync(dataFileInfo.FullName));
-
+            //TODO: Check and improve the Attributes comparison
             if (onDiskDto is not null)
                 if (onDiskDto.PageUrl == currentDto.PageUrl
                     && new CompareLogic().Compare(onDiskDto.Bounds, currentDto.Bounds).AreEqual
-                    && new CompareLogic().Compare(onDiskDto.ElevationPlotData, currentDto.ElevationPlotData).AreEqual)
+                    && new CompareLogic().Compare(onDiskDto.ElevationPlotData, currentDto.ElevationPlotData).AreEqual
+                    && new CompareLogic().Compare(onDiskDto.GeoJson.FirstOrDefault().Attributes, currentDto.GeoJson.FirstOrDefault().Attributes).AreEqual)
                 {
                     var onDiskLineGeometry = onDiskDto.GeoJson.FirstOrDefault()?.Geometry;
                     var currentLineGeometry = currentDto.GeoJson.FirstOrDefault()?.Geometry;
