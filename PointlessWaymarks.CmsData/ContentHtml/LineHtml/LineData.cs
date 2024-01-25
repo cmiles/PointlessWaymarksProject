@@ -18,7 +18,8 @@ public static class LineData
     {
         if (lineCoordinates.Count == 0) return [];
 
-        var returnList = new List<LineElevationPlotDataPoint> { new(0, lineCoordinates[0].Z, 0,0, lineCoordinates[0].Y, lineCoordinates[0].X) };
+        var returnList = new List<LineElevationPlotDataPoint>
+            { new(0, lineCoordinates[0].Z, 0, 0, lineCoordinates[0].Y, lineCoordinates[0].X) };
 
         if (lineCoordinates.Count == 1) return returnList;
 
@@ -42,7 +43,8 @@ public static class LineData
             accumulatedDistance += DistanceTools.GetDistanceInMeters(lineCoordinates[i - 1].X, lineCoordinates[i - 1].Y,
                 lineCoordinates[i].X, lineCoordinates[i].Y);
 
-            returnList.Add(new LineElevationPlotDataPoint(accumulatedDistance, lineCoordinates[i].Z, accumulatedClimb, accumulatedDescent, lineCoordinates[i].Y, lineCoordinates[i].X));
+            returnList.Add(new LineElevationPlotDataPoint(accumulatedDistance, lineCoordinates[i].Z, accumulatedClimb,
+                accumulatedDescent, lineCoordinates[i].Y, lineCoordinates[i].X));
         }
 
         return returnList;
@@ -121,11 +123,12 @@ public static class LineData
                 }
                 catch (Exception e)
                 {
-                    Log.ForContext("exception", e.ToString()).Debug("Ignored Temporary File Delete Exception in {methodName}", nameof(WriteGpxData));
+                    Log.ForContext("exception", e.ToString())
+                        .Debug("Ignored Temporary File Delete Exception in {methodName}", nameof(WriteGpxData));
                 }
 
                 return;
-            }   
+            }
         }
 
         if (dataFileInfo.Exists)
@@ -133,7 +136,7 @@ public static class LineData
             dataFileInfo.Delete();
             dataFileInfo.Refresh();
         }
-        
+
         temporaryGpxFile.MoveTo(dataFileInfo.FullName);
     }
 
@@ -155,12 +158,22 @@ public static class LineData
         {
             var onDiskDto = GeoJsonTools.DeserializeWithGeoJsonSerializer<LineSiteJsonData>(
                 await File.ReadAllTextAsync(dataFileInfo.FullName));
+            var standardCompareLogic = new CompareLogic();
+            var featuresCompareLogic = new CompareLogic
+            {
+                Config =
+                {
+                    IgnoreCollectionOrder = true
+                }
+            };
+
             //TODO: Check and improve the Attributes comparison
             if (onDiskDto is not null)
                 if (onDiskDto.PageUrl == currentDto.PageUrl
-                    && new CompareLogic().Compare(onDiskDto.Bounds, currentDto.Bounds).AreEqual
-                    && new CompareLogic().Compare(onDiskDto.ElevationPlotData, currentDto.ElevationPlotData).AreEqual
-                    && new CompareLogic().Compare(onDiskDto.GeoJson.FirstOrDefault().Attributes, currentDto.GeoJson.FirstOrDefault().Attributes).AreEqual)
+                    && standardCompareLogic.Compare(onDiskDto.Bounds, currentDto.Bounds).AreEqual
+                    && standardCompareLogic.Compare(onDiskDto.ElevationPlotData, currentDto.ElevationPlotData).AreEqual
+                    && featuresCompareLogic.Compare(onDiskDto.GeoJson.FirstOrDefault().Attributes.AsList(),
+                        currentDto.GeoJson.FirstOrDefault().Attributes.AsList()).AreEqual)
                 {
                     var onDiskLineGeometry = onDiskDto.GeoJson.FirstOrDefault()?.Geometry;
                     var currentLineGeometry = currentDto.GeoJson.FirstOrDefault()?.Geometry;
@@ -182,7 +195,13 @@ public static class LineData
             .ConfigureAwait(false);
     }
 
-    public record LineElevationPlotDataPoint(double AccumulatedDistance, double? Elevation, double AccumulatedClimb, double AccumulatedDescent, double Latitude, double Longitude);
+    public record LineElevationPlotDataPoint(
+        double AccumulatedDistance,
+        double? Elevation,
+        double AccumulatedClimb,
+        double AccumulatedDescent,
+        double Latitude,
+        double Longitude);
 
     public record LineSiteJsonData(
         string PageUrl,

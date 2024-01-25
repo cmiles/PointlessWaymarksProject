@@ -160,12 +160,12 @@ public static class LineGenerator
 
         var possibleDescription = lineFeature.Attributes.GetOptionalValue("description");
         if (possibleDescription == null) lineFeature.Attributes.Add("description", LineParts.LineStatsString(toSave));
-        else lineFeature.Attributes["description"] = LineParts.LineStatsString(toSave);
+        else lineFeature.Attributes["description"] = $"Totals: {LineParts.LineStatsString(toSave)}";
 
         var possibleContentId = lineFeature.Attributes.GetOptionalValue("content-id");
         if (possibleContentId == null) lineFeature.Attributes.Add("content-id", toSave.ContentId);
         else lineFeature.Attributes["content-id"] = toSave.ContentId;
-        
+
         if (toSave.RecordingStartedOn.HasValue)
         {
             var asLineString = lineFeature.Geometry as LineString;

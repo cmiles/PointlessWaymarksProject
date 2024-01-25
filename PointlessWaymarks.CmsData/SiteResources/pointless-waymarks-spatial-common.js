@@ -45,7 +45,7 @@ function nationalBaseMapTopoMapLayer() {
 
 function geoJsonLayerStyle(feature) {
     //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
-    var newStyle = {};
+    let newStyle = {};
 
     if (feature.properties.hasOwnProperty("stroke")) newStyle.color = feature.properties["stroke"];
     if (feature.properties.hasOwnProperty("stroke-width")) newStyle.weight = feature.properties["stroke-width"];
@@ -56,18 +56,15 @@ function geoJsonLayerStyle(feature) {
     return newStyle;
 }
 
-function onEachMapGeoJsonFeature(feature, layer) {
-
-    //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0 - title-link is site specific...
-
-    const currentUrl = window.location.href.replace(/https?:/i, "");
-
+function popupHtmlContent(feature) {
     if (feature.properties && (feature.properties.title || feature.properties.description)) {
+        const currentUrlWithoutProtocol = window.location.href.replace(/https?:/i, "");
+
         let popupHtml = "";
 
         if (feature.properties.title) {
             if (feature.properties["title-link"] && feature.properties["title-link"].length > 0
-                && feature.properties["title-link"] !== currentUrl) {
+                && feature.properties["title-link"] !== currentUrlWithoutProtocol) {
                 popupHtml += `<a href="${feature.properties["title-link"]}">${feature.properties.title}</a>`;
             } else {
                 popupHtml += feature.properties.title;
@@ -78,30 +75,47 @@ function onEachMapGeoJsonFeature(feature, layer) {
             popupHtml += `<p>${feature.properties.description}</p>`;
         }
 
-        if (popupHtml !== "") layer.bindPopup(popupHtml);
+        return popupHtml;
     }
 
-    if (feature.geometry.type === "LineString") {
-        layer.on('click', function (e) {
-            console.log(e);
-            let chartLookup = globalElevationCharts.filter(x => x.contentId === e.target.feature.properties["content-id"]);
-            let chart = chartLookup[0].elevationChart;
+    return "";
+}
 
-            let distanceArray = [];
-            for (let i = 0; i < arrayLPoints.length; i++) {
-                distanceArray.push(e.latlng.distanceTo([arrayLPoints[i][1], arrayLPoints[i][0]]));
-            }
-            let closestPointIndex = distanceArray.indexOf(Math.min.apply(null, distanceArray));
+function onEachMapGeoJsonFeatureWrapper(map) {
+    return function onEachMapGeoJsonFeature(feature, layer) {
+        //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0 - title-link is site specific...
 
-            const tooltip = chart.tooltip;
+        let popupHtml = popupHtmlContent(feature, window.location.href);
 
-            const chartArea = chart.chartArea;
-            tooltip.setActiveElements([
-                    {datasetIndex: 0, index: closestPointIndex,}],
-                {x: (chartArea.left + chartArea.right) / 2, y: (chartArea.top + chartArea.bottom) / 2,});
+        if (popupHtml !== "") {
+            layer.bindPopup(popupHtml);
+        }
 
-            chart.update();
-        });
+        if (feature.geometry.type === "LineString") {
+            layer.on('mouseover', function (e) {
+                console.log(e);
+                globalLineMaps.push({"contentId": feature.properties["content-id"], "lineMap": map});
+
+                let chartLookup = globalElevationCharts.filter(x => x.contentId === e.target.feature.properties["content-id"]);
+                let chart = chartLookup[0].elevationChart;
+
+                let coordinates = e.target.feature.geometry.coordinates;
+                let distanceArray = [];
+                for (let i = 0; i < coordinates.length; i++) {
+                    distanceArray.push(e.latlng.distanceTo([coordinates[i][1], coordinates[i][0]]));
+                }
+                let closestPointIndex = distanceArray.indexOf(Math.min.apply(null, distanceArray));
+
+                const tooltip = chart.tooltip;
+
+                const chartArea = chart.chartArea;
+                tooltip.setActiveElements([
+                        {datasetIndex: 0, index: closestPointIndex,}],
+                    {x: (chartArea.left + chartArea.right) / 2, y: (chartArea.top + chartArea.bottom) / 2,});
+
+                chart.update();
+            });
+        }
     }
 }
 
@@ -113,14 +127,14 @@ async function singleGeoJsonMapInit(mapElement, contentId) {
 
     const geoJsonData = await geoJsonDataResponse.json();
 
-    singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData);
+    await singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData);
 }
 
 function standardMap(mapElement) {
 
-    var openTopoMap = openTopoMapLayer();
-    var tnmTopo = nationalBaseMapTopoMapLayer();
-    var tnmImageTopoMap = nationalBaseMapTopoImageMapLayer();
+    let openTopoMap = openTopoMapLayer();
+    let tnmTopo = nationalBaseMapTopoMapLayer();
+    let tnmImageTopoMap = nationalBaseMapTopoImageMapLayer();
 
     let map = L.map(mapElement,
         {
@@ -129,7 +143,7 @@ function standardMap(mapElement) {
             gestureHandling: true
         });
 
-    var baseLayers = {
+    let baseLayers = {
         "TNM Topo": tnmTopo,
         "TNM Topo Image": tnmImageTopoMap,
         "OpenTopo": openTopoMap
@@ -156,7 +170,7 @@ async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
     ]);
 
     let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
-        onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
+        onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
     });
 
     newMapLayer.addTo(map);
@@ -170,13 +184,12 @@ async function singleLineMapInit(mapElement, contentId) {
 
     let lineData = await lineDataResponse.json();
 
-    singleLineMapInitFromLineData(contentId, mapElement, lineData);
+    await singleLineMapInitFromLineData(contentId, mapElement, lineData);
 }
 
 async function singleLineMapInitFromLineData(contentId, mapElement, lineData) {
 
     let map = standardMap(mapElement);
-    globalLineMaps.push({"contentId": contentId, "lineMap": map});
 
     map.fitBounds([
         [lineData.Bounds.MinLatitude, lineData.Bounds.MinLongitude],
@@ -184,7 +197,7 @@ async function singleLineMapInitFromLineData(contentId, mapElement, lineData) {
     ]);
 
     let newMapLayer = new L.geoJSON(lineData.GeoJson, {
-        onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
+        onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
     });
 
     newMapLayer.addTo(map);
@@ -201,7 +214,7 @@ async function singleLineElevationChartInit(chartCanvas, contentId) {
 
     if (lineData.ElevationPlotData.length === 0) return;
 
-    singleLineChartInitFromLineData(contentId, chartCanvas, lineData);
+    await singleLineChartInitFromLineData(contentId, chartCanvas, lineData);
 }
 
 async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData) {
@@ -266,6 +279,18 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
                             return "Distance: " + parseFloat(tooltipItems[0].label).toFixed(2).toLocaleString() + " miles";
                         },
                         label: (tooltipItem) => {
+
+                            let possibleMaps = globalLineMaps.filter(x => x.contentId === lineData.GeoJson.features[0].properties["content-id"]);
+
+                            if (possibleMaps?.length) {
+
+                                let connectedMap = possibleMaps[0].lineMap;
+                                var location = [lineData.ElevationPlotData[tooltipItem.dataIndex].Latitude, lineData.ElevationPlotData[tooltipItem.dataIndex].Longitude];
+                                var feature = lineData.GeoJson.features[0];
+
+                                setElevationChartLineMarker(connectedMap, feature, location);
+                            }
+
                             return ["Elevation: " + Math.floor(tooltipItem.raw).toLocaleString() + " feet",
                                 "Accumulated Climb: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedClimb).toLocaleString(),
                                 "Accumulated Descent: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedDescent).toLocaleString()
@@ -283,25 +308,44 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
     chart.canvas.onclick = (e) => {
         const points = chart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
         if (!points?.length) return;
-        console.log(points);
-        let connectedMap = globalLineMaps.filter(x => x.contentId === contentId);
-        if (!connectedMap?.length) {
+
+        let possibleMaps = globalLineMaps.filter(x => x.contentId === contentId);
+        if (!possibleMaps?.length) {
             broadcastProgress("Can't find connected map?")
         }
-        var location = [lineData.ElevationPlotData[points[0].index].Latitude, lineData.ElevationPlotData[points[0].index].Longitude];
-        connectedMap[0].lineMap.flyTo(location);
 
-        if (!elevationChartLineMarker) {
-            elevationChartLineMarker = L.circle(location, {
-                color: '#f03',
-                fillColor: '#f03',
-                fillOpacity: 0.5,
-                radius: 30
-            }).addTo(connectedMap[0].lineMap);
-        } else {
-            elevationChartLineMarker.setLatLng(location);
-        }
+        let connectedMap = possibleMaps[0].lineMap;
+
+        let location = [lineData.ElevationPlotData[points[0].index].Latitude, lineData.ElevationPlotData[points[0].index].Longitude];
+        connectedMap.flyTo(location);
+
+        let feature = lineData.GeoJson.features[0];
+
+        setElevationChartLineMarker(connectedMap, feature, location);
     };
+
+}
+
+function setElevationChartLineMarker(map, feature, location) {
+
+    let featurePopUpContent = popupHtmlContent(feature);
+    if (location) featurePopUpContent += `<p>${location}</p>`;
+
+    if (!elevationChartLineMarker) {
+        elevationChartLineMarker = L.circle(location, {
+            color: '#f03',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 30
+        });
+
+        const circlePopup = L.popup({autoClose: false, autoPan: false}).setContent(featurePopUpContent);
+        elevationChartLineMarker.bindPopup(circlePopup);
+        elevationChartLineMarker.addTo(map);
+    } else {
+        elevationChartLineMarker.setLatLng(location);
+        elevationChartLineMarker.getPopup().setContent(featurePopUpContent);
+    }
 }
 
 async function mapComponentInit(mapElement, contentId) {
@@ -332,7 +376,6 @@ async function mapComponentInit(mapElement, contentId) {
         for (let pagePoint of includedPoints) {
             AddTextOrCircleMarkerToMap(map, pagePoint);
         }
-        ;
     }
 
     if (mapComponent.GeoJsonGuids != null && mapComponent.GeoJsonGuids.length > 0) {
@@ -347,12 +390,11 @@ async function mapComponentInit(mapElement, contentId) {
             let geoJsonData = await response.json();
 
             let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
-                onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
+                onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
             });
 
             newMapLayer.addTo(map);
         }
-        ;
     }
 
     if (mapComponent.LineGuids != null && mapComponent.LineGuids.length > 0) {
@@ -367,12 +409,11 @@ async function mapComponentInit(mapElement, contentId) {
             let geoJsonData = await response.json();
 
             let newMapLayer = new L.geoJSON(geoJsonData.GeoJson, {
-                onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle
+                onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
             });
 
             newMapLayer.addTo(map);
         }
-        ;
     }
 }
 
@@ -385,7 +426,7 @@ async function singlePointMapInit(mapElement, displayedPointSlug) {
     let pointData = await response.json();
 
     singlePointMapInitFromPointData(mapElement, displayedPointSlug, pointData);
-};
+}
 
 async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, pointData) {
 
@@ -422,11 +463,10 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
     AddMarkerToMap(map, pagePoint);
 
     for (let circlePoint of pointData) {
-        if (circlePoint.Slug == displayedPointSlug) continue;
+        if (circlePoint.Slug === displayedPointSlug) continue;
 
         AddTextOrCircleMarkerToMap(map, circlePoint);
     }
-    ;
 }
 
 function AddTextOrCircleMarkerToMap(map, pointToAdd) {
@@ -486,7 +526,7 @@ function AddMarkerToMap(map, pointToAdd) {
 
         const circlePopup = L.popup({autoClose: false, autoPan: false})
             .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
-        const boundCirclePopup = toAdd.bindPopup(circlePopup);
+        toAdd.bindPopup(circlePopup);
         toAdd.addTo(map);
     }
 }
