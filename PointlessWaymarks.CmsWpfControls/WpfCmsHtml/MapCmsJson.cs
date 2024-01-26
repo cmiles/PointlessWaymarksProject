@@ -14,11 +14,40 @@ using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.WpfHtml;
+using SimMetricsCore;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 
 public static class MapCmsJson
 {
+    private static (string description, string? imageFileToCopy) GenerateDescription(Guid? imageContentId,
+        string? title,
+        string? summary)
+    {
+        var description = string.Empty;
+
+        title = title.TrimNullToEmpty();
+        summary = summary.TrimNullToEmpty();
+
+        var smallImageFile = imageContentId != null
+            ? PictureAssetProcessing.ProcessPictureDirectory(imageContentId.Value)?.SmallPicture
+                ?.File?.FullName
+            : null;
+
+        if (smallImageFile != null)
+            description += $"""
+                            <img src="https://[[VirtualDomain]]/{Path.GetFileName(smallImageFile)}"/>
+                            """;
+
+        if (!string.IsNullOrWhiteSpace(summary)
+            && title.GetSimilarity(summary, SimMetricType.JaroWinkler) < .9 &&
+            !(title.ContainsFuzzy(summary, 0.8, SimMetricType.JaroWinkler)
+              || summary.ContainsFuzzy(title, 0.8, SimMetricType.JaroWinkler)))
+            description += $" <p>{summary}</p>";
+
+        return (description, smallImageFile);
+    }
+
     public static Envelope GetBounds(List<IContentListItem> toMeasure)
     {
         var boundsKeeper = new List<Point>();
@@ -135,6 +164,7 @@ public static class MapCmsJson
         var geoJsonList = new List<FeatureCollection>();
 
         var boundsKeeper = new List<Point>();
+        var filesToCopy = new List<string>();
 
         foreach (var loopElements in dbEntries)
             switch (loopElements)
@@ -152,9 +182,16 @@ public static class MapCmsJson
                     break;
                 case LineContent mapLine:
                     var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.Line);
-                    foreach (var feature in lineFeatureCollection)
-                        feature.Attributes.Add("displayId", mapLine.ContentId);
-                    geoJsonList.Add(lineFeatureCollection);
+                    var line = lineFeatureCollection[0];
+                    line.Attributes.Add("displayId", mapLine.ContentId);
+                    if (!line.Attributes.Exists("description")) line.Attributes.Add("description", string.Empty);
+
+                    var descriptionAndImage = GenerateDescription(mapLine.MainPicture, mapLine.Title, mapLine.Summary);
+                    if (!string.IsNullOrWhiteSpace(descriptionAndImage.imageFileToCopy))
+                        filesToCopy.Add(descriptionAndImage.imageFileToCopy);
+
+                    line.Attributes["description"] = descriptionAndImage.description;
+
                     geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.InitialViewBoundsMaxLongitude,
                         mapLine.InitialViewBoundsMaxLatitude));
@@ -177,12 +214,18 @@ public static class MapCmsJson
 
             foreach (var loopElements in pointDtos)
             {
+                var descriptionAndImage =
+                    GenerateDescription(loopElements.MainPicture, loopElements.Title, loopElements.Summary);
+                if (!string.IsNullOrWhiteSpace(descriptionAndImage.imageFileToCopy))
+                    filesToCopy.Add(descriptionAndImage.imageFileToCopy);
+
                 featureCollection.Add(new Feature(
                     PointTools.Wgs84Point(loopElements.Longitude, loopElements.Latitude,
                         loopElements.Elevation ?? 0),
                     new AttributesTable(new Dictionary<string, object>
                     {
                         { "title", loopElements.Title ?? string.Empty },
+                        { "description", descriptionAndImage.description },
                         { "displayId", loopElements.ContentId }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude, loopElements.Latitude));
@@ -191,38 +234,20 @@ public static class MapCmsJson
             geoJsonList.Add(featureCollection);
         }
 
-        var filesToCopy = new List<string>();
 
         var photos = dbEntries.Where(x => x is PhotoContent).Cast<PhotoContent>()
             .Where(x => x.Latitude is not null && x.Longitude is not null).OrderBy(x => x.Title).ToList();
 
-        if (photos.Any())
+        if (photos.Count != 0)
         {
             var featureCollection = new FeatureCollection();
 
             foreach (var loopElements in photos)
             {
-                string description;
-
-                var smallImageFile = loopElements.MainPicture != null
-                    ? PictureAssetProcessing.ProcessPictureDirectory(loopElements.MainPicture.Value)?.SmallPicture
-                        ?.File?.FullName
-                    : null;
-
-                if (smallImageFile != null)
-                {
-                    filesToCopy.Add(smallImageFile);
-
-                    description = $"""
-                                   <img src="https://[[VirtualDomain]]/{Path.GetFileName(smallImageFile)}"/>
-                                   """;
-                }
-                else
-                {
-                    description = $"""
-                                    <p>{loopElements.Summary}</p>
-                                   """;
-                }
+                var descriptionAndImage =
+                    GenerateDescription(loopElements.MainPicture, loopElements.Title, loopElements.Summary);
+                if (!string.IsNullOrWhiteSpace(descriptionAndImage.imageFileToCopy))
+                    filesToCopy.Add(descriptionAndImage.imageFileToCopy);
 
                 featureCollection.Add(new Feature(
                     PointTools.Wgs84Point(loopElements.Longitude.Value, loopElements.Latitude.Value,
@@ -230,7 +255,7 @@ public static class MapCmsJson
                     new AttributesTable(new Dictionary<string, object>
                     {
                         { "title", loopElements.Title ?? string.Empty },
-                        { "description", description },
+                        { "description", descriptionAndImage.description },
                         { "displayId", loopElements.ContentId }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude.Value, loopElements.Latitude.Value));
