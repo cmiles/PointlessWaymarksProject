@@ -84,6 +84,7 @@ function popupHtmlContent(feature) {
 function onEachMapGeoJsonFeatureWrapper(map) {
     return function onEachMapGeoJsonFeature(feature, layer) {
         //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0 - title-link is site specific...
+        globalLineMaps.push({"contentId": feature.properties["content-id"], "lineMap": map});
 
         let popupHtml = popupHtmlContent(feature, window.location.href);
 
@@ -94,9 +95,13 @@ function onEachMapGeoJsonFeatureWrapper(map) {
         if (feature.geometry.type === "LineString") {
             layer.on('mouseover', function (e) {
                 console.log(e);
-                globalLineMaps.push({"contentId": feature.properties["content-id"], "lineMap": map});
 
                 let chartLookup = globalElevationCharts.filter(x => x.contentId === e.target.feature.properties["content-id"]);
+
+                if (!chartLookup?.length) {
+                    return;
+                }
+
                 let chart = chartLookup[0].elevationChart;
 
                 let coordinates = e.target.feature.geometry.coordinates;
@@ -311,7 +316,7 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
 
         let possibleMaps = globalLineMaps.filter(x => x.contentId === contentId);
         if (!possibleMaps?.length) {
-            broadcastProgress("Can't find connected map?")
+            return;
         }
 
         let connectedMap = possibleMaps[0].lineMap;
