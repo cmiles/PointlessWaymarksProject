@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.CmsData.Database.Models;
+﻿using System.ComponentModel;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -12,11 +13,16 @@ public partial class LineListListItem : IContentListItem, IContentListSmallImage
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public LineContent DbEntry { get; set; }
     public LineContentActions ItemActions { get; set; }
+    public double? RecordedOnLengthInMinutes { get; set; } = null;
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
     public bool ShowType { get; set; }
+    public string? SmallImageUrl { get; set; }
 
     public IContentCommon Content()
     {
@@ -68,11 +74,22 @@ public partial class LineListListItem : IContentListItem, IContentListSmallImage
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public string? SmallImageUrl { get; set; }
-    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
-
     public static Task<LineListListItem> CreateInstance(LineContentActions itemActions)
     {
         return Task.FromResult(new LineListListItem(itemActions, LineContent.CreateInstance()));
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+
+        if (e.PropertyName == nameof(DbEntry)) UpdateRecordedOnLengthInMinutes();
+    }
+
+    private void UpdateRecordedOnLengthInMinutes()
+    {
+        RecordedOnLengthInMinutes = DbEntry is { RecordingStartedOn: null, RecordingEndedOn: null }
+            ? null
+            : (DbEntry.RecordingEndedOn - DbEntry.RecordingStartedOn)?.TotalMinutes;
     }
 }

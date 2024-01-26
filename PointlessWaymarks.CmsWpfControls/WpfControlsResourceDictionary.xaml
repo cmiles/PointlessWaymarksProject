@@ -549,21 +549,21 @@
                             Visibility="{Binding DbEntry, Converter={StaticResource LineListHasRecordedOnVisibility}}">
                             <WrapPanel.Resources>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Margin" Value="8,0,0,0"></Setter>
+                                    <Setter Property="Margin" Value="14,0,0,0"></Setter>
                                 </Style>
                             </WrapPanel.Resources>
                             <TextBlock>Stats:</TextBlock>
-                            <TextBlock Text="{Binding DbEntry.LineDistance, StringFormat='{}{0} Miles'}">
+                            <TextBlock Text="{Binding DbEntry.LineDistance, StringFormat='Miles: {0}'}">
                             </TextBlock>
-                            <TextBlock Text="{Binding DbEntry.ClimbElevation, StringFormat='{}{0}\' Climb'}">
+                            <TextBlock Text="{Binding DbEntry.ClimbElevation, StringFormat='Climb: {0}\''}">
                             </TextBlock>
-                            <TextBlock Text="{Binding DbEntry.DescentElevation, StringFormat='{}{0}\' Descent'}">
+                            <TextBlock Text="{Binding DbEntry.DescentElevation, StringFormat='Descent: {0}\''}">
                             </TextBlock>
-                            <TextBlock Text="{Binding DbEntry.MinimumElevation, StringFormat='{}{0}\' Min Elevation'}">
+                            <TextBlock Text="{Binding DbEntry.MaximumElevation, StringFormat='Max Elevation: {0}\''}">
                             </TextBlock>
-                            <TextBlock Text="{Binding DbEntry.MaximumElevation, StringFormat='{}{0}\' Max Elevation'}">
+                            <TextBlock Text="{Binding DbEntry.MinimumElevation, StringFormat='Min Elevation: {0}\''}">
                             </TextBlock>
-                            <TextBlock Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}}">
+                            <TextBlock Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}, StringFormat='Time: {0}'}">
                             </TextBlock>
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />

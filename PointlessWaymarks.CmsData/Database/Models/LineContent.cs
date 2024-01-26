@@ -20,9 +20,7 @@ public class LineContent : IUpdateNotes, IContentCommon
     public double DescentElevation { get; set; }
     public required DateTime FeedOn { get; set; }
     public string? Folder { get; set; }
-
     [JsonPropertyOrder(0)] public int Id { get; set; }
-
     public double InitialViewBoundsMaxLatitude { get; set; }
     public double InitialViewBoundsMaxLongitude { get; set; }
     public double InitialViewBoundsMinLatitude { get; set; }

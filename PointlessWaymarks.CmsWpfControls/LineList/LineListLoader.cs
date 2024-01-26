@@ -83,11 +83,32 @@ public class LineListLoader : ContentListLoaderBase, IContentListLoader
                     ColumnName = "DbEntry.ClimbElevation",
                     DefaultSortDirection = ListSortDirection.Ascending
                 },
+                    
+                new()
+                {
+                    DisplayName = "Descent",
+                    ColumnName = "DbEntry.DescentElevation",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                },
 
                 new()
                 {
                     DisplayName = "Max Elevation",
                     ColumnName = "DbEntry.MaximumElevation",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                },
+                
+                new()
+                {
+                    DisplayName = "Min Elevation",
+                    ColumnName = "DbEntry.MinimumElevation",
+                    DefaultSortDirection = ListSortDirection.Ascending
+                },
+                
+                new()
+                {
+                    DisplayName = "Time",
+                    ColumnName = "RecordedOnLengthInMinutes",
                     DefaultSortDirection = ListSortDirection.Ascending
                 }
             ]
