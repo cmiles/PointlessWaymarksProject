@@ -1,6 +1,6 @@
 let globalLineMaps = [];
 let globalElevationCharts = [];
-let elevationChartLineMarker;
+let globalElevationChartLineMarkers = [];
 
 const lazyInit = (elementToObserve, fn) => {
     const observer = new IntersectionObserver((entries) => {
@@ -333,6 +333,10 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
 
 function setElevationChartLineMarker(map, feature, location) {
 
+    let elevationChartLineMarkers = globalElevationChartLineMarkers.filter(x => x.map == map);
+    let elevationChartLineMarker;
+    if (elevationChartLineMarkers?.length) elevationChartLineMarker = elevationChartLineMarkers[0].marker;
+
     let featurePopUpContent = popupHtmlContent(feature);
     if (location) featurePopUpContent += `<p>${location}</p>`;
 
@@ -347,6 +351,7 @@ function setElevationChartLineMarker(map, feature, location) {
         const circlePopup = L.popup({autoClose: false, autoPan: false}).setContent(featurePopUpContent);
         elevationChartLineMarker.bindPopup(circlePopup);
         elevationChartLineMarker.addTo(map);
+        globalElevationChartLineMarkers.push({"map": map, "marker": elevationChartLineMarker});
     } else {
         elevationChartLineMarker.setLatLng(location);
         elevationChartLineMarker.getPopup().setContent(featurePopUpContent);
