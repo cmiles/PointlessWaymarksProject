@@ -54,12 +54,13 @@
     <#=
                 Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= LineParts.LineDivAndScript(DbEntry) #>
+    <#= LineParts.LineElevationChartDivAndScript(DbEntry) #>
     <#=
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <#= LineParts.DownloadLinkTag(DbEntry) #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
-    <#= LineParts.LineElevationChartDivAndScript(DbEntry) #>
+   
     <#=
         LineParts.LineStatisticsWithContentDiv(DbEntry).ToString() #>
     <#= Tags.TagList(DbEntry).ToString() #>
