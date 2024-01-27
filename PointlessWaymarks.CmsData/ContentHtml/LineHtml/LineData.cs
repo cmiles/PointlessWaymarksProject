@@ -167,13 +167,16 @@ public static class LineData
                 }
             };
 
-            //TODO: Check and improve the Attributes comparison
             if (onDiskDto is not null)
+            {
+                var currentDtoAttributeList = currentDto.GeoJson.First().AttributeTableToList();
+                var onDiskDtoAttributeList = onDiskDto.GeoJson.First().AttributeTableToList();
+
                 if (onDiskDto.PageUrl == currentDto.PageUrl
                     && standardCompareLogic.Compare(onDiskDto.Bounds, currentDto.Bounds).AreEqual
                     && standardCompareLogic.Compare(onDiskDto.ElevationPlotData, currentDto.ElevationPlotData).AreEqual
-                    && featuresCompareLogic.Compare(onDiskDto.GeoJson.FirstOrDefault().Attributes.AsList(),
-                        currentDto.GeoJson.FirstOrDefault().Attributes.AsList()).AreEqual)
+                    && featuresCompareLogic.Compare(onDiskDtoAttributeList,
+                        currentDtoAttributeList).AreEqual)
                 {
                     var onDiskLineGeometry = onDiskDto.GeoJson.FirstOrDefault()?.Geometry;
                     var currentLineGeometry = currentDto.GeoJson.FirstOrDefault()?.Geometry;
@@ -182,6 +185,7 @@ public static class LineData
                         if (onDiskLineGeometry.EqualsNormalized(currentLineGeometry))
                             return;
                 }
+            }
         }
 
         if (dataFileInfo.Exists)

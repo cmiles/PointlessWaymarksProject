@@ -20,6 +20,24 @@ public static class GeoJsonTools
         return serializer.Deserialize<FeatureCollection>(intersectJsonReader);
     }
 
+    /// <summary>
+    /// Converts an IFeatures Attribute Table to a list of string keys and
+    /// object values.
+    /// </summary>
+    /// <param name="feature"></param>
+    /// <returns></returns>
+    public static List<(string key, object value)> AttributeTableToList(this IFeature feature)
+    {
+        var toReturn = new List<(string key, object value)>();
+        if (feature.Attributes.Count < 1) return toReturn;
+        
+        var entryNames  = feature.Attributes.GetNames();
+
+        toReturn.AddRange(entryNames.Select(loopNames => (loopNames, feature.Attributes[loopNames])));
+
+        return toReturn;
+    }
+
     public static FeatureCollection DeserializeStringToFeatureCollection(string geoJsonString)
     {
         if (string.IsNullOrEmpty(geoJsonString)) return new FeatureCollection();
