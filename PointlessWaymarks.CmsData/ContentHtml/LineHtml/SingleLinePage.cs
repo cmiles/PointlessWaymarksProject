@@ -252,62 +252,55 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml
             this.Write("\r\n    ");
             
             #line 60 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(LineParts.DownloadLinkTag(DbEntry)));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 61 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    <div class=\"information-section\">\r\n   \r\n    ");
             
-            #line 64 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
+            #line 63 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LineParts.LineStatisticsWithContentDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 66 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
+            #line 65 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TagList(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 67 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
+            #line 66 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 69 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
+            #line 68 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PreviousAndNextContentDiv(PreviousPosts, LaterPosts)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 71 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
+            #line 70 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.UpdateNotesDiv(DbEntry).Result.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    </div>\r\n    ");
             
-            #line 74 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
+            #line 73 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(HorizontalRule.StandardRule()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 75 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
+            #line 74 "E:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\LineHtml\SingleLinePage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Footer.StandardFooterDiv().Result));
             
             #line default

@@ -57,7 +57,6 @@
     <#= LineParts.LineElevationChartDivAndScript(DbEntry) #>
     <#=
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
-    <#= LineParts.DownloadLinkTag(DbEntry) #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
    

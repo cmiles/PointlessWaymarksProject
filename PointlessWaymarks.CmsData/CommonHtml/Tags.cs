@@ -184,6 +184,20 @@ public static class Tags
 
         return divTag;
     }
+    
+    public static HtmlTag InfoLinkDivTag(string url, string linkText, string className)
+    {
+        if (string.IsNullOrWhiteSpace(linkText) || string.IsNullOrWhiteSpace(url)) return HtmlTag.Empty();
+        var divTag = new HtmlTag("div");
+        divTag.AddClasses(className, "info-box");
+
+        var spanTag = new LinkTag(linkText, url) as HtmlTag;
+        spanTag = spanTag.AddClasses("info-list-link-item", $"{className}-content");
+
+        divTag.Children.Add(spanTag);
+
+        return divTag;
+    }
 
     public static HtmlTag InfoTextDivTag(string? contents, string className, string dataType, string? dataValue)
     {
