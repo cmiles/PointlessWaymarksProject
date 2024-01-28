@@ -69,17 +69,11 @@ public partial class SitePreviewContext : DependencyObject
     }
 
     [BlockingCommand]
-    private async Task TryNavigateToSearchPage()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/AllContentList.html");
-    }
-
-    [BlockingCommand]
     private async Task TryNavigateToCameraRollGallery()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Photos/Galleries/CameraRoll.html");
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate(
+            $"http://{PreviewServerHost}/Photos/Galleries/CameraRoll.html");
     }
 
     [BlockingCommand]
@@ -90,17 +84,24 @@ public partial class SitePreviewContext : DependencyObject
     }
 
     [BlockingCommand]
-    private async Task TryNavigateToTagList()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Tags/AllTagsList.html");
-    }
-
-    [BlockingCommand]
     private async Task TryNavigateToLinkList()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Links/LinkList.html");
+    }
+
+    [BlockingCommand]
+    private async Task TryNavigateToSearchPage()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/AllContentList.html");
+    }
+
+    [BlockingCommand]
+    private async Task TryNavigateToTagList()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Tags/AllTagsList.html");
     }
 
     [BlockingCommand]

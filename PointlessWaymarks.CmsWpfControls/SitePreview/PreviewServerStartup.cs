@@ -34,7 +34,7 @@ public class PreviewServerStartup
                         StringComparison.OrdinalIgnoreCase);
                 await context.Response.WriteAsync(moddedFile);
             }
-            else if (possiblePath.Value.EndsWith(".html"))
+            else if (possiblePath.Value.EndsWith(".html") || possiblePath.Value.EndsWith(".json"))
             {
                 var rawFile = new StringBuilder();
 

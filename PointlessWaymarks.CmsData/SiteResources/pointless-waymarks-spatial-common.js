@@ -351,7 +351,7 @@ function setElevationChartLineMarker(map, feature, location) {
         const circlePopup = L.popup({autoClose: false, autoPan: false}).setContent(featurePopUpContent);
         elevationChartLineMarker.bindPopup(circlePopup);
         elevationChartLineMarker.addTo(map);
-        globalElevationChartLineMarkers.push({"map": map, "marker": elevationChartLineMarker});
+        globalElevationChartLineMarkers.push({"map":map, "marker": elevationChartLineMarker});
     } else {
         elevationChartLineMarker.setLatLng(location);
         elevationChartLineMarker.getPopup().setContent(featurePopUpContent);
@@ -481,6 +481,10 @@ async function singlePointMapInitFromPointData(mapElement, displayedPointSlug, p
 
 function AddTextOrCircleMarkerToMap(map, pointToAdd) {
 
+    let popupContent = `<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`;
+    if(pointToAdd.SmallPictureUrl) popupContent += `<p style="text-align: center;"><img src="${pointToAdd.SmallPictureUrl}"></img></p>`;
+    if(pointToAdd.Summary) popupContent += `<p>${pointToAdd.Summary}</p>`;
+
     if (pointToAdd.MapLabel) {
         let toAdd = L.marker([pointToAdd.Latitude, pointToAdd.Longitude],
             {
@@ -491,7 +495,7 @@ function AddTextOrCircleMarkerToMap(map, pointToAdd) {
                 })
             });
         const textMarkerPopup = L.popup({autoClose: false, autoPan: false})
-            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
+            .setContent(popupContent);
         const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
         toAdd.addTo(map);
 
@@ -504,13 +508,17 @@ function AddTextOrCircleMarkerToMap(map, pointToAdd) {
             {radius: 10, color: "blue", fillColor: "blue", fillOpacity: .5});
 
         const circlePopup = L.popup({autoClose: false, autoPan: false})
-            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
+            .setContent(popupContent);
         const boundCirclePopup = toAdd.bindPopup(circlePopup);
         toAdd.addTo(map);
     }
 }
 
 function AddMarkerToMap(map, pointToAdd) {
+
+    let popupContent = `<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a>`;
+    if(pointToAdd.SmallPictureUrl) popupContent += `<p style="text-align: center;"><img src="${pointToAdd.SmallPictureUrl}"></img></p>`;
+    if(pointToAdd.Summary) popupContent += `<p>${pointToAdd.Summary}</p>`;
 
     if (pointToAdd.MapLabel) {
         let toAdd = L.marker([pointToAdd.Latitude, pointToAdd.Longitude],
@@ -522,7 +530,7 @@ function AddMarkerToMap(map, pointToAdd) {
                 })
             });
         const textMarkerPopup = L.popup({autoClose: false, autoPan: false})
-            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
+            .setContent(popupContent);
         const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
         toAdd.addTo(map);
 
@@ -535,7 +543,7 @@ function AddMarkerToMap(map, pointToAdd) {
             {draggable: false, autoPan: true, iconAnchor: [0, 0]});
 
         const circlePopup = L.popup({autoClose: false, autoPan: false})
-            .setContent(`<a href="${pointToAdd.PointPageUrl}">${pointToAdd.Title}</a><p>${pointToAdd.Summary}</p>`);
+            .setContent(popupContent);
         toAdd.bindPopup(circlePopup);
         toAdd.addTo(map);
     }

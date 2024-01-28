@@ -1,9 +1,9 @@
 using System.Text;
 using System.Xml;
-using KellermanSoftware.CompareNetObjects;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -58,14 +58,16 @@ public static class LineData
             LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(lineContent.Line));
     }
 
-    public static async Task<string> GenerateLineJson(string lineGeoJson, string title, string pageUrl)
+    public static async Task<string> GenerateLineJson(string lineGeoJson, string title, string pageUrl,
+        string smallImageUrl)
     {
-        var dto = GenerateLineJsonDto(lineGeoJson, title, pageUrl);
+        var dto = GenerateLineJsonDto(lineGeoJson, title, pageUrl, smallImageUrl);
 
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
     }
 
-    public static LineSiteJsonData GenerateLineJsonDto(string lineGeoJson, string title, string pageUrl)
+    public static LineSiteJsonData GenerateLineJsonDto(string lineGeoJson, string title, string pageUrl,
+        string smallImageUrl)
     {
         var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(lineGeoJson);
 
@@ -75,7 +77,7 @@ public static class LineData
             GenerateLineElevationDataList(
                 LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(lineGeoJson));
 
-        return new LineSiteJsonData(pageUrl,
+        return new LineSiteJsonData(pageUrl, smallImageUrl,
             SpatialBounds.FromEnvelope(bounds),
             contentFeatureCollection, elevationPlot);
     }
@@ -150,42 +152,20 @@ public static class LineData
             UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,
             $"Line-{lineContent.ContentId}.json"));
 
+        var smallPictureUrl = lineContent.MainPicture == null
+            ? string.Empty
+            : new PictureSiteInformation(lineContent.MainPicture.Value).Pictures?.SmallPicture?.SiteUrl ?? string.Empty;
+
         var currentDto = GenerateLineJsonDto(lineContent.Line, lineContent.Title ?? string.Empty,
-            UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent));
+            UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent), smallPictureUrl);
+        var currentSerializedDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(currentDto);
 
         //If the file exists and the data is the same - don't write it again
         if (dataFileInfo.Exists)
         {
-            var onDiskDto = GeoJsonTools.DeserializeWithGeoJsonSerializer<LineSiteJsonData>(
-                await File.ReadAllTextAsync(dataFileInfo.FullName));
-            var standardCompareLogic = new CompareLogic();
-            var featuresCompareLogic = new CompareLogic
-            {
-                Config =
-                {
-                    IgnoreCollectionOrder = true
-                }
-            };
+            var onDiskDto = await File.ReadAllTextAsync(dataFileInfo.FullName);
 
-            if (onDiskDto is not null)
-            {
-                var currentDtoAttributeList = currentDto.GeoJson.First().AttributeTableToList();
-                var onDiskDtoAttributeList = onDiskDto.GeoJson.First().AttributeTableToList();
-
-                if (onDiskDto.PageUrl == currentDto.PageUrl
-                    && standardCompareLogic.Compare(onDiskDto.Bounds, currentDto.Bounds).AreEqual
-                    && standardCompareLogic.Compare(onDiskDto.ElevationPlotData, currentDto.ElevationPlotData).AreEqual
-                    && featuresCompareLogic.Compare(onDiskDtoAttributeList,
-                        currentDtoAttributeList).AreEqual)
-                {
-                    var onDiskLineGeometry = onDiskDto.GeoJson.FirstOrDefault()?.Geometry;
-                    var currentLineGeometry = currentDto.GeoJson.FirstOrDefault()?.Geometry;
-
-                    if (onDiskLineGeometry is not null && currentLineGeometry is not null)
-                        if (onDiskLineGeometry.EqualsNormalized(currentLineGeometry))
-                            return;
-                }
-            }
+            if (onDiskDto == currentSerializedDto) return;
         }
 
         if (dataFileInfo.Exists)
@@ -209,6 +189,7 @@ public static class LineData
 
     public record LineSiteJsonData(
         string PageUrl,
+        string SmallPictureUrl,
         SpatialBounds Bounds,
         FeatureCollection GeoJson,
         List<LineElevationPlotDataPoint> ElevationPlotData);

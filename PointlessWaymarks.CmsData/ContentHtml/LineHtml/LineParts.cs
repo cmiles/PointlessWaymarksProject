@@ -43,8 +43,12 @@ public static class LineParts
         var tag =
             $"<div id=\"Line-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
 
+        var smallPictureUrl = content.MainPicture == null
+            ? string.Empty
+            : new PictureSiteInformation(content.MainPicture.Value).Pictures?.SmallPicture?.SiteUrl ?? string.Empty;
+
         var script =
-            $"<script>lazyInit(document.querySelector(\"#Line-{divScriptGuidConnector}\"), () => singleLineMapInitFromLineData(document.querySelector(\"#Line-{divScriptGuidConnector}\"), {LineData.GenerateLineJson(content.Line ?? string.Empty, content.Title ?? string.Empty, string.Empty).Result}))</script>";
+            $"<script>lazyInit(document.querySelector(\"#Line-{divScriptGuidConnector}\"), () => singleLineMapInitFromLineData(document.querySelector(\"#Line-{divScriptGuidConnector}\"), {LineData.GenerateLineJson(content.Line ?? string.Empty, content.Title ?? string.Empty, string.Empty, smallPictureUrl).Result}))</script>";
 
         return tag + script;
     }
