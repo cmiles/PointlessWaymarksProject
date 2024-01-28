@@ -316,10 +316,9 @@ public static class FileManagement
             try
             {
                 var creationDayDiff = frozenUtcNow.Subtract(loopFiles.CreationTimeUtc).Days;
-                var lastAccessDayDiff = frozenUtcNow.Subtract(loopFiles.LastAccessTimeUtc).Days;
                 var lastWriteDayDiff = frozenUtcNow.Subtract(loopFiles.LastWriteTimeUtc).Days;
 
-                if (creationDayDiff > 28 && lastAccessDayDiff > 28 && lastWriteDayDiff > 28)
+                if (creationDayDiff > 28 && lastWriteDayDiff > 28)
                     loopFiles.Delete();
             }
             catch (Exception e)
@@ -340,15 +339,34 @@ public static class FileManagement
             try
             {
                 var creationDayDiff = frozenUtcNow.Subtract(loopFiles.CreationTimeUtc).Days;
-                var lastAccessDayDiff = frozenUtcNow.Subtract(loopFiles.LastAccessTimeUtc).Days;
-                var lastWriteDayDiff = frozenUtcNow.Subtract(loopFiles.LastWriteTimeUtc).Days;
+                var lastAccessDayDiff = frozenUtcNow.Subtract(loopFiles.LastAccessTimeUtc).TotalDays;
+                var lastWriteDayDiff = frozenUtcNow.Subtract(loopFiles.LastWriteTimeUtc).TotalDays;
 
                 if (creationDayDiff > 2 && lastAccessDayDiff > 2 && lastWriteDayDiff > 2)
                     loopFiles.Delete();
             }
             catch (Exception e)
             {
-                Log.Error(e, "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
+                Log.ForContext(nameof(loopFiles), loopFiles.SafeObjectDump()).Error(e, "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
+            }
+
+        var allDirectories = temporaryDirectory.GetDirectories();
+        
+        foreach (var loopDirectories in allDirectories)
+            try
+            {
+                var creationDayDiff = frozenUtcNow.Subtract(loopDirectories.CreationTimeUtc).TotalDays;
+                var lastWriteDayDiff = frozenUtcNow.Subtract(loopDirectories.LastWriteTimeUtc).TotalDays;
+
+                if (creationDayDiff > 6 && lastWriteDayDiff > 6)
+                {
+                    Log.Information("Html Temp Directory - Deleting Directory {0}", loopDirectories.FullName);
+                    loopDirectories.Delete(true);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(loopDirectories), loopDirectories.SafeObjectDump()).Error(e, "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
             }
     }
 
