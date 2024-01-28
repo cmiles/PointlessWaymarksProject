@@ -107,10 +107,11 @@ public static class LineData
         xmlWriter.Close();
 
         var temporaryGpxFile = UniqueFileTools.UniqueFile(FileLocationTools.TempStorageDirectory(),
-            $"GpxDataTemp-{DateTime.Now:yyyyMMddHHmmssfff}.gpx");
+            $"GpxDataTemp-{Guid.NewGuid()}.gpx");
 
         await File.WriteAllTextAsync(temporaryGpxFile!.FullName, textStream.ToString());
         temporaryGpxFile.Refresh();
+
 
         if (dataFileInfo.Exists)
         {
