@@ -279,6 +279,7 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
                 legend: {display: false},
                 tooltip: {
                     displayColors: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
                     callbacks: {
                         title: (tooltipItems) => {
                             return "Distance: " + parseFloat(tooltipItems[0].label).toFixed(2).toLocaleString() + " miles";
