@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -132,6 +132,17 @@ public class AllContentListLoader : ContentListLoaderBase
                         .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
                     itemBag.Add(dbItems);
                     if (await funcDb.PostContents.CountAsync() > dbItems.Count)
+                        Interlocked.Increment(ref _partialLoadCount);
+                },
+                async () =>
+                {
+                    var funcDb = await Db.Context();
+                    progress?.Report($"Loading Video Content from DB - Max {PartialLoadQuantity} Items");
+                    var dbItems = await funcDb.VideoContents
+                        .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                    itemBag.Add(dbItems);
+                    if (await funcDb.VideoContents.CountAsync() > dbItems.Count)
                         Interlocked.Increment(ref _partialLoadCount);
                 }
             };
