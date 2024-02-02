@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
 using System.Windows;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
@@ -29,6 +30,7 @@ using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.LineContentEditor;
 
@@ -451,6 +453,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         }
 
         ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson)));
+        ToWebView.Enqueue(JsonData.CreateRequest(JsonSerializer.Serialize(new MapJsonLoadElevationChartDataDto(LineTools.ElevationChartDataFromGeoJsonFeatureCollectionWithLinestring(LineGeoJson)))));
     }
 
     [BlockingCommand]

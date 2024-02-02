@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Features;
+using NetTopologySuite.Features;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 
@@ -11,6 +11,8 @@ public record MapJsonCoordinateDto(double Latitude, double Longitude, string Mes
 public record MapJsonFeatureDto(Guid Identifier, string MessageType = "Feature");
 
 public record MapJsonFeatureListDto(List<Guid> IdentifierList, string MessageType = "FeatureList");
+
+public record MapJsonLoadElevationChartDataDto(List<LineElevationChartDataPoint> ElevationData, string MessageType = "LoadElevationChartData");
 
 public record MapJsonNewFeatureCollectionDto(
     Guid Identifier,

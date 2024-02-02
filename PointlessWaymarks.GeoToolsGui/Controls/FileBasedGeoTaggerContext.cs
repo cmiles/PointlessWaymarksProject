@@ -191,8 +191,8 @@ public partial class FileBasedGeoTaggerContext
         GpxFileList.FileImportFilter = "gpx files (*.gpx)|*.gpx|All files (*.*)|*.*";
         GpxFileList.DroppedFileExtensionAllowList = [".gpx"];
 
-        PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313, string.Empty);
-        WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313, string.Empty);
+        PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313);
+        WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313);
 
         await CheckThatExifToolExists(false);
     }

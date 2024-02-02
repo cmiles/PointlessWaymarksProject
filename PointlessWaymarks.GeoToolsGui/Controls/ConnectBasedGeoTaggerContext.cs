@@ -286,8 +286,8 @@ public partial class ConnectBasedGeoTaggerContext
 
         Settings.ExifToolFullName = Settings.ExifToolFullName;
 
-        PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313, string.Empty);
-        WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313, string.Empty);
+        PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313);
+        WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313);
 
         await UpdateCredentialsNote();
         await CheckThatExifToolExists(false);

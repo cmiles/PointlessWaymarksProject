@@ -227,6 +227,19 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                 $"https://{_virtualDomain}/{navigateTo.Url}");
     }
 
+    private async Task ProcessToWebJavaScriptExecute(ExecuteJavaScript javaScriptRequest)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Debug.WriteLine(
+            $"{nameof(ProcessToWebViewJson)} - Tag {javaScriptRequest.RequestTag} - javascript Starts: {javaScriptRequest.JavaScriptToExecute[..Math.Min(javaScriptRequest.JavaScriptToExecute.Length, 100)]}");
+
+        if (!string.IsNullOrWhiteSpace(javaScriptRequest.JavaScriptToExecute))
+        {
+            await AssociatedObject.CoreWebView2.ExecuteScriptAsync(javaScriptRequest.JavaScriptToExecute);
+        }
+    }
+
     private async Task ToWebViewMessageProcessor(ToWebViewRequest arg)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -234,7 +247,8 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         await arg.Match(
             ProcessToWebViewFileBuilder,
             ProcessToWebViewNavigation,
-            ProcessToWebViewJson
+            ProcessToWebViewJson,
+            ProcessToWebJavaScriptExecute
         );
     }
 

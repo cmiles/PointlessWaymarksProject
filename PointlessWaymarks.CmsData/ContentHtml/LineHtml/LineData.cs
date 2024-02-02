@@ -1,7 +1,6 @@
 using System.Text;
 using System.Xml;
 using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -14,59 +13,22 @@ namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 
 public static class LineData
 {
-    public static List<LineElevationPlotDataPoint> GenerateLineElevationDataList(List<CoordinateZ> lineCoordinates)
-    {
-        if (lineCoordinates.Count == 0) return [];
-
-        var returnList = new List<LineElevationPlotDataPoint>
-            { new(0, lineCoordinates[0].Z, 0, 0, lineCoordinates[0].Y, lineCoordinates[0].X) };
-
-        if (lineCoordinates.Count == 1) return returnList;
-
-        var accumulatedDistance = 0D;
-        var accumulatedClimb = 0D;
-        var accumulatedDescent = 0D;
-
-        for (var i = 1; i < lineCoordinates.Count; i++)
-        {
-            var elevationChange = lineCoordinates[i - 1].Z - lineCoordinates[i].Z;
-            switch (elevationChange)
-            {
-                case > 0:
-                    accumulatedClimb += elevationChange;
-                    break;
-                case < 0:
-                    accumulatedDescent += elevationChange;
-                    break;
-            }
-
-            accumulatedDistance += DistanceTools.GetDistanceInMeters(lineCoordinates[i - 1].X, lineCoordinates[i - 1].Y,
-                lineCoordinates[i].X, lineCoordinates[i].Y);
-
-            returnList.Add(new LineElevationPlotDataPoint(accumulatedDistance, lineCoordinates[i].Z, accumulatedClimb,
-                accumulatedDescent, lineCoordinates[i].Y, lineCoordinates[i].X));
-        }
-
-        return returnList;
-    }
-
-    public static List<LineElevationPlotDataPoint> GenerateLineElevationDataList(LineContent lineContent)
+    public static List<LineElevationChartDataPoint> GenerateLineElevationDataList(LineContent lineContent)
     {
         if (string.IsNullOrWhiteSpace(lineContent.Line)) return [];
 
-        return GenerateLineElevationDataList(
-            LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(lineContent.Line));
+        return LineTools.ElevationChartDataFromGeoJsonFeatureCollectionWithLinestring(lineContent.Line);
     }
 
     public static async Task<string> GenerateLineJson(string lineGeoJson, string title, string pageUrl,
         string smallImageUrl)
     {
-        var dto = GenerateLineJsonDto(lineGeoJson, title, pageUrl, smallImageUrl);
+        var dto = GenerateLineJsonDto(lineGeoJson, pageUrl, smallImageUrl);
 
         return await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
     }
 
-    public static LineSiteJsonData GenerateLineJsonDto(string lineGeoJson, string title, string pageUrl,
+    public static LineSiteJsonData GenerateLineJsonDto(string lineGeoJson, string pageUrl,
         string smallImageUrl)
     {
         var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(lineGeoJson);
@@ -74,8 +36,7 @@ public static class LineData
         var bounds = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(lineGeoJson));
 
         var elevationPlot =
-            GenerateLineElevationDataList(
-                LineTools.CoordinateListFromGeoJsonFeatureCollectionWithLinestring(lineGeoJson));
+            LineTools.ElevationChartDataFromGeoJsonFeatureCollectionWithLinestring(lineGeoJson);
 
         return new LineSiteJsonData(pageUrl, smallImageUrl,
             SpatialBounds.FromEnvelope(bounds),
@@ -157,7 +118,7 @@ public static class LineData
             ? string.Empty
             : new PictureSiteInformation(lineContent.MainPicture.Value).Pictures?.SmallPicture?.SiteUrl ?? string.Empty;
 
-        var currentDto = GenerateLineJsonDto(lineContent.Line, lineContent.Title ?? string.Empty,
+        var currentDto = GenerateLineJsonDto(lineContent.Line,
             UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent), smallPictureUrl);
         var currentSerializedDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(currentDto);
 
@@ -180,18 +141,10 @@ public static class LineData
             .ConfigureAwait(false);
     }
 
-    public record LineElevationPlotDataPoint(
-        double AccumulatedDistance,
-        double? Elevation,
-        double AccumulatedClimb,
-        double AccumulatedDescent,
-        double Latitude,
-        double Longitude);
-
     public record LineSiteJsonData(
         string PageUrl,
         string SmallPictureUrl,
         SpatialBounds Bounds,
         FeatureCollection GeoJson,
-        List<LineElevationPlotDataPoint> ElevationPlotData);
+        List<LineElevationChartDataPoint> ElevationPlotData);
 }
