@@ -61,11 +61,8 @@ public partial class GpxImportContext : IWebViewMessenger
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        ToWebView.Enqueue(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
-            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
-
-        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+        this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         ListSort = new ColumnSortControlContext
         {

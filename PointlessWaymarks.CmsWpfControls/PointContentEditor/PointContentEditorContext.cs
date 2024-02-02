@@ -60,11 +60,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        ToWebView.Enqueue(WpfCmsHtmlDocument.CmsLeafletPointChooserMapHtmlAndJs("Map",
-            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
-
-        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+        this.SetupCmsLeafletPointChooserMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         PropertyChanged += OnPropertyChanged;
     }

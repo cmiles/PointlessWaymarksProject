@@ -49,8 +49,7 @@ public static class WpfHtmlDocument
         return initialWebFilesMessage;
     }
 
-    public static FileBuilder CmsLeafletMapAndChartHtmlAndJs(string title, double initialLatitude,
-        double initialLongitude, string styleBlock = "", string javascript = "")
+    public static FileBuilder CmsLeafletMapAndChartHtmlAndJs(string title, string styleBlock = "", string javascript = "")
     {
         var htmlString = $"""
                           <!doctype html>
@@ -105,7 +104,33 @@ public static class WpfHtmlDocument
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         messenger.ToWebView.Enqueue(ExecuteJavaScript.CreateRequest(
-            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}'"));
+            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}'", true));
+    }
+
+    public static void SetupCmsLeafletMapWithLineElevationChartHtmlAndJs(this IWebViewMessenger messenger, string title,
+        double initialLatitude, double initialLongitude, string calTopoApiKey = "", string bingApiKey = "", string cssStyleBlock = "", string javascript = "")
+    {
+        var initialWebFilesMessage = CmsLeafletMapAndChartHtmlAndJs(title, cssStyleBlock, javascript);
+
+        messenger.ToWebView.Enqueue(initialWebFilesMessage);
+
+        messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+
+        messenger.ToWebView.Enqueue(ExecuteJavaScript.CreateRequest(
+            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}'", true));
+    }
+
+    public static void SetupCmsLeafletPointChooserMapHtmlAndJs(this IWebViewMessenger messenger, string title,
+        double initialLatitude, double initialLongitude, string calTopoApiKey = "", string bingApiKey = "", string cssStyleBlock = "", string javascript = "")
+    {
+        var initialWebFilesMessage = CmsLeafletMapHtmlAndJs(title, cssStyleBlock, javascript);
+
+        messenger.ToWebView.Enqueue(initialWebFilesMessage);
+
+        messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+
+        messenger.ToWebView.Enqueue(ExecuteJavaScript.CreateRequest(
+            $"initialMapLoadWithUserPointChooser({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}'", true));
     }
 
     public static async Task SetupDocumentWithMinimalCss(this IWebViewMessenger messenger, string body,

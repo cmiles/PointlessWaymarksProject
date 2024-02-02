@@ -2,6 +2,8 @@ let map;
 let mapLayers = [];
 let newLayerAutoClose = false;
 let chart;
+let pointContentMarker;
+let useCircleMarkerStyle = false;
 
 let pointCircleMarkerOrangeOptions = {
     radius: 8,
@@ -36,9 +38,50 @@ function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingAp
 
     L.control.layers(baseMapNames).addTo(map);
 
-    if (document.getElementById('mainElevationChart')) singleLineChartInitFromLineData
+    if (document.getElementById('mainElevationChart')) singleLineChartInitFromLineData;
 
     map.on('moveend', onMapMoveEnd);
+    window.chrome.webview.addEventListener('message', processMapMessage);
+
+    window.chrome.webview.postMessage({ "messageType": "scriptFinished" });
+}
+
+function initialMapLoadWithUserPointChooser() {
+    newLayerAutoClose = true;
+    useCircleMarkerStyle = true;
+
+    let [baseMaps, baseMapNames] = generateBaseMaps(calTopoApiKey, bingApiKey);
+
+    map = L.map('mainMap', {
+        center: { lat: initialLatitude, lng: initialLongitude },
+        zoom: 13,
+        layers: baseMaps,
+        doubleClickZoom: false,
+        closePopupOnClick: false
+    });
+
+    L.control.layers(baseMapNames).addTo(map);
+
+    if (document.getElementById('mainElevationChart')) singleLineChartInitFromLineData;
+
+    map.on('moveend', onMapMoveEnd);
+
+    map.on('dblclick', function (e) {
+        console.log(e);
+        pointContentMarker.setLatLng(e.latlng);
+        window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.latlng.lat, longitude: e.latlng.lng });
+    });
+
+    pointContentMarker = new L.marker([initialLatitude, initialLongitude], {
+        draggable: true,
+        autoPan: true
+    }).addTo(map);
+
+    pointContentMarker.on('dragend', function (e) {
+        console.log(e);
+        window.chrome.webview.postMessage({ messageType: 'userSelectedLatitudeLongitudeChanged', latitude: e.target._latlng.lat, longitude: e.target._latlng.lng });
+    });
+
     window.chrome.webview.addEventListener('message', processMapMessage);
 
     window.chrome.webview.postMessage({ "messageType": "scriptFinished" });
@@ -185,11 +228,22 @@ function postGeoJsonDataHandler(e, clearCurrent, center) {
     let newLayerCount = mapData.GeoJsonLayers.length;
     let currentCount = 0;
 
-    mapData.GeoJsonLayers.forEach(item => {
-        broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
-        let newLayer = new L.geoJSON(item, {onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle});
-        mapLayers.push(newLayer);
-        map.addLayer(newLayer); });
+    if (useCircleMarkerStyle) {
+        mapData.GeoJsonLayers.forEach(item => {
+            broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
+            let newLayer = new L.geoJSON(item, { onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle, pointToLayer: function (feature, latlng) { return L.circleMarker(latlng, pointCircleMarkerOrangeOptions) } });
+            mapLayers.push(newLayer);
+            map.addLayer(newLayer);
+        });
+    }
+    else {
+        mapData.GeoJsonLayers.forEach(item => {
+            broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
+            let newLayer = new L.geoJSON(item, { onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle });
+            mapLayers.push(newLayer);
+            map.addLayer(newLayer);
+        });
+    }
 }
 
 function processMapMessage(e)
@@ -217,6 +271,12 @@ function processMapMessage(e)
     }
 
     if (e.data.MessageType === 'LoadElevationData') singleLineChartLoadDataHandler(e);
+
+    if (e.data.MessageType === 'MoveUserLocationSelection') {
+        broadcastProgress('Mover User Location Selection Request');
+        pointContentMarker.setLatLng([e.data.Latitude, e.data.Longitude]);
+        map.setView([e.data.Latitude, e.data.Longitude], map.getZoom());
+    }
 }
 
 function showPopupsForHandler(e) {
@@ -256,7 +316,7 @@ function centerFeatureHandler(e) {
 
 function singleLineChartLoadDataHandler(e) {
 
-    let chartData = 
+    let chartData = e.ElevationData;
 
     //This code is to help give the charts a slight bit more cross chart comparability - so the
     //charts will always end on a multiple of 5 miles and 5,000' of elevation. This is a compromise

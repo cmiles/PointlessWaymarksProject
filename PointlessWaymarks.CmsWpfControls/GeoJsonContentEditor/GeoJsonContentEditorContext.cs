@@ -29,6 +29,7 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+using PointlessWaymarks.WpfCommon.WpfHtml;
 
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 
@@ -50,11 +51,8 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        ToWebView.Enqueue(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
-            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
-
-        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+        this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         DbEntry = dbEntry;
 

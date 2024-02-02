@@ -7,6 +7,7 @@ using Microsoft.Xaml.Behaviors;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
+using ThirdParty.Json.LitJson;
 
 namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
@@ -30,6 +31,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         nameof(RedirectExternalLinksToBrowser),
         typeof(bool), typeof(WebViewGeneratedVirtualDomainBehavior),
         new PropertyMetadata(default(bool)));
+
 
     // Example Usage in Xaml
     // <b:Interaction.Behaviors>
@@ -131,6 +133,21 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         }
     }
 
+    private async Task ProcessToWebJavaScriptExecute(ExecuteJavaScript javaScriptRequest)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Debug.WriteLine(
+            $"{nameof(ProcessToWebViewJson)} - Tag {javaScriptRequest.RequestTag} - javascript Starts: {javaScriptRequest.JavaScriptToExecute[..Math.Min(javaScriptRequest.JavaScriptToExecute.Length, 100)]}");
+
+        if (!string.IsNullOrWhiteSpace(javaScriptRequest.JavaScriptToExecute))
+        {
+            if (javaScriptRequest.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
+
+            await AssociatedObject.CoreWebView2.ExecuteScriptAsync(javaScriptRequest.JavaScriptToExecute);
+        }
+    }
+
     private async Task ProcessToWebViewFileBuilder(FileBuilder fileBuilder)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -220,23 +237,12 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         Debug.WriteLine(
             $"{nameof(ProcessToWebViewNavigation)} - Tag {navigateTo.RequestTag} - To: {navigateTo.Url} - WaitForScriptFinished: {navigateTo.WaitForScriptFinished}");
 
-        if (navigateTo.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
-
         if (!string.IsNullOrWhiteSpace(navigateTo.Url))
+        {
+            if (navigateTo.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
+
             AssociatedObject.CoreWebView2.Navigate(
                 $"https://{_virtualDomain}/{navigateTo.Url}");
-    }
-
-    private async Task ProcessToWebJavaScriptExecute(ExecuteJavaScript javaScriptRequest)
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Debug.WriteLine(
-            $"{nameof(ProcessToWebViewJson)} - Tag {javaScriptRequest.RequestTag} - javascript Starts: {javaScriptRequest.JavaScriptToExecute[..Math.Min(javaScriptRequest.JavaScriptToExecute.Length, 100)]}");
-
-        if (!string.IsNullOrWhiteSpace(javaScriptRequest.JavaScriptToExecute))
-        {
-            await AssociatedObject.CoreWebView2.ExecuteScriptAsync(javaScriptRequest.JavaScriptToExecute);
         }
     }
 

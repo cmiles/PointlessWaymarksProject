@@ -54,11 +54,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        ToWebView.Enqueue(WpfCmsHtmlDocument.CmsLeafletMapHtmlAndJs("Map",
-            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault));
-
-        ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
+        this.SetupCmsLeafletMapWithLineElevationChartHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         JsonFromWebView = new WorkQueue<FromWebViewMessage>(true);
 
