@@ -12,7 +12,9 @@ public record MapJsonFeatureDto(Guid Identifier, string MessageType = "Feature")
 
 public record MapJsonFeatureListDto(List<Guid> IdentifierList, string MessageType = "FeatureList");
 
-public record MapJsonLoadElevationChartDataDto(List<LineElevationChartDataPoint> ElevationData, string MessageType = "LoadElevationChartData");
+public record MapJsonLoadElevationChartDataDto(
+    List<LineElevationChartDataPoint> ElevationData,
+    string MessageType = "LoadElevationChartData");
 
 public record MapJsonNewFeatureCollectionDto(
     Guid Identifier,

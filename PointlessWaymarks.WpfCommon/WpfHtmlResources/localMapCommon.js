@@ -1,7 +1,9 @@
 let map;
 let mapLayers = [];
 let newLayerAutoClose = false;
-let chart;
+let lineElevationChart;
+let lineElevationChartMapMarker;
+let lineElevationData;
 let pointContentMarker;
 let useCircleMarkerStyle = false;
 
@@ -20,10 +22,13 @@ function broadcastProgress(progress) {
 }
 
 function initialDocumentLoad() {
+    broadcastProgress('Initial Document Load');
     window.chrome.webview.postMessage({ "messageType": "scriptFinished" });
 }
 
 function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingApiKey) {
+    broadcastProgress(`Initial Map Load - ${initialLatitude}, ${initialLongitude}`);
+
     newLayerAutoClose = true;
 
     let [baseMaps, baseMapNames] = generateBaseMaps(calTopoApiKey, bingApiKey);
@@ -38,15 +43,19 @@ function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingAp
 
     L.control.layers(baseMapNames).addTo(map);
 
-    if (document.getElementById('mainElevationChart')) singleLineChartInitFromLineData;
+    if (document.getElementById('mainElevationChart')) singleLineChartInit();
 
     map.on('moveend', onMapMoveEnd);
+
     window.chrome.webview.addEventListener('message', processMapMessage);
 
     window.chrome.webview.postMessage({ "messageType": "scriptFinished" });
+
+    return true;
 }
 
-function initialMapLoadWithUserPointChooser() {
+function initialMapLoadWithUserPointChooser(initialLatitude, initialLongitude, calTopoApiKey, bingApiKey) {
+    broadcastProgress(`Initial Map with User Point Load - ${initialLatitude}, ${initialLongitude}`);
     newLayerAutoClose = true;
     useCircleMarkerStyle = true;
 
@@ -62,7 +71,7 @@ function initialMapLoadWithUserPointChooser() {
 
     L.control.layers(baseMapNames).addTo(map);
 
-    if (document.getElementById('mainElevationChart')) singleLineChartInitFromLineData;
+    if (document.getElementById('mainElevationChart')) singleLineChartInit();
 
     map.on('moveend', onMapMoveEnd);
 
@@ -85,6 +94,8 @@ function initialMapLoadWithUserPointChooser() {
     window.chrome.webview.addEventListener('message', processMapMessage);
 
     window.chrome.webview.postMessage({ "messageType": "scriptFinished" });
+
+    return true;
 }
 
 function generateBaseMaps(calTopoApiKey, bingApiKey){
@@ -270,7 +281,7 @@ function processMapMessage(e)
         map.flyToBounds([[e.data.Bounds.MinLatitude, e.data.Bounds.MinLongitude], [e.data.Bounds.MaxLatitude, e.data.Bounds.MaxLongitude]]);
     }
 
-    if (e.data.MessageType === 'LoadElevationData') singleLineChartLoadDataHandler(e);
+    if (e.data.MessageType === 'LoadElevationChartData') singleLineChartLoadDataHandler(e);
 
     if (e.data.MessageType === 'MoveUserLocationSelection') {
         broadcastProgress('Mover User Location Selection Request');
@@ -316,32 +327,31 @@ function centerFeatureHandler(e) {
 
 function singleLineChartLoadDataHandler(e) {
 
-    let chartData = e.ElevationData;
+    lineElevationData = e.data.ElevationData;
 
     //This code is to help give the charts a slight bit more cross chart comparability - so the
     //charts will always end on a multiple of 5 miles and 5,000' of elevation. This is a compromise
     //because the chart won't fill all available space (show max detail) and charts won't always
     //have the same scale, but having worked with this data for years I think this is a very simple
     //compromise that often works out nicely...
-    const sourceData = lineData;
-    const maxDistanceInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.AccumulatedDistance));
+    const maxDistanceInMeters = Math.max(...lineElevationData.map(x => x.AccumulatedDistance));
     const distanceFiveMileUnits = Math.floor((maxDistanceInMeters * 0.0006213711922) / 5);
     const distanceMax = (distanceFiveMileUnits + 1) * 5;
 
-    const maxElevationInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.Elevation));
+    const maxElevationInMeters = Math.max(...lineElevationData.map(x => x.Elevation));
     const elevationFiveThousandFeetUnits = Math.floor((maxElevationInMeters * 3.280839895) / 5000);
     const elevationMax = (elevationFiveThousandFeetUnits + 1) * 5000;
 
     //Thank you to https://www.geoapify.com/tutorial/draw-route-elevation-profile-with-chartjs for
     //the starting point on this!
 
-    chart.options.scales.x.max = distanceMax;
-    chart.options.scales.y.max = elevationMax;
+    lineElevationChart.options.scales.x.max = distanceMax;
+    lineElevationChart.options.scales.y.max = elevationMax;
 
     const chartData = {
-        labels: lineData.ElevationPlotData.map(x => x.AccumulatedDistance * 0.0006213711922),
+        labels: lineElevationData.map(x => x.AccumulatedDistance * 0.0006213711922),
         datasets: [{
-            data: lineData.ElevationPlotData.map(x => x.Elevation * 3.280839895),
+            data: lineElevationData.map(x => x.Elevation * 3.280839895),
             fill: true,
             borderColor: '#66ccff',
             backgroundColor: '#66ccff66',
@@ -351,9 +361,9 @@ function singleLineChartLoadDataHandler(e) {
         }]
     };
 
-    chart.data = chartData;
+    lineElevationChart.data = chartData;
 
-    chart.update();
+    lineElevationChart.update();
 }
 
 async function singleLineChartInit() {
@@ -387,24 +397,17 @@ async function singleLineChartInit() {
                         title: (tooltipItems) => {
                             return "Distance: " + parseFloat(tooltipItems[0].label).toFixed(2).toLocaleString() + " miles";
                         },
-                        //label: (tooltipItem) => {
+                        label: (tooltipItem) => {
+                            
+                            var location = [lineElevationData[tooltipItem.dataIndex].Latitude, lineElevationData[tooltipItem.dataIndex].Longitude];
 
-                        //    let possibleMaps = globalLineMaps.filter(x => x.contentId === lineData.GeoJson.features[0].properties["content-id"]);
+                            setLineElevationChartMapMarker(location);
 
-                        //    if (possibleMaps?.length) {
-
-                        //        let connectedMap = possibleMaps[0].lineMap;
-                        //        var location = [lineData.ElevationPlotData[tooltipItem.dataIndex].Latitude, lineData.ElevationPlotData[tooltipItem.dataIndex].Longitude];
-                        //        var feature = lineData.GeoJson.features[0];
-
-                        //        setElevationChartLineMarker(connectedMap, feature, location);
-                        //    }
-
-                        //    return ["Elevation: " + Math.floor(tooltipItem.raw).toLocaleString() + " feet",
-                        //    "Accumulated Climb: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedClimb).toLocaleString(),
-                        //    "Accumulated Descent: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedDescent).toLocaleString()
-                        //    ];
-                        //},
+                            return ["Elevation: " + Math.floor(tooltipItem.raw).toLocaleString() + " feet",
+                                "Accumulated Climb: " + Math.floor(lineElevationData[tooltipItem.dataIndex].AccumulatedClimb).toLocaleString(),
+                                "Accumulated Descent: " + Math.floor(lineElevationData[tooltipItem.dataIndex].AccumulatedDescent).toLocaleString()
+                            ];
+                        },
                     }
                 }
             }
@@ -412,25 +415,32 @@ async function singleLineChartInit() {
     };
 
 
-    chart = new Chart(document.getElementById('mainElevationChart').getContext("2d"), config);
+    lineElevationChart = new Chart(document.getElementById('mainElevationChart').getContext("2d"), config);
 
-    //chart.canvas.onclick = (e) => {
-    //    const points = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-    //    if (!points?.length) return;
+    lineElevationChart.canvas.onclick = (e) => {
+        const points = lineElevationChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+        if (!points?.length) return;
 
-    //    let possibleMaps = globalLineMaps.filter(x => x.contentId === contentId);
-    //    if (!possibleMaps?.length) {
-    //        return;
-    //    }
+        let location = [lineElevationData[points[0].index].Latitude, lineElevationData[points[0].index].Longitude];
+        map.flyTo(location);
 
-    //    let connectedMap = possibleMaps[0].lineMap;
+        setLineElevationChartMapMarker(location);
+    };
 
-    //    let location = [lineData.ElevationPlotData[points[0].index].Latitude, lineData.ElevationPlotData[points[0].index].Longitude];
-    //    connectedMap.flyTo(location);
+}
 
-    //    let feature = lineData.GeoJson.features[0];
+function setLineElevationChartMapMarker(location) {
 
-    //    setElevationChartLineMarker(connectedMap, feature, location);
-    //};
+    if (!lineElevationChartMapMarker) {
+        lineElevationChartMapMarker = L.circle(location, {
+            color: '#f03',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 30
+        });
 
+        lineElevationChartMapMarker.addTo(map);
+    } else {
+        lineElevationChartMapMarker.setLatLng(location);
+    }
 }

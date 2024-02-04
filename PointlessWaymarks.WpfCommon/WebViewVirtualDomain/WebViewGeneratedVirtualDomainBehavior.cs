@@ -7,7 +7,6 @@ using Microsoft.Xaml.Behaviors;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
-using ThirdParty.Json.LitJson;
 
 namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
@@ -38,7 +37,6 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     //      <wpfHtml:WebViewHtmlStringAndJsonMessagingBehavior WebViewJsonMessenger="{Binding .}" HtmlString="{Binding MapHtml}" />
     // </b:Interaction.Behaviors>
 
-
     private DirectoryInfo _targetDirectory;
     private string _virtualDomain = "localweb.pointlesswaymarks.com";
     private bool _webViewHasLoaded;
@@ -53,6 +51,11 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     {
         get => (IWebViewMessenger)GetValue(WebViewMessengerProperty);
         set => SetValue(WebViewMessengerProperty, value);
+    }
+
+    private void DevToolsProtocolEventHandler(object? sender, CoreWebView2DevToolsProtocolEventReceivedEventArgs e)
+    {
+        Debug.WriteLine($"DevToolsProtocolEventReceived: {e.ParameterObjectAsJson}");
     }
 
     protected override void OnAttached()
@@ -105,6 +108,10 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                     _targetDirectory.Parent.FullName
                     , CoreWebView2HostResourceAccessKind.Allow);
 
+                AssociatedObject.CoreWebView2.GetDevToolsProtocolEventReceiver("Log.entryAdded")
+                    .DevToolsProtocolEventReceived += DevToolsProtocolEventHandler;
+                await AssociatedObject.CoreWebView2.CallDevToolsProtocolMethodAsync("Log.enable", "{}");
+
                 AssociatedObject.NavigationStarting += WebView_OnNavigationStarting;
                 AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
 
@@ -138,13 +145,20 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Debug.WriteLine(
-            $"{nameof(ProcessToWebViewJson)} - Tag {javaScriptRequest.RequestTag} - javascript Starts: {javaScriptRequest.JavaScriptToExecute[..Math.Min(javaScriptRequest.JavaScriptToExecute.Length, 100)]}");
+            $"{nameof(ProcessToWebJavaScriptExecute)} - Tag {javaScriptRequest.RequestTag} - javascript Starts: {javaScriptRequest.JavaScriptToExecute[..Math.Min(javaScriptRequest.JavaScriptToExecute.Length, 512)]}");
 
         if (!string.IsNullOrWhiteSpace(javaScriptRequest.JavaScriptToExecute))
         {
             if (javaScriptRequest.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
 
-            await AssociatedObject.CoreWebView2.ExecuteScriptAsync(javaScriptRequest.JavaScriptToExecute);
+            var javascriptResult =
+                await AssociatedObject.CoreWebView2.ExecuteScriptAsync(javaScriptRequest.JavaScriptToExecute);
+
+            if (!string.IsNullOrWhiteSpace(javascriptResult))
+
+                WebViewMessenger.FromWebView.Enqueue(
+                    new FromWebViewMessage(
+                        $$"""{ "messageType": "javascriptReturn", "message": "{{javascriptResult}}" }"""));
         }
     }
 
@@ -260,6 +274,13 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 
     private void WebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
     {
+        if (e.NavigationKind == CoreWebView2NavigationKind.Reload ||
+            e.NavigationKind == CoreWebView2NavigationKind.BackOrForward)
+        {
+            e.Cancel = true;
+            return;
+        }
+
         if (!RedirectExternalLinksToBrowser) return;
         if (!e.IsUserInitiated) return;
 
