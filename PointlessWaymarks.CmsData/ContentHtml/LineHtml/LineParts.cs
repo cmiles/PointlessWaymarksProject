@@ -105,12 +105,12 @@ public static class LineParts
         var divScriptGuidConnector = Guid.NewGuid();
 
         var tag = $"""
-                  <div id=\"LineElevationContainer-{divScriptGuidConnector}\" class=\"line-elevation-chart-container\">
-                   <canvas id=\"LineElevationChart-{divScriptGuidConnector}\" class=\"line-elevation-chart\"></canvas>
+                  <div id="LineElevationContainer-{divScriptGuidConnector}" class="line-elevation-chart-container">
+                   <canvas id="LineElevationChart-{divScriptGuidConnector}" class="line-elevation-chart"></canvas>
                   </div>
                   """;
         var script =
-            $"<script>lazyInit(document.querySelector(\"#LineElevationChart-{divScriptGuidConnector}\"), () => singleLineElevationChartInit(document.querySelector(\"#LineElevationChart-{divScriptGuidConnector}\"), \"{content.ContentId}\"))</script>";
+            $"<script>lazyInit(document.querySelector('#LineElevationChart-{divScriptGuidConnector}'), () => singleLineElevationChartInit(document.querySelector('#LineElevationChart-{divScriptGuidConnector}'), '{content.ContentId}'))</script>";
 
         return tag + script;
     }
