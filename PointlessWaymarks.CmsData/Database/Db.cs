@@ -25,7 +25,7 @@ public static class Db
     public static async Task<ContentCommonShell?> ContentCommonShellFromContentId(this PointlessWaymarksContext db,
         Guid contentId)
     {
-        //!Content Type List!!
+        //!!Content Type List!!
         var possibleFile = await db.FileContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
             .ConfigureAwait(false);
         if (possibleFile != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possibleFile);
@@ -62,6 +62,10 @@ public static class Db
         var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
             .ConfigureAwait(false);
         if (possiblePost != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possiblePost);
+
+        var possibleVideo = await db.VideoContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
+            .ConfigureAwait(false);
+        if (possibleVideo != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possibleVideo);
 
         return null;
     }

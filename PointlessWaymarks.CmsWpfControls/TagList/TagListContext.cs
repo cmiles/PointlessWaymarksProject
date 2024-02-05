@@ -9,12 +9,16 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
+using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
+using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
+using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -229,6 +233,7 @@ public partial class TagListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        //!!Content Type List!!
         switch (content)
         {
             case FileContent c:
@@ -237,18 +242,31 @@ public partial class TagListContext
             case ImageContent c:
                 (await ImageContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
+            case GeoJsonContent c:
+                (await GeoJsonContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
+                break;
+            case LineContent c:
+                (await LineContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
+                break;
+            case LinkContent c:
+                (await LinkContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
+                break;
             case NoteContent c:
                 (await NoteContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case PhotoContent c:
                 (await PhotoContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
+            case PointContent c:
+                (await PointContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
+                break;
             case PostContent c:
                 (await PostContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
-            case LinkContent c:
-                (await LinkContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
+            case VideoContent c:
+                (await VideoContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
+
             default:
                 StatusContext.ToastError("Content Type is Unknown?");
                 break;
