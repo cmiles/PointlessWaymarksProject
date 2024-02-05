@@ -7,6 +7,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
+using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
@@ -127,6 +128,14 @@ public partial class CmsCommonCommands
         var newWindow =
             await AllContentListWindow.CreateInstance(
                 await AllContentListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+    
+    [NonBlockingCommand]
+    private async Task NewContentMapWindow()
+    {
+        var newWindow =
+            await ContentMap.ContentMapWindow.CreateInstance(new ContentMapListLoader("Content View/Search", []));
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 

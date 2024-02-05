@@ -1,6 +1,5 @@
 using System.IO;
 using System.Text;
-using System.Text.Json;
 using System.Windows;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
@@ -42,51 +41,48 @@ public partial class LineListWithActionsContext
 
         ListContext.ContextMenuItems =
         [
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Map Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-
-            new() { ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand },
-            new()
+            new ContextMenuItemData
+                { ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Stats Code to Clipboard", ItemCommand = StatsBracketCodesToClipboardForSelectedCommand
             },
-
-            new()
-            {
-                ItemName = "GeoJson to Clipboard", ItemCommand = GeoJsonToClipboardForSelectedCommand
-            },
-
-            new()
-            {
-                ItemName = "Save Gpx File", ItemCommand = SelectedToGpxFileCommand
-            },
-
-            new()
-            {
-                ItemName = "Monthly Stats Window", ItemCommand = MonthSummaryStatsWindowForSelectedCommand
-            },
-
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Elevation Chart Code to Clipboard",
                 ItemCommand = ElevationChartBracketCodesToClipboardForSelectedCommand
             },
-
-            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new()
+            new ContextMenuItemData
+            {
+                ItemName = "GeoJson to Clipboard", ItemCommand = GeoJsonToClipboardForSelectedCommand
+            },
+            new ContextMenuItemData
+            {
+                ItemName = "Save Gpx File", ItemCommand = SelectedToGpxFileCommand
+            },
+            new ContextMenuItemData
+            {
+                ItemName = "Monthly Stats Window", ItemCommand = MonthSummaryStatsWindowForSelectedCommand
+            },
+            new ContextMenuItemData
+                { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
+            new ContextMenuItemData
+                { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
             },
 
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+            new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
@@ -301,23 +297,24 @@ public partial class LineListWithActionsContext
     private async Task MonthSummaryStatsWindowForAllLineContent()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        
+
         var db = await Db.Context();
 
-        var allActivities = await db.LineContents.LineContentFilteredForActivities().Select(x => x.ContentId).ToListAsync();
-        
+        var allActivities =
+            await db.LineContents.LineContentFilteredForActivities().Select(x => x.ContentId).ToListAsync();
+
         var window =
             await LineMonthlySummaryWindow.CreateInstance(allActivities);
 
         await window.PositionWindowAndShowOnUiThread();
     }
-    
+
     [BlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
     private async Task MonthSummaryStatsWindowForSelected()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        
+
         var frozenSelected = SelectedListItems();
 
         var window =

@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -195,10 +196,32 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $"{settings.PhotoPageUrl(content)}";
+        var url = settings.PhotoPageUrl(content);
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
+    }
+
+    [BlockingCommand]
+    public async Task ViewSitePreview(PhotoContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = settings.PhotoPageUrl(content);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(url);
+
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
 
     private static async Task<List<object>> ApertureFilter(PhotoContent? content)

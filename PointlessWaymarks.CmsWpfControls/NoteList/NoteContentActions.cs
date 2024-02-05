@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -28,6 +29,8 @@ public partial class NoteContentActions : IContentActions<NoteContent>
         StatusContext = statusContext;
         BuildCommands();
     }
+
+    public StatusControlContext StatusContext { get; set; }
 
     public string DefaultBracketCode(NoteContent? content)
     {
@@ -144,7 +147,7 @@ public partial class NoteContentActions : IContentActions<NoteContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(NoteContent? content)
@@ -192,13 +195,33 @@ public partial class NoteContentActions : IContentActions<NoteContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $"{settings.NotePageUrl(content)}";
+        var url = settings.NotePageUrl(content);
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    [BlockingCommand]
+    public async Task ViewSitePreview(NoteContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = settings.NotePageUrl(content);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(url);
+
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
+    }
 
     public static async Task<NoteListListItem> ListItemFromDbItem(NoteContent content, NoteContentActions itemActions,
         bool showType)

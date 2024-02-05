@@ -28,6 +28,8 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
         BuildCommands();
     }
 
+    public StatusControlContext StatusContext { get; set; }
+
     public string DefaultBracketCode(MapComponent? content)
     {
         return content?.ContentId == null ? string.Empty : $"{BracketCodeMapComponents.Create(content)}";
@@ -132,7 +134,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
         StatusContext.ToastSuccess("Generated Map Data");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(MapComponent? content)
@@ -175,7 +177,13 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
         StatusContext.ToastWarning("Maps don't have a direct URL to open...");
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    [BlockingCommand]
+    public async Task ViewSitePreview(MapComponent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        StatusContext.ToastWarning("Maps don't have a direct URL to open...");
+    }
 
     public static async Task<MapComponentListListItem> ListItemFromDbItem(MapComponent content,
         MapComponentContentActions itemActions, bool showType)

@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -204,10 +205,32 @@ public partial class LineContentActions : IContentActions<LineContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $"{settings.LinePageUrl(content)}";
+        var url = settings.LinePageUrl(content);
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
+    }
+
+    [BlockingCommand]
+    public async Task ViewSitePreview(LineContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = settings.LinePageUrl(content);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(url);
+
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
 
     public static async Task<LineListListItem> ListItemFromDbItem(LineContent content, LineContentActions itemActions,

@@ -9,6 +9,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CommonTools;
@@ -200,6 +201,28 @@ public partial class VideoContentActions : IContentActions<VideoContent>
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
+    }
+
+    [BlockingCommand]
+    public async Task ViewSitePreview(VideoContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = settings.VideoPageUrl(content);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(url);
+
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
 
     public static async Task<VideoListListItem> ListItemFromDbItem(VideoContent content,

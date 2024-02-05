@@ -71,6 +71,14 @@
         <Setter Property="Command" Value="{Binding ItemActions.ViewFileCommand}" />
         <Setter Property="CommandParameter" Value="{Binding DbEntry}" />
     </Style>
+    <Style x:Key="ContentListItemSitePreviewButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Margin" Value="0,6,6,0" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Command" Value="{Binding ItemActions.ViewSitePreviewCommand}" />
+        <Setter Property="CommandParameter" Value="{Binding DbEntry}" />
+    </Style>
     <Style x:Key="ContentListItemImageColumnStyle" TargetType="ColumnDefinition">
         <Setter Property="Width" Value="110" />
     </Style>
@@ -462,10 +470,22 @@
             </Border.InputBindings>
             <Grid Margin="4">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
+                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <ContentPresenter VerticalAlignment="Top"
+                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
+                </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -496,10 +516,22 @@
             </Border.InputBindings>
             <Grid Margin="4">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
+                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <ContentPresenter VerticalAlignment="Top"
+                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
+                </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -530,10 +562,22 @@
             </Border.InputBindings>
             <Grid Margin="4">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
+                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <ContentPresenter VerticalAlignment="Top"
+                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
+                </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -563,7 +607,8 @@
                             </TextBlock>
                             <TextBlock Text="{Binding DbEntry.MinimumElevation, StringFormat='Min Elevation: {0}\''}">
                             </TextBlock>
-                            <TextBlock Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}, StringFormat='Time: {0}'}">
+                            <TextBlock
+                                Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}, StringFormat='Time: {0}'}">
                             </TextBlock>
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
@@ -617,9 +662,14 @@
                     </Grid.RowDefinitions>
                     <ContentPresenter VerticalAlignment="Top"
                                       Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
-                        view
-                    </Button>
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ContentListItemViewFileButtonStyle}">
+                            view
+                        </Button>
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
                 </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
@@ -661,9 +711,14 @@
                     </Grid.RowDefinitions>
                     <ContentPresenter VerticalAlignment="Top"
                                       Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
-                        view
-                    </Button>
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ContentListItemViewFileButtonStyle}">
+                            view
+                        </Button>
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
                 </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
@@ -693,8 +748,18 @@
                     CommandParameter="{Binding DbEntry}"
                     Gesture="Shift+LeftDoubleClick" />
             </Border.InputBindings>
+
             <Grid Margin="4">
-                <Grid Style="{StaticResource ContentListTextGridStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                    <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}" VerticalAlignment="Bottom">
+                        preview
+                    </Button>
+                </Grid>
+                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
@@ -734,9 +799,14 @@
                     </Grid.RowDefinitions>
                     <ContentPresenter VerticalAlignment="Top"
                                       Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
-                        view
-                    </Button>
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ContentListItemViewFileButtonStyle}">
+                            view
+                        </Button>
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
                 </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
@@ -909,10 +979,22 @@
             </Border.InputBindings>
             <Grid Margin="4">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="110" />
+                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <ContentPresenter Content="{StaticResource ContentListSmallMainImageDisplay}" />
+                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <ContentPresenter VerticalAlignment="Top"
+                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
+                </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -954,9 +1036,14 @@
                     </Grid.RowDefinitions>
                     <ContentPresenter VerticalAlignment="Top"
                                       Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <Button Grid.Row="1" Style="{StaticResource ContentListItemViewFileButtonStyle}">
-                        view
-                    </Button>
+                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource ContentListItemViewFileButtonStyle}">
+                            view
+                        </Button>
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
                 </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
                     <Grid.RowDefinitions>
@@ -1091,6 +1178,8 @@
         <MenuItem Command="{Binding CommonCommands.NewPostListWindowCommand}" Header="New Post List Window" />
         <MenuItem Command="{Binding CommonCommands.NewVideoListWindowCommand}" Header="New Video List Window" />
         <Separator />
+        <MenuItem Command="{Binding CommonCommands.NewContentMapWindowCommand}" Header="New Map View/Search Window" />
+        <Separator />
         <MenuItem Command="{Binding CommonCommands.NewCmsWindowCommand}" Header="New CMS Window" />
     </collections:ArrayList>
     <MenuItem
@@ -1124,6 +1213,8 @@
         <MenuItem Command="{Binding CommonCommands.NewPostContentCommand}" Header="Post" />
         <MenuItem Command="{Binding CommonCommands.NewVideoContentFromFilesCommand}" Header="Video From Files" />
         <MenuItem Command="{Binding CommonCommands.NewVideoContentCommand}" Header="Video" />
+        <Separator />
+        <MenuItem Command="{Binding CommonCommands.NewContentMapWindowCommand}" Header="New Map View/Search Window" />
         <Separator />
         <MenuItem Command="{Binding CommonCommands.NewCmsWindowCommand}" Header="New CMS Window" />
     </collections:ArrayList>

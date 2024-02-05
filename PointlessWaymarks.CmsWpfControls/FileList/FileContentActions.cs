@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -28,6 +29,8 @@ public partial class FileContentActions : IContentActions<FileContent>
         StatusContext = statusContext;
         BuildCommands();
     }
+
+    public StatusControlContext StatusContext { get; set; }
 
     public string DefaultBracketCode(FileContent? content)
     {
@@ -151,7 +154,7 @@ public partial class FileContentActions : IContentActions<FileContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(FileContent? content)
@@ -199,14 +202,33 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $"{settings.FilePageUrl(content)}";
+        var url = settings.FilePageUrl(content);
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 
-    //TODO: Eliminate this with Metalama
-    public event PropertyChangedEventHandler? PropertyChanged;
+    [BlockingCommand]
+    public async Task ViewSitePreview(FileContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = settings.FilePageUrl(content);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(url);
+
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
+    }
 
     public static async Task<FileListListItem> ListItemFromDbItem(FileContent content, FileContentActions itemActions,
         bool showType)

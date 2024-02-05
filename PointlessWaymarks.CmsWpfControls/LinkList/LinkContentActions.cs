@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +9,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -27,6 +28,8 @@ public partial class LinkContentActions : IContentActions<LinkContent>
         StatusContext = statusContext;
         BuildCommands();
     }
+
+    public StatusControlContext StatusContext { get; set; }
 
     public string DefaultBracketCode(LinkContent? content)
     {
@@ -130,7 +133,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
         StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(LinkContent? content)
@@ -188,8 +191,29 @@ public partial class LinkContentActions : IContentActions<LinkContent>
         Process.Start(ps);
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    [BlockingCommand]
+    public async Task ViewSitePreview(LinkContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = settings.LinkListUrl();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(url);
+
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task CopyUrl(string? link)
     {
         await ThreadSwitcher.ResumeForegroundAsync();

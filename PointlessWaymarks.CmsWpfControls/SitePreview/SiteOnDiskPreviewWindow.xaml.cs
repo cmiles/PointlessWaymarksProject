@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -28,7 +28,7 @@ public partial class SiteOnDiskPreviewWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<SiteOnDiskPreviewWindow> CreateInstance()
+    public static async Task<SiteOnDiskPreviewWindow> CreateInstance(string initialUrl = "")
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -49,7 +49,7 @@ public partial class SiteOnDiskPreviewWindow
 
         window.PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteDomainName,
             UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
-            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", window.StatusContext);
+            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", window.StatusContext, initialUrl);
 
         return window;
     }

@@ -58,7 +58,7 @@ public class LineListLoader : ContentListLoaderBase, IContentListLoader
 
                 new()
                 {
-                    DisplayName = "Recorded On",
+                    DisplayName = "Recorded",
                     ColumnName = "DbEntry.RecordingStartedOn",
                     DefaultSortDirection = ListSortDirection.Descending
                 },

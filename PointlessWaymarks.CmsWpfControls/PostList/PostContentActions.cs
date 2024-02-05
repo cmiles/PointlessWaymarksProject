@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -28,6 +29,8 @@ public partial class PostContentActions : IContentActions<PostContent>
         StatusContext = statusContext;
         BuildCommands();
     }
+
+    public StatusControlContext StatusContext { get; set; }
 
     public string DefaultBracketCode(PostContent? content)
     {
@@ -148,7 +151,7 @@ public partial class PostContentActions : IContentActions<PostContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NonBlockingCommand]
     public async Task ViewHistory(PostContent? content)
@@ -196,13 +199,33 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = $"{settings.PostPageUrl(content)}";
+        var url = settings.PostPageUrl(content);
 
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    [BlockingCommand]
+    public async Task ViewSitePreview(PostContent? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var url = settings.PostPageUrl(content);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(url);
+
+        await sitePreviewWindow.PositionWindowAndShowOnUiThread();
+    }
 
     public static async Task<PostListListItem> ListItemFromDbItem(PostContent content, PostContentActions itemActions,
         bool showType)

@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 public partial class SitePreviewContext : DependencyObject
 {
     public SitePreviewContext(string siteUrl, string localSiteFolder, string siteName, string previewServerHost,
-        StatusControlContext? statusContext, string initialPage = "")
+        StatusControlContext? statusContext, string initialUrl = "")
     {
         StatusContext = statusContext ?? new StatusControlContext();
 
@@ -23,7 +23,21 @@ public partial class SitePreviewContext : DependencyObject
         SiteName = siteName;
         PreviewServerHost = previewServerHost;
 
-        InitialPage = string.IsNullOrEmpty(initialPage) ? $"http://{previewServerHost}/index.html" : initialPage;
+        if (string.IsNullOrWhiteSpace(initialUrl))
+        {
+            InitialPage = $"http://{previewServerHost}/index.html";
+        }
+        else
+        {
+            if (initialUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                InitialPage = initialUrl.Replace("https:", "http:", StringComparison.OrdinalIgnoreCase).Replace(siteUrl, previewServerHost, StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                InitialPage = $"http://{previewServerHost}/{initialUrl}";
+            }
+        }
 
         SiteMappingNote = string.IsNullOrWhiteSpace(SiteName)
             ? $"Preview - {LocalSiteFolder} is mapped to {SiteUrl}"
