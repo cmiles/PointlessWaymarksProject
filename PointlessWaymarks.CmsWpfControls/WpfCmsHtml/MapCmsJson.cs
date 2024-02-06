@@ -113,6 +113,20 @@ public static class MapCmsJson
 
         return mapJsonDto;
     }
+    
+    public static async Task<string> NewMapFeatureCollectionDtoSerialized(List<FeatureCollection> featureCollections,
+         string messageType = "NewFeatureCollectionAndCenter")
+    {
+        var bounds = SpatialBounds.FromEnvelope(GeoJsonTools.GeometryBoundingBox(featureCollections));
+        
+        var mapJsonDto =
+            await GeoJsonTools.SerializeWithGeoJsonSerializer(
+                await NewMapFeatureCollectionDto(featureCollections, bounds, messageType));
+        
+        await BracketCodeCommon.ProcessCodesForSite(mapJsonDto).ConfigureAwait(false);
+
+        return mapJsonDto;
+    }
 
     public static async Task<string> NewMapFeatureCollectionDtoSerialized(
         string featureCollection)

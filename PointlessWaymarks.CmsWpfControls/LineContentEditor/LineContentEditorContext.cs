@@ -54,8 +54,10 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
-        this.SetupCmsLeafletMapWithLineElevationChartHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
+        this.SetupCmsLeafletMapWithLineElevationChartHtmlAndJs("Map",
+            UserSettingsSingleton.CurrentSettings().LatitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         JsonFromWebView = new WorkQueue<FromWebViewMessage>(true);
 
@@ -449,10 +451,40 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        var dto = await MapCmsJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson);
+        var photos = (await BracketCodePhotos.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
+        var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
+        var points = (await BracketCodePoints.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
+        var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
+        var geoJson = (await BracketCodeGeoJson.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
+        var geoJsonLinks =
+            (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
 
-        ToWebView.Enqueue(JsonData.CreateRequest(dto));
-        ToWebView.Enqueue(JsonData.CreateRequest(JsonSerializer.Serialize(new MapJsonLoadElevationChartDataDto(LineTools.ElevationChartDataFromGeoJsonFeatureCollectionWithLinestring(LineGeoJson)))));
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(photos.Concat(photoLinks).Concat(points)
+            .Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList());
+
+        var lineAsFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(LineGeoJson);
+
+        mapInformation.featureList.Add(lineAsFeatureCollection);
+
+        if (mapInformation.fileCopyList.Any())
+        {
+            var fileBuilder = new FileBuilder();
+            fileBuilder.Copy.AddRange(mapInformation.fileCopyList.Select(x => new FileBuilderCopy(x)));
+
+            ToWebView.Enqueue(fileBuilder);
+        }
+
+        var lineBounds = SpatialBounds.FromEnvelope(GeoJsonTools.GeometryBoundingBoxFromLineString(LineGeoJson));
+
+        ToWebView.Enqueue(new JsonData
+        {
+            Json = await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
+                mapInformation.featureList, lineBounds)
+        });
+
+        ToWebView.Enqueue(JsonData.CreateRequest(JsonSerializer.Serialize(
+            new MapJsonLoadElevationChartDataDto(
+                LineTools.ElevationChartDataFromGeoJsonFeatureCollectionWithLinestring(LineGeoJson)))));
     }
 
     [BlockingCommand]

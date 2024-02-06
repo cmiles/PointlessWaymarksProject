@@ -8,6 +8,24 @@ namespace PointlessWaymarks.SpatialTools;
 
 public static class GeoJsonTools
 {
+    /// <summary>
+    ///     Converts an IFeatures Attribute Table to a list of string keys and
+    ///     object values.
+    /// </summary>
+    /// <param name="feature"></param>
+    /// <returns></returns>
+    public static List<(string key, object value)> AttributeTableToList(this IFeature feature)
+    {
+        var toReturn = new List<(string key, object value)>();
+        if (feature.Attributes.Count < 1) return toReturn;
+
+        var entryNames = feature.Attributes.GetNames();
+
+        toReturn.AddRange(entryNames.Select(loopNames => (loopNames, feature.Attributes[loopNames])));
+
+        return toReturn;
+    }
+
     public static FeatureCollection DeserializeFileToFeatureCollection(string fileName)
     {
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
@@ -18,24 +36,6 @@ public static class GeoJsonTools
         using var intersectStreamReader = new StreamReader(intersectFileStream);
         using var intersectJsonReader = new JsonTextReader(intersectStreamReader);
         return serializer.Deserialize<FeatureCollection>(intersectJsonReader);
-    }
-
-    /// <summary>
-    /// Converts an IFeatures Attribute Table to a list of string keys and
-    /// object values.
-    /// </summary>
-    /// <param name="feature"></param>
-    /// <returns></returns>
-    public static List<(string key, object value)> AttributeTableToList(this IFeature feature)
-    {
-        var toReturn = new List<(string key, object value)>();
-        if (feature.Attributes.Count < 1) return toReturn;
-        
-        var entryNames  = feature.Attributes.GetNames();
-
-        toReturn.AddRange(entryNames.Select(loopNames => (loopNames, feature.Attributes[loopNames])));
-
-        return toReturn;
     }
 
     public static FeatureCollection DeserializeStringToFeatureCollection(string geoJsonString)
@@ -58,12 +58,34 @@ public static class GeoJsonTools
         return serializer.Deserialize<T>(new JsonTextReader(new StringReader(toDeserialize)));
     }
 
+    public static List<Geometry> FeatureCollectionToGeometries(FeatureCollection featureCollection)
+    {
+        return featureCollection.Select(x => Wgs84GeometryFactory().CreateGeometry(x.Geometry))
+            .ToList();
+    }
+
+    public static List<Geometry> FeatureCollectionToGeometries(List<FeatureCollection> featureCollections)
+    {
+        return featureCollections.SelectMany(x => x.Select(y => Wgs84GeometryFactory().CreateGeometry(y.Geometry)))
+            .ToList();
+    }
+
     public static List<Geometry> GeoJsonToGeometries(string geoJson)
     {
         var featureCollection = DeserializeStringToFeatureCollection(geoJson);
 
         return featureCollection.Select(x => Wgs84GeometryFactory().CreateGeometry(x.Geometry))
             .ToList();
+    }
+
+    public static Envelope GeometryBoundingBox(FeatureCollection featureCollection, Envelope? boundingBox = null)
+    {
+        return GeometryBoundingBox(FeatureCollectionToGeometries(featureCollection));
+    }
+
+    public static Envelope GeometryBoundingBox(List<FeatureCollection> featureCollections, Envelope? boundingBox = null)
+    {
+        return GeometryBoundingBox(FeatureCollectionToGeometries(featureCollections));
     }
 
     public static Envelope GeometryBoundingBox(List<Geometry> geometries, Envelope? boundingBox = null)
@@ -74,7 +96,7 @@ public static class GeoJsonTools
         return boundingBox;
     }
 
-    public static Envelope GeometryBoundingBox(string lineString, Envelope? envelope = null)
+    public static Envelope GeometryBoundingBoxFromLineString(string lineString, Envelope? envelope = null)
     {
         var geometryList = LineStringToGeometries(lineString);
         return GeometryBoundingBox(geometryList, envelope);

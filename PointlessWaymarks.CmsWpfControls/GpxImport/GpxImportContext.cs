@@ -134,7 +134,7 @@ public partial class GpxImportContext : IWebViewMessenger
                 new AttributesTable(new Dictionary<string, object>
                     { { "title", loopItem.TrackInformation.Name }, { "displayId", loopItem.DisplayId } })));
 
-            var boundingBox = GeoJsonTools.GeometryBoundingBox(loopItem.LineGeoJson);
+            var boundingBox = GeoJsonTools.GeometryBoundingBoxFromLineString(loopItem.LineGeoJson);
             boundsKeeper.Add(new Point(boundingBox.MaxX,
                 boundingBox.MaxY));
             boundsKeeper.Add(new Point(boundingBox.MinX, boundingBox.MinY));
@@ -148,7 +148,7 @@ public partial class GpxImportContext : IWebViewMessenger
                 new AttributesTable(new Dictionary<string, object>
                     { { "title", loopItem.RouteInformation.Name }, { "displayId", loopItem.DisplayId } })));
 
-            var boundingBox = GeoJsonTools.GeometryBoundingBox(loopItem.LineGeoJson);
+            var boundingBox = GeoJsonTools.GeometryBoundingBoxFromLineString(loopItem.LineGeoJson);
             boundsKeeper.Add(new Point(boundingBox.MaxX,
                 boundingBox.MaxY));
             boundsKeeper.Add(new Point(boundingBox.MinX, boundingBox.MinY));
