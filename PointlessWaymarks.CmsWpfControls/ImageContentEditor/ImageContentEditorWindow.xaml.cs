@@ -46,6 +46,15 @@ public partial class ImageContentEditorWindow
         window.ImageEditor =
             await ImageContentEditorContext.CreateInstance(window.StatusContext, contentToLoad, initialImage);
 
+        window.WindowTitle =
+            $"Image Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.ImageEditor.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.ImageEditor.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"Image Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.ImageEditor.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.ImageEditor.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =

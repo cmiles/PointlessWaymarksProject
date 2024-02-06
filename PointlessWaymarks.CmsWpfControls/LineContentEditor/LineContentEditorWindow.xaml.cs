@@ -46,6 +46,15 @@ public partial class LineContentEditorWindow
 
         window.LineContent = await LineContentEditorContext.CreateInstance(window.StatusContext, toLoad);
 
+        window.WindowTitle =
+            $"Line Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.LineContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.LineContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"Line Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.LineContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.LineContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =

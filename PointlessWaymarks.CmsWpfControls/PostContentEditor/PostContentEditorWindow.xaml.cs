@@ -43,6 +43,12 @@ public partial class PostContentEditorWindow
 
         window.PostContent = await PostContentEditorContext.CreateInstance(window.StatusContext, toLoad);
 
+        window.PostContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"Post Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PostContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.PostContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =

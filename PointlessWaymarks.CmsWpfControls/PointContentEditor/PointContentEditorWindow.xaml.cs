@@ -46,6 +46,15 @@ public partial class PointContentEditorWindow
 
         window.PointContent = await PointContentEditorContext.CreateInstance(window.StatusContext, toLoad);
 
+        window.WindowTitle =
+            $"Point Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PointContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.PointContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"Point Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PointContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.PointContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =

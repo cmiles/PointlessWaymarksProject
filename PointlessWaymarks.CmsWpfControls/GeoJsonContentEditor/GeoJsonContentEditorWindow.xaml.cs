@@ -46,6 +46,15 @@ public partial class GeoJsonContentEditorWindow
 
         window.GeoJsonContent = await GeoJsonContentEditorContext.CreateInstance(window.StatusContext, toLoad);
 
+        window.WindowTitle =
+            $"GeoJson Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.GeoJsonContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.GeoJsonContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"GeoJson Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.GeoJsonContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.GeoJsonContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =

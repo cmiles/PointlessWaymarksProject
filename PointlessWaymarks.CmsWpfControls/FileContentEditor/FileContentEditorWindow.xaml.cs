@@ -43,6 +43,15 @@ public partial class FileContentEditorWindow
 
         window.FileContent = await FileContentEditorContext.CreateInstance(window.StatusContext);
 
+        window.WindowTitle =
+            $"File Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.FileContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.FileContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"File Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.FileContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =
@@ -68,6 +77,15 @@ public partial class FileContentEditorWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.FileContent = await FileContentEditorContext.CreateInstance(window.StatusContext, initialFile);
+
+        window.WindowTitle =
+            $"File Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.FileContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.FileContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, args) =>
+        {
+            window.WindowTitle =
+                $"File Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.FileContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
 
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
@@ -95,6 +113,15 @@ public partial class FileContentEditorWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.FileContent = await FileContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.WindowTitle =
+            $"File Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.FileContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.FileContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, args) =>
+        {
+            window.WindowTitle =
+                $"File Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.FileContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
 
         window.FileContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 

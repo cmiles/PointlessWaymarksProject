@@ -44,6 +44,15 @@ public partial class PhotoContentEditorWindow
 
         window.PhotoContent = await PhotoContentEditorContext.CreateInstance(window.StatusContext);
 
+        window.WindowTitle =
+            $"Photo Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PhotoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.PhotoContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, args) =>
+        {
+            window.WindowTitle =
+                $"Photo Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PhotoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.PhotoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =
@@ -70,6 +79,15 @@ public partial class PhotoContentEditorWindow
 
         window.PhotoContent = await PhotoContentEditorContext.CreateInstance(window.StatusContext, initialPhoto);
 
+        window.WindowTitle =
+            $"Photo Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PhotoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.PhotoContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, args) =>
+        {
+            window.WindowTitle =
+                $"Photo Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PhotoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.PhotoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =
@@ -95,6 +113,15 @@ public partial class PhotoContentEditorWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.PhotoContent = await PhotoContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.WindowTitle =
+            $"Photo Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PhotoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.PhotoContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"Photo Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PhotoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
 
         window.PhotoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 

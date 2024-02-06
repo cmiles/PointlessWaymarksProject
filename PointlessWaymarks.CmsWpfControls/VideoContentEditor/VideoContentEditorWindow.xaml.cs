@@ -43,6 +43,15 @@ public partial class VideoContentEditorWindow
 
         window.VideoContent = await VideoContentEditorContext.CreateInstance(window.StatusContext);
 
+        window.WindowTitle =
+            $"Video Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.VideoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.VideoContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"Video Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.VideoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
+
         window.VideoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
         window.AccidentalCloserHelper =
@@ -72,6 +81,15 @@ public partial class VideoContentEditorWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.VideoContent = await VideoContentEditorContext.CreateInstance(window.StatusContext, initialFile);
+
+        window.WindowTitle =
+            $"Video Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.VideoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.VideoContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"Video Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.VideoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
 
         window.VideoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
@@ -103,6 +121,15 @@ public partial class VideoContentEditorWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.VideoContent = await VideoContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        window.WindowTitle =
+            $"Video Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.VideoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+
+        window.VideoContent.TitleSummarySlugFolder.TitleEntry.PropertyChanged += (_, _) =>
+        {
+            window.WindowTitle =
+                $"Video Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.VideoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";
+        };
 
         window.VideoContent.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
