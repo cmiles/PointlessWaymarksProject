@@ -22,8 +22,19 @@ public static class ElevationService
         progress?.Report(
             $"{coordinates.Count} Coordinates for Elevation - querying in {partitionedCoordinates.Count} groups...");
 
+        var isFirst = true;
+        
         foreach (var loopCoordinateGroups in partitionedCoordinates)
         {
+            if (isFirst)
+            {
+                isFirst = false;
+            }
+            else
+            {
+                await Task.Delay(2000);
+            }
+            
             var requestUri =
                 $"https://api.opentopodata.org/v1/{openTopoDataSet}?locations={string.Join("|", loopCoordinateGroups.Select(x => $"{x.Y},{x.X}"))}";
 
