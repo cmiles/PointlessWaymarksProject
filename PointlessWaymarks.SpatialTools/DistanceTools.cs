@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.SpatialTools;
@@ -111,7 +111,7 @@ public static class DistanceTools
         if (currentWidth < minimumMeters)
             toCheck.ExpandBy(
                 ApproximateMetersToLongitudeDegrees(minimumMeters - currentWidth, toCheck.MaxX, toCheck.MaxY), 0);
-        if (currentWidth < minimumMeters)
+        if (currentHeight < minimumMeters)
             toCheck.ExpandBy(0,
                 ApproximateMetersToLatitudeDegrees(minimumMeters - currentHeight, toCheck.MaxX, toCheck.MaxY));
     }
