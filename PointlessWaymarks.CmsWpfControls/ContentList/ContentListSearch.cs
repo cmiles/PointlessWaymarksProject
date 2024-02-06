@@ -26,6 +26,66 @@ public static class ContentListSearch
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterAperture(photoItem.DbEntry.Aperture, searchString), searchResultModifier);
     }
+    
+    public static ContentListSearchReturn SearchMiles(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not LineListListItem lineItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "Miles Search on Item that is not a Line - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterNumber((decimal)lineItem.DbEntry.LineDistance, searchString, "Miles"), searchResultModifier);
+    }
+    
+    public static ContentListSearchReturn SearchMaxElevation(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not LineListListItem lineItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "Max Elevation Search on Item that is not a Line - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterNumber((decimal)lineItem.DbEntry.MaximumElevation, searchString, "Max Elevation"), searchResultModifier);
+    }
+    
+    public static ContentListSearchReturn SearchMinElevation(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not LineListListItem lineItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "Min Elevation Search on Item that is not a Line - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterNumber((decimal)lineItem.DbEntry.MinimumElevation, searchString, "Min Elevation"), searchResultModifier);
+    }
+    
+    public static ContentListSearchReturn SearchClimb(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not LineListListItem lineItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "Climb Search on Item that is not a Line - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterNumber((decimal)lineItem.DbEntry.ClimbElevation, searchString, "Climb"), searchResultModifier);
+    }
+    
+    public static ContentListSearchReturn SearchDescent(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not LineListListItem lineItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "Descent Search on Item that is not a Line - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterNumber((decimal)lineItem.DbEntry.DescentElevation, searchString, "Descent"), searchResultModifier);
+    }
 
     public static ContentListSearchReturn SearchCamera(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)

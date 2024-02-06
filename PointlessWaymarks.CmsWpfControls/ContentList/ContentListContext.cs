@@ -516,6 +516,16 @@ public partial class ContentListContext : IDragSource, IDropTarget
             else if (searchString.StartsWith("ISO:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchIso;
             else if (searchString.StartsWith("FOCAL LENGTH:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchFocalLength;
+            else if (searchString.StartsWith("MILES:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchMiles;
+            else if (searchString.StartsWith("MIN ELEVATION:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchMinElevation;
+            else if (searchString.StartsWith("MAX ELEVATION:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchMaxElevation;
+            else if (searchString.StartsWith("CLIMB:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchClimb;
+            else if (searchString.StartsWith("DESCENT:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchDescent;
             else searchFilterFunction = ContentListSearch.SearchGeneral;
 
             searchFilterStack.Add((searchFilterFunction, searchString, searchResultModifier));

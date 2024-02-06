@@ -449,7 +449,9 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson)));
+        var dto = await MapCmsJson.NewMapFeatureCollectionDtoSerialized(LineGeoJson);
+
+        ToWebView.Enqueue(JsonData.CreateRequest(dto));
         ToWebView.Enqueue(JsonData.CreateRequest(JsonSerializer.Serialize(new MapJsonLoadElevationChartDataDto(LineTools.ElevationChartDataFromGeoJsonFeatureCollectionWithLinestring(LineGeoJson)))));
     }
 
