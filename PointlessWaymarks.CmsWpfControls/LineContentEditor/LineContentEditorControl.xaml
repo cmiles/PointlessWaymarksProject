@@ -104,10 +104,9 @@
                     </Border>
                     <wpf:WebView2
                         x:Name="LineContentWebView"
-                        Grid.Row="1"
-                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        Grid.Row="1">
                         <b:Interaction.Behaviors>
-                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" DeferAllNavigationTo="{Binding MapPreviewNavigationManager}"/>
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>

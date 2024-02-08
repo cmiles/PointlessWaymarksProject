@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CommonTools;
@@ -36,7 +36,7 @@ public partial class SitePreviewControl
 
     private async void InitializeAsync()
     {
-        // must create a data folder if running out of a secured folder that can't write like Program Files
+        //TODO: Change for a mydocs folder with cleanup?
         var env = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(Path.GetTempPath(),
             "PointWaymarksCms_SitePreviewBrowserData"));
 

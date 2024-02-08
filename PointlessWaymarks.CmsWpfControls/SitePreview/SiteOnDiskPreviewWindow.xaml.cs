@@ -12,6 +12,9 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 [NotifyPropertyChanged]
 public partial class SiteOnDiskPreviewWindow
 {
+    private static IHost? _server;
+    private static int serverPort;
+    
     private SiteOnDiskPreviewWindow()
     {
         InitializeComponent();
@@ -36,20 +39,23 @@ public partial class SiteOnDiskPreviewWindow
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var freePort = PreviewServer.FreeTcpPort();
-
-        var server = PreviewServer.CreateHostBuilder(UserSettingsSingleton.CurrentSettings().SiteDomainName,
-            UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName, freePort).Build();
-
-        window.StatusContext.RunFireAndForgetWithToastOnError(async () =>
+        if (_server == null)
         {
-            await ThreadSwitcher.ResumeBackgroundAsync();
-            await server.RunAsync();
-        });
+            serverPort = PreviewServer.FreeTcpPort();
+
+            _server ??= PreviewServer.CreateHostBuilder(UserSettingsSingleton.CurrentSettings().SiteDomainName,
+                UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName, serverPort).Build();
+
+            window.StatusContext.RunFireAndForgetWithToastOnError(async () =>
+            {
+                await ThreadSwitcher.ResumeBackgroundAsync();
+                await _server.RunAsync();
+            });
+        }
 
         window.PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteDomainName,
             UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
-            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{freePort}", window.StatusContext, initialUrl);
+            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{serverPort}", window.StatusContext, initialUrl);
 
         return window;
     }

@@ -14,6 +14,7 @@ using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -29,6 +30,7 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 
@@ -61,11 +63,38 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         JsonFromWebView = new WorkQueue<FromWebViewMessage>(true);
 
+        MapPreviewNavigationManager = MapPreviewNavigation;
+
         DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
     }
 
+    private bool MapPreviewNavigation(Uri navigationUri, string virtualDomain)
+    {
+        if (navigationUri.Host.StartsWith(UserSettingsSingleton.CurrentSettings().SiteDomainName))
+        {
+            StatusContext.RunFireAndForgetBlockingTask(async () =>
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+
+                var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(navigationUri.OriginalString.Replace("localpreview:", "https:"));
+                await sitePreviewWindow.PositionWindowAndShowOnUiThread();
+            });
+
+            return true;
+        }
+
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            ProcessHelpers.OpenUrlInExternalBrowser(navigationUri.OriginalString);
+        });
+
+        return true;
+    }
+
+    public Func<Uri, string, bool> MapPreviewNavigationManager { get; set; }
     public BodyContentEditorContext? BodyContent { get; set; }
     public ConversionDataEntryContext<double>? ClimbElevationEntry { get; set; }
     public ContentIdViewerControlContext? ContentId { get; set; }

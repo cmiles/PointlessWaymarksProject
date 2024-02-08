@@ -1308,6 +1308,11 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
+    public static string PhotoPageUrlLocalPreviewProtocol(this UserSettings settings, PhotoContent content)
+    {
+        return $"{settings.SiteUrlWithLocalPreviewProtocol()}/Photos/{content.Folder}/{content.Slug}/{content.Slug}.html";
+    }
+
     public static string PhotoRssUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/Photos/PhotoRss.xml";
@@ -1660,6 +1665,11 @@ public static class UserSettingsUtilities
     public static string SiteUrl(this UserSettings settings)
     {
         return $"https://{settings.SiteDomainName}";
+    }
+
+    public static string SiteUrlWithLocalPreviewProtocol(this UserSettings settings)
+    {
+        return $"localpreview://{settings.SiteDomainName}";
     }
 
     public static string StylesCssFromLocalSiteRootDirectory()

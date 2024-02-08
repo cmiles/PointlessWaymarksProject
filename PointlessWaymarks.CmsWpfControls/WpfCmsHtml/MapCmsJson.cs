@@ -25,7 +25,7 @@ public static class MapCmsJson
         string? summary)
     {
         var description = string.Empty;
-
+        
         title = title.TrimNullToEmpty();
         summary = summary.TrimNullToEmpty();
 
@@ -238,7 +238,7 @@ public static class MapCmsJson
                         loopElements.Elevation ?? 0),
                     new AttributesTable(new Dictionary<string, object>
                     {
-                        { "title", loopElements.Title ?? string.Empty },
+                        { "title",  loopElements.Title ?? string.Empty },
                         { "description", descriptionAndImage.description },
                         { "displayId", loopElements.ContentId }
                     })));
@@ -268,7 +268,7 @@ public static class MapCmsJson
                         loopElements.Elevation ?? 0),
                     new AttributesTable(new Dictionary<string, object>
                     {
-                        { "title", loopElements.Title ?? string.Empty },
+                        { "title", $"""<a href="{UserSettingsSingleton.CurrentSettings().PhotoPageUrlLocalPreviewProtocol(loopElements)}">{(string.IsNullOrWhiteSpace(loopElements.Title) ? "Preview" : loopElements.Title)}</a>""" },
                         { "description", descriptionAndImage.description },
                         { "displayId", loopElements.ContentId }
                     })));

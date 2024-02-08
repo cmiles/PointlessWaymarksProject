@@ -26,11 +26,17 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         typeof(IWebViewMessenger), typeof(WebViewGeneratedVirtualDomainBehavior),
         new PropertyMetadata(default(IWebViewMessenger), OnWebViewManagerChanged));
 
+    public static readonly DependencyProperty DeferAllNavigationToProperty = DependencyProperty.Register(
+        nameof(DeferAllNavigationTo),
+        typeof(Func<Uri, string, bool>), typeof(WebViewGeneratedVirtualDomainBehavior),
+        new PropertyMetadata(default(Func<Uri, string, bool>)));
+
     public static readonly DependencyProperty RedirectExternalLinksToBrowserProperty = DependencyProperty.Register(
         nameof(RedirectExternalLinksToBrowser),
         typeof(bool), typeof(WebViewGeneratedVirtualDomainBehavior),
         new PropertyMetadata(default(bool)));
 
+    private string _lastToWebNavigationUrl = "";
 
     // Example Usage in Xaml
     // <b:Interaction.Behaviors>
@@ -40,6 +46,13 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     private DirectoryInfo _targetDirectory;
     private string _virtualDomain = "localweb.pointlesswaymarks.com";
     private bool _webViewHasLoaded;
+
+    public Func<Uri, string, bool>? DeferAllNavigationTo
+    {
+        get => (Func<Uri, string, bool>?)GetValue(DeferAllNavigationToProperty);
+        set => SetValue(DeferAllNavigationToProperty, value);
+    }
+
 
     public bool RedirectExternalLinksToBrowser
     {
@@ -70,6 +83,25 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         _virtualDomain = $"localweb.pointlesswaymarks.com/{_targetDirectory.Name}";
 
         AssociatedObject.Loaded += OnLoaded;
+        AssociatedObject.CoreWebView2InitializationCompleted += OnCoreWebView2InitializationCompleted;
+    }
+
+    private async void OnCoreWebView2InitializationCompleted(object? sender,
+        CoreWebView2InitializationCompletedEventArgs e)
+    {
+        AssociatedObject.CoreWebView2.SetVirtualHostNameToFolderMapping(
+            $"localweb.pointlesswaymarks.com",
+            _targetDirectory.Parent.FullName
+            , CoreWebView2HostResourceAccessKind.Allow);
+
+        AssociatedObject.CoreWebView2.GetDevToolsProtocolEventReceiver("Log.entryAdded")
+            .DevToolsProtocolEventReceived += DevToolsProtocolEventHandler;
+        await AssociatedObject.CoreWebView2.CallDevToolsProtocolMethodAsync("Log.enable", "{}");
+
+        AssociatedObject.NavigationStarting += WebView_OnNavigationStarting;
+        AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
+
+        WebViewMessenger?.ToWebView.Suspend(false);
     }
 
     /// <summary>
@@ -103,21 +135,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                 await ThreadSwitcher.ResumeForegroundAsync();
 
                 await AssociatedObject.EnsureCoreWebView2Async();
-                AssociatedObject.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                    $"localweb.pointlesswaymarks.com",
-                    _targetDirectory.Parent.FullName
-                    , CoreWebView2HostResourceAccessKind.Allow);
 
-                AssociatedObject.CoreWebView2.GetDevToolsProtocolEventReceiver("Log.entryAdded")
-                    .DevToolsProtocolEventReceived += DevToolsProtocolEventHandler;
-                await AssociatedObject.CoreWebView2.CallDevToolsProtocolMethodAsync("Log.enable", "{}");
-
-                AssociatedObject.NavigationStarting += WebView_OnNavigationStarting;
-                AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
-
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                WebViewMessenger?.ToWebView.Suspend(false);
                 _webViewHasLoaded = true;
             }
             catch (Exception exception)
@@ -255,6 +273,8 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         {
             if (navigateTo.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
 
+            _lastToWebNavigationUrl = $"https://{_virtualDomain}/{navigateTo.Url}";
+
             AssociatedObject.CoreWebView2.Navigate(
                 $"https://{_virtualDomain}/{navigateTo.Url}");
         }
@@ -272,23 +292,27 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         );
     }
 
-    private void WebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
+    private async void WebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
     {
-        if (e.NavigationKind == CoreWebView2NavigationKind.Reload ||
-            e.NavigationKind == CoreWebView2NavigationKind.BackOrForward)
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (e.NavigationKind is CoreWebView2NavigationKind.Reload or CoreWebView2NavigationKind.BackOrForward)
+            e.Cancel = true;
+
+        if (_lastToWebNavigationUrl == e.Uri) return;
+
+        var navigationUri = new Uri(e.Uri);
+
+        if (DeferAllNavigationTo != null && e.IsUserInitiated)
         {
             e.Cancel = true;
-            return;
+            DeferAllNavigationTo(navigationUri, _virtualDomain);
         }
 
-        if (!RedirectExternalLinksToBrowser) return;
-        if (!e.IsUserInitiated) return;
-
-        if (string.IsNullOrWhiteSpace(e.Uri)) return;
-
-        if (e.Uri.Contains(_virtualDomain, StringComparison.OrdinalIgnoreCase)) return;
-
-        e.Cancel = true;
-        ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
+        if (RedirectExternalLinksToBrowser && !navigationUri.Host.StartsWith(_virtualDomain))
+        {
+            e.Cancel = true;
+            ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
+        }
     }
 }

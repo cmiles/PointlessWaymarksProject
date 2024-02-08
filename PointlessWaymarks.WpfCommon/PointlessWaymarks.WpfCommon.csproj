@@ -37,8 +37,8 @@
     <PackageReference Include="Markdig.Wpf" Version="0.5.0.1" />
     <PackageReference Include="MathConverter" Version="2.2.1" />
     <PackageReference Include="MetadataExtractor" Version="2.8.1" />
-    <PackageReference Include="Metalama.Framework" Version="2024.0.6" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2210.55" />
+    <PackageReference Include="Metalama.Framework" Version="2024.0.7" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2277.86" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
     <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />
     <PackageReference Include="OneOf" Version="3.0.263" />
