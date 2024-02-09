@@ -26,17 +26,19 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         typeof(IWebViewMessenger), typeof(WebViewGeneratedVirtualDomainBehavior),
         new PropertyMetadata(default(IWebViewMessenger), OnWebViewManagerChanged));
 
-    public static readonly DependencyProperty DeferAllNavigationToProperty = DependencyProperty.Register(
-        nameof(DeferAllNavigationTo),
-        typeof(Func<Uri, string, bool>), typeof(WebViewGeneratedVirtualDomainBehavior),
-        new PropertyMetadata(default(Func<Uri, string, bool>)));
+    public static readonly DependencyProperty DeferNavigationToProperty = DependencyProperty.Register(
+        nameof(DeferNavigationTo),
+        typeof(Action<Uri, string>), typeof(WebViewGeneratedVirtualDomainBehavior),
+        new PropertyMetadata(default(Action<Uri, string>)));
 
     public static readonly DependencyProperty RedirectExternalLinksToBrowserProperty = DependencyProperty.Register(
         nameof(RedirectExternalLinksToBrowser),
         typeof(bool), typeof(WebViewGeneratedVirtualDomainBehavior),
         new PropertyMetadata(default(bool)));
 
+
     private string _lastToWebNavigationUrl = "";
+    private SemaphoreSlim _loadGuard = new(1, 1);
 
     // Example Usage in Xaml
     // <b:Interaction.Behaviors>
@@ -47,12 +49,11 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     private string _virtualDomain = "localweb.pointlesswaymarks.com";
     private bool _webViewHasLoaded;
 
-    public Func<Uri, string, bool>? DeferAllNavigationTo
+    public Action<Uri, string>? DeferNavigationTo
     {
-        get => (Func<Uri, string, bool>?)GetValue(DeferAllNavigationToProperty);
-        set => SetValue(DeferAllNavigationToProperty, value);
+        get => (Action<Uri, string>?)GetValue(DeferNavigationToProperty);
+        set => SetValue(DeferNavigationToProperty, value);
     }
-
 
     public bool RedirectExternalLinksToBrowser
     {
@@ -64,6 +65,11 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     {
         get => (IWebViewMessenger)GetValue(WebViewMessengerProperty);
         set => SetValue(WebViewMessengerProperty, value);
+    }
+
+    private void CoreWebView2OnWebResourceRequested(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
+    {
+        Debug.WriteLine($"Resource Requested: {e.Request.Uri}");
     }
 
     private void DevToolsProtocolEventHandler(object? sender, CoreWebView2DevToolsProtocolEventReceivedEventArgs e)
@@ -100,6 +106,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 
         AssociatedObject.NavigationStarting += WebView_OnNavigationStarting;
         AssociatedObject.CoreWebView2.WebMessageReceived += OnCoreWebView2OnWebMessageReceived;
+        AssociatedObject.CoreWebView2.WebResourceRequested += CoreWebView2OnWebResourceRequested;
 
         WebViewMessenger?.ToWebView.Suspend(false);
     }
@@ -129,6 +136,8 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
     /// <param name="e"></param>
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
+        await _loadGuard.WaitAsync();
+
         if (!_webViewHasLoaded)
             try
             {
@@ -142,6 +151,10 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
             {
                 Console.WriteLine(exception);
                 Log.Error(exception, "Error in the OnLoaded method with the WebView2.");
+            }
+            finally
+            {
+                _loadGuard.Release();
             }
     }
 
@@ -303,10 +316,11 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 
         var navigationUri = new Uri(e.Uri);
 
-        if (DeferAllNavigationTo != null && e.IsUserInitiated)
+        if (DeferNavigationTo != null && e.IsUserInitiated)
         {
             e.Cancel = true;
-            DeferAllNavigationTo(navigationUri, _virtualDomain);
+            DeferNavigationTo(navigationUri, _virtualDomain);
+            return;
         }
 
         if (RedirectExternalLinksToBrowser && !navigationUri.Host.StartsWith(_virtualDomain))

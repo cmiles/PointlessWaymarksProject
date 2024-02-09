@@ -14,7 +14,7 @@ public partial class SiteOnDiskPreviewWindow
 {
     private static IHost? _server;
     private static int serverPort;
-    
+
     private SiteOnDiskPreviewWindow()
     {
         InitializeComponent();
@@ -55,7 +55,8 @@ public partial class SiteOnDiskPreviewWindow
 
         window.PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteDomainName,
             UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
-            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{serverPort}", window.StatusContext, initialUrl);
+            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{serverPort}", window.StatusContext,
+            initialUrl);
 
         return window;
     }

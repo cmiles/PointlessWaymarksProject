@@ -46,7 +46,8 @@
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
                                 DataContext="{Binding MainSiteFeed}" />
-                            <boolDataEntry:BoolDataEntryControl Margin="4,8,4,0" DataContext="{Binding PublicDownloadLink}" />
+                            <boolDataEntry:BoolDataEntryControl Margin="4,8,4,0"
+                                                                DataContext="{Binding PublicDownloadLink}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
                                                           Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
@@ -92,7 +93,9 @@
                     <wpf:WebView2 Grid.Row="1"
                                   Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
-                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" ></webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior>
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}"
+                                DeferNavigationTo="{Binding MapPreviewNavigationManager}">
+                            </webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior>
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>

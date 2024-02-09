@@ -106,7 +106,7 @@
                         x:Name="LineContentWebView"
                         Grid.Row="1">
                         <b:Interaction.Behaviors>
-                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" DeferAllNavigationTo="{Binding MapPreviewNavigationManager}"/>
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" DeferNavigationTo="{Binding MapPreviewNavigationManager}"/>
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>

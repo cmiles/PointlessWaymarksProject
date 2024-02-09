@@ -51,8 +51,11 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
+        MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
+
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         DbEntry = dbEntry;
 
@@ -69,6 +72,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }
     public StatusControlContext StatusContext { get; set; }

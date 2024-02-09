@@ -60,8 +60,11 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
+        MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
+
         this.SetupCmsLeafletPointChooserMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -82,6 +85,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public StringDataEntryContext? MapLabelContent { get; set; }
+    public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public PointDetailListContext? PointDetails { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }

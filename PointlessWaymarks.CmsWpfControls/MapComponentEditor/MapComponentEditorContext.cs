@@ -57,8 +57,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
+        MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
+
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
 
@@ -82,6 +85,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public HelpDisplayContext HelpContext { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
     public ObservableCollection<IMapElementListItem>? MapElements { get; set; }
+    public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public StringDataEntryContext? SummaryEntry { get; set; }
     public StringDataEntryContext? TitleEntry { get; set; }

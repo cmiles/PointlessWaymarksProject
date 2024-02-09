@@ -37,8 +37,11 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
+        MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
+
         this.SetupCmsLeafletPointChooserMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -55,6 +58,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
     public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
     public SpatialBounds? MapBounds { get; set; }
+    public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 

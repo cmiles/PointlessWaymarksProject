@@ -1,4 +1,5 @@
 using System.IO;
+using System.Net;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
@@ -7,12 +8,20 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
+using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.LineList;
+using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PointList;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using SimMetricsCore;
 
@@ -25,7 +34,7 @@ public static class MapCmsJson
         string? summary)
     {
         var description = string.Empty;
-        
+
         title = title.TrimNullToEmpty();
         summary = summary.TrimNullToEmpty();
 
@@ -86,6 +95,70 @@ public static class MapCmsJson
         return SpatialConverters.PointBoundingBox(boundsKeeper);
     }
 
+    public static Action<Uri, string> LocalActionNavigation(StatusControlContext statusContext)
+    {
+        return (Uri navigationUri, string virtualDomain) =>
+        {
+            if (navigationUri.Segments.Last().Equals("LocalEdit", StringComparison.OrdinalIgnoreCase))
+            {
+                statusContext.RunFireAndForgetBlockingTask(async () =>
+                {
+                    await ThreadSwitcher.ResumeForegroundAsync();
+                    var contentId = WebUtility.UrlDecode(navigationUri.Query[1..]);
+                    var db = await Db.Context();
+                    var content = await db.ContentFromContentId(Guid.Parse(contentId));
+
+                    switch (content)
+                    {
+                        case PhotoContent photoContent:
+                            var photoEditWindow = await PhotoContentEditorWindow.CreateInstance(photoContent);
+                            await photoEditWindow.PositionWindowAndShowOnUiThread();
+                            break;
+                        case LineContent lineContent:
+                            var lineEditWindow = await LineContentEditorWindow.CreateInstance(lineContent);
+                            await lineEditWindow.PositionWindowAndShowOnUiThread();
+                            break;
+                        case PointContentDto pointContent:
+                            var pointEditWindow =
+                                await PointContentEditorWindow.CreateInstance(pointContent.ToDbObject());
+                            await pointEditWindow.PositionWindowAndShowOnUiThread();
+                            break;
+                        case GeoJsonContent geoJsonContent:
+                            var editWindow = await GeoJsonContentEditorWindow.CreateInstance(geoJsonContent);
+                            await editWindow.PositionWindowAndShowOnUiThread();
+                            break;
+                        default:
+                            statusContext.ToastError($"Content Not Found? {contentId}");
+                            break;
+                    }
+                });
+
+                return;
+            }
+
+            if (navigationUri.Segments.Last().Equals("LocalPreview", StringComparison.OrdinalIgnoreCase))
+            {
+                statusContext.RunFireAndForgetBlockingTask(async () =>
+                {
+                    await ThreadSwitcher.ResumeForegroundAsync();
+
+                    var sitePreviewWindow =
+                        await SiteOnDiskPreviewWindow.CreateInstance(
+                            WebUtility.UrlDecode(navigationUri.Query[1..]));
+                    await sitePreviewWindow.PositionWindowAndShowOnUiThread();
+                });
+
+                return;
+            }
+
+            statusContext.RunFireAndForgetBlockingTask(async () =>
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                ProcessHelpers.OpenUrlInExternalBrowser(navigationUri.OriginalString);
+            });
+        };
+    }
+
     public static async Task<MapJsonNewFeatureCollectionDto> NewMapFeatureCollectionDto(
         List<FeatureCollection> featureCollections,
         SpatialBounds? bounds, string messageType = "NewFeatureCollectionAndCenter")
@@ -113,16 +186,16 @@ public static class MapCmsJson
 
         return mapJsonDto;
     }
-    
+
     public static async Task<string> NewMapFeatureCollectionDtoSerialized(List<FeatureCollection> featureCollections,
-         string messageType = "NewFeatureCollectionAndCenter")
+        string messageType = "NewFeatureCollectionAndCenter")
     {
         var bounds = SpatialBounds.FromEnvelope(GeoJsonTools.GeometryBoundingBox(featureCollections));
-        
+
         var mapJsonDto =
             await GeoJsonTools.SerializeWithGeoJsonSerializer(
                 await NewMapFeatureCollectionDto(featureCollections, bounds, messageType));
-        
+
         await BracketCodeCommon.ProcessCodesForSite(mapJsonDto).ConfigureAwait(false);
 
         return mapJsonDto;
@@ -206,6 +279,11 @@ public static class MapCmsJson
 
                     line.Attributes["description"] = descriptionAndImage.description;
 
+                    if (!line.Attributes.Exists("title")) line.Attributes.Add("title", string.Empty);
+
+                    line.Attributes["title"] =
+                        $"""<a href="http://[[VirtualDomain]]/LocalPreview?{WebUtility.UrlEncode(UserSettingsSingleton.CurrentSettings().LinePageUrl(mapLine))}">{(string.IsNullOrWhiteSpace(mapLine.Title) ? "Preview" : mapLine.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(mapLine.ContentId.ToString())}">Edit</a>""";
+
                     geoJsonList.Add(lineFeatureCollection);
                     boundsKeeper.Add(new Point(mapLine.InitialViewBoundsMaxLongitude,
                         mapLine.InitialViewBoundsMaxLatitude));
@@ -238,7 +316,10 @@ public static class MapCmsJson
                         loopElements.Elevation ?? 0),
                     new AttributesTable(new Dictionary<string, object>
                     {
-                        { "title",  loopElements.Title ?? string.Empty },
+                        {
+                            "title",
+                            $"""<a href="http://[[VirtualDomain]]/LocalPreview?{WebUtility.UrlEncode(UserSettingsSingleton.CurrentSettings().PointPageUrl(loopElements))}">{(string.IsNullOrWhiteSpace(loopElements.Title) ? "Preview" : loopElements.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(loopElements.ContentId.ToString())}">Edit</a>"""
+                        },
                         { "description", descriptionAndImage.description },
                         { "displayId", loopElements.ContentId }
                     })));
@@ -268,7 +349,10 @@ public static class MapCmsJson
                         loopElements.Elevation ?? 0),
                     new AttributesTable(new Dictionary<string, object>
                     {
-                        { "title", $"""<a href="{UserSettingsSingleton.CurrentSettings().PhotoPageUrlLocalPreviewProtocol(loopElements)}">{(string.IsNullOrWhiteSpace(loopElements.Title) ? "Preview" : loopElements.Title)}</a>""" },
+                        {
+                            "title",
+                            $"""<a href="http://[[VirtualDomain]]/LocalPreview?{WebUtility.UrlEncode(UserSettingsSingleton.CurrentSettings().PhotoPageUrl(loopElements))}">{(string.IsNullOrWhiteSpace(loopElements.Title) ? "Preview" : loopElements.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(loopElements.ContentId.ToString())}">Edit</a>"""
+                        },
                         { "description", descriptionAndImage.description },
                         { "displayId", loopElements.ContentId }
                     })));

@@ -35,7 +35,9 @@
             Grid.Column="0"
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
-                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" RedirectExternalLinksToBrowser="True" />
+                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}"
+                                                                            RedirectExternalLinksToBrowser="True"
+                                                                            DeferNavigationTo="{Binding MapPreviewNavigationManager}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
         <GridSplitter Grid.Row="0" Grid.Column="1" ResizeBehavior="PreviousAndNext" VerticalAlignment="Stretch"

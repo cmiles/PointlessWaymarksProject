@@ -35,8 +35,11 @@ public partial class ContentMapContext : IWebViewMessenger
 
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
+        MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
+
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
         ListContext = factoryListContext;
@@ -49,6 +52,7 @@ public partial class ContentMapContext : IWebViewMessenger
     public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public ContentListContext ListContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
+    public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public bool RefreshMapOnCollectionChanged { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }

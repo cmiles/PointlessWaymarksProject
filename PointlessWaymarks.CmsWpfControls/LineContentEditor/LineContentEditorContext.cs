@@ -63,38 +63,13 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         JsonFromWebView = new WorkQueue<FromWebViewMessage>(true);
 
-        MapPreviewNavigationManager = MapPreviewNavigation;
+        MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
 
         DbEntry = dbEntry;
 
         PropertyChanged += OnPropertyChanged;
     }
 
-    private bool MapPreviewNavigation(Uri navigationUri, string virtualDomain)
-    {
-        if (navigationUri.Host.StartsWith(UserSettingsSingleton.CurrentSettings().SiteDomainName))
-        {
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
-            {
-                await ThreadSwitcher.ResumeForegroundAsync();
-
-                var sitePreviewWindow = await SiteOnDiskPreviewWindow.CreateInstance(navigationUri.OriginalString.Replace("localpreview:", "https:"));
-                await sitePreviewWindow.PositionWindowAndShowOnUiThread();
-            });
-
-            return true;
-        }
-
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            ProcessHelpers.OpenUrlInExternalBrowser(navigationUri.OriginalString);
-        });
-
-        return true;
-    }
-
-    public Func<Uri, string, bool> MapPreviewNavigationManager { get; set; }
     public BodyContentEditorContext? BodyContent { get; set; }
     public ConversionDataEntryContext<double>? ClimbElevationEntry { get; set; }
     public ContentIdViewerControlContext? ContentId { get; set; }
@@ -109,6 +84,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public WorkQueue<FromWebViewMessage> JsonFromWebView { get; set; }
     public string LineGeoJson { get; set; } = string.Empty;
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public ConversionDataEntryContext<double>? MaximumElevationEntry { get; set; }
     public ConversionDataEntryContext<double>? MinimumElevationEntry { get; set; }
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
