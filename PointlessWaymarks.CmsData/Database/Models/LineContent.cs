@@ -10,6 +10,7 @@ namespace PointlessWaymarks.CmsData.Database.Models;
 [JsonAlphabeticalPropertyOrdering]
 public class LineContent : IUpdateNotes, IContentCommon
 {
+    public string? ActivityType { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public double ClimbElevation { get; set; }
@@ -21,6 +22,7 @@ public class LineContent : IUpdateNotes, IContentCommon
     public required DateTime FeedOn { get; set; }
     public string? Folder { get; set; }
     [JsonPropertyOrder(0)] public int Id { get; set; }
+    public bool IncludeInActivityLog { get; set; }
     public double InitialViewBoundsMaxLatitude { get; set; }
     public double InitialViewBoundsMaxLongitude { get; set; }
     public double InitialViewBoundsMinLatitude { get; set; }

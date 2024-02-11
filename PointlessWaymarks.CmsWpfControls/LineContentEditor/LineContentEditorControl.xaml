@@ -6,7 +6,7 @@
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
-        xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:lineContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.LineContentEditor"
@@ -21,6 +21,7 @@
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:stringWithDropdownEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry"
     d:DataContext="{d:DesignInstance lineContentEditor:LineContentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -29,7 +30,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                
+
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
         </ResourceDictionary>
@@ -46,7 +47,8 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
                                 DataContext="{Binding TitleSummarySlugFolder}" />
-                            <boolDataEntry:BoolDataEntryControl Margin="4, 8, 4,0" DataContext="{Binding PublicDownloadLink}" />
+                            <boolDataEntry:BoolDataEntryControl Margin="4, 8, 4,0"
+                                                                DataContext="{Binding PublicDownloadLinkEntry}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
                                 DataContext="{Binding MainSiteFeed}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
@@ -66,7 +68,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Style="{StaticResource ActionPanelBorderStyle}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <Button
                                 Command="{Binding ImportFromGpxCommand}"
@@ -102,65 +108,67 @@
                                 Style="{StaticResource ActionPanelButtonStyle}" />
                         </WrapPanel>
                     </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource ActionPanelBorderStyle}">
+                        <ScrollViewer
+                            HorizontalContentAlignment="Left"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+                            <StackPanel
+                                Orientation="Vertical"
+                                Margin="4"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top">
+                                <StackPanel.Resources>
+                                    <Style TargetType="conversionDataEntry:ConversionDataEntryControl">
+                                        <Setter Property="Width" Value="210" />
+                                        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                                    </Style>
+                                    <Style TargetType="boolDataEntry:BoolDataEntryControl">
+                                        <Setter Property="Width" Value="210" />
+                                        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                                    </Style>
+                                    <Style TargetType="stringWithDropdownEntry:StringWithDropdownEntryControl">
+                                        <Setter Property="Width" Value="210" />
+                                        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                                    </Style>
+                                </StackPanel.Resources>
+                                <conversionDataEntry:ConversionDataEntryControl 
+                                    DataContext="{Binding DistanceEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl
+                                    DataContext="{Binding MinimumElevationEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl 
+                                    DataContext="{Binding MaximumElevationEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl
+                                    DataContext="{Binding ClimbElevationEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl 
+                                    DataContext="{Binding DescentElevationEntry}" />
+                                <Button
+                                    Width="190"
+                                    Margin="5,10,5,12"
+                                    HorizontalAlignment="Center"
+                                    Command="{Binding UpdateStatisticsCommand}">
+                                    Update Stats from Line Data
+                                </Button>
+                                <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowContentReferencesOnMapEntry}"></boolDataEntry:BoolDataEntryControl>
+                                <boolDataEntry:BoolDataEntryControl DataContext="{Binding IncludeInActivityLogEntry}"></boolDataEntry:BoolDataEntryControl>
+                                <stringWithDropdownEntry:StringWithDropdownEntryControl Width="200" DataContext="{Binding ActivityTypeEntry}"/>
+                                <conversionDataEntry:ConversionDataEntryControl
+                                    DataContext="{Binding RecordingStartedOnEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl 
+                                    DataContext="{Binding RecordingEndedOnEntry}" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
                     <wpf:WebView2
                         x:Name="LineContentWebView"
-                        Grid.Row="1">
+                        Grid.Row="1"
+                        Grid.Column="0">
                         <b:Interaction.Behaviors>
-                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" DeferNavigationTo="{Binding MapPreviewNavigationManager}"/>
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}"
+                                DeferNavigationTo="{Binding MapPreviewNavigationManager}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
                 </Grid>
-            </TabItem>
-            <TabItem Header="Stats">
-                <ScrollViewer
-                    HorizontalContentAlignment="Left"
-                    HorizontalScrollBarVisibility="Disabled"
-                    VerticalScrollBarVisibility="Auto">
-                    <Grid
-                        Margin="4"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top">
-                        <Grid.Resources>
-                            <Style TargetType="conversionDataEntry:ConversionDataEntryControl">
-                                <Setter Property="Width" Value="180" />
-                            </Style>
-                        </Grid.Resources>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <conversionDataEntry:ConversionDataEntryControl HorizontalAlignment="Left"
-                                                                        DataContext="{Binding DistanceEntry}" />
-                        <WrapPanel Grid.Row="1">
-                            <conversionDataEntry:ConversionDataEntryControl
-                                DataContext="{Binding MinimumElevationEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0"
-                                                                            DataContext="{Binding MaximumElevationEntry}" />
-                        </WrapPanel>
-                        <WrapPanel Grid.Row="2">
-                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ClimbElevationEntry}" />
-
-                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0"
-                                                                            DataContext="{Binding DescentElevationEntry}" />
-                        </WrapPanel>
-                        <Button
-                            Grid.Row="3"
-                            Margin="6,12,1,24"
-                            HorizontalAlignment="Stretch"
-                            Command="{Binding UpdateStatisticsCommand}">
-                            Update Stats Above from Current Line Data
-                        </Button>
-                        <WrapPanel Grid.Row="4">
-                            <conversionDataEntry:ConversionDataEntryControl
-                                DataContext="{Binding RecordingStartedOnEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl Margin="12,0,0,0"
-                                                                            DataContext="{Binding RecordingEndedOnEntry}" />
-                        </WrapPanel>
-                    </Grid>
-                </ScrollViewer>
             </TabItem>
             <TabItem Header="Body">
                 <Grid>

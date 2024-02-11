@@ -14,7 +14,7 @@ using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
-using PointlessWaymarks.CmsWpfControls.SitePreview;
+using PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -30,7 +30,6 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 
@@ -70,6 +69,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         PropertyChanged += OnPropertyChanged;
     }
 
+    public ActivityTypeContext? ActivityTypeEntry { get; set; }
     public BodyContentEditorContext? BodyContent { get; set; }
     public ConversionDataEntryContext<double>? ClimbElevationEntry { get; set; }
     public ContentIdViewerControlContext? ContentId { get; set; }
@@ -81,16 +81,18 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
+    public BoolDataEntryContext? IncludeInActivityLogEntry { get; set; }
     public WorkQueue<FromWebViewMessage> JsonFromWebView { get; set; }
     public string LineGeoJson { get; set; } = string.Empty;
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public ConversionDataEntryContext<double>? MaximumElevationEntry { get; set; }
     public ConversionDataEntryContext<double>? MinimumElevationEntry { get; set; }
-    public BoolDataEntryContext? PublicDownloadLink { get; set; }
+    public BoolDataEntryContext? PublicDownloadLinkEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingEndedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? RecordingStartedOnEntry { get; set; }
     public bool ReplaceElevationOnImport { get; set; }
+    public BoolDataEntryContext? ShowContentReferencesOnMapEntry { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
@@ -182,11 +184,15 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.Line = LineGeoJson;
 
-        newEntry.PublicDownloadLink = PublicDownloadLink!.UserValue;
-
+        newEntry.PublicDownloadLink = PublicDownloadLinkEntry!.UserValue;
+        
         newEntry.RecordingStartedOn = RecordingStartedOnEntry!.UserValue;
         newEntry.RecordingEndedOn = RecordingEndedOnEntry!.UserValue;
 
+        newEntry.IncludeInActivityLog = IncludeInActivityLogEntry!.UserValue;
+        newEntry.ActivityType = ActivityTypeEntry!.UserValue;
+        newEntry.ShowInMainSiteFeed = ShowContentReferencesOnMapEntry!.UserValue;
+        
         newEntry.LineDistance = DistanceEntry!.UserValue;
         newEntry.MaximumElevation = MaximumElevationEntry!.UserValue;
         newEntry.MinimumElevation = MinimumElevationEntry!.UserValue;
@@ -364,14 +370,39 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         LineGeoJson = toLoad?.Line ?? string.Empty;
 
-        PublicDownloadLink = await BoolDataEntryContext.CreateInstance();
-        PublicDownloadLink.Title = "Show Public Download Link";
-        PublicDownloadLink.ReferenceValue = DbEntry.PublicDownloadLink;
-        PublicDownloadLink.UserValue = DbEntry.PublicDownloadLink;
-        PublicDownloadLink.HelpText =
-            "If checked there will be a hyperlink will on the File Content Page to download the content. NOTE! The File" +
-            "will be copied into the generated HTML for the site regardless of this setting - this setting is only about " +
-            "whether a download link is shown.";
+        PublicDownloadLinkEntry = await BoolDataEntryContext.CreateInstance();
+        PublicDownloadLinkEntry.Title = "Show Public Download Link";
+        PublicDownloadLinkEntry.ReferenceValue = DbEntry.PublicDownloadLink;
+        PublicDownloadLinkEntry.UserValue = DbEntry.PublicDownloadLink;
+        PublicDownloadLinkEntry.HelpText =
+            """
+            If checked there will be a hyperlink will on the File Content Page to download the content.
+            NOTE! The File will be copied into the generated HTML for the site regardless of this setting!
+            This setting is only impacts whether a download link is shown.
+            """;
+
+        IncludeInActivityLogEntry = await BoolDataEntryContext.CreateInstance();
+        IncludeInActivityLogEntry.Title = "Include In Activity Log";
+        IncludeInActivityLogEntry.ReferenceValue = DbEntry.IncludeInActivityLog;
+        IncludeInActivityLogEntry.UserValue = DbEntry.IncludeInActivityLog;
+        IncludeInActivityLogEntry.HelpText =
+            """
+            You can include Lines in the Activity Log to track your walks, runs, hikes, rides, etc.
+            This software/site offers some simple statistics about Lines in the Activity Log.
+            """;
+
+        ActivityTypeEntry = await ActivityTypeContext.CreateInstance(StatusContext, DbEntry);
+
+        ShowContentReferencesOnMapEntry = await BoolDataEntryContext.CreateInstance();
+        ShowContentReferencesOnMapEntry.Title = "Show Content References on Map";
+        ShowContentReferencesOnMapEntry.ReferenceValue = DbEntry.IncludeInActivityLog;
+        ShowContentReferencesOnMapEntry.UserValue = DbEntry.IncludeInActivityLog;
+        ShowContentReferencesOnMapEntry.HelpText =
+            """
+            If checked Bracket Content References with Spatial Information that are included in the
+            Body and Updates for this Line will appear on the Line Map. If checked Photographs with
+            GeoLocations will be included only if 'Show Photo Position' is checked.
+            """;
 
         RecordingStartedOnEntry =
             await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers

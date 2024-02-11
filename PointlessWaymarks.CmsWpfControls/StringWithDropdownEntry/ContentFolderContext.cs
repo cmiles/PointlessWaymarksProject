@@ -7,15 +7,14 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
-using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using Serilog;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarks.CmsWpfControls.ContentFolder;
+namespace PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry;
 
 [NotifyPropertyChanged]
-public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
+public partial class ContentFolderContext : IStringWithDropdownEntryContext
 {
     private ContentFolderContext(StatusControlContext statusContext, ITitleSummarySlugFolder? dbEntry,
         Func<Task<List<string>>> loader, List<string> initialFolderList)
@@ -30,12 +29,8 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
 
         GetCurrentFolderNames = loader;
 
-        ExistingFolderChoices = new ObservableCollection<string>(initialFolderList);
-        DataNotificationType = new List<DataNotificationContentType>
-        {
-            DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point
-        };
-
+        ExistingChoices = new ObservableCollection<string>(initialFolderList);
+        OnlyIncludeDataNotificationsForTypes = new List<DataNotificationContentType>();
         ReferenceValue = dbEntry?.Folder ?? string.Empty;
         UserValue = dbEntry?.Folder ?? string.Empty;
 
@@ -47,18 +42,18 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
     }
 
     public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
-    public List<DataNotificationContentType> DataNotificationType { get; set; }
-    public ObservableCollection<string> ExistingFolderChoices { get; set; }
+    public ObservableCollection<string> ExistingChoices { get; set; }
     public Func<Task<List<string>>> GetCurrentFolderNames { get; set; }
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
     public string HelpText { get; set; }
+    public List<DataNotificationContentType> OnlyIncludeDataNotificationsForTypes { get; set; }
     public string? ReferenceValue { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string Title { get; set; }
     public string? UserValue { get; set; }
     public List<Func<string?, IsValid>> ValidationFunctions { get; set; }
     public string ValidationMessage { get; set; } = string.Empty;
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
 
     private void CheckForChangesAndValidate()
     {
@@ -110,6 +105,9 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
 
         var newControl = new ContentFolderContext(factoryContext, null, loader, initialFolderList);
 
+        newControl.OnlyIncludeDataNotificationsForTypes =
+            [DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point];
+
         newControl.CheckForChangesAndValidate();
 
         return newControl;
@@ -128,20 +126,21 @@ public partial class ContentFolderContext : IHasChanges, IHasValidationIssues
         }
 
         if (translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent ||
-            !DataNotificationType.Contains(translatedMessage.ContentType)) return;
+            (OnlyIncludeDataNotificationsForTypes.Any() &&
+             !OnlyIncludeDataNotificationsForTypes.Contains(translatedMessage.ContentType))) return;
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var currentDbFolders = await GetCurrentFolderNames();
 
-        var newFolderNames = currentDbFolders.Except(ExistingFolderChoices).ToList();
+        var newFolderNames = currentDbFolders.Except(ExistingChoices).ToList();
 
         if (newFolderNames.Any())
         {
             await ThreadSwitcher.ResumeForegroundAsync();
-            ExistingFolderChoices.Clear();
-            currentDbFolders.ForEach(x => ExistingFolderChoices.Add(x));
-            ExistingFolderChoices.SortBy(x => x);
+            ExistingChoices.Clear();
+            currentDbFolders.ForEach(x => ExistingChoices.Add(x));
+            ExistingChoices.SortBy(x => x);
         }
     }
 

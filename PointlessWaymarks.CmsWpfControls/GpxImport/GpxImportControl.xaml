@@ -339,7 +339,7 @@
                     <ComboBox
                         Name="FolderTextBox"
                         IsEditable="True"
-                        ItemsSource="{Binding FolderEntry.ExistingFolderChoices}"
+                        ItemsSource="{Binding FolderEntry.ExistingChoices}"
                         Style="{StaticResource DataEntryComboBoxStyle}"
                         Text="{Binding FolderEntry.UserValue, UpdateSourceTrigger=PropertyChanged}" />
                     <Label

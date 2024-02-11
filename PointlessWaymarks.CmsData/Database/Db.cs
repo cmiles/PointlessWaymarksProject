@@ -1187,6 +1187,13 @@ public static class Db
             DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
     }
 
+    public static async Task<List<string>> ActivityTypesFromLines()
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        return await db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.ActivityType)).GroupBy(x => x.ActivityType).Select(x => x.Key ?? string.Empty).OrderBy(x => x).ToListAsync();
+    }
+
     /// <summary>
     ///     Takes in a Content Type that has a Folder (note Links do not have Folders) and returns a list of ALL folders
     ///     currently in the database for that Content Type (ie pass in a Post and get back a list of all folders used in

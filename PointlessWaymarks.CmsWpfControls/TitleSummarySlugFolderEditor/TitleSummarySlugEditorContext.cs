@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.ContentFolder;
 using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -9,6 +8,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
+using ContentFolderContext = PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry.ContentFolderContext;
 
 namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 
@@ -49,7 +49,6 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     }
 
     public bool AllAvailableTitleActionsEnabled { get; set; }
-
     public Func<TitleSummarySlugEditorContext, bool>? CustomTitleCheckToEnable { get; set; }
     public RelayCommand? CustomTitleCommand { get; set; }
     public bool CustomTitleFunctionEnabled { get; set; }
@@ -57,7 +56,6 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
     public bool CustomTitleFunctionVisible { get; set; }
     public ITitleSummarySlugFolder DbEntry { get; set; }
     public ContentFolderContext FolderEntry { get; set; }
-
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public StringDataEntryContext SlugEntry { get; set; }
