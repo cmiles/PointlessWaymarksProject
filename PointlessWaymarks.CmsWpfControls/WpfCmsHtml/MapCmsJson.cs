@@ -238,6 +238,16 @@ public static class MapCmsJson
         return await ProcessContentToMapInformation(dbEntries);
     }
 
+    public static async Task<(SpatialBounds bounds, List<FeatureCollection> featureList, List<string> fileCopyList)>
+        ProcessContentToMapInformation(
+            List<Guid> contentIds)
+    {
+        var db = await Db.Context();
+        var content = await db.ContentFromContentIds(contentIds, true);
+
+        return await ProcessContentToMapInformation(content.Cast<object>().ToList());
+    }
+
     /// <summary>
     ///     If your processing starts with IContentListItems use the overload that takes those - this version must query the
     ///     database for point information and process on disk content for photo image information.

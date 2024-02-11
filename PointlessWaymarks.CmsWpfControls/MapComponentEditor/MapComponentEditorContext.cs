@@ -5,23 +5,24 @@ using System.Windows;
 using System.Windows.Data;
 using GongSolutions.Wpf.DragDrop;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
+using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
+using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
-using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ColumnSort;
@@ -33,7 +34,6 @@ using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using ColumnSortControlContext = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlContext;
 using ColumnSortControlSortItem = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlSortItem;
-using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
@@ -75,6 +75,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         PropertyChanged += OnPropertyChanged;
     }
 
+    public Envelope? ContentBounds { get; set; }
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public List<MapElement> DbElements { get; set; } = [];
@@ -90,7 +91,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public StringDataEntryContext? SummaryEntry { get; set; }
     public StringDataEntryContext? TitleEntry { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
-
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
     public string UserGeoContentInput { get; set; } = string.Empty;
@@ -142,14 +142,16 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        MapElements.Add(new MapElementListGeoJsonItem
-        {
-            DbEntry = possibleGeoJson,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleGeoJson) ?? string.Empty,
-            InInitialView = loopContent?.IncludeInDefaultView ?? true,
-            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
-            Title = possibleGeoJson.Title ?? string.Empty
-        });
+        var newGeoJsonItem = await MapElementListGeoJsonItem.CreateInstance(new GeoJsonContentActions(StatusContext));
+
+        newGeoJsonItem.DbEntry = possibleGeoJson;
+        newGeoJsonItem.SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleGeoJson) ?? string.Empty;
+        newGeoJsonItem.ShowType = true;
+        newGeoJsonItem.InInitialView = loopContent?.IncludeInDefaultView ?? true;
+        newGeoJsonItem.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
+        newGeoJsonItem.Title = possibleGeoJson.Title ?? string.Empty;
+
+        MapElements.Add(newGeoJsonItem);
 
         if (guiNotificationAndMapRefreshWhenAdded)
         {
@@ -173,14 +175,16 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        MapElements.Add(new MapElementListLineItem
-        {
-            DbEntry = possibleLine,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleLine) ?? string.Empty,
-            InInitialView = loopContent?.IncludeInDefaultView ?? true,
-            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
-            Title = possibleLine.Title ?? string.Empty
-        });
+        var newLineItem = await MapElementListLineItem.CreateInstance(new LineContentActions(StatusContext));
+
+        newLineItem.DbEntry = possibleLine;
+        newLineItem.SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleLine) ?? string.Empty;
+        newLineItem.ShowType = true;
+        newLineItem.InInitialView = loopContent?.IncludeInDefaultView ?? true;
+        newLineItem.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
+        newLineItem.Title = possibleLine.Title ?? string.Empty;
+
+        MapElements.Add(newLineItem);
 
         if (guiNotificationAndMapRefreshWhenAdded)
         {
@@ -204,14 +208,15 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        MapElements.Add(new MapElementListPointItem
-        {
-            DbEntry = possiblePoint,
-            SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePoint) ?? string.Empty,
-            InInitialView = loopContent?.IncludeInDefaultView ?? true,
-            ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false,
-            Title = possiblePoint.Title ?? string.Empty
-        });
+        var newPointContent = await MapElementListPointItem.CreateInstance(new PointContentActions(StatusContext));
+
+        newPointContent.DbEntry = possiblePoint.ToDbObject();
+        newPointContent.SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePoint) ?? string.Empty;
+        newPointContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
+        newPointContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
+        newPointContent.Title = possiblePoint.Title ?? string.Empty;
+
+        MapElements.Add(newPointContent);
 
         if (guiNotificationAndMapRefreshWhenAdded)
         {
@@ -260,7 +265,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         return new MapComponentDto(newEntry, finalElementList);
     }
 
-    public async Task Edit(PointContentDto? content)
+    public async Task Edit(PointContent? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -469,66 +474,25 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (MapElements == null || !MapElements.Any())
+        var mapInformation =
+            await MapCmsJson.ProcessContentToMapInformation(MapElements?.Select(x => x.ContentId()!.Value).ToList() ??
+                                                            new List<Guid>());
+
+        if (mapInformation.fileCopyList.Any())
         {
-            ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(
-                new MapJsonNewFeatureCollectionDto(
-                    Guid.NewGuid(),
-                    new SpatialBounds(0, 0, 0, 0), []))));
-            return;
+            var fileBuilder = new FileBuilder();
+            fileBuilder.Copy.AddRange(mapInformation.fileCopyList.Select(x => new FileBuilderCopy(x)));
+
+            ToWebView.Enqueue(fileBuilder);
         }
 
-        var geoJsonList = new List<FeatureCollection>();
+        ContentBounds = mapInformation.bounds.ToEnvelope();
 
-        var boundsKeeper = new List<Point>();
-
-        foreach (var loopElements in MapElements)
-            switch (loopElements)
-            {
-                case MapElementListGeoJsonItem { DbEntry.GeoJson: not null } mapGeoJson:
-                    geoJsonList.Add(GeoJsonTools.DeserializeStringToFeatureCollection(mapGeoJson.DbEntry.GeoJson));
-                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMaxLongitude,
-                        mapGeoJson.DbEntry.InitialViewBoundsMaxLatitude));
-                    boundsKeeper.Add(new Point(mapGeoJson.DbEntry.InitialViewBoundsMinLongitude,
-                        mapGeoJson.DbEntry.InitialViewBoundsMinLatitude));
-                    break;
-                case MapElementListLineItem { DbEntry.Line: not null } mapLine:
-                    var lineFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(mapLine.DbEntry.Line);
-                    geoJsonList.Add(lineFeatureCollection);
-                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMaxLongitude,
-                        mapLine.DbEntry.InitialViewBoundsMaxLatitude));
-                    boundsKeeper.Add(new Point(mapLine.DbEntry.InitialViewBoundsMinLongitude,
-                        mapLine.DbEntry.InitialViewBoundsMinLatitude));
-                    break;
-            }
-
-        if (MapElements.Any(x => x is MapElementListPointItem))
+        ToWebView.Enqueue(new JsonData
         {
-            var featureCollection = new FeatureCollection();
-
-            foreach (var loopElements in MapElements.Where(x => x is MapElementListPointItem)
-                         .Cast<MapElementListPointItem>().Where(x => x.DbEntry != null).ToList())
-            {
-                if (loopElements.DbEntry == null) continue;
-
-                featureCollection.Add(new Feature(
-                    PointTools.Wgs84Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude,
-                        loopElements.DbEntry.Elevation ?? 0),
-                    new AttributesTable(new Dictionary<string, object>
-                        { { "title", loopElements.DbEntry.Title ?? string.Empty } })));
-                boundsKeeper.Add(new Point(loopElements.DbEntry.Longitude, loopElements.DbEntry.Latitude));
-            }
-
-            geoJsonList.Add(featureCollection);
-        }
-
-        var bounds = SpatialConverters.PointBoundingBox(boundsKeeper);
-
-        var dto = new MapJsonNewFeatureCollectionDto(Guid.NewGuid(),
-            new SpatialBounds(bounds.MaxY, bounds.MaxX, bounds.MinY, bounds.MinX), geoJsonList);
-
-        //Using the new Guid as the page URL forces a changed value into the LineJsonDto
-        ToWebView.Enqueue(JsonData.CreateRequest(await GeoJsonTools.SerializeWithGeoJsonSerializer(dto)));
+            Json = await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
+                mapInformation.featureList, mapInformation.bounds.ExpandToMinimumMeters(1000))
+        });
     }
 
     [BlockingCommand]

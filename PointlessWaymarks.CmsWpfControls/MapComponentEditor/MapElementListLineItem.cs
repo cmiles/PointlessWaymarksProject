@@ -1,17 +1,15 @@
 ﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
 [NotifyPropertyChanged]
-public partial class MapElementListLineItem : IMapElementListItem
+public partial class MapElementListLineItem : LineListListItem, IMapElementListItem
 {
-    public LineContent? DbEntry { get; set; }
-    public string SmallImageUrl { get; set; } = string.Empty;
-
-    public Guid? ContentId()
+    private protected MapElementListLineItem(LineContentActions itemActions, LineContent dbEntry) : base(itemActions,
+        dbEntry)
     {
-        return DbEntry?.ContentId;
     }
 
     public string ElementType { get; set; } = "line";
@@ -19,4 +17,9 @@ public partial class MapElementListLineItem : IMapElementListItem
     public bool IsFeaturedElement { get; set; }
     public bool ShowInitialDetails { get; set; }
     public string Title { get; set; } = string.Empty;
+
+    public new static Task<MapElementListLineItem> CreateInstance(LineContentActions itemActions)
+    {
+        return Task.FromResult(new MapElementListLineItem(itemActions, LineContent.CreateInstance()));
+    }
 }

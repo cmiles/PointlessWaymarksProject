@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList;
 [NotifyPropertyChanged]
 public partial class PointListListItem : IContentListItem, IContentListSmallImage
 {
-    private PointListListItem(PointContentActions itemActions, PointContent dbEntry)
+    private protected PointListListItem(PointContentActions itemActions, PointContent dbEntry)
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;
@@ -16,7 +16,10 @@ public partial class PointListListItem : IContentListItem, IContentListSmallImag
 
     public PointContent DbEntry { get; set; }
     public PointContentActions ItemActions { get; set; }
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
     public bool ShowType { get; set; }
+
+    public string? SmallImageUrl { get; set; }
 
     public IContentCommon Content()
     {
@@ -67,9 +70,6 @@ public partial class PointListListItem : IContentListItem, IContentListSmallImag
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
-
-    public string? SmallImageUrl { get; set; }
-    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
 
     public static Task<PointListListItem> CreateInstance(PointContentActions itemActions)
     {

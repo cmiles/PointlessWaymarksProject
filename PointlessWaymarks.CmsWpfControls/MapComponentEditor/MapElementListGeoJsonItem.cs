@@ -1,17 +1,15 @@
 ﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
 [NotifyPropertyChanged]
-public partial class MapElementListGeoJsonItem : IMapElementListItem
+public partial class MapElementListGeoJsonItem : GeoJsonListListItem, IMapElementListItem
 {
-    public GeoJsonContent? DbEntry { get; set; }
-    public string SmallImageUrl { get; set; } = string.Empty;
-
-    public Guid? ContentId()
+    protected MapElementListGeoJsonItem(GeoJsonContentActions itemActions, GeoJsonContent dbEntry) : base(itemActions,
+        dbEntry)
     {
-        return DbEntry?.ContentId;
     }
 
     public string ElementType { get; set; } = "geojson";
@@ -19,4 +17,9 @@ public partial class MapElementListGeoJsonItem : IMapElementListItem
     public bool IsFeaturedElement { get; set; }
     public bool ShowInitialDetails { get; set; } = true;
     public string Title { get; set; } = string.Empty;
+
+    public new static Task<MapElementListGeoJsonItem> CreateInstance(GeoJsonContentActions itemActions)
+    {
+        return Task.FromResult(new MapElementListGeoJsonItem(itemActions, GeoJsonContent.CreateInstance()));
+    }
 }

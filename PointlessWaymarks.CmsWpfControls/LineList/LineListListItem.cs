@@ -9,7 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 [NotifyPropertyChanged]
 public partial class LineListListItem : IContentListItem, IContentListSmallImage
 {
-    private LineListListItem(LineContentActions itemActions, LineContent dbEntry)
+    private protected LineListListItem(LineContentActions itemActions, LineContent dbEntry)
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;
