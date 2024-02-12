@@ -8,6 +8,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using TypeSupport.Extensions;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
@@ -76,17 +77,18 @@ public partial class LineMonthlySummaryWindow
 
         var lines = await db.LineContents
             .Where(x => lineContentIds.Contains(x.ContentId) && x.RecordingStartedOn != null &&
-                        x.RecordingEndedOn != null && x.RecordingStartedOn < x.RecordingEndedOn).AsNoTracking()
+                        x.RecordingEndedOn != null && x.RecordingStartedOn < x.RecordingEndedOn && x.IncludeInActivityLog).AsNoTracking()
             .ToListAsync();
 
         var grouped = lines.GroupBy(x =>
-                new { x.RecordingStartedOn.Value.Year, x.RecordingStartedOn.Value.Month })
+                new { x.RecordingStartedOn.Value.Year, x.RecordingStartedOn.Value.Month, x.ActivityType })
             .OrderByDescending(x => x.Key.Year).ThenByDescending(x => x.Key.Month);
 
         var reportRows = grouped.Select(x => new LineMonthlyStatRow
         {
             Year = x.Key.Year,
             Month = x.Key.Month,
+            ActivityType = x.Key.ActivityType ?? string.Empty,
             Activities = x.Count(),
             Miles = (int)Math.Floor(x.Sum(y => y.LineDistance)),
             Hours = (int)Math.Floor(new TimeSpan(0, (int)x

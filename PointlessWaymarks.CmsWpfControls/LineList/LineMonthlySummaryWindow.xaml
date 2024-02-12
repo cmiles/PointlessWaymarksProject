@@ -10,7 +10,7 @@
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="Line/Activity Summary" Height="600" Width="640"
+        Title="Line/Activity Summary" Height="600" Width="670"
         d:DataContext="{d:DesignInstance local:LineMonthlySummaryWindow}">
     <Window.Resources>
         <ResourceDictionary>
@@ -48,6 +48,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Year}" SortMemberPath="Year" Header="Year" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
                 <DataGridTextColumn Binding="{Binding Month}" SortMemberPath="Month" Header="Month" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
+                <DataGridTextColumn Binding="{Binding ActivityType}" SortMemberPath="Month" Header="Type"/>
                 <DataGridTextColumn Binding="{Binding Activities}" Header="Activities" SortMemberPath="Activities" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
                 <DataGridTextColumn Binding="{Binding Miles, StringFormat={}{0:N0}}"  SortMemberPath="Miles" Header="Miles" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>
                 <DataGridTextColumn Binding="{Binding Hours, StringFormat={}{0:N0}}" SortMemberPath="Hours" Header="Hours" dgx:DataGridFilterColumn.IsFilterVisible="False" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}"/>

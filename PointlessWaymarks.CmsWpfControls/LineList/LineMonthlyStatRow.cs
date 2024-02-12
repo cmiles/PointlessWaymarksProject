@@ -6,6 +6,8 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 public partial class LineMonthlyStatRow
 {
     public int Activities { get; set; }
+
+    public string ActivityType { get; set; } = string.Empty;
     public int Climb { get; set; }
     public int Descent { get; set; }
     public int Hours { get; set; }
