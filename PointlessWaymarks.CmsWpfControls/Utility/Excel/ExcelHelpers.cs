@@ -3,7 +3,6 @@ using System.IO;
 using ClosedXML.Excel;
 using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Import;
@@ -19,7 +18,6 @@ public static class ExcelHelpers
         bool openAfterSaving = true, bool limitRowHeight = true, IProgress<string>? progress = null)
     {
         progress?.Report($"Starting transfer of {toDisplay.Count} to Excel");
-
 
         var file = Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid(fileName)}.xlsx");
@@ -151,7 +149,8 @@ public static class ExcelHelpers
 
         progress?.Report("Setting up list to transfer to Excel");
 
-        var transformedList = toDisplay.Select(x => PointContent.CreateInstance().InjectFrom(x)).Cast<PointContent>().ToList();
+        var transformedList = toDisplay.Select(x => PointContent.CreateInstance().InjectFrom(x)).Cast<PointContent>()
+            .ToList();
 
         var detailList = new List<(Guid, string)>();
 

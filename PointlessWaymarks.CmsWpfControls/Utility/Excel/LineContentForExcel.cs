@@ -5,6 +5,7 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.Excel;
 
 public class LineContentForExcel : IUpdateNotes, IContentCommon
 {
+    public string? ActivityType { get; set; }
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public double ClimbElevation { get; set; }
@@ -16,6 +17,7 @@ public class LineContentForExcel : IUpdateNotes, IContentCommon
     public DateTime FeedOn { get; set; }
     public string? Folder { get; set; }
     public int Id { get; set; }
+    public bool IncludeInActivityLog { get; set; }
     public double InitialViewBoundsMaxLatitude { get; set; }
     public double InitialViewBoundsMaxLongitude { get; set; }
     public double InitialViewBoundsMinLatitude { get; set; }
@@ -23,14 +25,16 @@ public class LineContentForExcel : IUpdateNotes, IContentCommon
     public bool IsDraft { get; set; }
     public string? LastUpdatedBy { get; set; }
     public DateTime? LastUpdatedOn { get; set; }
-    [NotMapped] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
+    public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
     public double LineDistance { get; set; }
     public Guid? MainPicture { get; set; }
     public double MaximumElevation { get; set; }
     public double MinimumElevation { get; set; }
     public bool PublicDownloadLink { get; set; }
     public DateTime? RecordingEndedOn { get; set; }
+    public DateTime? RecordingEndedOnUtc { get; set; }
     public DateTime? RecordingStartedOn { get; set; }
+    public DateTime? RecordingStartedOnUtc { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
     public string? Slug { get; set; }
     public string? Summary { get; set; }
