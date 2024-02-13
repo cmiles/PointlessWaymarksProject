@@ -2,11 +2,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon.Utility;
-using Serilog;
+using Console = System.Console;
+using Log = Serilog.Log;
 
 namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
@@ -182,14 +184,18 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
         {
             if (javaScriptRequest.WaitForScriptFinished) WebViewMessenger.ToWebView.Suspend(true);
 
-            var javascriptResult =
-                await AssociatedObject.CoreWebView2.ExecuteScriptAsync(javaScriptRequest.JavaScriptToExecute);
+            //As far as I can tell the WebView2 ExecuteScriptWithResultAsync and ExecuteScriptAsync don't help you with
+            //resolving promises?
+            //https://github.com/MicrosoftEdge/WebView2Feedback/issues/416
+            //https://github.com/MicrosoftEdge/WebView2Feedback/issues/2295
+            var helper = AssociatedObject.CoreWebView2.GetDevToolsProtocolHelper();
+            //TODO: returnByValue here?
+            var javascriptResult = await helper.Runtime.EvaluateAsync(javaScriptRequest.JavaScriptToExecute,
+                awaitPromise: true, returnByValue: true);
 
-            if (!string.IsNullOrWhiteSpace(javascriptResult))
-
-                WebViewMessenger.FromWebView.Enqueue(
-                    new FromWebViewMessage(
-                        $$"""{ "messageType": "javascriptReturn", "message": "{{javascriptResult}}" }"""));
+            //TODO:Better error and result handling
+            if (javascriptResult?.ExceptionDetails != null)
+                throw new Exception(javascriptResult.ExceptionDetails.ToString());
         }
     }
 

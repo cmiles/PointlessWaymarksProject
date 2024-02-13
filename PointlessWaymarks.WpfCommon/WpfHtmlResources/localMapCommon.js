@@ -9,7 +9,7 @@ let useCircleMarkerStyle = false;
 
 let pointCircleMarkerOrangeOptions = {
     radius: 8,
-    fillColor: "#ff7800",
+    fillColor: "#00b6ff",
     color: "#000",
     weight: 1,
     opacity: 1,
@@ -26,10 +26,19 @@ function initialDocumentLoad() {
     window.chrome.webview.postMessage({ "messageType": "scriptFinished" });
 }
 
-function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingApiKey) {
+/**
+ * Loads a map to the 'mainMap' div
+ * @param {number} initialLatitude
+ * @param {number} initialLongitude
+ * @param {string} calTopoApiKey
+ * @param {string} bingApiKey
+ * @param {boolean} circleMarkerStyle
+ */
+async function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingApiKey, circleMarkerStyle) {
     broadcastProgress(`Initial Map Load - ${initialLatitude}, ${initialLongitude}`);
 
     newLayerAutoClose = true;
+    useCircleMarkerStyle = circleMarkerStyle;
 
     let [baseMaps, baseMapNames] = generateBaseMaps(calTopoApiKey, bingApiKey);
 
@@ -43,7 +52,7 @@ function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingAp
 
     L.control.layers(baseMapNames).addTo(map);
 
-    if (document.getElementById('mainElevationChart')) singleLineChartInit();
+    if (document.getElementById('mainElevationChart')) await singleLineChartInit();
 
     map.on('moveend', onMapMoveEnd);
 
@@ -54,7 +63,14 @@ function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingAp
     return true;
 }
 
-function initialMapLoadWithUserPointChooser(initialLatitude, initialLongitude, calTopoApiKey, bingApiKey) {
+/**
+ * Loads a map to the 'mainMap' div
+ * @param {number} initialLatitude
+ * @param {number} initialLongitude
+ * @param {string} calTopoApiKey
+ * @param {string} bingApiKey
+ */
+async function initialMapLoadWithUserPointChooser(initialLatitude, initialLongitude, calTopoApiKey, bingApiKey) {
     broadcastProgress(`Initial Map with User Point Load - ${initialLatitude}, ${initialLongitude}`);
     newLayerAutoClose = true;
     useCircleMarkerStyle = true;
@@ -71,7 +87,7 @@ function initialMapLoadWithUserPointChooser(initialLatitude, initialLongitude, c
 
     L.control.layers(baseMapNames).addTo(map);
 
-    if (document.getElementById('mainElevationChart')) singleLineChartInit();
+    if (document.getElementById('mainElevationChart')) await singleLineChartInit();
 
     map.on('moveend', onMapMoveEnd);
 
@@ -98,6 +114,10 @@ function initialMapLoadWithUserPointChooser(initialLatitude, initialLongitude, c
     return true;
 }
 
+/**
+ * @param {string} calTopoApiKey
+ * @param {string} bingApiKey
+ */
 function generateBaseMaps(calTopoApiKey, bingApiKey){
     
     let tileLayers = [];
@@ -123,7 +143,6 @@ function generateBaseMaps(calTopoApiKey, bingApiKey){
         });
         tileLayers.push(calTopoFs);
         layerNames["CalTopo - FS"] = calTopoFs;
-        
     }
     
     if(bingApiKey && bingApiKey.trim.length > 0){
