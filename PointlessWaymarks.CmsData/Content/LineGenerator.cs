@@ -80,8 +80,18 @@ public static class LineGenerator
         newEntry.RecordingStartedOnUtc = trackInformation.StartsOnUtc;
         newEntry.RecordingEndedOn = trackInformation.EndsOnLocal;
         newEntry.RecordingEndedOnUtc = trackInformation.EndsOnUtc;
+        newEntry.IncludeInActivityLog = newEntry is { RecordingStartedOn: not null, RecordingEndedOn: not null };
         newEntry.Tags = Db.TagListJoin(tagList);
 
+        if (newEntry.Title.Contains("Hike", StringComparison.CurrentCultureIgnoreCase)
+            || newEntry.Title.Contains("Hiking", StringComparison.CurrentCultureIgnoreCase)
+            || newEntry.Title.Contains("Run", StringComparison.CurrentCultureIgnoreCase)
+            || newEntry.Title.Contains("Walk", StringComparison.CurrentCultureIgnoreCase))
+            newEntry.ActivityType = "On Foot";
+        if (newEntry.Title.Contains("Bike", StringComparison.OrdinalIgnoreCase) ||
+            newEntry.Title.Contains("Biking", StringComparison.OrdinalIgnoreCase))
+            newEntry.ActivityType = "Biking";
+        
         if (!string.IsNullOrWhiteSpace(trackInformation.Name))
             newEntry.Slug = SlugTools.CreateSlug(true, trackInformation.Name);
         if (trackInformation.StartsOnLocal != null)
