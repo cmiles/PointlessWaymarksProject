@@ -185,14 +185,14 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         newEntry.Line = LineGeoJson;
 
         newEntry.PublicDownloadLink = PublicDownloadLinkEntry!.UserValue;
-        
+
         newEntry.RecordingStartedOn = RecordingStartedOnEntry!.UserValue;
         newEntry.RecordingEndedOn = RecordingEndedOnEntry!.UserValue;
 
         newEntry.IncludeInActivityLog = IncludeInActivityLogEntry!.UserValue;
         newEntry.ActivityType = ActivityTypeEntry!.UserValue;
-        newEntry.ShowInMainSiteFeed = ShowContentReferencesOnMapEntry!.UserValue;
-        
+        newEntry.ShowContentReferencesOnMap = ShowContentReferencesOnMapEntry!.UserValue;
+
         newEntry.LineDistance = DistanceEntry!.UserValue;
         newEntry.MaximumElevation = MaximumElevationEntry!.UserValue;
         newEntry.MinimumElevation = MinimumElevationEntry!.UserValue;
@@ -395,12 +395,12 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         ShowContentReferencesOnMapEntry = await BoolDataEntryContext.CreateInstance();
         ShowContentReferencesOnMapEntry.Title = "Show Content References on Map";
-        ShowContentReferencesOnMapEntry.ReferenceValue = DbEntry.IncludeInActivityLog;
-        ShowContentReferencesOnMapEntry.UserValue = DbEntry.IncludeInActivityLog;
+        ShowContentReferencesOnMapEntry.ReferenceValue = DbEntry.ShowContentReferencesOnMap;
+        ShowContentReferencesOnMapEntry.UserValue = DbEntry.ShowContentReferencesOnMap;
         ShowContentReferencesOnMapEntry.HelpText =
             """
             If checked Bracket Content References with Spatial Information that are included in the
-            Body and Updates for this Line will appear on the Line Map. If checked Photographs with
+            Body for this Line will appear on the Line Map. If checked Photographs with
             GeoLocations will be included only if 'Show Photo Position' is checked.
             """;
 

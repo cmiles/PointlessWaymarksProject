@@ -6,6 +6,7 @@ using IniParser;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -1324,6 +1325,16 @@ public static class UserSettingsUtilities
         if (possibleImageContent != null) return settings.ImagePageUrl(possibleImageContent);
 
         return string.Empty;
+    }
+
+    public static string? PictureSmallUrl(this UserSettings settings, Guid contentGuid)
+    {
+        var db = Db.Context().Result;
+
+        var processedContent = PictureAssetProcessing.ProcessPictureDirectory(contentGuid);
+
+        return processedContent?.SmallPicture?.SiteUrl;
+        ;
     }
 
     public static string PointDataUrl(this UserSettings settings)

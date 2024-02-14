@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.Excel;
@@ -35,6 +34,7 @@ public class LineContentForExcel : IUpdateNotes, IContentCommon
     public DateTime? RecordingEndedOnUtc { get; set; }
     public DateTime? RecordingStartedOn { get; set; }
     public DateTime? RecordingStartedOnUtc { get; set; }
+    public bool ShowContentReferencesOnMap { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
     public string? Slug { get; set; }
     public string? Summary { get; set; }

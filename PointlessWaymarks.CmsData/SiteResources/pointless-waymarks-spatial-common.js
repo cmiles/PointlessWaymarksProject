@@ -65,14 +65,14 @@ function popupHtmlContent(feature) {
         if (feature.properties.title) {
             if (feature.properties["title-link"] && feature.properties["title-link"].length > 0
                 && feature.properties["title-link"] !== currentUrlWithoutProtocol) {
-                popupHtml += `<a href="${feature.properties["title-link"]}">${feature.properties.title}</a>`;
+                popupHtml += `<a style="text-align: center;" href="${feature.properties["title-link"]}">${feature.properties.title}</a>`;
             } else {
-                popupHtml += feature.properties.title;
+                popupHtml += `<p style="text-align: center;">${feature.properties.title}</p>`;
             }
         }
 
         if (feature.properties.description) {
-            popupHtml += `<p>${feature.properties.description}</p>`;
+            popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
         }
 
         return popupHtml;
@@ -84,7 +84,6 @@ function popupHtmlContent(feature) {
 function onEachMapGeoJsonFeatureWrapper(map) {
     return function onEachMapGeoJsonFeature(feature, layer) {
         //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0 - title-link is site specific...
-        globalLineMaps.push({"contentId": feature.properties["content-id"], "lineMap": map});
 
         let popupHtml = popupHtmlContent(feature, window.location.href);
 
@@ -93,6 +92,11 @@ function onEachMapGeoJsonFeatureWrapper(map) {
         }
 
         if (feature.geometry.type === "LineString") {
+            let possibleMaps = globalLineMaps.filter(x => x.contentId === feature.properties["content-id"]);
+            if (possibleMaps.length === 0) {
+                globalLineMaps.push({"contentId": feature.properties["content-id"], "lineMap": map});
+            }
+            
             layer.on('mouseover', function (e) {
                 console.log(e);
 
@@ -181,18 +185,27 @@ async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
     newMapLayer.addTo(map);
 }
 
-async function singleLineMapInit(mapElement, contentId) {
+async function singleLineMapInit(mapElement, contentId, loadContentReferences) {
 
     let lineDataResponse = await fetch(`/Lines/Data/Line-${contentId}.json`);
     if (!lineDataResponse.ok)
         throw new Error(lineDataResponse.statusText);
 
+    let lineContentReferencesData = null;
+    
+    if(loadContentReferences) {
+        let lineContentReferencesDataResponse = await fetch(`/Lines/Data/LineContentReferences-${contentId}.json`);
+        if (!lineContentReferencesDataResponse.ok)
+            lineContentReferencesDataResponse = null;
+        else lineContentReferencesData = await lineContentReferencesDataResponse.json();
+    }
+    
     let lineData = await lineDataResponse.json();
 
-    await singleLineMapInitFromLineData(contentId, mapElement, lineData);
+    await singleLineMapInitFromLineData(contentId, mapElement, lineData, lineContentReferencesData);
 }
 
-async function singleLineMapInitFromLineData(contentId, mapElement, lineData) {
+async function singleLineMapInitFromLineData(contentId, mapElement, lineData, lineContentReferenceData) {
 
     let map = standardMap(mapElement);
 
@@ -206,6 +219,14 @@ async function singleLineMapInitFromLineData(contentId, mapElement, lineData) {
     });
 
     newMapLayer.addTo(map);
+    
+    if(lineContentReferenceData){
+        let newContentReferenceMapLayer = new L.geoJSON(lineContentReferenceData, {
+            onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
+        });
+
+        newContentReferenceMapLayer.addTo(map);
+    }
 }
 
 

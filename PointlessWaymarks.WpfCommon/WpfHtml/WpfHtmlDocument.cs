@@ -120,7 +120,7 @@ public static class WpfHtmlDocument
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         messenger.ToWebView.Enqueue(ExecuteJavaScript.CreateRequest(
-            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', false)", true));
+            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', true)", true));
     }
 
     public static void SetupCmsLeafletPointChooserMapHtmlAndJs(this IWebViewMessenger messenger, string title,

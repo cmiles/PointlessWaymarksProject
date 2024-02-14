@@ -158,7 +158,7 @@
                                 DataContext="{Binding TitleSummarySlugFolder}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
                                 DataContext="{Binding MainSiteFeed}" />
-                            <boolDataEntry:BoolDataEntryControl Margin="4,8,0,0" DataContext="{Binding ShowSizes}" />
+                            <boolDataEntry:BoolDataEntryControl Margin="4,8,0,0" DataContext="{Binding ShowSizesEntry}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
                                                           Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
@@ -195,7 +195,7 @@
                                     HorizontalAlignment="Left"
                                     DataContext="{Binding IsoEntry}" />
                             </WrapPanel>
-                            <boolDataEntry:BoolDataEntryControl Margin="4,18,0,0" DataContext="{Binding ShowPosition}" />
+                            <boolDataEntry:BoolDataEntryControl Margin="4,18,0,0" DataContext="{Binding ShowPositionEntry}" />
                             <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
                                 <conversionDataEntry:ConversionDataEntryControl Width="120"
                                     DataContext="{Binding LatitudeEntry}" />

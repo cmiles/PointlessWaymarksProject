@@ -49,6 +49,7 @@ public partial class SingleLinePage
         var settings = UserSettingsSingleton.CurrentSettings();
 
         await LineData.WriteJsonData(DbEntry).ConfigureAwait(false);
+        await LineData.WriteContentReferenceJsonData(DbEntry).ConfigureAwait(false);
         await LineData.WriteGpxData(DbEntry).ConfigureAwait(false);
 
         var htmlString = TransformText();

@@ -100,8 +100,8 @@ Photo Content Notes:
     public bool SelectedFileHasValidationIssues { get; set; }
     public bool SelectedFileNameHasInvalidCharacters { get; set; }
     public string SelectedFileValidationMessage { get; set; } = string.Empty;
-    public BoolDataEntryContext? ShowPosition { get; set; }
-    public BoolDataEntryContext? ShowSizes { get; set; }
+    public BoolDataEntryContext? ShowPositionEntry { get; set; }
+    public BoolDataEntryContext? ShowSizesEntry { get; set; }
     public StringDataEntryContext? ShutterSpeedEntry { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
@@ -295,10 +295,11 @@ Photo Content Notes:
         newEntry.PhotoCreatedOnUtc = PhotoCreatedOnUtcEntry!.UserValue;
         newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-        newEntry.ShowPhotoSizes = ShowSizes!.UserValue;
+        newEntry.ShowPhotoSizes = ShowSizesEntry!.UserValue;
         newEntry.Latitude = LatitudeEntry!.UserValue;
         newEntry.Longitude = LongitudeEntry!.UserValue;
         newEntry.Elevation = ElevationEntry!.UserValue;
+        newEntry.ShowPhotoPosition = ShowPositionEntry!.UserValue;
 
         return newEntry;
     }
@@ -409,17 +410,17 @@ Photo Content Notes:
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        ShowPosition = await BoolDataEntryContext.CreateInstance();
-        ShowPosition.Title = "Show Photo Position";
-        ShowPosition.HelpText = "If enabled the page users be shown a list of all available sizes";
-        ShowPosition.ReferenceValue = DbEntry.ShowPhotoPosition;
-        ShowPosition.UserValue = DbEntry.ShowPhotoPosition;
+        ShowPositionEntry = await BoolDataEntryContext.CreateInstance();
+        ShowPositionEntry.Title = "Show Photo Position";
+        ShowPositionEntry.HelpText = "If enabled the page users be shown a list of all available sizes";
+        ShowPositionEntry.ReferenceValue = DbEntry.ShowPhotoPosition;
+        ShowPositionEntry.UserValue = DbEntry.ShowPhotoPosition;
 
-        ShowSizes = await BoolDataEntryContext.CreateInstance();
-        ShowSizes.Title = "Show Photo Sizes";
-        ShowSizes.HelpText = "If enabled the page users are shown will have a list of all available sizes";
-        ShowSizes.ReferenceValue = DbEntry.ShowPhotoSizes;
-        ShowSizes.UserValue = DbEntry.ShowPhotoSizes;
+        ShowSizesEntry = await BoolDataEntryContext.CreateInstance();
+        ShowSizesEntry.Title = "Show Photo Sizes";
+        ShowSizesEntry.HelpText = "If enabled the page users are shown will have a list of all available sizes";
+        ShowSizesEntry.ReferenceValue = DbEntry.ShowPhotoSizes;
+        ShowSizesEntry.UserValue = DbEntry.ShowPhotoSizes;
 
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
 
