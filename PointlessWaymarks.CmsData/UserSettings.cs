@@ -19,6 +19,7 @@ public partial class UserSettings
     public double LatitudeDefault { get; set; }
     public bool FilesHavePublicDownloadLinkByDefault { get; set; }
     public bool LinesHavePublicDownloadLinkByDefault { get; set; }
+    public bool LinesShowContentReferencesOnMapByDefault { get; set; }
     public bool GeoJsonHasPublicDownloadLinkByDefault { get; set; }
     /// <summary>
     ///     Relative or Absolute Local Media Archive Directory - prefer the LocalMediaArchiveFullDirectory

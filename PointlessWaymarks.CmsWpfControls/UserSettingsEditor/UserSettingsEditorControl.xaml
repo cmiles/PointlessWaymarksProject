@@ -243,7 +243,6 @@
                             </b:Interaction.Behaviors>
                         </wpf:MarkdownViewer>
                     </StackPanel>
-                    
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultFilePublicDownloadDefaultCheckBox}">
                             Public Download Link Default - Files
@@ -292,7 +291,6 @@
                             </b:Interaction.Behaviors>
                         </wpf:MarkdownViewer>
                     </StackPanel>
-                    
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=FeatureIntersectionTextBox}">
                             Feature Intersection Settings File
@@ -318,6 +316,22 @@
                             Automatically Feature Intersection Tag New Content on Import (Feature Intersection Settings File must be set)
                         </CheckBox>
                         <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownFeatureIntersectionTagOnImport}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LinesShowContentReferencesOnMapByDefaultCheckBox}">
+                            Line Body Content References on Map
+                        </Label>
+                        <CheckBox
+                            Name="LinesShowContentReferencesOnMapByDefaultCheckBox"
+                            Margin="6,0,0,0"
+                            IsChecked="{Binding EditorSettings.LinesShowContentReferencesOnMapByDefault, UpdateSourceTrigger=PropertyChanged}">
+                            Show by Default
+                        </CheckBox>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownLinesShowContentReferencesOnMapByDefault}">
                             <b:Interaction.Behaviors>
                                 <behaviors:IgnoreMouseWheelBehavior />
                             </b:Interaction.Behaviors>

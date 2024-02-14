@@ -16,30 +16,30 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 [GenerateStatusCommands]
 public partial class LineMonthlySummaryWindow
 {
-    public LineMonthlySummaryWindow(List<LineMonthlyStatRow> statRows)
+    public LineMonthlySummaryWindow(List<ActivityLogMonthlyStatRow> statRows)
 
     {
         InitializeComponent();
 
         StatusContext = new StatusControlContext();
 
-        Items = new ObservableCollection<LineMonthlyStatRow>(statRows);
+        Items = new ObservableCollection<ActivityLogMonthlyStatRow>(statRows);
 
         BuildCommands();
 
         DataContext = this;
     }
 
-    public ObservableCollection<LineMonthlyStatRow> Items { get; set; }
+    public ObservableCollection<ActivityLogMonthlyStatRow> Items { get; set; }
 
-    public LineMonthlyStatRow? SelectedItem { get; set; }
+    public ActivityLogMonthlyStatRow? SelectedItem { get; set; }
 
-    public List<LineMonthlyStatRow> SelectedItems { get; set; } = new();
+    public List<ActivityLogMonthlyStatRow> SelectedItems { get; set; } = new();
 
     public StatusControlContext StatusContext { get; set; }
 
     [BlockingCommand]
-    public async Task ContentMap(LineMonthlyStatRow? row)
+    public async Task ContentMap(ActivityLogMonthlyStatRow? row)
     {
         if (row == null)
         {
@@ -84,7 +84,7 @@ public partial class LineMonthlySummaryWindow
                 new { x.RecordingStartedOn.Value.Year, x.RecordingStartedOn.Value.Month, x.ActivityType })
             .OrderByDescending(x => x.Key.Year).ThenByDescending(x => x.Key.Month);
 
-        var reportRows = grouped.Select(x => new LineMonthlyStatRow
+        var reportRows = grouped.Select(x => new ActivityLogMonthlyStatRow
         {
             Year = x.Key.Year,
             Month = x.Key.Month,
@@ -108,12 +108,12 @@ public partial class LineMonthlySummaryWindow
         return new LineMonthlySummaryWindow(reportRows);
     }
 
-    public LineMonthlyStatRow? SelectedListItem()
+    public ActivityLogMonthlyStatRow? SelectedListItem()
     {
         return SelectedItem;
     }
 
-    public List<LineMonthlyStatRow> SelectedListItems()
+    public List<ActivityLogMonthlyStatRow> SelectedListItems()
     {
         return SelectedItems;
     }
@@ -123,7 +123,7 @@ public partial class LineMonthlySummaryWindow
         if (DataContext == null) return;
         var viewmodel = (LineMonthlySummaryWindow)DataContext;
         SelectedItems =
-            LineStatsDataGrid?.SelectedItems.Cast<LineMonthlyStatRow>().ToList() ??
-            new List<LineMonthlyStatRow>();
+            LineStatsDataGrid?.SelectedItems.Cast<ActivityLogMonthlyStatRow>().ToList() ??
+            new List<ActivityLogMonthlyStatRow>();
     }
 }

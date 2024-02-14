@@ -55,6 +55,9 @@ public partial class UserSettingsEditorContext
 
     public static string HelpMarkdownLinesHavePublicDownloadLinkByDefault =>
         "Default setting for whether Line Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
+    
+    public static string HelpMarkdownLinesShowContentReferencesOnMapByDefault =>
+        "Default setting for whether spatial content referenced in the Line Body are shown on the map by default.";
 
     public static string HelpMarkdownGeoJsonHasPublicDownloadLinkByDefault =>
         "Default setting for whether GeoJson Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
