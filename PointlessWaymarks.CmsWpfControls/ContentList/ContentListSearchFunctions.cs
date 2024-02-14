@@ -146,105 +146,23 @@ public static class ContentListSearchFunctions
                 string.Join(Environment.NewLine, apertureSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
-    public static ContentListSearchFunctionReturn FilterNumber(decimal? listItemNumber, string? searchString,
+    public static ContentListSearchFunctionReturn FilterBoolean(bool listBoolean, string? searchString,
         string? searchLabel)
     {
         if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
             searchString.StartsWith(searchLabel.Trim(), StringComparison.OrdinalIgnoreCase))
             searchString = searchString[$"{searchLabel.Trim().Replace(":", string.Empty)}:".Length..];
 
-        if (listItemNumber == null && string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchFunctionReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
-
-        if (listItemNumber == null)
-            return new ContentListSearchFunctionReturn(false,
-                $"Blank {searchLabel} with Not Blank Search String (false).");
-
         if (string.IsNullOrWhiteSpace(searchString))
-            return new ContentListSearchFunctionReturn(false,
-                $"Blank Search String with Not Blank {searchLabel} (false).");
+            return new ContentListSearchFunctionReturn(true,
+                $"Blank Search String {searchLabel} (true).");
 
-        var tokens = FilterListSpaceDividedTokenList(searchString);
+        if (bool.TryParse(searchString, out var parsedSearchBool))
+            return new ContentListSearchFunctionReturn(parsedSearchBool == listBoolean,
+                $"Search {searchLabel} of {parsedSearchBool} compared to " + $"{listBoolean}");
 
-        if (tokens.Count == 1)
-        {
-            if (!decimal.TryParse(tokens.First(), out var parsedNumeric))
-                return new ContentListSearchFunctionReturn(false,
-                    $"Search input of {tokens.First()} could not " +
-                    $"be parsed into a numeric to search (false)");
-
-            return new ContentListSearchFunctionReturn(listItemNumber == parsedNumeric,
-                $"Comparing {searchLabel} of {parsedNumeric} == {listItemNumber}");
-        }
-
-        var isoSearchResults = new List<ContentListSearchFunctionReturn>();
-
-        for (var i = 0; i < tokens.Count; i++)
-        {
-            var scanValue = tokens[i];
-
-            if (!FilterListTokenOperatorList.Contains(scanValue))
-            {
-                if (!int.TryParse(tokens.First(), out var parsedNumeric))
-                {
-                    isoSearchResults.Add(new ContentListSearchFunctionReturn(false,
-                        $"Search input of {scanValue} could not " +
-                        $"be parsed into a numeric to search (false)"));
-                    continue;
-                }
-
-                isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber == parsedNumeric,
-                    $"Search {searchLabel} of {parsedNumeric} compared to {listItemNumber}"));
-                continue;
-            }
-
-            i++;
-
-            //Last token is a operator - this isn't valid, just continue...
-            if (i >= tokens.Count) continue;
-
-            var lookaheadValue = tokens[i];
-
-            if (!int.TryParse(lookaheadValue, out var parsedIsoForExpression))
-            {
-                isoSearchResults.Add(new ContentListSearchFunctionReturn(false,
-                    $"Search input of {scanValue} could not be parsed into a numeric to search (false)"));
-                continue;
-            }
-
-            switch (scanValue)
-            {
-                case "==":
-                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber == parsedIsoForExpression,
-                        $"Search {searchLabel} of {parsedIsoForExpression} compared to " + $"{listItemNumber}"));
-                    break;
-                case "!=":
-                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber != parsedIsoForExpression,
-                        $"Search {searchLabel} of {parsedIsoForExpression} not equal to " + $"{listItemNumber}"));
-                    break;
-                case ">":
-                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber > parsedIsoForExpression,
-                        $"Evaluated Search {searchLabel} of {parsedIsoForExpression} greater than {listItemNumber}"));
-                    break;
-                case ">=":
-                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber >= parsedIsoForExpression,
-                        $"Evaluated Search {searchLabel} of {parsedIsoForExpression} greater than or equal to {listItemNumber}"));
-                    break;
-                case "<":
-                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber < parsedIsoForExpression,
-                        $"Evaluated Search {searchLabel} of {parsedIsoForExpression} less than {listItemNumber}"));
-                    break;
-                case "<=":
-                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber <= parsedIsoForExpression,
-                        $"Evaluated Search {searchLabel} of {parsedIsoForExpression} less than or equal to {listItemNumber}"));
-                    break;
-            }
-        }
-
-        return !isoSearchResults.Any()
-            ? new ContentListSearchFunctionReturn(false, "No Search String Parse Results?")
-            : new ContentListSearchFunctionReturn(isoSearchResults.All(x => x.Include),
-                string.Join(Environment.NewLine, isoSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
+        return new ContentListSearchFunctionReturn(true,
+            $"Search String {searchLabel} Could not be translated to a Boolean Value (true).");
     }
 
     public static ContentListSearchFunctionReturn FilterDateTime(DateTime? itemDateTime, string? searchString,
@@ -841,6 +759,107 @@ public static class ContentListSearchFunctions
         }
 
         return tokens;
+    }
+
+    public static ContentListSearchFunctionReturn FilterNumber(decimal? listItemNumber, string? searchString,
+        string? searchLabel)
+    {
+        if (!string.IsNullOrWhiteSpace(searchLabel) && !string.IsNullOrWhiteSpace(searchString) &&
+            searchString.StartsWith(searchLabel.Trim(), StringComparison.OrdinalIgnoreCase))
+            searchString = searchString[$"{searchLabel.Trim().Replace(":", string.Empty)}:".Length..];
+
+        if (listItemNumber == null && string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchFunctionReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
+
+        if (listItemNumber == null)
+            return new ContentListSearchFunctionReturn(false,
+                $"Blank {searchLabel} with Not Blank Search String (false).");
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchFunctionReturn(false,
+                $"Blank Search String with Not Blank {searchLabel} (false).");
+
+        var tokens = FilterListSpaceDividedTokenList(searchString);
+
+        if (tokens.Count == 1)
+        {
+            if (!decimal.TryParse(tokens.First(), out var parsedNumeric))
+                return new ContentListSearchFunctionReturn(false,
+                    $"Search input of {tokens.First()} could not " +
+                    $"be parsed into a numeric to search (false)");
+
+            return new ContentListSearchFunctionReturn(listItemNumber == parsedNumeric,
+                $"Comparing {searchLabel} of {parsedNumeric} == {listItemNumber}");
+        }
+
+        var isoSearchResults = new List<ContentListSearchFunctionReturn>();
+
+        for (var i = 0; i < tokens.Count; i++)
+        {
+            var scanValue = tokens[i];
+
+            if (!FilterListTokenOperatorList.Contains(scanValue))
+            {
+                if (!int.TryParse(tokens.First(), out var parsedNumeric))
+                {
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(false,
+                        $"Search input of {scanValue} could not " +
+                        $"be parsed into a numeric to search (false)"));
+                    continue;
+                }
+
+                isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber == parsedNumeric,
+                    $"Search {searchLabel} of {parsedNumeric} compared to {listItemNumber}"));
+                continue;
+            }
+
+            i++;
+
+            //Last token is a operator - this isn't valid, just continue...
+            if (i >= tokens.Count) continue;
+
+            var lookaheadValue = tokens[i];
+
+            if (!int.TryParse(lookaheadValue, out var parsedIsoForExpression))
+            {
+                isoSearchResults.Add(new ContentListSearchFunctionReturn(false,
+                    $"Search input of {scanValue} could not be parsed into a numeric to search (false)"));
+                continue;
+            }
+
+            switch (scanValue)
+            {
+                case "==":
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber == parsedIsoForExpression,
+                        $"Search {searchLabel} of {parsedIsoForExpression} compared to " + $"{listItemNumber}"));
+                    break;
+                case "!=":
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber != parsedIsoForExpression,
+                        $"Search {searchLabel} of {parsedIsoForExpression} not equal to " + $"{listItemNumber}"));
+                    break;
+                case ">":
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber > parsedIsoForExpression,
+                        $"Evaluated Search {searchLabel} of {parsedIsoForExpression} greater than {listItemNumber}"));
+                    break;
+                case ">=":
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber >= parsedIsoForExpression,
+                        $"Evaluated Search {searchLabel} of {parsedIsoForExpression} greater than or equal to {listItemNumber}"));
+                    break;
+                case "<":
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber < parsedIsoForExpression,
+                        $"Evaluated Search {searchLabel} of {parsedIsoForExpression} less than {listItemNumber}"));
+                    break;
+                case "<=":
+                    isoSearchResults.Add(new ContentListSearchFunctionReturn(listItemNumber <= parsedIsoForExpression,
+                        $"Evaluated Search {searchLabel} of {parsedIsoForExpression} less than or equal to {listItemNumber}"));
+                    break;
+            }
+        }
+
+        return !isoSearchResults.Any()
+            ? new ContentListSearchFunctionReturn(false, "No Search String Parse Results?")
+            : new ContentListSearchFunctionReturn(isoSearchResults.All(x => x.Include),
+                string.Join(Environment.NewLine, isoSearchResults.Select(x => $"{x.Explanation} ({x.Include}).")));
     }
 
     public static ContentListSearchFunctionReturn FilterShutterSpeedLength(string? itemShutterSpeedString,

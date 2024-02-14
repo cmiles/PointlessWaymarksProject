@@ -377,7 +377,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             if (translatedMessage.UpdateType == DataNotificationUpdateType.Update)
                 // ReSharper disable All
                 ((dynamic)existingItem).DbEntry = (dynamic)loopItem;
-                // ReSharper restore All
+            // ReSharper restore All
 
             if (loopItem is IMainImage mainImage && existingItem is IContentListSmallImage itemWithSmallImage)
                 itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
@@ -488,9 +488,12 @@ public partial class ContentListContext : IDragSource, IDropTarget
             Func<IContentListItem, string, Func<bool, bool>, ContentListSearch.ContentListSearchReturn>
                 searchFilterFunction;
 
-            if (searchString.StartsWith("SUMMARY:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchSummary;
-            else if (searchString.StartsWith("TITLE:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchTitle;
-            else if (searchString.StartsWith("TYPE:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchContentType;
+            if (searchString.StartsWith("SUMMARY:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchSummary;
+            else if (searchString.StartsWith("TITLE:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchTitle;
+            else if (searchString.StartsWith("TYPE:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchContentType;
             else if (searchString.StartsWith("FOLDER:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchFolder;
             else if (searchString.StartsWith("CREATED ON:", StringComparison.InvariantCultureIgnoreCase))
@@ -501,10 +504,12 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedOn;
             else if (searchString.StartsWith("LAST UPDATED BY:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedBy;
-            else if (searchString.StartsWith("TAGS:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchTags;
+            else if (searchString.StartsWith("TAGS:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchTags;
             else if (searchString.StartsWith("CAMERA:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchCamera;
-            else if (searchString.StartsWith("LENS:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchLens;
+            else if (searchString.StartsWith("LENS:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchLens;
             else if (searchString.StartsWith("LICENSE:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLicense;
             else if (searchString.StartsWith("PHOTO CREATED ON:", StringComparison.InvariantCultureIgnoreCase))
@@ -513,7 +518,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchAperture;
             else if (searchString.StartsWith("SHUTTER SPEED:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchShutterSpeed;
-            else if (searchString.StartsWith("ISO:", StringComparison.InvariantCultureIgnoreCase)) searchFilterFunction = ContentListSearch.SearchIso;
+            else if (searchString.StartsWith("ISO:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchIso;
             else if (searchString.StartsWith("FOCAL LENGTH:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchFocalLength;
             else if (searchString.StartsWith("MILES:", StringComparison.InvariantCultureIgnoreCase))
@@ -526,6 +532,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchClimb;
             else if (searchString.StartsWith("DESCENT:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchDescent;
+            else if (searchString.StartsWith("ACTIVITY LOG:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchActivityLog;
             else searchFilterFunction = ContentListSearch.SearchGeneral;
 
             searchFilterStack.Add((searchFilterFunction, searchString, searchResultModifier));
@@ -651,9 +659,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     /// <summary>
-    /// Loads data - by default it will create a new ObservableCollection which is very performant and works
-    /// in most cases, but if you have event handlers attached to the collection you may want to preserve the
-    /// collection with preserveCollection = true
+    ///     Loads data - by default it will create a new ObservableCollection which is very performant and works
+    ///     in most cases, but if you have event handlers attached to the collection you may want to preserve the
+    ///     collection with preserveCollection = true
     /// </summary>
     /// <param name="preserveCollection"></param>
     /// <returns></returns>
@@ -696,10 +704,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         if (preserveCollection)
         {
             Items.Clear();
-            foreach (var toAdd in contentListItems)
-            {
-                Items.Add(toAdd);
-            }
+            foreach (var toAdd in contentListItems) Items.Add(toAdd);
         }
         else
         {
@@ -770,7 +775,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public async Task SpatialItemsToContentMapWindowSelected(CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        
+
         var currentSelected = SelectedListItems();
 
         var spatialContent =
