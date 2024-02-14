@@ -3,11 +3,11 @@
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
 [NotifyPropertyChanged]
-public partial class LineMonthlyStatRow
+public partial class ActivityLogMonthlyStatRow
 {
     public int Activities { get; set; }
-
     public string ActivityType { get; set; } = string.Empty;
+    public string CreatedBy { get; set; } = string.Empty;
     public int Climb { get; set; }
     public int Descent { get; set; }
     public int Hours { get; set; }

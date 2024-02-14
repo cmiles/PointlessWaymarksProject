@@ -68,7 +68,8 @@ public partial class LineListWithActionsContext
             },
             new ContextMenuItemData
             {
-                ItemName = "Monthly Stats Window", ItemCommand = MonthSummaryStatsWindowForSelectedCommand
+                ItemName = "Activity Log Monthly Stats Window",
+                ItemCommand = ActivityLogMonthlyStatsWindowForSelectedCommand
             },
             new ContextMenuItemData
                 { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
@@ -92,6 +93,37 @@ public partial class LineListWithActionsContext
     public ContentListContext ListContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
+
+    [BlockingCommand]
+    private async Task ActivityLogMonthlyStatsWindowForAllLineContent()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var db = await Db.Context();
+
+        var allActivities =
+            await db.LineContents.LineContentFilteredForActivities().Select(x => x.ContentId).ToListAsync();
+
+        var window =
+            await ActivityLogMonthlySummaryWindow.CreateInstance(allActivities);
+
+        await window.PositionWindowAndShowOnUiThread();
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    private async Task ActivityLogMonthlyStatsWindowForSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var frozenSelected = SelectedListItems();
+
+        var window =
+            await ActivityLogMonthlySummaryWindow.CreateInstance(frozenSelected.Select(x => x.DbEntry.ContentId)
+                .ToList());
+
+        await window.PositionWindowAndShowOnUiThread();
+    }
 
     [BlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
@@ -291,36 +323,6 @@ public partial class LineListWithActionsContext
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    [BlockingCommand]
-    private async Task MonthSummaryStatsWindowForAllLineContent()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var db = await Db.Context();
-
-        var allActivities =
-            await db.LineContents.LineContentFilteredForActivities().Select(x => x.ContentId).ToListAsync();
-
-        var window =
-            await LineMonthlySummaryWindow.CreateInstance(allActivities);
-
-        await window.PositionWindowAndShowOnUiThread();
-    }
-
-    [BlockingCommand]
-    [StopAndWarnIfNoSelectedListItems]
-    private async Task MonthSummaryStatsWindowForSelected()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var frozenSelected = SelectedListItems();
-
-        var window =
-            await LineMonthlySummaryWindow.CreateInstance(frozenSelected.Select(x => x.DbEntry.ContentId).ToList());
-
-        await window.PositionWindowAndShowOnUiThread();
     }
 
     [BlockingCommand]

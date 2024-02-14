@@ -4,14 +4,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList"
-        xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
         xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
         xmlns:filterDataGrid="http://filterdatagrid.control.com/2021"
         mc:Ignorable="d"
-        Title="Line/Activity Summary" Height="600" Width="700"
+        Title="Activity Log Summary" Height="800" Width="800"
         d:DataContext="{d:DesignInstance local:ActivityLogMonthlySummaryWindow}">
     <Window.Resources>
         <ResourceDictionary>
@@ -45,6 +44,7 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
+                <filterDataGrid:DataGridTextColumn Binding="{Binding CreatedBy}" SortMemberPath="CreatedBy" Header="By" IsColumnFiltered="True"/>
                 <filterDataGrid:DataGridTextColumn Binding="{Binding Year}" SortMemberPath="Year" Header="Year" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}" IsColumnFiltered="True"/>
                 <filterDataGrid:DataGridTextColumn Binding="{Binding Month}" SortMemberPath="Month" Header="Month" behaviors:DataGridCustomSortBehavior.CustomSort="{StaticResource NumberFriendlyComp}" IsColumnFiltered="True"/>
                 <filterDataGrid:DataGridTextColumn Binding="{Binding ActivityType}" SortMemberPath="Month" Header="Type" IsColumnFiltered="True"/>

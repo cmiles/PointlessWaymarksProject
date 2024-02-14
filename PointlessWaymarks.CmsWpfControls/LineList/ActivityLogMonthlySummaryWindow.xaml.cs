@@ -14,9 +14,9 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class LineMonthlySummaryWindow
+public partial class ActivityLogMonthlySummaryWindow
 {
-    public LineMonthlySummaryWindow(List<ActivityLogMonthlyStatRow> statRows)
+    public ActivityLogMonthlySummaryWindow(List<ActivityLogMonthlyStatRow> statRows)
 
     {
         InitializeComponent();
@@ -31,11 +31,8 @@ public partial class LineMonthlySummaryWindow
     }
 
     public ObservableCollection<ActivityLogMonthlyStatRow> Items { get; set; }
-
     public ActivityLogMonthlyStatRow? SelectedItem { get; set; }
-
     public List<ActivityLogMonthlyStatRow> SelectedItems { get; set; } = new();
-
     public StatusControlContext StatusContext { get; set; }
 
     [BlockingCommand]
@@ -69,7 +66,7 @@ public partial class LineMonthlySummaryWindow
         await mapWindow.PositionWindowAndShowOnUiThread();
     }
 
-    public static async Task<LineMonthlySummaryWindow> CreateInstance(List<Guid> lineContentIds)
+    public static async Task<ActivityLogMonthlySummaryWindow> CreateInstance(List<Guid> lineContentIds)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -81,11 +78,12 @@ public partial class LineMonthlySummaryWindow
             .ToListAsync();
 
         var grouped = lines.GroupBy(x =>
-                new { x.RecordingStartedOn.Value.Year, x.RecordingStartedOn.Value.Month, x.ActivityType })
+                new { x.RecordingStartedOn.Value.Year, x.RecordingStartedOn.Value.Month, x.ActivityType, x.CreatedBy })
             .OrderByDescending(x => x.Key.Year).ThenByDescending(x => x.Key.Month);
 
         var reportRows = grouped.Select(x => new ActivityLogMonthlyStatRow
         {
+            CreatedBy = x.Key.CreatedBy ?? string.Empty,
             Year = x.Key.Year,
             Month = x.Key.Month,
             ActivityType = x.Key.ActivityType ?? string.Empty,
@@ -105,7 +103,7 @@ public partial class LineMonthlySummaryWindow
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        return new LineMonthlySummaryWindow(reportRows);
+        return new ActivityLogMonthlySummaryWindow(reportRows);
     }
 
     public ActivityLogMonthlyStatRow? SelectedListItem()
@@ -121,7 +119,7 @@ public partial class LineMonthlySummaryWindow
     private void Selector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null) return;
-        var viewmodel = (LineMonthlySummaryWindow)DataContext;
+        var viewmodel = (ActivityLogMonthlySummaryWindow)DataContext;
         SelectedItems =
             LineStatsDataGrid?.SelectedItems.Cast<ActivityLogMonthlyStatRow>().ToList() ??
             new List<ActivityLogMonthlyStatRow>();
