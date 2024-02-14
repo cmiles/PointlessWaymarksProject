@@ -75,7 +75,9 @@ public static class NewContentModels
             CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
             FeedOn = created,
             ContentVersion = Db.ContentVersionDateTime(),
-            PublicDownloadLink = UserSettingsSingleton.CurrentSettings().LinesHavePublicDownloadLinkByDefault
+            PublicDownloadLink = UserSettingsSingleton.CurrentSettings().LinesHavePublicDownloadLinkByDefault,
+            ShowContentReferencesOnMap =
+                UserSettingsSingleton.CurrentSettings().LinesShowContentReferencesOnMapByDefault
         };
 
         return returnEntry;
