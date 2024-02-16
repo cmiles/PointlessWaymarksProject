@@ -29,6 +29,7 @@ using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
+using PointlessWaymarks.CmsWpfControls.Server;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
@@ -42,6 +43,7 @@ using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace PointlessWaymarks.CmsGui;
 
@@ -507,6 +509,12 @@ public partial class MainWindow
         PointlessWaymarksLogTools.InitializeStaticLoggerAsEventLogger();
         Log.Information(
             $"Git Commit {ThisAssembly.Git.Commit} - Commit Date {ThisAssembly.Git.CommitDate} - Is Dirty {ThisAssembly.Git.IsDirty}");
+
+        StatusContext.RunFireAndForgetWithToastOnError(async () =>
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            await PartialContentPreviewServer.PartialContentServer();
+        });
 
         StatusContext.Progress("Setting up UI Controls");
 

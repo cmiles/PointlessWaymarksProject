@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
@@ -130,20 +130,6 @@ public static class BracketCodeVideoImage
     }
 
     /// <summary>
-    ///     This method processes a videoimagelink code for use with the CMS Gui Previews (or for another local working
-    ///     program).
-    /// </summary>
-    /// <param name="toProcess"></param>
-    /// <param name="progress"></param>
-    /// <returns></returns>
-    public static async Task<string> ProcessForDirectLocalAccess(string? toProcess,
-        IProgress<string>? progress = null)
-    {
-        return ((await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString() ?? string.Empty,
-            progress).ConfigureAwait(false))) ?? string.Empty;
-    }
-
-    /// <summary>
     ///     This method processes a videoimagelink code for use in email.
     /// </summary>
     /// <param name="toProcess"></param>
@@ -151,8 +137,9 @@ public static class BracketCodeVideoImage
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString() ?? string.Empty,
-            progress).ConfigureAwait(false)) ?? string.Empty;
+        return await Process(toProcess,
+            pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString() ?? string.Empty,
+            progress).ConfigureAwait(false) ?? string.Empty;
     }
 
     /// <summary>
@@ -163,8 +150,8 @@ public static class BracketCodeVideoImage
     /// <returns></returns>
     public static async Task<string> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
-        return (await Process(toProcess,
+        return await Process(toProcess,
             pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
-                .ToString() ?? string.Empty, progress).ConfigureAwait(false)) ?? string.Empty;
+                .ToString() ?? string.Empty, progress).ConfigureAwait(false) ?? string.Empty;
     }
 }

@@ -1,9 +1,7 @@
 using System.ComponentModel;
-using System.Web;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
-using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -50,6 +48,8 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
 
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
+
+    public string HtmlPreview { get; set; }
     public StatusControlContext StatusContext { get; set; }
 
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
@@ -123,26 +123,13 @@ public partial class UpdateNotesEditorContext : IHasChanges, IHasValidationIssue
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        try
-        {
-            var preprocessResults =
-                await BracketCodeCommon.ProcessCodesForLocalDisplay(UserValue, StatusContext.ProgressTracker());
-            var processResults =
-                ContentProcessing.ProcessContent(preprocessResults, UpdateNotesFormat.SelectedContentFormat);
+        StatusContext.Progress("Building HTML");
 
-            ToWebView.Enqueue(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(processResults,
-                "Update Preview",
-                string.Empty));
+        var preprocessResults =
+            await BracketCodeCommon.ProcessCodesForSite(UserValue, StatusContext.ProgressTracker());
+        var processResults =
+            ContentProcessing.ProcessContent(preprocessResults, UpdateNotesFormat.SelectedContentFormat);
 
-            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
-        }
-        catch (Exception e)
-        {
-            ToWebView.Enqueue(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(
-                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>", "Update Preview",
-                string.Empty));
-
-            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html"));
-        }
+        HtmlPreview = processResults;
     }
 }

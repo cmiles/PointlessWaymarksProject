@@ -1,12 +1,8 @@
 using System.ComponentModel;
-using System.IO;
 using System.Text.RegularExpressions;
-using System.Web;
-using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentFormat;
-using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -57,6 +53,8 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
     public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
+
+    public string HtmlPreview { get; set; }
     public string? SelectedBodyText { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
@@ -114,32 +112,12 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
 
         StatusContext.Progress("Building HTML");
 
-        var settings = UserSettingsSingleton.CurrentSettings();
+        var preprocessResults =
+            await BracketCodeCommon.ProcessCodesForSite(UserValue, StatusContext.ProgressTracker());
+        var processResults =
+            ContentProcessing.ProcessContent(preprocessResults, BodyContentFormat.SelectedContentFormat);
 
-        try
-        {
-            var preprocessResults =
-                await BracketCodeCommon.ProcessCodesForLocalDisplay(UserValue, StatusContext.ProgressTracker());
-            var processResults =
-                ContentProcessing.ProcessContent(preprocessResults, BodyContentFormat.SelectedContentFormat);
-
-            var possibleStyleFile = new FileInfo(Path.Combine(settings.LocalSiteDirectory().FullName, "style.css"));
-
-            var styleBlock = "body { margin-right: 20px; }" + Environment.NewLine;
-
-            if (possibleStyleFile.Exists) styleBlock += await File.ReadAllTextAsync(possibleStyleFile.FullName);
-
-            ToWebView.Enqueue(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(processResults, "Body Preview", styleBlock));
-
-            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html"));
-        }
-        catch (Exception e)
-        {
-            ToWebView.Enqueue(await WpfCmsHtmlDocument.CmsLeafletSpatialScriptHtmlAndJs(
-                $"<h2>Not able to process input</h2><p>{HttpUtility.HtmlEncode(e)}</p>", "Body Preview", string.Empty));
-
-            ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
-        }
+        HtmlPreview = processResults;
     }
 
     [BlockingCommand]

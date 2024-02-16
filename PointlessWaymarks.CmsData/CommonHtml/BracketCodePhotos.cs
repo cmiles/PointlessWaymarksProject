@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -68,7 +68,8 @@ public static class BracketCodePhotos
         foreach (var loopMatch in resultList)
         {
             var dbPhoto =
-                await context.PhotoContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.PhotoContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbPhoto == null) continue;
 
             progress?.Report($"Photo Code for {dbPhoto.Title} processed");
@@ -81,20 +82,6 @@ public static class BracketCodePhotos
     }
 
     /// <summary>
-    ///     This method processes a photo code for use with the CMS Gui Previews (or for another local working
-    ///     program).
-    /// </summary>
-    /// <param name="toProcess"></param>
-    /// <param name="progress"></param>
-    /// <returns></returns>
-    public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
-        IProgress<string>? progress = null)
-    {
-        return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString() ?? string.Empty,
-            progress).ConfigureAwait(false);
-    }
-
-    /// <summary>
     ///     This method processes a photo code for use in Email
     /// </summary>
     /// <param name="toProcess"></param>
@@ -102,8 +89,9 @@ public static class BracketCodePhotos
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return (await Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString() ?? string.Empty,
-            progress).ConfigureAwait(false)) ?? string.Empty;
+        return await Process(toProcess,
+            page => page.PictureInformation.EmailPictureTableTag().ToString() ?? string.Empty,
+            progress).ConfigureAwait(false) ?? string.Empty;
     }
 
     /// <summary>
@@ -115,7 +103,8 @@ public static class BracketCodePhotos
     public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
-            page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString() ?? string.Empty,
+            page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString() ??
+                    string.Empty,
             progress).ConfigureAwait(false);
     }
 }

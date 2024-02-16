@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -6,6 +6,7 @@ using System.Windows.Data;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsWpfControls.Server;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -173,18 +174,15 @@ public partial class MainWindow
             }
         }
 
-        var freePort = PreviewServer.FreeTcpPort();
-
-        var server = PreviewServer.CreateHostBuilder(
-            SiteUrl, LocalFolder, freePort).Build();
+        var server = new PreviewServer();
 
         StatusContext.RunFireAndForgetWithToastOnError(async () =>
         {
             await ThreadSwitcher.ResumeBackgroundAsync();
-            await server.RunAsync();
+            await server.StartServer(SiteUrl, LocalFolder);
         });
 
-        PreviewServerHost = $"localhost:{freePort}";
+        PreviewServerHost = $"localhost:{server.ServerPort}";
 
         PreviewContext = new SitePreviewContext(SiteUrl,
             LocalFolder,

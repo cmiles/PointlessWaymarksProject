@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
@@ -31,7 +31,8 @@ public static class BracketCodeFileImage
         {
             var context = await Db.Context().ConfigureAwait(false);
 
-            var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid).ConfigureAwait(false);
+            var dbContent = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
+                .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"File Image Code - Adding DbContent For {dbContent.Title}");
@@ -66,7 +67,8 @@ public static class BracketCodeFileImage
 
         foreach (var loopMatch in resultList)
         {
-            var dbFile = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+            var dbFile = await context.FileContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                .ConfigureAwait(false);
 
             if (dbFile == null) continue;
             if (dbFile.MainPicture == null)
@@ -74,10 +76,11 @@ public static class BracketCodeFileImage
                 progress?.Report(
                     $"File Image Link without Main Image - converting to filelink - File: {dbFile.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
+                var newBracketCodeText =
+                    loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
-                    
+
                 await BracketCodeFiles.Process(toProcess).ConfigureAwait(false);
 
                 continue;
@@ -90,10 +93,11 @@ public static class BracketCodeFileImage
                 progress?.Report(
                     $"File Image Link with Null PictureSiteInformation - converting to filelink - File: {dbFile.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
+                var newBracketCodeText =
+                    loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
-                    
+
                 await BracketCodeFiles.Process(toProcess).ConfigureAwait(false);
 
                 continue;
@@ -106,7 +110,8 @@ public static class BracketCodeFileImage
                 progress?.Report(
                     $"File Image Link converted to Null/Empty - converting to filelink - File: {dbFile.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
+                var newBracketCodeText =
+                    loopMatch.bracketCodeText.Replace("fileimagelink", "filelink", StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
@@ -124,20 +129,6 @@ public static class BracketCodeFileImage
     }
 
     /// <summary>
-    ///     This method processes a fileimagelink code for use with the CMS Gui Previews (or for another local working
-    ///     program).
-    /// </summary>
-    /// <param name="toProcess"></param>
-    /// <param name="progress"></param>
-    /// <returns></returns>
-    public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
-        IProgress<string>? progress = null)
-    {
-        return await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.LocalPictureFigureTag().ToString() ?? string.Empty,
-            progress).ConfigureAwait(false);
-    }
-
-    /// <summary>
     ///     This method processes a fileimagelink code for use in email.
     /// </summary>
     /// <param name="toProcess"></param>
@@ -145,8 +136,9 @@ public static class BracketCodeFileImage
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return (await Process(toProcess, pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString() ?? string.Empty,
-            progress).ConfigureAwait(false)) ?? string.Empty;
+        return await Process(toProcess,
+            pictureInfo => pictureInfo.pictureInfo.EmailPictureTableTag().ToString() ?? string.Empty,
+            progress).ConfigureAwait(false) ?? string.Empty;
     }
 
     /// <summary>
@@ -158,7 +150,8 @@ public static class BracketCodeFileImage
     public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
-            pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl ?? string.Empty)
+            pictureInfo => pictureInfo.pictureInfo
+                .PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl ?? string.Empty)
                 .ToString() ?? string.Empty, progress).ConfigureAwait(false);
     }
 }

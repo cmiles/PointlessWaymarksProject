@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -34,7 +34,8 @@ public static class BracketCodePoints
 
         foreach (var loopMatch in guidList)
         {
-            var dbContent = await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch).ConfigureAwait(false);
+            var dbContent = await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch)
+                .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"Point Code - Adding DbContent For {dbContent.Title}");
@@ -60,42 +61,14 @@ public static class BracketCodePoints
         foreach (var loopMatch in resultList)
         {
             var dbContent =
-                await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbContent?.Slug == null) continue;
 
             progress?.Report($"Adding point {dbContent.Title} from Code");
 
             toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
                 () => PointParts.PointDivAndScript(dbContent.Slug));
-        }
-
-        return toProcess;
-    }
-
-
-    public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
-        IProgress<string>? progress = null)
-    {
-        if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
-
-        progress?.Report("Searching for Point Codes...");
-
-        var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
-
-        if (!resultList.Any()) return toProcess;
-
-        var context = await Db.Context().ConfigureAwait(false);
-
-        foreach (var loopMatch in resultList)
-        {
-            var dbContent =
-                await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
-            if (dbContent?.Slug == null) continue;
-
-            progress?.Report($"Adding point {dbContent.Title} from Code");
-
-            toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
-                () => PointParts.PointDivAndScriptForDirectLocalAccess(dbContent.Slug));
         }
 
         return toProcess;
@@ -116,7 +89,8 @@ public static class BracketCodePoints
         foreach (var loopMatch in resultList)
         {
             var dbContent =
-                await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.PointContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"For Email Subbing Point Map for Link {dbContent.Title} from Code");

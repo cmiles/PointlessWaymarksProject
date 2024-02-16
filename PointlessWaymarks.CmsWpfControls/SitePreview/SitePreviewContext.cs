@@ -30,13 +30,10 @@ public partial class SitePreviewContext : DependencyObject
         else
         {
             if (initialUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                InitialPage = initialUrl.Replace("https:", "http:", StringComparison.OrdinalIgnoreCase).Replace(siteUrl, previewServerHost, StringComparison.OrdinalIgnoreCase);
-            }
+                InitialPage = initialUrl.Replace("https:", "http:", StringComparison.OrdinalIgnoreCase)
+                    .Replace(siteUrl, previewServerHost, StringComparison.OrdinalIgnoreCase);
             else
-            {
                 InitialPage = $"http://{previewServerHost}/{initialUrl}";
-            }
         }
 
         SiteMappingNote = string.IsNullOrWhiteSpace(SiteName)

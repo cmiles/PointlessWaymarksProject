@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -34,7 +34,8 @@ public static class BracketCodeLines
 
         foreach (var loopMatch in guidList)
         {
-            var dbContent = await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch).ConfigureAwait(false);
+            var dbContent = await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch)
+                .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"Line Code - Adding DbContent For {dbContent.Title}");
@@ -60,41 +61,14 @@ public static class BracketCodeLines
         foreach (var loopMatch in resultList)
         {
             var dbContent =
-                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"Adding Line {dbContent.Title} from Code");
 
             toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
                 () => LineParts.LineDivAndScriptWithCaption(dbContent));
-        }
-
-        return toProcess;
-    }
-
-    public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
-        IProgress<string>? progress = null)
-    {
-        if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
-
-        progress?.Report("Searching for Line Codes...");
-
-        var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
-
-        if (!resultList.Any()) return toProcess;
-
-        var context = await Db.Context().ConfigureAwait(false);
-
-        foreach (var loopMatch in resultList)
-        {
-            var dbContent =
-                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
-            if (dbContent == null) continue;
-
-            progress?.Report($"Adding Line {dbContent.Title} from Code");
-
-            toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
-                () => LineParts.LineDivAndScriptWithCaptionForDirectLocalAccess(dbContent));
         }
 
         return toProcess;
@@ -115,7 +89,8 @@ public static class BracketCodeLines
         foreach (var loopMatch in resultList)
         {
             var dbContent =
-                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"For Email Subbing Line Map for Link {dbContent.Title} from Code");

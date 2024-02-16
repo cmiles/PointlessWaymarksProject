@@ -577,7 +577,7 @@ public static class Tags
     {
         return new HtmlTag("Link").Attr("rel", "alternate").Attr("type", "application/rss+xml")
             .Attr("title", $"Main RSS Feed for {UserSettingsSingleton.CurrentSettings().SiteName}").Attr("href",
-                $"{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}");
+                $"{UserSettingsSingleton.CurrentSettings().RssIndexFeedUrl()}").Encoded(false);
     }
 
     public static async Task<HtmlTag> StandardHeader()

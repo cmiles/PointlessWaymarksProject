@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Hosting;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsWpfControls.Server;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
@@ -12,8 +12,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 [NotifyPropertyChanged]
 public partial class SiteOnDiskPreviewWindow
 {
-    private static IHost? _server;
-    private static int serverPort;
+    private static PreviewServer? _previewServer;
 
     private SiteOnDiskPreviewWindow()
     {
@@ -39,23 +38,22 @@ public partial class SiteOnDiskPreviewWindow
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (_server == null)
+        if (_previewServer == null)
         {
-            serverPort = PreviewServer.FreeTcpPort();
-
-            _server ??= PreviewServer.CreateHostBuilder(UserSettingsSingleton.CurrentSettings().SiteDomainName,
-                UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName, serverPort).Build();
+            _previewServer = new PreviewServer();
 
             window.StatusContext.RunFireAndForgetWithToastOnError(async () =>
             {
                 await ThreadSwitcher.ResumeBackgroundAsync();
-                await _server.RunAsync();
+                await _previewServer.StartServer(UserSettingsSingleton.CurrentSettings().SiteDomainName,
+                    UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName);
             });
         }
 
         window.PreviewContext = new SitePreviewContext(UserSettingsSingleton.CurrentSettings().SiteDomainName,
             UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
-            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{serverPort}", window.StatusContext,
+            UserSettingsSingleton.CurrentSettings().SiteName, $"localhost:{_previewServer.ServerPort}",
+            window.StatusContext,
             initialUrl);
 
         return window;

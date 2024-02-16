@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -32,7 +32,8 @@ public static class BracketCodeImages
         {
             var context = await Db.Context().ConfigureAwait(false);
 
-            var dbContent = await context.ImageContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid).ConfigureAwait(false);
+            var dbContent = await context.ImageContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
+                .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"Image Code - Adding DbContent For {dbContent.Title}");
@@ -67,7 +68,8 @@ public static class BracketCodeImages
         foreach (var loopMatch in resultList)
         {
             var dbImage =
-                await context.ImageContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.ImageContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbImage == null) continue;
 
             progress?.Report($"Image Code for {dbImage.Title} processed");
@@ -75,26 +77,12 @@ public static class BracketCodeImages
 
             var conversion = pageConversion(singleImageInfo);
 
-            if(string.IsNullOrWhiteSpace(conversion)) continue;
+            if (string.IsNullOrWhiteSpace(conversion)) continue;
 
             toProcess = toProcess.Replace(loopMatch.bracketCodeText, conversion);
         }
 
         return toProcess;
-    }
-
-    /// <summary>
-    ///     This method processes a image code for use with the CMS Gui Previews (or for another local working
-    ///     program).
-    /// </summary>
-    /// <param name="toProcess"></param>
-    /// <param name="progress"></param>
-    /// <returns></returns>
-    public static async Task<string?> ProcessForDirectLocalAccess(string? toProcess,
-        IProgress<string>? progress = null)
-    {
-        return await Process(toProcess, page => page.PictureInformation.LocalPictureFigureTag().ToString() ?? string.Empty,
-            progress).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -105,8 +93,9 @@ public static class BracketCodeImages
     /// <returns></returns>
     public static async Task<string> ProcessForEmail(string? toProcess, IProgress<string>? progress = null)
     {
-        return await (Process(toProcess, page => page.PictureInformation.EmailPictureTableTag().ToString() ?? string.Empty,
-            progress).ConfigureAwait(false)) ?? string.Empty;
+        return await Process(toProcess,
+            page => page.PictureInformation.EmailPictureTableTag().ToString() ?? string.Empty,
+            progress).ConfigureAwait(false) ?? string.Empty;
     }
 
     /// <summary>
@@ -118,7 +107,8 @@ public static class BracketCodeImages
     public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
-            page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString() ?? string.Empty,
+            page => page.PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw").ToString() ??
+                    string.Empty,
             progress).ConfigureAwait(false);
     }
 }
