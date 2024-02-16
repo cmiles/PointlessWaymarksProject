@@ -1,7 +1,7 @@
 ## Todos
- - Local HTML Cleanup - especially images... Review!
+ - Point Icons
+ - Improve Map Editor
  - For geo types and notes review local file cleanup on delete
- - Is File Content being detected as changing more than intended?
  - Check whole site import - test(s)?
  - Deleted Content Report so it is possible to restore completely deleted
  - Text to Speech - abstract to better control:
@@ -16,6 +16,10 @@
 
 ## Notes
 
+2/16/2024
+
+For the first AM in a couple of months I didn't wake up and work on the CMS - the recent changes to improve the maps, add Activity Log support and fix the Body/Update previews has been very satisfying. It isn't a feeling of completeness - I'm still pondering some changes (improved map editor and custom point icons) - but it kind of feels like 1.0! First work was Oct. of 2019 so about 4.5 years in...
+
 1/8/2024
 
 Interesting to continue to use the CMS and note the changes is priorities over time. 'Extra' file writes really weren't overly important to me in the first few years - of course avoid egregious numbers of writes but some extra file writes to ensure correctness was not something I was concerned with...
@@ -28,7 +32,7 @@ Annoyed by how many files were written with a recent Menu change to a site in th
 
 1/1/2024
 
-Happy near year! This project starts the New Year with over 1400 commits, new Spatial Content Map functionality in the CMS and Feed Reader and Cloud Backup programs that have been in use for months at this point. It is quite a prvelege to be able to take a purely personal project so far!
+Happy near year! This project starts the New Year with over 1400 commits, new Spatial Content Map functionality in the CMS and Feed Reader and Cloud Backup programs that have been in use for months at this point. It is quite a privilege to be able to take a purely personal project so far!
 
 7/30/2023
 
