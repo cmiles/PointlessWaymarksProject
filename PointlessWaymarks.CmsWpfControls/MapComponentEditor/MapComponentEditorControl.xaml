@@ -17,6 +17,7 @@
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
     xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     x:Name="MapComponentEditorControlXaml"
     d:DataContext="{d:DesignInstance mapComponentEditor:MapComponentEditorContext}"
     d:DesignHeight="450"
@@ -158,20 +159,43 @@
                     </ScrollViewer>
                 </Grid>
             </TabItem>
-            <TabItem Header="Map Elements">
-                <Grid Margin="4">
+            <TabItem Header="Map">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
-
+                    <Grid>
+                        <wpf:WebView2
+                            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                            <b:Interaction.Behaviors>
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
+                                    WebViewMessenger="{Binding .}"
+                                    DeferNavigationTo="{Binding MapPreviewNavigationManager}" />
+                            </b:Interaction.Behaviors>
+                        </wpf:WebView2>
+                    </Grid>
+                    <GridSplitter Grid.Row="0" Grid.Column="1" ResizeBehavior="PreviousAndNext"
+                                  VerticalAlignment="Stretch"
+                                  Width="4" />
+                    <Grid Grid.Column="2" Grid.Row="0" Margin="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <GroupBox Grid.Column="0" Header="Add Text Codes" Style="{StaticResource UiComponentGroupBoxStyle}">
+                            <GroupBox Grid.Column="0" Header="Add Text Codes"
+                                      Style="{StaticResource UiComponentGroupBoxStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition></ColumnDefinition>
@@ -190,11 +214,11 @@
                                     </Button>
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Grid.Column="1" Header="Filter Element Title" Height="60"
+                            <GroupBox Grid.Column="1" Header="Search Titles" 
                                       Style="{StaticResource UiComponentGroupBoxStyle}">
                                 <TextBox
                                     VerticalAlignment="Stretch"
-                                    AcceptsReturn="True"
+                                    AcceptsReturn="False"
                                     Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
                                     TextWrapping="Wrap" />
                             </GroupBox>
@@ -205,56 +229,54 @@
                                 <columnSort:ColumnSortControl DataContext="{Binding ListSort}" />
                             </GroupBox>
                         </Grid>
-                    <GroupBox
-                        Grid.Row="1"
-                        dd:DragDrop.DropHandler="{Binding}"
-                        dd:DragDrop.IsDropTarget="True"
-                        Header="Map Elements"
-                        Style="{StaticResource UiComponentGroupBoxStyle}">
-
-                        <ListBox
+                        <GroupBox
+                            Grid.Row="1"
                             dd:DragDrop.DropHandler="{Binding}"
                             dd:DragDrop.IsDropTarget="True"
-                            ItemTemplateSelector="{StaticResource MapElementSelector}"
-                            ItemsSource="{Binding MapElements}"
-                            Style="{StaticResource ContentListListBoxStyle}" />
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Map">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Style="{StaticResource ActionPanelBorderStyle}">
-                        <Grid dd:DragDrop.DropHandler="{Binding}" dd:DragDrop.IsDropTarget="True">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
+                            Header="Map Elements"
+                            Style="{StaticResource UiComponentGroupBoxStyle}">
+                            <ListBox
                                 dd:DragDrop.DropHandler="{Binding}"
                                 dd:DragDrop.IsDropTarget="True"
-                                TextWrapping="Wrap">
-                                Drag Point, Line or GeoJson Content from the Item Lists here to add to the map.
-                            </TextBlock>
-                            <Button
-                                Grid.Column="1"
-                                Command="{Binding RefreshMapPreviewCommand}"
-                                Content="Refresh Map"
-                                Style="{StaticResource ActionPanelButtonStyle}" />
-                        </Grid>
+                                ItemTemplateSelector="{StaticResource MapElementSelector}"
+                                ItemsSource="{Binding MapElements}"
+                                SelectedItem="{Binding ListSelection.Selected}"
+                                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding ListSelection.SelectedItems}"
+                                Style="{StaticResource ContentListListBoxStyle}">
+                                <b:Interaction.Behaviors>
+                                    <behaviors:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                                </b:Interaction.Behaviors>
+                            </ListBox>
+                        </GroupBox>
+                    </Grid>
+                    <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
+                        <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <Button Command="{Binding RequestMapCenterOnSelectedItemsCommand}"
+                                    Style="{StaticResource ActionPanelButtonStyle}">
+                                Center - Selected
+                            </Button>
+                            <Button Command="{Binding RequestMapCenterOnFilteredItemsCommand}"
+                                    Style="{StaticResource ActionPanelButtonStyle}">
+                                Center - Filtered
+                            </Button>
+                            <Button Command="{Binding RequestMapCenterOnAllItemsCommand}"
+                                    Style="{StaticResource ActionPanelButtonStyle}">
+                                Center - All
+                            </Button>
+                            <Button Command="{Binding PopupsForSelectedItemsCommand}"
+                                    Style="{StaticResource ActionPanelButtonStyle}">
+                                Popups - Selected
+                            </Button>
+                            <Button Command="{Binding CloseAllPopupsCommand}"
+                                    Style="{StaticResource ActionPanelButtonStyle}">
+                                Close All Popups
+                            </Button>
+                            <Button Command="{Binding RefreshMapPreviewCommand}"
+                                    Style="{StaticResource ActionPanelButtonStyle}">
+                                Refresh Map
+                            </Button>
+                        </WrapPanel>
                     </Border>
-                    <wpf:WebView2
-                        Grid.Row="1"
-                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
-                        <b:Interaction.Behaviors>
-                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}"  DeferNavigationTo="{Binding MapPreviewNavigationManager}"/>
-                        </b:Interaction.Behaviors>
-                    </wpf:WebView2>
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">

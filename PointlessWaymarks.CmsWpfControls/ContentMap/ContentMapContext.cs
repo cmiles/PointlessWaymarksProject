@@ -38,7 +38,7 @@ public partial class ContentMapContext : IWebViewMessenger
         MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
 
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, false,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
@@ -57,6 +57,15 @@ public partial class ContentMapContext : IWebViewMessenger
     public StatusControlContext StatusContext { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
+
+    [NonBlockingCommand]
+    public Task CloseAllPopups()
+    {
+        var jsRequest = new ExecuteJavaScript
+            { JavaScriptToExecute = "closeAllPopups()", RequestTag = "Map Component Editor Close All Popups Command" };
+        ToWebView.Enqueue(jsRequest);
+        return Task.CompletedTask;
+    }
 
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)

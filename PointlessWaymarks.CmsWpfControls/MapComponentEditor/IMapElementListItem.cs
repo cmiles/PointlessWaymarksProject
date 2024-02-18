@@ -1,6 +1,8 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
+﻿using PointlessWaymarks.WpfCommon.Utility;
 
-public interface IMapElementListItem
+namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
+
+public interface IMapElementListItem : ISelectedTextTracker
 {
     string ElementType { get; set; }
     bool InInitialView { get; set; }

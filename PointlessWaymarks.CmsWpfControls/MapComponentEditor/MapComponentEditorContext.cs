@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
@@ -23,6 +24,7 @@ using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ColumnSort;
@@ -44,7 +46,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 {
     public EventHandler? RequestContentEditorWindowClose;
 
-    private MapComponentEditorContext(StatusControlContext statusContext, MapComponent dbEntry)
+    private MapComponentEditorContext(StatusControlContext statusContext,
+        ContentListSelected<IMapElementListItem> factoryListSelection,
+        ObservableCollection<IMapElementListItem> factoryMapList, MapComponent dbEntry)
     {
         StatusContext = statusContext;
 
@@ -60,7 +64,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
 
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, false,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
@@ -70,7 +74,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         ListSort.SortUpdated += (_, list) =>
             StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, MapElements));
 
+        ListSelection = factoryListSelection;
+
         DbEntry = dbEntry;
+
+        MapElements = factoryMapList;
 
         PropertyChanged += OnPropertyChanged;
     }
@@ -84,8 +92,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     public HelpDisplayContext HelpContext { get; set; }
+    public ContentListSelected<IMapElementListItem> ListSelection { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
-    public ObservableCollection<IMapElementListItem>? MapElements { get; set; }
+    public ObservableCollection<IMapElementListItem> MapElements { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public StringDataEntryContext? SummaryEntry { get; set; }
@@ -225,12 +234,28 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         }
     }
 
+    [NonBlockingCommand]
+    public Task CloseAllPopups()
+    {
+        var jsRequest = new ExecuteJavaScript
+            { JavaScriptToExecute = "closeAllPopups()", RequestTag = "Map Component Editor Close All Popups Command" };
+        ToWebView.Enqueue(jsRequest);
+        return Task.CompletedTask;
+    }
+
     public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext? statusContext,
         MapComponent? mapComponent)
     {
-        var newControl = new MapComponentEditorContext(statusContext ?? new StatusControlContext(),
+        var factoryContext = statusContext ?? new StatusControlContext();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryListSelection = await ContentListSelected<IMapElementListItem>.CreateInstance(factoryContext);
+        var factoryMapList = new ObservableCollection<IMapElementListItem>();
+
+        var newControl = new MapComponentEditorContext(factoryContext, factoryListSelection, factoryMapList,
             NewContentModels.InitializeMapComponent(mapComponent));
         await newControl.LoadData(mapComponent);
+
         return newControl;
     }
 
@@ -320,6 +345,28 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
 
         await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    public async Task<List<IMapElementListItem>> FilteredListItems()
+    {
+        var returnList = new List<IMapElementListItem>();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var itemsView = CollectionViewSource.GetDefaultView(MapElements);
+
+        var filter = itemsView.Filter;
+
+        if (filter is null) return MapElements.ToList();
+
+        foreach (var loopView in itemsView)
+        {
+            if (!filter(loopView)) continue;
+
+            if (loopView is IMapElementListItem itemList) returnList.Add(itemList);
+        }
+
+        return returnList;
     }
 
     private async Task FilterList()
@@ -464,6 +511,24 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         }
     }
 
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task PopupsForSelectedItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var bounds = SelectedListItems().Select(x => x.ContentId()).Where(x => x is not null).Select(x => x!.Value)
+            .ToList();
+
+        var popupData = new MapJsonFeatureListDto(bounds, "ShowPopupsFor");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var serializedData = JsonSerializer.Serialize(popupData);
+
+        ToWebView.Enqueue(new JsonData { Json = serializedData });
+    }
+
     public Task ProcessFromWebView(FromWebViewMessage args)
     {
         return Task.CompletedTask;
@@ -508,7 +573,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         try
         {
-            MapElements?.Remove(toRemove);
+            MapElements.Remove(toRemove);
         }
         catch (Exception e)
         {
@@ -518,6 +583,97 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         await RefreshMapPreview();
+    }
+
+
+    [NonBlockingCommand]
+    public async Task RequestMapCenterOnAllItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!MapElements.Any())
+        {
+            StatusContext.ToastError("No Items?");
+            return;
+        }
+
+        if (ContentBounds == null) return;
+
+        await RequestMapCenterOnEnvelope(ContentBounds);
+    }
+
+    [NonBlockingCommand]
+    public async Task RequestMapCenterOnContent(IContentListItem toCenter)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var centerData = new MapJsonFeatureDto(toCenter.ContentId()!.Value, "CenterFeatureRequest");
+        var serializedData = JsonSerializer.Serialize(centerData);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        ToWebView.Enqueue(new JsonData { Json = serializedData });
+    }
+
+    public async Task RequestMapCenterOnEnvelope(Envelope toCenter)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toCenter is { Width: 0, Height: 0 })
+        {
+            await RequestMapCenterOnPoint(toCenter.MinX, toCenter.MinY);
+            return;
+        }
+
+        var centerData = new MapJsonBoundsDto(
+            new SpatialBounds(toCenter.MaxY, toCenter.MaxX, toCenter.MinY, toCenter.MinX).ExpandToMinimumMeters(1000),
+            "CenterBoundingBoxRequest");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var serializedData = JsonSerializer.Serialize(centerData);
+
+        ToWebView.Enqueue(new JsonData { Json = serializedData });
+    }
+
+    [NonBlockingCommand]
+    public async Task RequestMapCenterOnFilteredItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var filteredItems = await FilteredListItems();
+
+        if (!filteredItems.Any())
+        {
+            StatusContext.ToastError("No Visible Items?");
+            return;
+        }
+
+        var bounds = MapCmsJson.GetBounds(filteredItems.Cast<IContentListItem>().ToList());
+
+        await RequestMapCenterOnEnvelope(bounds);
+    }
+
+    public async Task RequestMapCenterOnPoint(double longitude, double latitude)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var centerData = new MapJsonCoordinateDto(latitude, longitude, "CenterCoordinateRequest");
+
+        var serializedData = JsonSerializer.Serialize(centerData);
+
+        ToWebView.Enqueue(new JsonData { Json = serializedData });
+    }
+
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task RequestMapCenterOnSelectedItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var bounds = MapCmsJson.GetBounds(SelectedListItems().Cast<IContentListItem>().ToList());
+
+        await RequestMapCenterOnEnvelope(bounds);
     }
 
     [BlockingCommand]
@@ -554,6 +710,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    public List<IMapElementListItem> SelectedListItems()
+    {
+        return ListSelection.SelectedItems;
     }
 
     public static ColumnSortControlContext SortContextMapElementsDefault()

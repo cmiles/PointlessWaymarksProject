@@ -96,8 +96,7 @@ public static class WpfHtmlDocument
     }
 
     public static void SetupCmsLeafletMapHtmlAndJs(this IWebViewMessenger messenger, string title,
-        double initialLatitude, double initialLongitude, string calTopoApiKey = "", string bingApiKey = "",
-        string cssStyleBlock = "", string javascript = "")
+        double initialLatitude, double initialLongitude, bool autoCloseMarkers, string calTopoApiKey = "", string bingApiKey = "",string cssStyleBlock = "", string javascript = "")
     {
         var initialWebFilesMessage = CmsLeafletMapHtmlAndJs(title, cssStyleBlock, javascript);
 
@@ -106,7 +105,7 @@ public static class WpfHtmlDocument
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         messenger.ToWebView.Enqueue(ExecuteJavaScript.CreateRequest(
-            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', false)", true));
+            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', false, {autoCloseMarkers.ToString().ToLower()})", true));
     }
 
     public static void SetupCmsLeafletMapWithLineElevationChartHtmlAndJs(this IWebViewMessenger messenger, string title,
@@ -120,7 +119,7 @@ public static class WpfHtmlDocument
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         messenger.ToWebView.Enqueue(ExecuteJavaScript.CreateRequest(
-            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', true)", true));
+            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', true, true)", true));
     }
 
     public static void SetupCmsLeafletPointChooserMapHtmlAndJs(this IWebViewMessenger messenger, string title,

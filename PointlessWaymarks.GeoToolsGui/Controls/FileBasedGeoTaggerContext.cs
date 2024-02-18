@@ -191,8 +191,8 @@ public partial class FileBasedGeoTaggerContext
         GpxFileList.FileImportFilter = "gpx files (*.gpx)|*.gpx|All files (*.*)|*.*";
         GpxFileList.DroppedFileExtensionAllowList = [".gpx"];
 
-        PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313);
-        WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313);
+        PreviewMap.SetupCmsLeafletMapHtmlAndJs("Preview", 32.12063, -110.52313, true);
+        WriteMap.SetupCmsLeafletMapHtmlAndJs("Write", 32.12063, -110.52313, true);
 
         await CheckThatExifToolExists(false);
     }
@@ -374,7 +374,7 @@ public partial class FileBasedGeoTaggerContext
 
         var newPreviewWindow = await WebViewWindow.CreateInstance();
         newPreviewWindow.PositionWindowAndShow();
-        newPreviewWindow.SetupCmsLeafletMapHtmlAndJs("GPX Preview", 32.12063, -110.52313);
+        newPreviewWindow.SetupCmsLeafletMapHtmlAndJs("GPX Preview", 32.12063, -110.52313, true);
         newPreviewWindow.ToWebView.Enqueue(JsonData.CreateRequest(previewDto));
     }
 

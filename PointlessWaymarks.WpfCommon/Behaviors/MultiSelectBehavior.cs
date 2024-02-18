@@ -8,14 +8,14 @@ namespace PointlessWaymarks.WpfCommon.Behaviors;
 /// <summary>
 ///     A sync behaviour for a MultiSelector from https://github.com/itsChris/WpfMvvmDataGridMultiselect
 /// </summary>
-public static class MultiSelectorBehaviors
+public static class MultiSelectBehavior
 {
     public static readonly DependencyProperty SynchronizedSelectedItems = DependencyProperty.RegisterAttached(
-        "SynchronizedSelectedItems", typeof(IList), typeof(MultiSelectorBehaviors),
+        "SynchronizedSelectedItems", typeof(IList), typeof(MultiSelectBehavior),
         new PropertyMetadata(null, OnSynchronizedSelectedItemsChanged));
 
     private static readonly DependencyProperty SynchronizationManagerProperty = DependencyProperty.RegisterAttached(
-        "SynchronizationManager", typeof(MultiSelectSynchronizationManager), typeof(MultiSelectorBehaviors),
+        "SynchronizationManager", typeof(MultiSelectSynchronizationManager), typeof(MultiSelectBehavior),
         new PropertyMetadata(null));
 
     private static MultiSelectSynchronizationManager? GetSynchronizationManager(DependencyObject dependencyObject)

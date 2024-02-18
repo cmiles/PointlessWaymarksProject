@@ -28,7 +28,7 @@ namespace PointlessWaymarks.WpfCommon.Behaviors
         {
             if (_multiSelector == null) return;
             
-            var list = MultiSelectorBehaviors.GetSynchronizedSelectedItems(_multiSelector);
+            var list = MultiSelectBehavior.GetSynchronizedSelectedItems(_multiSelector);
 
             if (list != null)
             {

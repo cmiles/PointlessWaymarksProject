@@ -29,7 +29,6 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-
         <wpf:WebView2
             Grid.Row="0"
             Grid.Column="0"
@@ -67,6 +66,10 @@
                 <Button Command="{Binding PopupsForSelectedItemsCommand}"
                         Style="{StaticResource ActionPanelButtonStyle}">
                     Popups - Selected
+                </Button>
+                <Button Command="{Binding CloseAllPopupsCommand}"
+                        Style="{StaticResource ActionPanelButtonStyle}">
+                    Close All Popups
                 </Button>
                 <Button Command="{Binding SearchInBoundsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Search Here</Button>
                 <Button Command="{Binding RefreshMapCommand}" Style="{StaticResource ActionPanelButtonStyle}">Refresh Map</Button>

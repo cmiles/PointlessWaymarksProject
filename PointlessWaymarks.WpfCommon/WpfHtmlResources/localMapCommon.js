@@ -33,11 +33,12 @@ function initialDocumentLoad() {
  * @param {string} calTopoApiKey
  * @param {string} bingApiKey
  * @param {boolean} circleMarkerStyle
+ * @param autoClosePopups
  */
-async function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingApiKey, circleMarkerStyle) {
+async function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, bingApiKey, circleMarkerStyle, autoClosePopups = true) {
     broadcastProgress(`Initial Map Load - ${initialLatitude}, ${initialLongitude}`);
 
-    newLayerAutoClose = true;
+    newLayerAutoClose = autoClosePopups;
     useCircleMarkerStyle = circleMarkerStyle;
 
     let [baseMaps, baseMapNames] = generateBaseMaps(calTopoApiKey, bingApiKey);
@@ -322,7 +323,12 @@ function showPopupsForHandler(e) {
             l.closePopup();
         }
         console.log(l);
-    })
+    });
+}
+
+function closeAllPopups() {
+    broadcastProgress(`Close All Popups Request`);
+    map.eachLayer(function (l) {  l.closePopup(); });
 }
 
 function centerFeatureHandler(e) {

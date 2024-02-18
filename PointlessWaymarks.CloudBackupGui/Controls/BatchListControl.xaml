@@ -52,7 +52,7 @@
                     <ListBox ItemsSource="{Binding Source={StaticResource SortedItems}}"
                              Style="{StaticResource ContentListListBoxStyle}"
                              SelectedItem="{Binding SelectedBatch}"
-                             behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedBatches}">
+                             behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedBatches}">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type controls:BatchListListItem}">
                                 <Border Style="{StaticResource ContentListOuterBorderStyle}">

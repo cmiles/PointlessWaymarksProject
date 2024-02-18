@@ -38,7 +38,7 @@
                           CanUserDeleteRows="false" CanUserResizeColumns="true" CanUserResizeRows="False"
                           CanUserSortColumns="true" AutoGenerateColumns="False" IsReadOnly="True"
                           SelectedItem="{Binding SelectedFile}"
-                          behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedFiles}">
+                          behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedFiles}">
                     <DataGrid.InputBindings>
                         <KeyBinding Key="Delete" Command="{Binding DeleteSelectedFilesCommand}" />
                     </DataGrid.InputBindings>

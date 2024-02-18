@@ -45,7 +45,7 @@
             <ListBox ItemsSource="{Binding Items}"
                      Style="{StaticResource ContentListListBoxStyle}"
                      SelectedItem="{Binding SelectedItem}"
-                     behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedItems}">
+                     behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Open in Browser" Command="{Binding OpenSelectedItemInBrowserCommand}"></MenuItem>

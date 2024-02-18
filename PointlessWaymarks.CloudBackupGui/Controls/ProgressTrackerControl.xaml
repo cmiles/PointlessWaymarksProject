@@ -27,7 +27,7 @@
             Style="{StaticResource ContentListListBoxStyle}"
             ItemsSource="{Binding Source={StaticResource SortedProgressItems}}"
             SelectedItem="{Binding SelectedProgress}"
-            behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedProgresses}">
+            behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedProgresses}">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type controls:ProgressTrackerListItem}">
                     <TextBox Margin="0,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">

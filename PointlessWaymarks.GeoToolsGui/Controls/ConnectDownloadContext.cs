@@ -377,8 +377,7 @@ public partial class ConnectDownloadContext
         var newPreviewWindow = await WebViewWindow.CreateInstance();
         newPreviewWindow.PositionWindowAndShow();
         newPreviewWindow.WindowTitle = $"GPX Preview - {toShow.Activity.ActivityName}";
-        newPreviewWindow.SetupCmsLeafletMapHtmlAndJs($"{toShow.Activity.ActivityName}", 32.12063, -110.52313,
-            string.Empty);
+        newPreviewWindow.SetupCmsLeafletMapHtmlAndJs($"{toShow.Activity.ActivityName}", 32.12063, -110.52313, true);
         newPreviewWindow.ToWebView.Enqueue(JsonData.CreateRequest(jsonDto));
     }
 

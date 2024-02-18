@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     Title="{Binding WindowTitle}"
-    Width="900"
-    Height="650"
+    Width="1100"
+    Height="700"
     d:DataContext="{d:DesignInstance mapComponentEditor:MapComponentEditorWindow}"
     mc:Ignorable="d">
     <Grid>

@@ -157,7 +157,7 @@
             <ListBox ItemsSource="{Binding Source={StaticResource SortedItems}}"
                      Style="{StaticResource ContentListListBoxStyle}"
                      SelectedItem="{Binding SelectedJob}"
-                     behaviors:MultiSelectorBehaviors.SynchronizedSelectedItems="{Binding SelectedJobs}">
+                     behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedJobs}">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Edit Job" Command="{Binding EditSelectedJobCommand}"></MenuItem>
