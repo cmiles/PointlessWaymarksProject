@@ -12,33 +12,33 @@ public static class WpfHtmlDocument
     public static FileBuilder CmsLeafletMapAndChartHtmlAndJs(string title, string styleBlock = "",
         string javascript = "")
     {
-        var htmlString = $"""
-                          <!doctype html>
-                          <html lang=en>
-                          <head>
-                            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-                            <meta charset="utf-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <title>{HtmlEncoder.Default.Encode(title)}</title>
-                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
-                            <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                            <script src="https://[[VirtualDomain]]/leafletBingLayer.js"></script>
-                            <script src="https://[[VirtualDomain]]/localMapCommon.js"></script>
-                              {(string.IsNullOrWhiteSpace(styleBlock) ? string.Empty : """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""")}
-                              {(string.IsNullOrWhiteSpace(javascript) ? string.Empty : """<script src="https://[[VirtualDomain]]/customScript.js"></script>""")}
-                          </head>
-                          <body onload="initialDocumentLoad();">
-                            <div style="display: grid; grid-template-rows: auto 150px; height: 95vh; width: 100%;">
-                               <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
-                                  style="grid-row-start: 1; position: relative;"></div>
-                                <div id="mainElevationChartContainer" style=" grid-row-start: 2;" class="line-elevation-chart-container">
-                                    <canvas id="mainElevationChart" class="line-elevation-chart" style="max-width:100%;"></canvas>
-                                </div>
-                            </div>
-                          </body>
-                          </html>
-                          """;
+        var htmlString = $$"""
+                           <!doctype html>
+                           <html lang=en>
+                           <head>
+                             <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                             <meta charset="utf-8">
+                             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                             <title>{{HtmlEncoder.Default.Encode(title)}}</title>
+                             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+                             <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+                             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                             <script src="https://[[VirtualDomain]]/leafletBingLayer.js"></script>
+                             <script src="https://[[VirtualDomain]]/localMapCommon.js"></script>
+                               {{(string.IsNullOrWhiteSpace(styleBlock) ? string.Empty : """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""")}}
+                               {{(string.IsNullOrWhiteSpace(javascript) ? string.Empty : """<script src="https://[[VirtualDomain]]/customScript.js"></script>""")}}
+                           </head>
+                           <body onload="initialDocumentLoad();">
+                             <div style="display: grid; grid-template-rows: auto 150px; height: 95vh; width: 100%;">
+                                <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
+                                   style="grid-row-start: 1; position: relative;"></div>
+                                 <div id="mainElevationChartContainer" style=" grid-row-start: 2;" class="line-elevation-chart-container">
+                                     <canvas id="mainElevationChart" class="line-elevation-chart" style="max-width:100%;"></canvas>
+                                 </div>
+                             </div>
+                           </body>
+                           </html>
+                           """;
 
         var initialWebFilesMessage = new FileBuilder();
 
@@ -57,28 +57,28 @@ public static class WpfHtmlDocument
 
     public static FileBuilder CmsLeafletMapHtmlAndJs(string title, string styleBlock = "", string javascript = "")
     {
-        var htmlString = $"""
-                          <!doctype html>
-                          <html lang=en>
-                          <head>
-                            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-                            <meta charset="utf-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <title>{HtmlEncoder.Default.Encode(title)}</title>
-                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
-                            <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                            <script src="https://[[VirtualDomain]]/leafletBingLayer.js"></script>
-                            <script src="https://[[VirtualDomain]]/localMapCommon.js"></script>
-                              {(string.IsNullOrWhiteSpace(styleBlock) ? string.Empty : """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""")}
-                              {(string.IsNullOrWhiteSpace(javascript) ? string.Empty : """<script src="https://[[VirtualDomain]]/customScript.js"></script>""")}
-                          </head>
-                          <body onload="initialDocumentLoad();">
-                               <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
-                                  style="height: 96vh;"></div>
-                          </body>
-                          </html>
-                          """;
+        var htmlString = $$"""
+                           <!doctype html>
+                           <html lang=en>
+                           <head>
+                             <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                             <meta charset="utf-8">
+                             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                             <title>{{HtmlEncoder.Default.Encode(title)}}</title>
+                             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+                             <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+                             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                             <script src="https://[[VirtualDomain]]/leafletBingLayer.js"></script>
+                             <script src="https://[[VirtualDomain]]/localMapCommon.js"></script>
+                               {{(string.IsNullOrWhiteSpace(styleBlock) ? string.Empty : """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""")}}
+                               {{(string.IsNullOrWhiteSpace(javascript) ? string.Empty : """<script src="https://[[VirtualDomain]]/customScript.js"></script>""")}}
+                           </head>
+                           <body onload="initialDocumentLoad();">
+                                <div id="mainMap" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag"
+                                   style="height: 96vh;"></div>
+                           </body>
+                           </html>
+                           """;
 
         var initialWebFilesMessage = new FileBuilder();
 
@@ -96,7 +96,8 @@ public static class WpfHtmlDocument
     }
 
     public static void SetupCmsLeafletMapHtmlAndJs(this IWebViewMessenger messenger, string title,
-        double initialLatitude, double initialLongitude, bool autoCloseMarkers, string calTopoApiKey = "", string bingApiKey = "",string cssStyleBlock = "", string javascript = "")
+        double initialLatitude, double initialLongitude, bool autoCloseMarkers, string calTopoApiKey = "",
+        string bingApiKey = "", string cssStyleBlock = "", string javascript = "")
     {
         var initialWebFilesMessage = CmsLeafletMapHtmlAndJs(title, cssStyleBlock, javascript);
 
@@ -105,7 +106,8 @@ public static class WpfHtmlDocument
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         messenger.ToWebView.Enqueue(ExecuteJavaScript.CreateRequest(
-            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', false, {autoCloseMarkers.ToString().ToLower()})", true));
+            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', false, {autoCloseMarkers.ToString().ToLower()})",
+            true));
     }
 
     public static void SetupCmsLeafletMapWithLineElevationChartHtmlAndJs(this IWebViewMessenger messenger, string title,
@@ -119,7 +121,8 @@ public static class WpfHtmlDocument
         messenger.ToWebView.Enqueue(NavigateTo.CreateRequest("Index.html", true));
 
         messenger.ToWebView.Enqueue(ExecuteJavaScript.CreateRequest(
-            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', true, true)", true));
+            $"initialMapLoad({initialLatitude}, {initialLongitude}, '{calTopoApiKey}', '{bingApiKey}', true, true)",
+            true));
     }
 
     public static void SetupCmsLeafletPointChooserMapHtmlAndJs(this IWebViewMessenger messenger, string title,

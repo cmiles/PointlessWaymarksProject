@@ -144,11 +144,17 @@ public partial class ContentMapContext : IWebViewMessenger
 
         if (messageType == "mapBoundsChange")
         {
-            MapBounds = new SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
-                parsedJson["bounds"]["_northEast"]["lng"].GetValue<double>(),
-                parsedJson["bounds"]["_southWest"]["lat"].GetValue<double>(),
-                parsedJson["bounds"]["_southWest"]["lng"].GetValue<double>());
-            return;
+            try
+            {
+                MapBounds = new SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
+                    parsedJson["bounds"]["_northEast"]["lng"].GetValue<double>(),
+                    parsedJson["bounds"]["_southWest"]["lat"].GetValue<double>(),
+                    parsedJson["bounds"]["_southWest"]["lng"].GetValue<double>());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 
@@ -173,7 +179,7 @@ public partial class ContentMapContext : IWebViewMessenger
     public Task ProcessFromWebView(FromWebViewMessage args)
     {
         if (!string.IsNullOrWhiteSpace(args.Message))
-            StatusContext.RunFireAndForgetBlockingTask(async () => await MapMessageReceived(args.Message));
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await MapMessageReceived(args.Message));
         return Task.CompletedTask;
     }
 

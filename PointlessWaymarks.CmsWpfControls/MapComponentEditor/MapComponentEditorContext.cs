@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
@@ -80,6 +82,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         MapElements = factoryMapList;
 
+        MapElements.CollectionChanged += MapElementsOnCollectionChanged;
+
         PropertyChanged += OnPropertyChanged;
     }
 
@@ -94,10 +98,12 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public HelpDisplayContext HelpContext { get; set; }
     public ContentListSelected<IMapElementListItem> ListSelection { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
+    public SpatialBounds? MapBounds { get; set; }
     public ObservableCollection<IMapElementListItem> MapElements { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public StringDataEntryContext? SummaryEntry { get; set; }
+    public bool SuspendMapRefresh { get; set; }
     public StringDataEntryContext? TitleEntry { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
@@ -131,17 +137,19 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         };
 
         var contentIds = BracketCodeCommon.BracketCodeContentIds(textToProcess);
+
+        SuspendMapRefresh = true;
         foreach (var loopGuids in contentIds) await TryAddSpatialType(loopGuids);
 
         await RefreshMapPreview();
+
+        SuspendMapRefresh = false;
     }
 
     private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
         bool guiNotificationAndMapRefreshWhenAdded = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (MapElements == null) return;
 
         if (MapElements.Any(x => x.ContentId() == possibleGeoJson.ContentId))
         {
@@ -162,19 +170,13 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         MapElements.Add(newGeoJsonItem);
 
-        if (guiNotificationAndMapRefreshWhenAdded)
-        {
-            StatusContext.ToastSuccess($"Added Point - {possibleGeoJson.Title}");
-            await RefreshMapPreview();
-        }
+        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleGeoJson.Title}");
     }
 
     private async Task AddLine(LineContent possibleLine, MapElement? loopContent = null,
         bool guiNotificationAndMapRefreshWhenAdded = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (MapElements == null) return;
 
         if (MapElements.Any(x => x.ContentId() == possibleLine.ContentId))
         {
@@ -195,19 +197,13 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         MapElements.Add(newLineItem);
 
-        if (guiNotificationAndMapRefreshWhenAdded)
-        {
-            StatusContext.ToastSuccess($"Added Point - {possibleLine.Title}");
-            await RefreshMapPreview();
-        }
+        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleLine.Title}");
     }
 
     private async Task AddPoint(PointContentDto possiblePoint, MapElement? loopContent = null,
         bool guiNotificationAndMapRefreshWhenAdded = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (MapElements == null) return;
 
         if (MapElements.Any(x => x.ContentId() == possiblePoint.ContentId))
         {
@@ -227,11 +223,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         MapElements.Add(newPointContent);
 
-        if (guiNotificationAndMapRefreshWhenAdded)
-        {
-            StatusContext.ToastSuccess($"Added Point - {possiblePoint.Title}");
-            await RefreshMapPreview();
-        }
+        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Point - {possiblePoint.Title}");
     }
 
     [NonBlockingCommand]
@@ -277,7 +269,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         newEntry.UpdateNotes = UpdateNotes?.UserValue.TrimNullToEmpty();
         newEntry.UpdateNotesFormat = UpdateNotes?.UpdateNotesFormat.SelectedContentFormatAsString ?? string.Empty;
 
-        var currentElementList = MapElements?.ToList() ?? [];
+        var currentElementList = MapElements.ToList();
         var finalElementList = currentElementList.Select(x => new MapElement
         {
             MapComponentContentId = newEntry.ContentId,
@@ -371,7 +363,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
     private async Task FilterList()
     {
-        if (MapElements == null || !MapElements.Any()) return;
+        if (!MapElements.Any()) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -443,11 +435,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        MapElements ??= [];
-
         MapElements.Clear();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        SuspendMapRefresh = true;
 
         foreach (var loopContent in DbElements)
         {
@@ -467,12 +459,49 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             }
         }
 
+        SuspendMapRefresh = false;
+
         if (MapElements.Any()) await RefreshMapPreview();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), MapElements);
         await FilterList();
+    }
+
+    private void MapElementsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (!SuspendMapRefresh)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+                StatusContext.RunFireAndForgetNonBlockingTask(() => RefreshMapPreview(MapBounds));
+            else
+                StatusContext.RunFireAndForgetNonBlockingTask(() => RefreshMapPreview(MapBounds));
+        }
+    }
+
+    private async Task MapMessageReceived(string mapMessage)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var parsedJson = JsonNode.Parse(mapMessage);
+
+        if (parsedJson == null) return;
+
+        var messageType = parsedJson["messageType"]?.ToString() ?? string.Empty;
+
+        if (messageType == "mapBoundsChange")
+            try
+            {
+                MapBounds = new SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
+                    parsedJson["bounds"]["_northEast"]["lng"].GetValue<double>(),
+                    parsedJson["bounds"]["_southWest"]["lat"].GetValue<double>(),
+                    parsedJson["bounds"]["_southWest"]["lng"].GetValue<double>());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -531,17 +560,18 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
     public Task ProcessFromWebView(FromWebViewMessage args)
     {
+        if (!string.IsNullOrWhiteSpace(args.Message))
+            StatusContext.RunFireAndForgetNonBlockingTask(async () => await MapMessageReceived(args.Message));
         return Task.CompletedTask;
     }
 
-    [BlockingCommand]
-    public async Task RefreshMapPreview()
+    [NonBlockingCommand]
+    public async Task RefreshMapPreview(SpatialBounds? bounds = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var mapInformation =
-            await MapCmsJson.ProcessContentToMapInformation(MapElements?.Select(x => x.ContentId()!.Value).ToList() ??
-                                                            new List<Guid>());
+            await MapCmsJson.ProcessContentToMapInformation(MapElements.Select(x => x.ContentId()!.Value).ToList());
 
         if (mapInformation.fileCopyList.Any())
         {
@@ -556,7 +586,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         ToWebView.Enqueue(new JsonData
         {
             Json = await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
-                mapInformation.featureList, mapInformation.bounds.ExpandToMinimumMeters(1000))
+                mapInformation.featureList, bounds ??
+                                            mapInformation.bounds.ExpandToMinimumMeters(1000))
         });
     }
 
@@ -581,8 +612,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         }
 
         await ThreadSwitcher.ResumeBackgroundAsync();
-
-        await RefreshMapPreview();
     }
 
 
@@ -806,6 +835,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             return;
         }
 
+        SuspendMapRefresh = true;
+
         var db = await Db.Context();
 
         foreach (var loopCode in codes)
@@ -836,8 +867,10 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 $"ContentId {loopCode} doesn't appear to be a valid point, line or GeoJson content for the map?");
         }
 
-        UserGeoContentInput = string.Empty;
-
         await RefreshMapPreview();
+
+        SuspendMapRefresh = false;
+
+        UserGeoContentInput = string.Empty;
     }
 }

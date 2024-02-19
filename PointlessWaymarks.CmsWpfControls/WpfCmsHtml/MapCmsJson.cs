@@ -331,6 +331,7 @@ public static class MapCmsJson
                             $"""<a href="http://[[VirtualDomain]]/LocalPreview?{WebUtility.UrlEncode(UserSettingsSingleton.CurrentSettings().PointPageUrl(loopElements))}">{(string.IsNullOrWhiteSpace(loopElements.Title) ? "Preview" : loopElements.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(loopElements.ContentId.ToString())}">Edit</a>"""
                         },
                         { "description", descriptionAndImage.description },
+                        { "mapLabel", loopElements.MapLabel },
                         { "displayId", loopElements.ContentId }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude, loopElements.Latitude));

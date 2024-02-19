@@ -235,6 +235,44 @@ function onEachMapGeoJsonFeature(feature, layer) {
     }
 }
 
+function createPoints(useCircleMarkers) {
+    return function pointToLayer(feature, latlng) {
+        let popupHtml = "";
+
+        if (feature.properties?.title) {
+            popupHtml += feature.properties.title;
+        }
+
+        if (feature.properties?.description) {
+            popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
+        }
+
+        if (feature.properties?.mapLabel) {
+
+            let labelMarker = L.circleMarker(latlng,
+                { radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5 });
+
+            labelMarker.addTo(map);
+
+            return L.marker(latlng,
+                {
+                    icon: L.divIcon({
+                        className: 'point-map-label',
+                        html: `<p style="font-size: 24px;font-weight: bold; height: auto !important;width: max-content !important;">${feature.properties.mapLabel}</p>`,
+                        iconAnchor: [-6, 48]
+                    })
+                });
+        }
+
+        if (useCircleMarkers) {
+            return L.circleMarker(latlng, pointCircleMarkerOrangeOptions)
+        }
+
+        return L.marker(latlng);
+    }
+
+}
+
 function postGeoJsonDataHandler(e, clearCurrent, center) {
 
     if(clearCurrent) {
@@ -259,22 +297,12 @@ function postGeoJsonDataHandler(e, clearCurrent, center) {
     let newLayerCount = mapData.GeoJsonLayers.length;
     let currentCount = 0;
 
-    if (useCircleMarkerStyle) {
-        mapData.GeoJsonLayers.forEach(item => {
-            broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
-            let newLayer = new L.geoJSON(item, { onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle, pointToLayer: function (feature, latlng) { return L.circleMarker(latlng, pointCircleMarkerOrangeOptions) } });
-            mapLayers.push(newLayer);
-            map.addLayer(newLayer);
-        });
-    }
-    else {
-        mapData.GeoJsonLayers.forEach(item => {
-            broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
-            let newLayer = new L.geoJSON(item, { onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle });
-            mapLayers.push(newLayer);
-            map.addLayer(newLayer);
-        });
-    }
+    mapData.GeoJsonLayers.forEach(item => {
+        broadcastProgress(`Adding Layer ${++currentCount} of ${newLayerCount}`);
+        let newLayer = new L.geoJSON(item, { onEachFeature: onEachMapGeoJsonFeature, style: geoJsonLayerStyle, pointToLayer: createPoints(useCircleMarkerStyle) });
+        mapLayers.push(newLayer);
+        map.addLayer(newLayer);
+    });
 }
 
 function processMapMessage(e)
