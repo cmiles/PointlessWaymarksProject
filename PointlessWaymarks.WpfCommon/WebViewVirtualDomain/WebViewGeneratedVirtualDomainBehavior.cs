@@ -208,13 +208,26 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 
         foreach (var loopCreate in fileBuilder.Create)
         {
-            var targetFile = Path.Combine(_targetDirectory.FullName, loopCreate.FileName);
+            var targetFile = new FileInfo(Path.Combine(_targetDirectory.FullName, loopCreate.FileName));
 
-            if (!File.Exists(targetFile))
+            if (!targetFile.Exists)
             {
-                await File.WriteAllTextAsync(targetFile,
-                    loopCreate.Content.Replace("[[VirtualDomain]]", _virtualDomain,
-                        StringComparison.OrdinalIgnoreCase));
+                if (!targetFile.Directory?.Exists ?? false) targetFile.Directory?.Create();
+
+                try
+                {
+                    if (loopCreate.Content.IsT0)
+                        await File.WriteAllTextAsync(targetFile.FullName,
+                            loopCreate.Content.AsT0.Replace("[[VirtualDomain]]", _virtualDomain,
+                                StringComparison.OrdinalIgnoreCase));
+                    if(loopCreate.Content.IsT1)
+                        await File.WriteAllBytesAsync(targetFile.FullName, loopCreate.Content.AsT1);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
                 continue;
             }
 
@@ -223,7 +236,7 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
 
             try
             {
-                File.Delete(targetFile);
+                targetFile.Delete();
             }
             catch (Exception e)
             {
@@ -233,8 +246,12 @@ public class WebViewGeneratedVirtualDomainBehavior : Behavior<WebView2>
                     nameof(ProcessToWebViewFileBuilder), targetFile);
             }
 
-            await File.WriteAllTextAsync(targetFile,
-                loopCreate.Content.Replace("[[VirtualDomain]]", _virtualDomain, StringComparison.OrdinalIgnoreCase));
+            if (loopCreate.Content.IsT0)
+                await File.WriteAllTextAsync(targetFile.FullName,
+                    loopCreate.Content.AsT0.Replace("[[VirtualDomain]]", _virtualDomain,
+                        StringComparison.OrdinalIgnoreCase));
+            if (loopCreate.Content.IsT1)
+                await File.WriteAllBytesAsync(targetFile.FullName, loopCreate.Content.AsT1);
         }
 
         foreach (var loopCopy in fileBuilder.Copy)

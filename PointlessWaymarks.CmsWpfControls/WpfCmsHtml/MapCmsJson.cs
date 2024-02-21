@@ -332,7 +332,9 @@ public static class MapCmsJson
                         },
                         { "description", descriptionAndImage.description },
                         { "mapLabel", loopElements.MapLabel },
-                        { "displayId", loopElements.ContentId }
+                        { "displayId", loopElements.ContentId },
+                        { "mapIcon", loopElements.MapIcon ?? "default" },
+                        { "mapMarkerColor", loopElements.MapMarkerColor ?? "#000000" }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude, loopElements.Latitude));
             }
@@ -365,7 +367,9 @@ public static class MapCmsJson
                             $"""<a href="http://[[VirtualDomain]]/LocalPreview?{WebUtility.UrlEncode(UserSettingsSingleton.CurrentSettings().PhotoPageUrl(loopElements))}">{(string.IsNullOrWhiteSpace(loopElements.Title) ? "Preview" : loopElements.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(loopElements.ContentId.ToString())}">Edit</a>"""
                         },
                         { "description", descriptionAndImage.description },
-                        { "displayId", loopElements.ContentId }
+                        { "displayId", loopElements.ContentId },
+                        { "mapIcon", "cameraTwo" },
+                        { "mapMarkerColor", "#000000" }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude.Value, loopElements.Latitude.Value));
             }

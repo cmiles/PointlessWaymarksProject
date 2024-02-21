@@ -24,12 +24,22 @@
     <None Remove="Icons\rotate-right.svg" />
     <None Remove="Icons\stop.svg" />
     <None Remove="Icons\SvgSources.txt" />
+    <None Remove="WpfHtmlResources\images\markers-matte%402x.png" />
+    <None Remove="WpfHtmlResources\images\markers-matte.png" />
+    <None Remove="WpfHtmlResources\images\markers-plain.png" />
+    <None Remove="WpfHtmlResources\images\markers-shadow%402x.png" />
+    <None Remove="WpfHtmlResources\images\markers-shadow.png" />
+    <None Remove="WpfHtmlResources\images\markers-soft%402x.png" />
+    <None Remove="WpfHtmlResources\images\markers-soft.png" />
+    <None Remove="WpfHtmlResources\leaflet.awesome-svg-markers.css" />
+    <None Remove="WpfHtmlResources\leaflet.awesome-svg-markers.js" />
+    <None Remove="WpfHtmlResources\pwMapSvgIcons.json" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="FilterDataGrid" Version="1.2.7" />
-    <PackageReference Include="GitInfo" Version="3.3.3">
+    <PackageReference Include="GitInfo" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -47,8 +57,8 @@
     <PackageReference Include="OneOf.SourceGenerator" Version="3.0.263" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.14.0" />
-    <PackageReference Include="SharpVectors.Wpf" Version="1.8.3" />
-    <PackageReference Include="System.Drawing.Common" Version="8.0.1" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.4" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
     <PackageReference Include="TypeSupport" Version="1.2.0" />
     <PackageReference Include="WpfScreenHelper" Version="2.1.0" />
   </ItemGroup>
@@ -102,8 +112,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="WpfHtmlResources\images\markers-matte.png" />
+    <EmbeddedResource Include="WpfHtmlResources\images\markers-matte@2x.png" />
+    <EmbeddedResource Include="WpfHtmlResources\images\markers-plain.png" />
+    <EmbeddedResource Include="WpfHtmlResources\images\markers-shadow.png" />
+    <EmbeddedResource Include="WpfHtmlResources\images\markers-shadow@2x.png" />
+    <EmbeddedResource Include="WpfHtmlResources\images\markers-soft.png" />
+    <EmbeddedResource Include="WpfHtmlResources\images\markers-soft@2x.png" />
+    <EmbeddedResource Include="WpfHtmlResources\leaflet.awesome-svg-markers.css" />
+    <EmbeddedResource Include="WpfHtmlResources\leaflet.awesome-svg-markers.js" />
     <EmbeddedResource Include="WpfHtmlResources\leafletBingLayer.js" />
     <EmbeddedResource Include="WpfHtmlResources\localMapCommon.js" />
+    <EmbeddedResource Include="WpfHtmlResources\pwMapSvgIcons.json" />
   </ItemGroup>
 
 </Project>

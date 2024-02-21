@@ -6,6 +6,7 @@ let lineElevationChartMapMarker;
 let lineElevationData;
 let pointContentMarker;
 let useCircleMarkerStyle = false;
+let mapIcons;
 
 let pointCircleMarkerOrangeOptions = {
     radius: 8,
@@ -15,6 +16,8 @@ let pointCircleMarkerOrangeOptions = {
     opacity: 1,
     fillOpacity: 0.8
 };
+
+
 
 function broadcastProgress(progress) {
     console.log(progress);
@@ -40,6 +43,9 @@ async function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, 
 
     newLayerAutoClose = autoClosePopups;
     useCircleMarkerStyle = circleMarkerStyle;
+
+    let response = await fetch("pwMapSvgIcons.json");
+    mapIcons = await response.json();
 
     let [baseMaps, baseMapNames] = generateBaseMaps(calTopoApiKey, bingApiKey);
 
@@ -75,6 +81,9 @@ async function initialMapLoadWithUserPointChooser(initialLatitude, initialLongit
     broadcastProgress(`Initial Map with User Point Load - ${initialLatitude}, ${initialLongitude}`);
     newLayerAutoClose = true;
     useCircleMarkerStyle = true;
+
+    let response = await fetch("pwMapSvgIcons.json");
+    mapIcons = await response.json();
 
     let [baseMaps, baseMapNames] = generateBaseMaps(calTopoApiKey, bingApiKey);
 
@@ -262,6 +271,11 @@ function createPoints(useCircleMarkers) {
                         iconAnchor: [-6, 48]
                     })
                 });
+        }
+
+        if (feature.properties?.mapIcon) {
+            var icon = mapIcons.filter(x => x.IconName === feature.properties.mapIcon)[0];
+            return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${icon.IconSvg}`, markerColor: 'blue', iconColor: feature.properties.mapMarkerColor }) });
         }
 
         if (useCircleMarkers) {

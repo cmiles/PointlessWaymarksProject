@@ -5,13 +5,13 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentMigrator" Version="5.0.0" />
-    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="5.0.0" />
-    <PackageReference Include="GitInfo" Version="3.3.3">
+    <PackageReference Include="FluentMigrator" Version="5.1.0" />
+    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="5.1.0" />
+    <PackageReference Include="GitInfo" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
     <PackageReference Include="Microsoft.Playwright" Version="1.41.2" />
     <PackageReference Include="OneOf" Version="3.0.263" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />

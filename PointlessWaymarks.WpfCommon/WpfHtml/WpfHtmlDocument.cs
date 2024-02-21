@@ -66,8 +66,10 @@ public static class WpfHtmlDocument
                              <meta name="viewport" content="width=device-width, initial-scale=1.0">
                              <title>{{HtmlEncoder.Default.Encode(title)}}</title>
                              <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+                             <link rel="stylesheet" href="leaflet.awesome-svg-markers.css">
                              <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
                              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                             <script src="leaflet.awesome-svg-markers.js"></script>
                              <script src="https://[[VirtualDomain]]/leafletBingLayer.js"></script>
                              <script src="https://[[VirtualDomain]]/localMapCommon.js"></script>
                                {{(string.IsNullOrWhiteSpace(styleBlock) ? string.Empty : """<link rel="stylesheet" href="https://[[VirtualDomain]]/customStyle.css" />""")}}
@@ -91,6 +93,7 @@ public static class WpfHtmlDocument
         initialWebFilesMessage.Create.Add(new FileBuilderCreate("localMapCommon.js",
             WpfHtmlResourcesHelper.LocalMapCommonJs()));
         initialWebFilesMessage.Create.Add(new FileBuilderCreate("Index.html", htmlString, true));
+        initialWebFilesMessage.Create.AddRange(WpfHtmlResourcesHelper.AwesomeMapSvgMarkers());
 
         return initialWebFilesMessage;
     }

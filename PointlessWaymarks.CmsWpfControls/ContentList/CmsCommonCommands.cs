@@ -22,6 +22,7 @@ using PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 using PointlessWaymarks.CmsWpfControls.LinkList;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 using PointlessWaymarks.CmsWpfControls.MapComponentList;
+using PointlessWaymarks.CmsWpfControls.MapIconList;
 using PointlessWaymarks.CmsWpfControls.MarkdownViewer;
 using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.NoteList;
@@ -725,6 +726,14 @@ public partial class CmsCommonCommands
             await PostListWindow.CreateInstance(
                 await PostListWithActionsContext.CreateInstance(null, WindowStatus));
         await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    private async Task NewMapIconListWindow()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var newWindow = new Window1();
+        newWindow.Show();
     }
 
     [NonBlockingCommand]

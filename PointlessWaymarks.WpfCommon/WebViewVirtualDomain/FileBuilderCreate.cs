@@ -1,3 +1,5 @@
-﻿namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
+namespace PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 
-public record FileBuilderCreate(string FileName, string Content, bool TryToOverwrite = false);
+using OneOf;
+
+public record FileBuilderCreate(string FileName, OneOf<string, byte[]> Content, bool TryToOverwrite = false);

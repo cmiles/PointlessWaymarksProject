@@ -84,7 +84,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
-    public StringDataEntryContext? MapLabelContent { get; set; }
+    public StringDataEntryContext? MapLabelContentEntry { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public PointDetailListContext? PointDetails { get; set; }
     public StatusControlContext StatusContext { get; set; }
@@ -179,7 +179,9 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         newEntry.UpdateNotesFormat = UpdateNotes.UpdateNotesFormat.SelectedContentFormatAsString;
         newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
-        newEntry.MapLabel = MapLabelContent!.UserValue.TrimNullToEmpty();
+        newEntry.MapLabel = MapLabelContentEntry!.UserValue.TrimNullToEmpty();
+        newEntry.MapIcon = MapIconEntry!.UserValue.TrimNullToEmpty();
+        newEntry.MapMarkerColor = MapMarkerColorEntry!.UserValue.TrimNullToEmpty();
 
         newEntry.Latitude = LatitudeEntry!.UserValue;
         newEntry.Longitude = LongitudeEntry!.UserValue;
@@ -284,19 +286,33 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        MapLabelContent = StringDataEntryContext.CreateInstance();
-        MapLabelContent.Title = "Map Label";
-        MapLabelContent.HelpText =
+        MapLabelContentEntry = StringDataEntryContext.CreateInstance();
+        MapLabelContentEntry.Title = "Map Label";
+        MapLabelContentEntry.HelpText =
             "This text will be used to identify the point on a map. A very short string is likely best...";
-        MapLabelContent.ReferenceValue = DbEntry.MapLabel ?? string.Empty;
-        MapLabelContent.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapLabel);
+        MapLabelContentEntry.ReferenceValue = DbEntry.MapLabel ?? string.Empty;
+        MapLabelContentEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapLabel);
+
+        MapIconEntry = StringDataEntryContext.CreateInstance();
+        MapIconEntry.Title = "Map Icon";
+        MapIconEntry.HelpText =
+            "The small icon that will be shown on the map.";
+        MapIconEntry.ReferenceValue = DbEntry.MapIcon ?? string.Empty;
+        MapIconEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapIcon);
+
+        MapMarkerColorEntry = StringDataEntryContext.CreateInstance();
+        MapMarkerColorEntry.Title = "Map Marker Color";
+        MapMarkerColorEntry.HelpText =
+            "The Map Marker Color";
+        MapMarkerColorEntry.ReferenceValue = DbEntry.MapMarkerColor ?? string.Empty;
+        MapMarkerColorEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapMarkerColor);
 
         ElevationEntry =
             await ConversionDataEntryContext<double?>.CreateInstance(
                 ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => (o == null && u == null) || o.IsApproximatelyEqualTo(u, .001);
-        ElevationEntry.Title = "Elevation";
+        ElevationEntry.Title = "Elevation (Feet)";
         ElevationEntry.HelpText = "Elevation in Feet";
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
@@ -353,6 +369,10 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
+
+    public StringDataEntryContext? MapMarkerColorEntry { get; set; }
+
+    public StringDataEntryContext? MapIconEntry { get; set; }
 
     public async Task MapMessageReceived(string json)
     {

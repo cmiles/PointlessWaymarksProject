@@ -23,7 +23,9 @@ public class PointContent : IUpdateNotes, IContentCommon
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public Guid? MainPicture { get; set; }
+    public string? MapIcon { get; set; }
     public string? MapLabel { get; set; }
+    public string? MapMarkerColor { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
     public string? Slug { get; set; }
     public string? Summary { get; set; }

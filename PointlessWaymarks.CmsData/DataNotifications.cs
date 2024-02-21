@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using pinboard.net.Models;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -133,5 +133,6 @@ public enum DataNotificationContentType
     Post,
     Video,
     TagExclusion,
-    Unknown
+    Unknown,
+    MapIcon
 }

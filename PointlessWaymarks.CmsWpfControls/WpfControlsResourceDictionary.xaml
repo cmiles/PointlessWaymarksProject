@@ -1167,6 +1167,7 @@
         <MenuItem Command="{Binding CommonCommands.NewLinkListWindowCommand}" Header="New Link List Window" />
         <MenuItem Command="{Binding CommonCommands.NewMapComponentListWindowCommand}"
                   Header="New Map Component List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewMapIconListWindowCommand}" Header="New Map Icon List Window" />
         <MenuItem Command="{Binding CommonCommands.NewNoteListWindowCommand}" Header="New Note List Window" />
         <MenuItem Command="{Binding CommonCommands.NewPhotoListWindowCommand}" Header="New Photo List Window" />
         <MenuItem Command="{Binding CommonCommands.NewPointListWindowCommand}" Header="New Point List Window" />

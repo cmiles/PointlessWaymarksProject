@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database.Models;
 
 #pragma warning disable 8618
@@ -23,6 +23,7 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
     public DbSet<HistoricLinkContent> HistoricLinkContents { get; set; }
     public DbSet<HistoricMapElement> HistoricMapComponentElements { get; set; }
     public DbSet<HistoricMapComponent> HistoricMapComponents { get; set; }
+    public DbSet<HistoricMapIcon> HistoricMapIcons { get; set; }
     public DbSet<HistoricNoteContent> HistoricNoteContents { get; set; }
     public DbSet<HistoricPhotoContent> HistoricPhotoContents { get; set; }
     public DbSet<HistoricPointContent> HistoricPointContents { get; set; }
@@ -34,6 +35,7 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
     public DbSet<LinkContent> LinkContents { get; set; }
     public DbSet<MapElement> MapComponentElements { get; set; }
     public DbSet<MapComponent> MapComponents { get; set; }
+    public DbSet<MapIcon> MapIcons { get; set; }
     public DbSet<MenuLink> MenuLinks { get; set; }
     public DbSet<NoteContent> NoteContents { get; set; }
     public DbSet<PhotoContent> PhotoContents { get; set; }
@@ -52,6 +54,7 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
         modelBuilder.Entity<LineContent>().HasIndex(b => b.ContentId).IsUnique();
         modelBuilder.Entity<LinkContent>().HasIndex(b => b.ContentId).IsUnique();
         modelBuilder.Entity<MapComponent>().HasIndex(b => b.ContentId).IsUnique();
+        modelBuilder.Entity<MapIcon>().HasIndex(b => b.ContentId).IsUnique();
         modelBuilder.Entity<MapElement>().HasIndex(b => new { b.ElementContentId, b.MapComponentContentId })
             .IsUnique();
         modelBuilder.Entity<NoteContent>().HasIndex(b => b.ContentId).IsUnique();
@@ -59,6 +62,7 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
         modelBuilder.Entity<PointContent>().HasIndex(b => b.ContentId).IsUnique();
         modelBuilder.Entity<PointDetail>().HasIndex(b => b.ContentId).IsUnique();
         modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
+        modelBuilder.Entity<VideoContent>().HasIndex(b => b.ContentId).IsUnique();
 
         modelBuilder.Entity<GenerationChangedContentId>().Property(e => e.ContentId).ValueGeneratedNever();
     }
