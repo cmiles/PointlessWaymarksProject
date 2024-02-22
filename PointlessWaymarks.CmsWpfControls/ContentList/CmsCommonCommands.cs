@@ -732,8 +732,10 @@ public partial class CmsCommonCommands
     private async Task NewMapIconListWindow()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var newWindow = new Window1();
-        newWindow.Show();
+
+        var newWindow = await MapIconListWindow.CreateInstance();
+
+        newWindow.PositionWindowAndShow();
     }
 
     [NonBlockingCommand]

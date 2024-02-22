@@ -9,6 +9,7 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:MapIconListContext}">
     <UserControl.Resources>
@@ -16,18 +17,19 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding .}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <GroupBox Header="Search" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <Grid>
@@ -55,19 +57,53 @@
             </b:Interaction.Behaviors>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <svgc:SvgViewbox Source="{Binding IconSvgEntry.UserValue}"></svgc:SvgViewbox>
-                        <StackPanel Orientation="Vertical" Grid.Column="1">
-                            <stringDataEntry:StringDataEntryControl DataContext="{Binding IconNameEntry}"></stringDataEntry:StringDataEntryControl>
-                            <stringDataEntry:StringDataEntryControl DataContext="{Binding IconSvgEntry}"></stringDataEntry:StringDataEntryControl>
-                            <stringDataEntry:StringDataEntryControl DataContext="{Binding IconSourceEntry}"></stringDataEntry:StringDataEntryControl>
-                            <stringDataEntry:StringDataEntryControl DataContext="{Binding LastUpdatedByEntry}"></stringDataEntry:StringDataEntryControl>
-                        </StackPanel>
-                    </Grid>
+                    <Border Margin="4,4,8,4" Style="{StaticResource ContentListOuterBorderStyle}">
+                        <Grid Style="{StaticResource ContentListOuterGridStyle}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="48" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <svgc:SvgViewbox Margin="4" Width="24" Height="24" VerticalAlignment="Center"
+                                                 Grid.Row="0"
+                                                 SvgSource="{Binding IconSvgEntry.UserValue}" />
+                                <stringDataEntry:StringDataEntryControl Grid.Row="0" Grid.Column="1"
+                                                                        DataContext="{Binding IconNameEntry}" />
+                            </Grid>
+                            <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1">
+                                <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding IconSvgEntry}" />
+                                <stringDataEntry:StringDataEntryControl DataContext="{Binding IconSourceEntry}" />
+                            </StackPanel>
+                            <Grid Grid.Row="2" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <stringDataEntry:StringDataEntryControl DataContext="{Binding LastUpdatedByEntry}" />
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Orientation="Horizontal"
+                                            Margin="12,12,12,0">
+                                    <Button CommandParameter="{Binding .}"
+                                            Command="{Binding Data.DeleteItemCommand, Source={StaticResource Proxy}}"
+                                            Style="{StaticResource ActionPanelButtonStyle}" Margin="0"
+                                            VerticalAlignment="Bottom">
+                                        Delete
+                                    </Button>
+                                    <Button CommandParameter="{Binding .}"
+                                            Command="{Binding Data.SaveItemCommand, Source={StaticResource Proxy}}"
+                                            Style="{StaticResource ActionPanelButtonStyle}" Margin="0"
+                                            VerticalAlignment="Bottom">
+                                        Save
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

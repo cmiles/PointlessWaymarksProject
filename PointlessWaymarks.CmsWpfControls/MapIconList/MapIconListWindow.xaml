@@ -1,0 +1,22 @@
+<Window x:Class="PointlessWaymarks.CmsWpfControls.MapIconList.MapIconListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.MapIconList"
+        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}" Height="800" Width="800"
+        d:DataContext="{d:DesignInstance local:MapIconListWindow}">
+    <Grid Margin="4">
+        <local:MapIconListControl DataContext="{Binding ListContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            HorizontalContentAlignment="Left"
+            VerticalContentAlignment="Bottom"
+            Margin="4" />
+        <status:StatusControl
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>
