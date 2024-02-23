@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.WpfCommon.StringDataEntry.StringDataEntryMultiLineControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -44,7 +44,6 @@
         </StackPanel>
         <TextBox
             Name="ValueTextBox"
-            Height="{Binding}"
             Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
             Text="{Binding UserValue, UpdateSourceTrigger=PropertyChanged}" />
     </StackPanel>

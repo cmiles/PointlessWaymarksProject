@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
@@ -230,7 +230,8 @@ public static class CommonContentValidation
 
         if (!fileContentFile.Exists) return Task.FromResult(false);
 
-        return Task.FromResult(!FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name)));
+        return Task.FromResult(
+            !FileAndFolderTools.IsNoUrlEncodingNeeded(Path.GetFileNameWithoutExtension(fileContentFile.Name)));
     }
 
     public static async Task<IsValid> FileContentFileValidation(FileInfo? fileContentFile, Guid? currentContentId)
@@ -253,7 +254,8 @@ public static class CommonContentValidation
 
     public static Task<IsValid> GeoJsonValidation(string? geoJsonString)
     {
-        if (string.IsNullOrWhiteSpace(geoJsonString)) return Task.FromResult(new IsValid(false, "Blank GeoJson is not Valid"));
+        if (string.IsNullOrWhiteSpace(geoJsonString))
+            return Task.FromResult(new IsValid(false, "Blank GeoJson is not Valid"));
 
         try
         {
@@ -295,7 +297,8 @@ public static class CommonContentValidation
     public static Task<IsValid> LatitudeValidation(double latitude)
     {
         if (latitude is > 90 or < -90)
-            return Task.FromResult(new IsValid(false, $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid."));
+            return Task.FromResult(new IsValid(false,
+                $"Latitude on Earth must be between -90 and 90 - {latitude} is not valid."));
 
         return Task.FromResult(new IsValid(true, "Latitude is Valid"));
     }
@@ -338,7 +341,8 @@ public static class CommonContentValidation
     public static Task<IsValid> LongitudeValidation(double longitude)
     {
         if (longitude is > 180 or < -180)
-            return Task.FromResult(new IsValid(false, $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid."));
+            return Task.FromResult(new IsValid(false,
+                $"Longitude on Earth must be between -180 and 180 - {longitude} is not valid."));
 
         return Task.FromResult(new IsValid(true, "Longitude is Valid"));
     }
@@ -374,7 +378,8 @@ public static class CommonContentValidation
 
     public static Task<IsValid> ValidateBodyContentFormat(string? contentFormat)
     {
-        if (string.IsNullOrWhiteSpace(contentFormat)) return Task.FromResult(new IsValid(false, "Body Content Format must be set"));
+        if (string.IsNullOrWhiteSpace(contentFormat))
+            return Task.FromResult(new IsValid(false, "Body Content Format must be set"));
 
         if (Enum.TryParse(typeof(ContentFormatEnum), contentFormat, true, out _))
             return Task.FromResult(new IsValid(true, string.Empty));
@@ -523,6 +528,25 @@ public static class CommonContentValidation
         return Task.FromResult(new IsValid(true, "Created By is Ok"));
     }
 
+    public static Task<IsValid> ValidateStringIsNotEmptyOrWhitespace(string? stringToCheck)
+    {
+        if (string.IsNullOrWhiteSpace(stringToCheck.TrimNullToEmpty()))
+            return Task.FromResult(new IsValid(false, "Can not be blank."));
+
+        return Task.FromResult(new IsValid(true, "Ok"));
+    }
+
+    public static Task<IsValid> ValidateSvgTag(string? stringToCheck)
+    {
+        if (string.IsNullOrWhiteSpace(stringToCheck.TrimNullToEmpty()))
+            return Task.FromResult(new IsValid(false, "Can not be blank."));
+
+        if(!stringToCheck.Trim().StartsWith("<svg", StringComparison.OrdinalIgnoreCase) || !stringToCheck.Trim().EndsWith("</svg>", StringComparison.OrdinalIgnoreCase))
+            return Task.FromResult(new IsValid(false, "The SVG Tag should start with <svg and end with </svg>"));
+
+        return Task.FromResult(new IsValid(true, "Ok"));
+    }
+
     public static Task<IsValid> ValidateFeatureType(string? title)
     {
         if (string.IsNullOrWhiteSpace(title)) return Task.FromResult(new IsValid(false, "Type can not be blank"));
@@ -648,6 +672,41 @@ public static class CommonContentValidation
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
+    public static async Task<IsValid> ValidatePointMapIconName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return new IsValid(true, "Blank Map Icon is Valid");
+
+        if (!FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(name))
+            return new IsValid(false, "Map Icon Names should only contain a-z 0-9 _ -");
+
+        if (name.Length > 100) return new IsValid(false, "Limit Names to 100 characters.");
+
+
+        if (!(await Db.Context().ConfigureAwait(false)).MapIcons.Any(x =>
+                x.IconName == name))
+            return new IsValid(false, "This Name doesn't appear in the database? Check the icons in the Map Icon List.");
+
+        return new IsValid(true, string.Empty);
+    }
+
+
+    public static async Task<IsValid> ValidateMapIconName(string? name, Guid contentId)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return new IsValid(false, "Name can not be blank");
+
+        if (!FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(name))
+            return new IsValid(false, "Names should only contain a-z 0-9 _ -");
+
+        if (name.Length > 100) return new IsValid(false, "Limit Names to 100 characters.");
+
+
+        if ((await Db.Context().ConfigureAwait(false)).MapIcons.Any(x =>
+                x.IconName == name && x.ContentId != contentId))
+            return new IsValid(false, "This Name already exists in the database - names must be unique.");
+
+        return new IsValid(true, string.Empty);
+    }
+
     public static IsValid ValidateSiteFeedOn(IMainSiteFeed toValidate, bool isNewEntry)
     {
         var isValid = true;
@@ -664,7 +723,8 @@ public static class CommonContentValidation
 
     public static Task<IsValid> ValidateSlugLocal(string? slug)
     {
-        if (string.IsNullOrWhiteSpace(slug)) return Task.FromResult(new IsValid(false, "Slug can't be blank or only whitespace."));
+        if (string.IsNullOrWhiteSpace(slug))
+            return Task.FromResult(new IsValid(false, "Slug can't be blank or only whitespace."));
 
         if (!FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(slug))
             return Task.FromResult(new IsValid(false, "Slug should only contain a-z 0-9 _ -"));

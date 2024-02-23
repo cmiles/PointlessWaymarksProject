@@ -289,7 +289,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         MapLabelContentEntry = StringDataEntryContext.CreateInstance();
         MapLabelContentEntry.Title = "Map Label";
         MapLabelContentEntry.HelpText =
-            "This text will be used to identify the point on a map. A very short string is likely best...";
+            "This text will be used to identify the point on a map. A very short string is likely best - this will not scale with the map...";
         MapLabelContentEntry.ReferenceValue = DbEntry.MapLabel ?? string.Empty;
         MapLabelContentEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapLabel);
 
@@ -299,6 +299,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             "The small icon that will be shown on the map.";
         MapIconEntry.ReferenceValue = DbEntry.MapIcon ?? string.Empty;
         MapIconEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapIcon);
+        MapIconEntry.ValidationFunctions = [CommonContentValidation.ValidatePointMapIconName];
 
         MapMarkerColorEntry = StringDataEntryContext.CreateInstance();
         MapMarkerColorEntry.Title = "Map Marker Color";

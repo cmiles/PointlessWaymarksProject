@@ -55,6 +55,6 @@ public static class PartialContentPreviewServer
                     </html>
                     """;
 
-        return JsonSerializer.Serialize(new ServerLoadPreviewPage() { RequesterId = requesterId, ToPreview = html });
+        return JsonSerializer.Serialize(new ServerLoadPreviewPage { RequesterId = requesterId, ToPreview = html });
     }
 }

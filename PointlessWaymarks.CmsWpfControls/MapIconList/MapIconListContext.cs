@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net;
 using System.Windows.Data;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
@@ -20,10 +21,12 @@ namespace PointlessWaymarks.CmsWpfControls.MapIconList;
 [GenerateStatusCommands]
 public partial class MapIconListContext
 {
-    private MapIconListContext(ObservableCollection<MapIconListListItem> items, StatusControlContext statusContext)
+    private MapIconListContext(ObservableCollection<MapIconListListItem> items, StatusControlContext statusContext,
+        ContentListSelected<MapIconListListItem> factoryListSelection)
     {
         Items = items;
         StatusContext = statusContext;
+        ListSelection = factoryListSelection;
 
         BuildCommands();
 
@@ -60,9 +63,7 @@ public partial class MapIconListContext
     public ObservableCollection<MapIconListListItem> Items { get; set; }
     public ContentListSelected<MapIconListListItem> ListSelection { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
-
     public StatusControlContext StatusContext { get; set; }
-
     public string UserFilterText { get; set; } = string.Empty;
 
     [BlockingCommand]
@@ -85,8 +86,9 @@ public partial class MapIconListContext
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryItems = new ObservableCollection<MapIconListListItem>();
+        var factoryListSelection = await ContentListSelected<MapIconListListItem>.CreateInstance(factoryContext);
 
-        return new MapIconListContext(factoryItems, factoryContext);
+        return new MapIconListContext(factoryItems, factoryContext, factoryListSelection);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -164,22 +166,38 @@ public partial class MapIconListContext
         var possibleExistingItem =
             await context.MapIcons.FirstOrDefaultAsync(x => x.ContentId == toSave.DbEntry.ContentId);
 
-        if (possibleExistingItem != null)
+        if (possibleExistingItem == null)
         {
-            var historicEntry = new HistoricMapIcon()
-            {
-                ContentId = possibleExistingItem.ContentId, IconName = possibleExistingItem.IconName,
-                IconSource = possibleExistingItem.IconSource,
-                IconSvg = possibleExistingItem.IconSvg, LastUpdatedBy = possibleExistingItem.LastUpdatedBy,
-                LastUpdatedOn = possibleExistingItem.LastUpdatedOn
-            };
-
-            await context.HistoricMapIcons.AddAsync(historicEntry);
-            context.Remove(possibleExistingItem);
+            DataNotifications.PublishDataNotification("Map Icon Deleted", DataNotificationContentType.MapIcon,
+                DataNotificationUpdateType.Delete, toSave.DbEntry.ContentId.AsList());
+            return;
         }
 
-        DataNotifications.PublishDataNotification("Map Icon Deleted", DataNotificationContentType.MapIcon,
-            DataNotificationUpdateType.Delete, toSave.DbEntry.ContentId.AsList());
+        var uses = await context.PointContents
+            .Where(x => x.MapIcon != null && x.MapIcon == toSave.DbEntry.IconName!.ToLower()).OrderBy(x => x.Title)
+            .ToListAsync();
+
+        if (uses.Any())
+        {
+            await StatusContext.ShowMessageWithOkButton("Map Icon Deletion Error",
+                $"""
+                 This Map Icon is still in use and can not be deleted - if you really want to delete this Map Icon delete or change the icon in the Points below:
+
+                 {string.Join(Environment.NewLine, uses.Select(x => $"{x.Title} - [View](http://localactions.pointlesswaymarks.local/preview/{WebUtility.UrlEncode(x.ContentId.ToString())}) - [Edit](http://localactions.pointlesswaymarks.local/edit/{WebUtility.UrlEncode(x.ContentId.ToString())})"))}
+                 """);
+            return;
+        }
+
+        var historicEntry = new HistoricMapIcon
+        {
+            ContentId = possibleExistingItem.ContentId, IconName = possibleExistingItem.IconName,
+            IconSource = possibleExistingItem.IconSource,
+            IconSvg = possibleExistingItem.IconSvg, LastUpdatedBy = possibleExistingItem.LastUpdatedBy,
+            LastUpdatedOn = possibleExistingItem.LastUpdatedOn
+        };
+
+        await context.HistoricMapIcons.AddAsync(historicEntry);
+        context.Remove(possibleExistingItem);
     }
 
     private async Task FilterList()
@@ -232,12 +250,24 @@ public partial class MapIconListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        if (!toSave.HasChanges)
+        {
+            StatusContext.ToastWarning("No Changes to Save?");
+            return;
+        }
+
+        if (toSave.HasValidationIssues)
+        {
+            StatusContext.ToastError("Can't Save - Validation Issues");
+            return;
+        }
+
         var context = await Db.Context();
 
         var possibleExistingItem =
             await context.MapIcons.FirstOrDefaultAsync(x => x.ContentId == toSave.DbEntry.ContentId);
 
-        var toAdd = new MapIcon()
+        var toAdd = new MapIcon
         {
             ContentId = toSave.DbEntry.ContentId, IconName = toSave.IconNameEntry.UserValue,
             IconSource = toSave.IconSourceEntry.UserValue,
@@ -245,11 +275,9 @@ public partial class MapIconListContext
             LastUpdatedOn = DateTime.Now
         };
 
-        if (possibleExistingItem != null && (possibleExistingItem.IconName != toAdd.IconName ||
-                                             possibleExistingItem.IconSource != toAdd.IconSource ||
-                                             possibleExistingItem.IconSvg != toAdd.IconSvg))
+        if (possibleExistingItem != null)
         {
-            var historicEntry = new HistoricMapIcon()
+            var historicEntry = new HistoricMapIcon
             {
                 ContentId = possibleExistingItem.ContentId, IconName = possibleExistingItem.IconName,
                 IconSource = possibleExistingItem.IconSource,
@@ -270,5 +298,7 @@ public partial class MapIconListContext
         else
             DataNotifications.PublishDataNotification("Map Icon Updated", DataNotificationContentType.MapIcon,
                 DataNotificationUpdateType.Update, toAdd.ContentId.AsList());
+
+        StatusContext.ToastSuccess($"Saved {toAdd.IconName}");
     }
 }
