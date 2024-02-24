@@ -1,4 +1,4 @@
-﻿using KellermanSoftware.CompareNetObjects;
+using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Content;
@@ -101,17 +101,6 @@ public static class GrandCanyonPointInfo
                 "Point Json file not found in Content Directory");
         });
 
-        if (newContent.PointDetails.Any())
-            Assert.That(
-                filesInDirectory.Any(x =>
-                    x.Name == $"{Names.PointDetailsContentPrefix}{newContent.ContentId}.json"),
-                "Point Details Json file not found in Content Directory");
-        else
-            Assert.That(
-                filesInDirectory.All(x =>
-                    x.Name != $"{Names.PointDetailsContentPrefix}{newContent.ContentId}.json"),
-                "Point Details Json file not found with no Details Entry?");
-
         var db = await Db.Context();
         if (db.HistoricPointContents.Any(x => x.ContentId == newContent.ContentId))
         {
@@ -119,16 +108,6 @@ public static class GrandCanyonPointInfo
                 x.Name == $"{Names.HistoricPointContentPrefix}{newContent.ContentId}.json");
 
             Assert.That(historicJsonFile, Is.Not.Null, "Historic Point Json File not Found in Content Directory");
-        }
-
-        var historicPointDetails = await Db.HistoricPointDetailsForPoint(newContent.ContentId, db, 40);
-        if (historicPointDetails.Any())
-        {
-            var historicDetailsJsonFile = filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.HistoricPointDetailsContentPrefix}{newContent.ContentId}.json");
-
-            Assert.That(historicDetailsJsonFile, Is.Not.Null,
-                "Historic Point Details Json File not Found in Content Directory");
         }
     }
 

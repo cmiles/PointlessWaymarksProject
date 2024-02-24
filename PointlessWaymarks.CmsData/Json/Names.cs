@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsData.Json;
+namespace PointlessWaymarks.CmsData.Json;
 
 public static class Names
 {
@@ -23,7 +23,6 @@ public static class Names
     public const string HistoricNoteContentPrefix = "HistoricNotes---";
     public const string HistoricPhotoContentPrefix = "HistoricPhotos---";
     public const string HistoricPointContentPrefix = "HistoricPoints---";
-    public const string HistoricPointDetailsContentPrefix = "HistoricPointDetails---";
     public const string HistoricPostContentPrefix = "HistoricPosts---";
     public const string HistoricVideoContentPrefix = "HistoricVideos---";
 
@@ -40,7 +39,6 @@ public static class Names
     public const string PhotoContentPrefix = "Photo---";
 
     public const string PointContentPrefix = "Point---";
-    public const string PointDetailsContentPrefix = "PointDetails---";
 
     public const string PostContentPrefix = "Post---";
     public const string TagExclusionsFileName = "TagExclusions";

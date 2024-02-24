@@ -387,8 +387,7 @@ public static class Export
 
         var dtoToArchive = await Db.PointContentDtoFromPoint(dbEntry, db);
 
-        //This top process archives just the current Point rather than the DTO since the 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePointDataDirectory().FullName,
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dtoToArchive).FullName,
             $"{Names.PointContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
@@ -423,7 +422,7 @@ public static class Export
 
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
-        var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePointDataDirectory().FullName,
+        var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dtoToArchive).FullName,
             $"{Names.HistoricPointContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
