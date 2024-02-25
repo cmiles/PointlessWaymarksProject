@@ -9,7 +9,7 @@ public static class GenerationHelpers
     public static async Task GenerateChangedHtml(IProgress<string> progress)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        var generationResults = await HtmlGenerationGroups.GenerateChangedToHtml(progress);
+        var generationResults = await SiteGeneration.ChangedSiteContent(progress);
 
         if (generationResults.All(x => !x.HasError)) return;
 

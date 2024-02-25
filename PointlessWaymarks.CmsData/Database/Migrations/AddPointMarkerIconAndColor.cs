@@ -3,7 +3,7 @@ using FluentMigrator;
 
 namespace PointlessWaymarks.CmsData.Database.Migrations;
 
-[Migration(202302200000)]
+[Migration(202402200000)]
 public class AddPointMarkerIconAndColor : Migration
 {
     public override void Down()

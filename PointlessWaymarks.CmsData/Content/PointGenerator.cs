@@ -69,7 +69,7 @@ public static class PointGenerator
         if (!updateFormatCheck.Valid)
             return GenerationReturn.Error(updateFormatCheck.Explanation, pointContent.ContentId);
 
-        var mapIconNameCheck = await CommonContentValidation.ValidatePointMapIconName(pointContent.MapIcon);
+        var mapIconNameCheck = await CommonContentValidation.ValidatePointMapIconName(pointContent.MapIconName);
         if (!mapIconNameCheck.Valid)
             return GenerationReturn.Error(mapIconNameCheck.Explanation, pointContent.ContentId);
 

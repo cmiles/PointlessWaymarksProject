@@ -22,7 +22,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public Guid? MainPicture { get; set; }
-    public string? MapIcon { get; set; }
+    public string? MapIconName { get; set; }
     public string? MapLabel { get; set; }
     public string? MapMarkerColor { get; set; }
     public List<PointDetail> PointDetails { get; set; } = new();

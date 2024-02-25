@@ -333,8 +333,8 @@ public static class MapCmsJson
                         { "description", descriptionAndImage.description },
                         { "mapLabel", loopElements.MapLabel },
                         { "displayId", loopElements.ContentId },
-                        { "mapIcon", loopElements.MapIcon ?? "default" },
-                        { "mapMarkerColor", loopElements.MapMarkerColor ?? "#000000" }
+                        { "mapIcon", loopElements.MapIconName ?? "dot" },
+                        { "mapMarkerColor", loopElements.MapMarkerColor ?? "blue" }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude, loopElements.Latitude));
             }
@@ -368,8 +368,8 @@ public static class MapCmsJson
                         },
                         { "description", descriptionAndImage.description },
                         { "displayId", loopElements.ContentId },
-                        { "mapIcon", "cameraTwo" },
-                        { "mapMarkerColor", "#000000" }
+                        { "mapIcon", "camera" },
+                        { "mapMarkerColor", "blue" }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude.Value, loopElements.Latitude.Value));
             }

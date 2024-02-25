@@ -40,7 +40,7 @@ public static class S3UploadHelpers
         {
             windowStatus?.AddRequest(new WindowIconStatusRequest(statusContext.StatusControlContextId,
                 TaskbarItemProgressState.Indeterminate));
-            await HtmlGenerationGroups.GenerateChangedToHtml(statusContext.ProgressTracker());
+            await SiteGeneration.ChangedSiteContent(statusContext.ProgressTracker());
             toUpload = await S3CmsTools.FilesSinceLastUploadToUploadList(statusContext.ProgressTracker());
 
             await S3CmsTools.S3UploaderItemsToS3UploaderJsonFile(toUpload.uploadItems,

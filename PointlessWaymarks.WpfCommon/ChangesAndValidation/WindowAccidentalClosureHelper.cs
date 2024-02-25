@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows;
 using PointlessWaymarks.WpfCommon.Status;
 
@@ -16,14 +16,13 @@ public class WindowAccidentalClosureHelper
         _hasChangesToCheck = toCheck;
         _toClose = toClose;
 
-        _toClose.Closing += FileContentEditorWindow_OnClosing;
+        _toClose.Closing += Window_OnClosing;
     }
 
     public Action<Window>? CloseAction { get; init; }
-
     public StatusControlContext StatusContext { get; }
 
-    private void FileContentEditorWindow_OnClosing(object? sender, CancelEventArgs e)
+    private void Window_OnClosing(object? sender, CancelEventArgs e)
     {
         if (_closeConfirmed) return;
 

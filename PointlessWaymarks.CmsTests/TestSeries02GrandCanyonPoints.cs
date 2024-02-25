@@ -333,7 +333,7 @@ And what about a line...
 
         var currentGenerationCount = db.GenerationLogs.Count();
 
-        await HtmlGenerationGroups.GenerateAllHtml(DebugTrackers.DebugProgressTracker());
+        await SiteGeneration.AllSiteContent(DebugTrackers.DebugProgressTracker());
 
         Assert.That(db.GenerationLogs.Count(), Is.EqualTo(currentGenerationCount + 1),
             $"Expected {currentGenerationCount + 1} generation logs - found {db.GenerationLogs.Count()}");

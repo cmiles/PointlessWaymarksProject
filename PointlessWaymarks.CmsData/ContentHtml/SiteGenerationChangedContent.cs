@@ -1,15 +1,10 @@
 using System.Collections.Concurrent;
-using System.Text.Json;
 using KellermanSoftware.CompareNetObjects;
-using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CmsData.ContentHtml.ContentGalleryHtml;
-using PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
-using PointlessWaymarks.CmsData.ContentHtml.IndexHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
@@ -24,459 +19,11 @@ using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
-using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml;
 
-public static class HtmlGenerationGroups
+public static class SiteGenerationChangedContent
 {
-    public static async Task CleanupGenerationInformation(IProgress<string>? progress = null)
-    {
-        progress?.Report("Cleaning up Generation Log Information");
-
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var generationLogs = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).ToListAsync()
-            .ConfigureAwait(false);
-        var generationLogsToKeep = generationLogs.Take(30).ToList();
-        var generationLogsToDelete = generationLogs.Skip(30).ToList();
-
-        progress?.Report(
-            $"Keeping Top {generationLogsToKeep.Count} Logs, Found {generationLogsToDelete.Count} logs to remove");
-
-        //TODO Integrate into DataNotifications
-        db.GenerationLogs.RemoveRange(generationLogsToDelete);
-
-        await db.SaveChangesAsync().ConfigureAwait(false);
-
-
-        //Current Generation Versions for Reference
-
-        var currentGenerationVersions =
-            await db.GenerationLogs.Select(x => x.GenerationVersion).ToListAsync().ConfigureAwait(false);
-
-
-        //Photo Log Cleanup
-
-        var olderPhotoGenerationInformationToRemove = await db.GenerationDailyPhotoLogs
-            .Where(x => !currentGenerationVersions.Contains(x.GenerationVersion)).ToListAsync()
-            .ConfigureAwait(false);
-
-        progress?.Report($"Found {olderPhotoGenerationInformationToRemove.Count} photo generation logs to remove.");
-
-        db.GenerationDailyPhotoLogs.RemoveRange(olderPhotoGenerationInformationToRemove);
-
-        await db.SaveChangesAsync().ConfigureAwait(false);
-
-
-        //File Script Cleanup
-
-        var olderScriptGenerations = await db.GenerationFileTransferScriptLogs
-            .OrderByDescending(x => x.WrittenOnVersion).Skip(30).ToListAsync().ConfigureAwait(false);
-
-        progress?.Report($"Found {olderScriptGenerations.Count} logs to remove");
-
-        if (olderScriptGenerations.Any())
-        {
-            db.GenerationFileTransferScriptLogs.RemoveRange(olderScriptGenerations);
-
-            await db.SaveChangesAsync().ConfigureAwait(false);
-
-            DataNotifications.PublishDataNotification("HtmlGenerationGroups.CleanupGenerationInformation",
-                DataNotificationContentType.FileTransferScriptLog, DataNotificationUpdateType.Delete,
-                new List<Guid>());
-        }
-
-
-        //File Write Logs
-
-        DateTime? oldestDateTimeLog = null;
-
-        if (currentGenerationVersions.Any()) oldestDateTimeLog = currentGenerationVersions.Min();
-
-        if (db.GenerationFileWriteLogs.Any())
-        {
-            var oldestGenerationLog = db.GenerationFileWriteLogs.Min(x => x.WrittenOnVersion);
-            if (oldestDateTimeLog == null || oldestGenerationLog < oldestDateTimeLog)
-                oldestDateTimeLog = oldestGenerationLog;
-        }
-
-        if (oldestDateTimeLog != null)
-        {
-            var toRemove = await db.GenerationFileWriteLogs.Where(x => x.WrittenOnVersion < oldestDateTimeLog.Value)
-                .ToListAsync().ConfigureAwait(false);
-
-            progress?.Report($"Found {toRemove.Count} File Write Logs to remove");
-
-            db.GenerationFileWriteLogs.RemoveRange(toRemove);
-
-            await db.SaveChangesAsync().ConfigureAwait(false);
-        }
-        else
-        {
-            progress?.Report("Found zero File Write Logs to remove");
-        }
-
-
-        //Related Contents
-        var relatedToRemove = await db.GenerationRelatedContents
-            .Where(x => !currentGenerationVersions.Contains(x.GenerationVersion)).ToListAsync()
-            .ConfigureAwait(false);
-
-        progress?.Report($"Found {relatedToRemove.Count} Related Content Entries to Remove");
-
-        await db.SaveChangesAsync().ConfigureAwait(false);
-
-
-        //Tag Logs
-        var olderTagGenerationInformationToRemove = await db.GenerationTagLogs
-            .Where(x => !currentGenerationVersions.Contains(x.GenerationVersion)).ToListAsync()
-            .ConfigureAwait(false);
-
-        progress?.Report($"Found {olderTagGenerationInformationToRemove.Count} tag logs to remove.");
-
-        db.GenerationTagLogs.RemoveRange(olderTagGenerationInformationToRemove);
-
-        await db.SaveChangesAsync(true).ConfigureAwait(false);
-
-        progress?.Report("Done with Generation Clean Up");
-    }
-
-    public static async Task GenerateAllDailyPhotoGalleriesHtml(DateTime? generationVersion,
-        IProgress<string>? progress = null)
-    {
-        var allPages = await DailyPhotoPageGenerators.DailyPhotoGalleries(generationVersion, progress)
-            .ConfigureAwait(false);
-
-        await Parallel.ForEachAsync(allPages, async (x, _) => await x.WriteLocalHtml().ConfigureAwait(false))
-            .ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllFileHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.FileContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Files to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for File {loopItem.Title}");
-
-            var htmlModel = new SingleFilePage(loopItem) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllGeoJsonHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.GeoJsonContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} GeoJson Entries to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for GeoJson {loopItem.Title}");
-
-            var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task<List<GenerationReturn>> GenerateAllHtml(IProgress<string>? progress = null)
-    {
-        await CleanupGenerationInformation(progress).ConfigureAwait(false);
-
-        var generationVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime();
-
-        await FileManagement.WriteSiteResourcesToGeneratedSite(progress).ConfigureAwait(false);
-
-        await RelatedContentReference.GenerateRelatedContentDbTable(generationVersion, progress)
-            .ConfigureAwait(false);
-        await SetupTagGenerationDbData(generationVersion, progress).ConfigureAwait(false);
-        await SetupDailyPhotoGenerationDbData(generationVersion, progress).ConfigureAwait(false);
-
-        await GenerateAllPhotoHtml(generationVersion, progress).ConfigureAwait(false);
-        await GenerateAllImageHtml(generationVersion, progress).ConfigureAwait(false);
-
-        //The All Map generation also regenerates the Point Data Json - to avoid conflicts run points before the group...
-        await GenerateAllPointHtml(generationVersion, progress);
-
-        var generationTasks = new List<Task>
-        {
-            GenerateAllFileHtml(generationVersion, progress),
-            GenerateAllVideoHtml(generationVersion, progress),
-            GenerateAllMapData(generationVersion, progress),
-            GenerateAllNoteHtml(generationVersion, progress),
-            GenerateAllPostHtml(generationVersion, progress),
-            GenerateAllLineHtml(generationVersion, progress),
-            GenerateAllGeoJsonHtml(generationVersion, progress),
-            GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress),
-            GenerateCameraRollHtml(generationVersion, progress)
-        };
-
-        await Task.WhenAll(generationTasks).ConfigureAwait(false);
-
-        var taskSet = new List<Func<Task>>
-        {
-            async () => await GenerateAllTagHtml(generationVersion, progress).ConfigureAwait(false),
-            async () => await GenerateAllListHtml(generationVersion, progress).ConfigureAwait(false),
-            async () => await GenerateAllUtilityJson(progress).ConfigureAwait(false),
-            async () => await GenerateIndex(generationVersion, progress).ConfigureAwait(false),
-            async () => await GenerateLatestContentGalleryHtml(generationVersion, progress),
-            async () => await GenerateErrorPage(generationVersion, progress).ConfigureAwait(false)
-        };
-
-        await Parallel.ForEachAsync(taskSet, async (x, _) => await x()).ConfigureAwait(false);
-
-        progress?.Report(
-            $"Generation Complete - Writing Generation Date Time of UTC {generationVersion} in Db Generation log as Last Generation");
-
-        await Db.SaveGenerationLogAndRecordSettings(generationVersion).ConfigureAwait(false);
-
-        return await CommonContentValidation.CheckAllContentForBadContentReferences(progress).ConfigureAwait(false);
-    }
-
-
-    public static async Task GenerateAllImageHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.ImageContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Images to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for Image {loopItem.Title}");
-
-            var htmlModel = new SingleImagePage(loopItem) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllLineHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.LineContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Lines to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for Line {loopItem.Title}");
-
-            var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-
-        await MapComponentGenerator.GenerateAllLinesData();
-        await new LineMonthlyActivitySummaryPage(generationVersion).WriteLocalHtml();
-    }
-
-    public static async Task GenerateAllListHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var taskSet = new List<Func<Task>>
-        {
-            async () => await SearchListPageGenerators
-                .WriteAllContentCommonSearchListHtml(generationVersion, progress).ConfigureAwait(false),
-            async () => await SearchListPageGenerators.WriteFileContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false),
-            async () => await SearchListPageGenerators.WriteImageContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false),
-            async () => await SearchListPageGenerators.WritePhotoContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false),
-            async () => await SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false),
-            async () => await SearchListPageGenerators.WritePointContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false),
-            async () => await SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false),
-            async () =>
-            {
-                var linkListPage = new LinkListPage { GenerationVersion = generationVersion };
-                await linkListPage.WriteLocalHtmlRssAndJson().ConfigureAwait(false);
-                progress?.Report("Creating Link List Json");
-                await Export.WriteLinkListJson(progress).ConfigureAwait(false);
-            }
-        };
-
-        await Parallel.ForEachAsync(taskSet, async (x, _) => await x()).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllMapData(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        await PointData.WriteJsonData().ConfigureAwait(false);
-
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.MapComponents.ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Map Components to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing Data for {loopItem.Title}");
-
-            await MapData.WriteJsonData(loopItem.ContentId).ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllNoteHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.NoteContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Posts to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for Note Dated {loopItem.CreatedOn:d}");
-
-            var htmlModel = new SingleNotePage(loopItem) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllPhotoHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.PhotoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Photos to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for Photo {loopItem.Title}");
-
-            var htmlModel = new SinglePhotoPage(loopItem) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllPointHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        await PointData.WriteJsonData().ConfigureAwait(false);
-
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.PointContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Points to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for Point {loopItem.Title}");
-
-            var dto = await Db.PointAndPointDetails(loopItem.ContentId, await Db.Context().ConfigureAwait(false))
-                .ConfigureAwait(false);
-
-            if (dto == null)
-            {
-                var toThrow = new ArgumentException(
-                    $"Tried to retrieve Point Content DTO for {loopItem.ContentId} and found nothing in the database?");
-                toThrow.Data.Add("ContentId", loopItem.ContentId);
-                toThrow.Data.Add("Title", loopItem.Title);
-
-                throw toThrow;
-            }
-
-            var htmlModel = new SinglePointPage(dto) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllPostHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Posts to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for Post {loopItem.Title}");
-
-            var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllTagHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        await SearchListPageGenerators.WriteTagListAndTagPages(generationVersion, progress).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllUtilityJson(IProgress<string>? progress = null)
-    {
-        progress?.Report("Creating Menu Links Json");
-        await Export.WriteMenuLinksJson(progress).ConfigureAwait(false);
-
-        progress?.Report("Creating Tag Exclusion Json");
-        await Export.WriteTagExclusionsJson(progress).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateAllVideoHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        var allItems = await db.VideoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
-
-        var totalCount = allItems.Count;
-
-        progress?.Report($"Found {totalCount} Videos to Generate");
-
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
-        {
-            progress?.Report($"Writing HTML for Video {loopItem.Title}");
-
-            var htmlModel = new SingleVideoPage(loopItem) { GenerationVersion = generationVersion };
-            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateCameraRollHtml(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var cameraRollPage = await CameraRollGalleryPageGenerator.CameraRoll(generationVersion, progress)
-            .ConfigureAwait(false);
-        await cameraRollPage.WriteLocalHtml().ConfigureAwait(false);
-    }
-
     public static async Task GenerateChangedContentIdReferences(DateTime contentAfter, DateTime generationVersion,
         IProgress<string>? progress = null)
     {
@@ -706,7 +253,8 @@ public static class HtmlGenerationGroups
         if (lastGeneration == null)
         {
             progress?.Report("No Last Generation Found - generating All Daily Photo HTML.");
-            await GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress).ConfigureAwait(false);
+            await SiteGenerationAllContent.GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress)
+                .ConfigureAwait(false);
             return;
         }
 
@@ -723,7 +271,8 @@ public static class HtmlGenerationGroups
         {
             progress?.Report(
                 "No Daily Photo generation recorded in last generation - generating All Daily Photo HTML");
-            await GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress).ConfigureAwait(false);
+            await SiteGenerationAllContent.GenerateAllDailyPhotoGalleriesHtml(generationVersion, progress)
+                .ConfigureAwait(false);
             return;
         }
 
@@ -847,6 +396,56 @@ public static class HtmlGenerationGroups
         await Export.WriteLinkListJson(progress).ConfigureAwait(false);
     }
 
+    public static async Task GenerateChangedMainFeedContent(DateTime generationVersion,
+        IProgress<string>? progress = null)
+    {
+        //TODO: This current regenerates the Main Feed Content in order to make sure all previous/next content links are correct - this could be improved to just detect changes
+        var mainFeedContent = (await Db.MainFeedCommonContent().ConfigureAwait(false)).Select(x => (false, x)).ToList();
+
+        progress?.Report($"{mainFeedContent.Count} Main Feed Content Entries to Check - Checking for Adjacent Changes");
+
+        if (!mainFeedContent.Any()) return;
+
+        var db = await Db.Context().ConfigureAwait(false);
+
+        for (var i = 0; i < mainFeedContent.Count; i++)
+        {
+            var currentItem = mainFeedContent[i];
+
+            if (!await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == currentItem.Item2.ContentId)
+                    .ConfigureAwait(false)) continue;
+
+            currentItem.Item1 = true;
+            if (i > 0)
+            {
+                // ReSharper disable once NotAccessedVariable Need nextItem as a variable for the assignment
+                var previousItem = mainFeedContent[i - 1];
+                previousItem.Item1 = true;
+            }
+
+            if (i < mainFeedContent.Count - 1)
+            {
+                // ReSharper disable once NotAccessedVariable Need nextItem as a variable for the assignment
+                var nextItem = mainFeedContent[i + 1];
+                nextItem.Item1 = true;
+            }
+        }
+
+        var mainFeedChanges = mainFeedContent.Where(x => x.Item1).Select(x => x.Item2).ToList();
+
+        foreach (var loopMains in mainFeedChanges)
+        {
+            if (await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == loopMains.ContentId)
+                    .ConfigureAwait(false))
+            {
+                progress?.Report($"Main Feed - {loopMains.Title} already in Changed List");
+                continue;
+            }
+
+            progress?.Report($"Main Feed - Generating {loopMains.Title}");
+            await GenerateHtmlFromCommonContent(loopMains, generationVersion, progress).ConfigureAwait(false);
+        }
+    }
 
     /// <summary>
     ///     Generates the Changed Tag Html. !!! The DB must be setup with Tag Generation Information before running this !!!
@@ -865,7 +464,7 @@ public static class HtmlGenerationGroups
         if (lastGeneration == null)
         {
             progress?.Report("No Last Generation Found - generating All Tag Html.");
-            await GenerateAllTagHtml(generationVersion, progress).ConfigureAwait(false);
+            await SiteGenerationAllContent.GenerateAllTagHtml(generationVersion, progress).ConfigureAwait(false);
             return;
         }
 
@@ -994,143 +593,6 @@ public static class HtmlGenerationGroups
         await Task.WhenAll(allTasks).ConfigureAwait(false);
     }
 
-    public static async Task<List<GenerationReturn>> GenerateChangedToHtml(IProgress<string>? progress = null)
-    {
-        await CleanupGenerationInformation(progress).ConfigureAwait(false);
-
-        var db = await Db.Context().ConfigureAwait(false);
-
-        //Get and check the last generation - if there is no value then generate all which should create a valid value for the next
-        //run
-        var generationVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime();
-        var lastGenerationValues = db.GenerationLogs.Where(x => x.GenerationVersion < generationVersion)
-            .OrderByDescending(x => x.GenerationVersion).FirstOrDefault();
-
-        if (lastGenerationValues == null || string.IsNullOrWhiteSpace(lastGenerationValues.GenerationSettings))
-        {
-            progress?.Report("No value for Last Generation in Settings - Generating All HTML");
-
-            return await GenerateAllHtml(progress).ConfigureAwait(false);
-        }
-
-        progress?.Report($"Last Generation - {lastGenerationValues.GenerationVersion}");
-        var lastGenerationDateTime = lastGenerationValues.GenerationVersion;
-
-        //The menu is currently written to all pages - if there are changes then generate all
-        var menuUpdates = await db.MenuLinks.AnyAsync(x => x.ContentVersion > lastGenerationDateTime)
-            .ConfigureAwait(false);
-
-        if (menuUpdates)
-        {
-            progress?.Report("Menu Updates detected - menu updates impact all pages, generating All HTML");
-
-            return await GenerateAllHtml(progress).ConfigureAwait(false);
-        }
-
-        //If the generation settings have changed trigger a full rebuild
-        var lastGenerationSettings =
-            JsonSerializer.Deserialize<UserSettingsGenerationValues>(lastGenerationValues.GenerationSettings);
-
-        var currentGenerationSettings = UserSettingsSingleton.CurrentSettings().GenerationValues();
-
-        var compareLogic = new CompareLogic(new ComparisonConfig { MaxDifferences = 20 });
-        var generationSettingsComparison = compareLogic.Compare(lastGenerationSettings, currentGenerationSettings);
-
-        var compareReport = new UserFriendlyReport();
-        var generationSettingsComparisonDifferences =
-            compareReport.OutputString(generationSettingsComparison.Differences);
-
-        if (!generationSettingsComparison.AreEqual)
-        {
-            progress?.Report(
-                $"Generation Settings Changes detected - generating All HTML: {Environment.NewLine}{generationSettingsComparisonDifferences}");
-
-            return await GenerateAllHtml(progress).ConfigureAwait(false);
-        }
-
-        progress?.Report("Write Site Resources");
-        await FileManagement.WriteSiteResourcesToGeneratedSite(progress).ConfigureAwait(false);
-
-        progress?.Report($"Generation HTML based on changes after UTC - {lastGenerationValues.GenerationVersion}");
-
-        await RelatedContentReference.GenerateRelatedContentDbTable(generationVersion, progress)
-            .ConfigureAwait(false);
-        await GenerateChangedContentIdReferences(lastGenerationDateTime, generationVersion, progress)
-            .ConfigureAwait(false);
-        await SetupTagGenerationDbData(generationVersion, progress).ConfigureAwait(false);
-        await GenerateChangedContentIdReferencesFromTagExclusionChanges(generationVersion, lastGenerationDateTime,
-            progress).ConfigureAwait(false);
-
-        await SetupDailyPhotoGenerationDbData(generationVersion, progress).ConfigureAwait(false);
-
-        if (!await db.GenerationChangedContentIds.AnyAsync().ConfigureAwait(false))
-            progress?.Report("No Changes Detected - ending HTML generation.");
-
-        await GenerateChangeFilteredPhotoHtml(generationVersion, progress).ConfigureAwait(false);
-        await GenerateChangeFilteredImageHtml(generationVersion, progress).ConfigureAwait(false);
-
-        //Both Maps and Points update the Point Json file - update the Points outside of the task list to avoid
-        //both processing trying to write to the file.
-        await GenerateChangeFilteredPointHtml(generationVersion, progress);
-
-        var changedPartsList = new List<Task>
-        {
-            GenerateChangeFilteredFileHtml(generationVersion, progress),
-            GenerateChangeFilteredVideoHtml(generationVersion, progress),
-            GenerateChangeFilteredGeoJsonHtml(generationVersion, progress),
-            GenerateChangeFilteredLineHtml(generationVersion, progress),
-            GenerateChangeFilteredMapData(generationVersion, progress),
-            GenerateChangeFilteredNoteHtml(generationVersion, progress),
-            GenerateChangeFilteredPostHtml(generationVersion, progress)
-        };
-
-        await Task.WhenAll(changedPartsList).ConfigureAwait(false);
-
-        await GenerateMainFeedContent(generationVersion, progress).ConfigureAwait(false);
-
-        var hasDirectPhotoChanges = db.PhotoContents.Join(db.GenerationChangedContentIds, o => o.ContentId,
-            i => i.ContentId, (o, i) => o.PhotoCreatedOn).Any();
-        var hasRelatedPhotoChanges = db.PhotoContents.Join(db.GenerationRelatedContents, o => o.ContentId,
-            i => i.ContentTwo, (o, i) => o.PhotoCreatedOn).Any();
-        var hasDeletedPhotoChanges =
-            (await Db.DeletedPhotoContent().ConfigureAwait(false)).Any(x =>
-                x.ContentVersion > lastGenerationDateTime);
-
-        if (hasDirectPhotoChanges || hasRelatedPhotoChanges || hasDeletedPhotoChanges)
-            await GenerateChangedDailyPhotoGalleries(generationVersion, progress).ConfigureAwait(false);
-        else
-            progress?.Report(
-                "No changes to Photos directly or thru related content - skipping Daily Photo Page generation.");
-
-        if (hasDirectPhotoChanges || hasDeletedPhotoChanges)
-            await GenerateCameraRollHtml(generationVersion, progress).ConfigureAwait(false);
-        else progress?.Report("No changes to Photo content - skipping Photo Gallery generation.");
-
-        var tagAndListTasks = new List<Task>
-        {
-            GenerateChangedTagHtml(generationVersion, progress),
-            GenerateChangedListHtml(lastGenerationDateTime, generationVersion, progress),
-            GenerateAllUtilityJson(progress),
-            GenerateIndex(generationVersion, progress),
-            GenerateLatestContentGalleryHtml(generationVersion, progress),
-            GenerateErrorPage(generationVersion, progress)
-        };
-
-        await Task.WhenAll(tagAndListTasks).ConfigureAwait(false);
-
-        progress?.Report(
-            $"Generation Complete - writing {generationVersion} as Last Generation UTC into db Generation Log");
-
-        await Db.SaveGenerationLogAndRecordSettings(generationVersion).ConfigureAwait(false);
-
-        var allChangedContentCommon =
-            (await db.ContentCommonShellFromContentIds(await db.GenerationChangedContentIds.Select(x => x.ContentId)
-                .ToListAsync().ConfigureAwait(false)).ConfigureAwait(false)).Cast<IContentCommon>().ToList();
-
-        return await CommonContentValidation.CheckForBadContentReferences(allChangedContentCommon, db, progress)
-            .ConfigureAwait(false);
-    }
-
     public static async Task GenerateChangeFilteredFileHtml(DateTime generationVersion,
         IProgress<string>? progress = null)
     {
@@ -1247,6 +709,16 @@ public static class HtmlGenerationGroups
         }).ConfigureAwait(false);
     }
 
+    public static async Task GenerateChangeFilteredMapIconJson(DateTime contentVersion,
+        IProgress<string>? progress = null)
+    {
+        var db = await Db.Context().ConfigureAwait(false);
+
+        var changesAfterLocal = contentVersion.ToLocalTime();
+
+        if (db.MapIcons.Any(x => x.LastUpdatedOn >= changesAfterLocal)) await MapIconGenerator.GenerateMapIconsFile();
+    }
+
     public static async Task GenerateChangeFilteredNoteHtml(DateTime generationVersion,
         IProgress<string>? progress = null)
     {
@@ -1307,7 +779,7 @@ public static class HtmlGenerationGroups
         progress?.Report($"Found {totalCount} Points to Generate");
 
         if (allItems.Count > 0)
-            await GenerateAllPointHtml(generationVersion, progress).ConfigureAwait(false);
+            await SiteGenerationAllContent.GenerateAllPointHtml(generationVersion, progress).ConfigureAwait(false);
 
         await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
         {
@@ -1349,7 +821,6 @@ public static class HtmlGenerationGroups
         }).ConfigureAwait(false);
     }
 
-
     public static async Task GenerateChangeFilteredVideoHtml(DateTime generationVersion,
         IProgress<string>? progress = null)
     {
@@ -1374,12 +845,6 @@ public static class HtmlGenerationGroups
 
             loopCount++;
         }).ConfigureAwait(false);
-    }
-
-    public static async Task GenerateErrorPage(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var error = new ErrorPage { GenerationVersion = generationVersion };
-        await error.WriteLocalHtml().ConfigureAwait(false);
     }
 
     public static async Task GenerateHtmlFromCommonContent(IContentCommon content, DateTime generationVersion,
@@ -1422,122 +887,5 @@ public static class HtmlGenerationGroups
             default:
                 throw new Exception("The method GenerateHtmlFromCommonContent didn't find a content type match");
         }
-    }
-
-    public static async Task GenerateIndex(DateTime? generationVersion, IProgress<string>? progress = null)
-    {
-        var index = new IndexPage { GenerationVersion = generationVersion };
-        await index.WriteLocalHtml().ConfigureAwait(false);
-    }
-
-    public static async Task GenerateLatestContentGalleryHtml(DateTime? generationVersion,
-        IProgress<string>? progress = null)
-    {
-        var cameraRollPage = await ContentGalleryPageGenerators.LatestContentGallery(generationVersion, progress)
-            .ConfigureAwait(false);
-        await cameraRollPage.WriteLocalHtml().ConfigureAwait(false);
-    }
-
-    public static async Task GenerateMainFeedContent(DateTime generationVersion, IProgress<string>? progress = null)
-    {
-        //TODO: This current regenerates the Main Feed Content in order to make sure all previous/next content links are correct - this could be improved to just detect changes
-        var mainFeedContent = (await Db.MainFeedCommonContent().ConfigureAwait(false)).Select(x => (false, x)).ToList();
-
-        progress?.Report($"{mainFeedContent.Count} Main Feed Content Entries to Check - Checking for Adjacent Changes");
-
-        if (!mainFeedContent.Any()) return;
-
-        var db = await Db.Context().ConfigureAwait(false);
-
-        for (var i = 0; i < mainFeedContent.Count; i++)
-        {
-            var currentItem = mainFeedContent[i];
-
-            if (!await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == currentItem.Item2.ContentId)
-                    .ConfigureAwait(false)) continue;
-
-            currentItem.Item1 = true;
-            if (i > 0)
-            {
-                // ReSharper disable once NotAccessedVariable Need nextItem as a variable for the assignment
-                var previousItem = mainFeedContent[i - 1];
-                previousItem.Item1 = true;
-            }
-
-            if (i < mainFeedContent.Count - 1)
-            {
-                // ReSharper disable once NotAccessedVariable Need nextItem as a variable for the assignment
-                var nextItem = mainFeedContent[i + 1];
-                nextItem.Item1 = true;
-            }
-        }
-
-        var mainFeedChanges = mainFeedContent.Where(x => x.Item1).Select(x => x.Item2).ToList();
-
-        foreach (var loopMains in mainFeedChanges)
-        {
-            if (await db.GenerationChangedContentIds.AnyAsync(x => x.ContentId == loopMains.ContentId)
-                    .ConfigureAwait(false))
-            {
-                progress?.Report($"Main Feed - {loopMains.Title} already in Changed List");
-                continue;
-            }
-
-            progress?.Report($"Main Feed - Generating {loopMains.Title}");
-            await GenerateHtmlFromCommonContent(loopMains, generationVersion, progress).ConfigureAwait(false);
-        }
-    }
-
-    public static async Task SetupDailyPhotoGenerationDbData(DateTime currentGenerationVersion,
-        IProgress<string>? progress = null)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-
-        progress?.Report("Getting list of all Photo Dates and Content");
-
-        var allPhotoInfo = await db.PhotoContents.Where(x => !x.IsDraft).AsNoTracking().ToListAsync()
-            .ConfigureAwait(false);
-
-        var datesAndContent = allPhotoInfo.GroupBy(x => x.PhotoCreatedOn.Date)
-            .Select(x => new { date = x.Key, contentIds = x.Select(y => y.ContentId) })
-            .OrderByDescending(x => x.date).ToList();
-
-        progress?.Report("Processing Photo Dates and Content");
-
-        foreach (var loopDates in datesAndContent)
-        foreach (var loopContent in loopDates.contentIds)
-            await db.GenerationDailyPhotoLogs.AddAsync(new GenerationDailyPhotoLog
-            {
-                DailyPhotoDate = loopDates.date,
-                GenerationVersion = currentGenerationVersion,
-                RelatedContentId = loopContent
-            }).ConfigureAwait(false);
-
-        progress?.Report("Saving Photo Dates and Content to db");
-
-        await db.SaveChangesAsync(true).ConfigureAwait(false);
-    }
-
-
-    public static async Task SetupTagGenerationDbData(DateTime currentGenerationVersion,
-        IProgress<string>? progress = null)
-    {
-        var tagData = await Db.TagSlugsAndContentList(true, false, progress).ConfigureAwait(false);
-
-        var excludedTagSlugs = await Db.TagExclusionSlugs().ConfigureAwait(false);
-
-        var db = await Db.Context().ConfigureAwait(false);
-
-        foreach (var (tag, contentObjects) in tagData)
-        foreach (var loopContent in contentObjects)
-            await db.GenerationTagLogs.AddAsync(new GenerationTagLog
-            {
-                GenerationVersion = currentGenerationVersion,
-                RelatedContentId = loopContent.ContentId,
-                TagSlug = tag,
-                TagIsExcludedFromSearch = excludedTagSlugs.Contains(tag)
-            }).ConfigureAwait(false);
-
-        await db.SaveChangesAsync(true).ConfigureAwait(false);
     }
 }

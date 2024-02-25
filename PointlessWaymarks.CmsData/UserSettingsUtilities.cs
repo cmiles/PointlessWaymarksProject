@@ -881,6 +881,12 @@ public static class UserSettingsUtilities
         return directory;
     }
 
+    public static FileInfo LocalSiteMapIconsDataFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSitePointDataDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "pwmapicons")}.json");
+    }
+
     public static DirectoryInfo LocalSiteNoteContentDirectory(this UserSettings settings, NoteContent content,
         bool createDirectoryIfNotFound = true)
     {
@@ -1258,6 +1264,11 @@ public static class UserSettingsUtilities
     {
         var directory = settings.LocalSiteVideoDirectory();
         return new FileInfo($"{Path.Combine(directory.FullName, "VideoRss")}.xml");
+    }
+
+    public static string MapIconDataUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/Points/Data/pwmapicons.json";
     }
 
     public static string NoteListUrl(this UserSettings settings)

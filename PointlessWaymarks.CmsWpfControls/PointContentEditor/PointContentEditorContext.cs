@@ -45,7 +45,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 {
     public EventHandler? RequestContentEditorWindowClose;
 
-    private PointContentEditorContext(StatusControlContext statusContext, PointContent pointContent)
+    private PointContentEditorContext(StatusControlContext statusContext, PointContent pointContent, string serializedMapIcons)
     {
         StatusContext = statusContext;
 
@@ -63,7 +63,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
 
         this.SetupCmsLeafletPointChooserMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, serializedMapIcons,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         PropertyChanged += OnPropertyChanged;
@@ -148,8 +148,12 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PointContent? pointContent)
     {
+        ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
+
         var newControl = new PointContentEditorContext(statusContext ?? new StatusControlContext(),
-            NewContentModels.InitializePointContent(pointContent));
+            NewContentModels.InitializePointContent(pointContent), factoryMapIcons);
         await newControl.LoadData(pointContent);
         return newControl;
     }
@@ -180,7 +184,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.MapLabel = MapLabelContentEntry!.UserValue.TrimNullToEmpty();
-        newEntry.MapIcon = MapIconEntry!.UserValue.TrimNullToEmpty();
+        newEntry.MapIconName = MapIconEntry!.UserValue.TrimNullToEmpty();
         newEntry.MapMarkerColor = MapMarkerColorEntry!.UserValue.TrimNullToEmpty();
 
         newEntry.Latitude = LatitudeEntry!.UserValue;
@@ -297,8 +301,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         MapIconEntry.Title = "Map Icon";
         MapIconEntry.HelpText =
             "The small icon that will be shown on the map.";
-        MapIconEntry.ReferenceValue = DbEntry.MapIcon ?? string.Empty;
-        MapIconEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapIcon);
+        MapIconEntry.ReferenceValue = DbEntry.MapIconName ?? string.Empty;
+        MapIconEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapIconName);
         MapIconEntry.ValidationFunctions = [CommonContentValidation.ValidatePointMapIconName];
 
         MapMarkerColorEntry = StringDataEntryContext.CreateInstance();

@@ -50,7 +50,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
     private MapComponentEditorContext(StatusControlContext statusContext,
         ContentListSelected<IMapElementListItem> factoryListSelection,
-        ObservableCollection<IMapElementListItem> factoryMapList, MapComponent dbEntry)
+        ObservableCollection<IMapElementListItem> factoryMapList, MapComponent dbEntry, string serializedMapIcons)
     {
         StatusContext = statusContext;
 
@@ -66,7 +66,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
 
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, false,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, false, serializedMapIcons,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         HelpContext = new HelpDisplayContext([CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock]);
@@ -238,14 +238,17 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext? statusContext,
         MapComponent? mapComponent)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
 
         await ThreadSwitcher.ResumeForegroundAsync();
         var factoryListSelection = await ContentListSelected<IMapElementListItem>.CreateInstance(factoryContext);
         var factoryMapList = new ObservableCollection<IMapElementListItem>();
 
         var newControl = new MapComponentEditorContext(factoryContext, factoryListSelection, factoryMapList,
-            NewContentModels.InitializeMapComponent(mapComponent));
+            NewContentModels.InitializeMapComponent(mapComponent), factoryMapIcons);
         await newControl.LoadData(mapComponent);
 
         return newControl;

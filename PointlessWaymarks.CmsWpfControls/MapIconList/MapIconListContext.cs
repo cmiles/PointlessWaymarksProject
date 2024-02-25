@@ -4,6 +4,7 @@ using System.Net;
 using System.Windows.Data;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -74,7 +75,8 @@ public partial class MapIconListContext
         var toAdd = MapIconListListItem.CreateInstance(new MapIcon
         {
             ContentId = Guid.NewGuid(), LastUpdatedOn = DateTime.Now,
-            LastUpdatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy
+            LastUpdatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            ContentVersion = Db.ContentVersionDateTime()
         });
 
         Items.Add(toAdd);
@@ -174,7 +176,7 @@ public partial class MapIconListContext
         }
 
         var uses = await context.PointContents
-            .Where(x => x.MapIcon != null && x.MapIcon == toSave.DbEntry.IconName!.ToLower()).OrderBy(x => x.Title)
+            .Where(x => x.MapIconName != null && x.MapIconName == toSave.DbEntry.IconName!.ToLower()).OrderBy(x => x.Title)
             .ToListAsync();
 
         if (uses.Any())
@@ -193,11 +195,21 @@ public partial class MapIconListContext
             ContentId = possibleExistingItem.ContentId, IconName = possibleExistingItem.IconName,
             IconSource = possibleExistingItem.IconSource,
             IconSvg = possibleExistingItem.IconSvg, LastUpdatedBy = possibleExistingItem.LastUpdatedBy,
-            LastUpdatedOn = possibleExistingItem.LastUpdatedOn
+            LastUpdatedOn = possibleExistingItem.LastUpdatedOn,
+            ContentVersion = possibleExistingItem.ContentVersion
         };
 
         await context.HistoricMapIcons.AddAsync(historicEntry);
         context.Remove(possibleExistingItem);
+
+        await context.SaveChangesAsync();
+
+        DataNotifications.PublishDataNotification("Map Icon Deleted", DataNotificationContentType.MapIcon,
+            DataNotificationUpdateType.Delete, historicEntry.ContentId.AsList());
+
+        await MapIconGenerator.GenerateMapIconsFile();
+
+        StatusContext.ToastSuccess($"Deleted {historicEntry.IconName}");
     }
 
     private async Task FilterList()
@@ -272,7 +284,8 @@ public partial class MapIconListContext
             ContentId = toSave.DbEntry.ContentId, IconName = toSave.IconNameEntry.UserValue,
             IconSource = toSave.IconSourceEntry.UserValue,
             IconSvg = toSave.IconSvgEntry.UserValue, LastUpdatedBy = toSave.LastUpdatedByEntry.UserValue,
-            LastUpdatedOn = DateTime.Now
+            LastUpdatedOn = DateTime.Now,
+            ContentVersion = toSave.DbEntry.ContentVersion
         };
 
         if (possibleExistingItem != null)
@@ -282,7 +295,8 @@ public partial class MapIconListContext
                 ContentId = possibleExistingItem.ContentId, IconName = possibleExistingItem.IconName,
                 IconSource = possibleExistingItem.IconSource,
                 IconSvg = possibleExistingItem.IconSvg, LastUpdatedBy = possibleExistingItem.LastUpdatedBy,
-                LastUpdatedOn = possibleExistingItem.LastUpdatedOn
+                LastUpdatedOn = possibleExistingItem.LastUpdatedOn,
+                ContentVersion = possibleExistingItem.ContentVersion
             };
 
             await context.HistoricMapIcons.AddAsync(historicEntry);
@@ -298,6 +312,8 @@ public partial class MapIconListContext
         else
             DataNotifications.PublishDataNotification("Map Icon Updated", DataNotificationContentType.MapIcon,
                 DataNotificationUpdateType.Update, toAdd.ContentId.AsList());
+
+        await MapIconGenerator.GenerateMapIconsFile();
 
         StatusContext.ToastSuccess($"Saved {toAdd.IconName}");
     }

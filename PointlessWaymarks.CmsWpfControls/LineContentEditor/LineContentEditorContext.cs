@@ -42,7 +42,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 {
     public EventHandler? RequestContentEditorWindowClose;
 
-    private LineContentEditorContext(StatusControlContext statusContext, LineContent dbEntry)
+    private LineContentEditorContext(StatusControlContext statusContext, LineContent dbEntry, string serializedMapIcons)
     {
         StatusContext = statusContext;
 
@@ -57,7 +57,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         this.SetupCmsLeafletMapWithLineElevationChartHtmlAndJs("Map",
             UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, serializedMapIcons,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         JsonFromWebView = new WorkQueue<FromWebViewMessage>(true);
@@ -151,8 +151,10 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
+
         var newControl = new LineContentEditorContext(statusContext ?? new StatusControlContext(),
-            NewContentModels.InitializeLineContent(lineContent));
+            NewContentModels.InitializeLineContent(lineContent), factoryMapIcons);
         await newControl.LoadData(lineContent);
         return newControl;
     }

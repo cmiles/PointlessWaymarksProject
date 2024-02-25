@@ -8,5 +8,6 @@ public class HistoricMapIcon
     public string? IconSvg { get; set; }
     public int Id { get; set; }
     public string? LastUpdatedBy { get; set; }
-    public DateTime? LastUpdatedOn { get; set; }
+    public required DateTime LastUpdatedOn { get; set; }
+    public required DateTime ContentVersion { get; set; }
 }

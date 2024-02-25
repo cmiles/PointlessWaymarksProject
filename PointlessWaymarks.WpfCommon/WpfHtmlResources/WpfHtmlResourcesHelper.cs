@@ -36,17 +36,6 @@ public static class WpfHtmlResourcesHelper
         returnList.Add(new FileBuilderCreate("leaflet.awesome-svg-markers.js", resourceString));
 
 
-        siteResource = embeddedProvider.GetDirectoryContents("")
-            .Single(x => x.Name.Contains("pwMapSvgIcons.json"));
-        embeddedAsStream = siteResource.CreateReadStream();
-        reader = new StreamReader(embeddedAsStream);
-        resourceString = reader.ReadToEnd();
-
-        embeddedAsStream.Dispose();
-
-        returnList.Add(new FileBuilderCreate("pwMapSvgIcons.json", resourceString));
-
-
         var markerResources = embeddedProvider.GetDirectoryContents("")
             .Where(x => x.Name.Contains("markers-"));
 

@@ -33,7 +33,6 @@
     <None Remove="WpfHtmlResources\images\markers-soft.png" />
     <None Remove="WpfHtmlResources\leaflet.awesome-svg-markers.css" />
     <None Remove="WpfHtmlResources\leaflet.awesome-svg-markers.js" />
-    <None Remove="WpfHtmlResources\pwMapSvgIcons.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -123,7 +122,6 @@
     <EmbeddedResource Include="WpfHtmlResources\leaflet.awesome-svg-markers.js" />
     <EmbeddedResource Include="WpfHtmlResources\leafletBingLayer.js" />
     <EmbeddedResource Include="WpfHtmlResources\localMapCommon.js" />
-    <EmbeddedResource Include="WpfHtmlResources\pwMapSvgIcons.json" />
   </ItemGroup>
 
 </Project>

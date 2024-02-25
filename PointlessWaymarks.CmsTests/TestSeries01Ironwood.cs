@@ -436,7 +436,7 @@ public class TestSeries01Ironwood
 
         Assert.That(!db.GenerationLogs.Any(), "Unexpected Content in Generation Logs");
 
-        await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+        await SiteGeneration.ChangedSiteContent(DebugTrackers.DebugProgressTracker());
 
         Assert.That(db.GenerationLogs.Count(), Is.EqualTo(1),
             $"Expected 1 generation log - found {db.GenerationLogs.Count()}");
@@ -517,7 +517,7 @@ public class TestSeries01Ironwood
 
         await Task.Delay(2000);
 
-        await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+        await SiteGeneration.ChangedSiteContent(DebugTrackers.DebugProgressTracker());
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
@@ -584,7 +584,7 @@ public class TestSeries01Ironwood
 
         await Task.Delay(2000);
 
-        await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+        await SiteGeneration.ChangedSiteContent(DebugTrackers.DebugProgressTracker());
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
@@ -630,7 +630,7 @@ public class TestSeries01Ironwood
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
-        await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+        await SiteGeneration.ChangedSiteContent(DebugTrackers.DebugProgressTracker());
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 
@@ -678,7 +678,7 @@ public class TestSeries01Ironwood
 
         await Task.Delay(2000);
 
-        await HtmlGenerationGroups.GenerateChangedToHtml(DebugTrackers.DebugProgressTracker());
+        await SiteGeneration.ChangedSiteContent(DebugTrackers.DebugProgressTracker());
 
         currentGeneration = await db.GenerationLogs.OrderByDescending(x => x.GenerationVersion).FirstAsync();
 

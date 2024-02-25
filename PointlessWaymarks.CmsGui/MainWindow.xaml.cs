@@ -340,7 +340,7 @@ public partial class MainWindow
     private async Task GenerateAllHtml()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        var generationResults = await HtmlGenerationGroups.GenerateAllHtml(StatusContext.ProgressTracker());
+        var generationResults = await SiteGeneration.AllSiteContent(StatusContext.ProgressTracker());
 
         if (generationResults.All(x => !x.HasError)) return;
 
@@ -350,19 +350,19 @@ public partial class MainWindow
     [BlockingCommand]
     public async Task GenerateAllListHtml()
     {
-        await HtmlGenerationGroups.GenerateAllListHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllListHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateAllTagHtml()
     {
-        await HtmlGenerationGroups.GenerateAllTagHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllTagHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateCameraRoll()
     {
-        await HtmlGenerationGroups.GenerateCameraRollHtml(null, StatusContext.ProgressTracker());
+        await SiteGeneration.GenerateCameraRollHtml(null, StatusContext.ProgressTracker());
     }
 
 
@@ -381,79 +381,79 @@ public partial class MainWindow
     [BlockingCommand]
     public async Task GenerateDailyGalleryHtml()
     {
-        await HtmlGenerationGroups.GenerateAllDailyPhotoGalleriesHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllDailyPhotoGalleriesHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllFileContent()
     {
-        await HtmlGenerationGroups.GenerateAllFileHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllFileHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllGeoJsonContent()
     {
-        await HtmlGenerationGroups.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllGeoJsonHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllImageContent()
     {
-        await HtmlGenerationGroups.GenerateAllImageHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllImageHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllLineContent()
     {
-        await HtmlGenerationGroups.GenerateAllLineHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllLineHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllMapContent()
     {
-        await HtmlGenerationGroups.GenerateAllMapData(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllMapData(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllNoteContent()
     {
-        await HtmlGenerationGroups.GenerateAllNoteHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllNoteHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllPhotoContent()
     {
-        await HtmlGenerationGroups.GenerateAllPhotoHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllPhotoHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllPointContent()
     {
-        await HtmlGenerationGroups.GenerateAllPointHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllPointHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllPostContent()
     {
-        await HtmlGenerationGroups.GenerateAllPostHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllPostHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateHtmlForAllVideoContent()
     {
-        await HtmlGenerationGroups.GenerateAllVideoHtml(null, StatusContext.ProgressTracker());
+        await SiteGenerationAllContent.GenerateAllVideoHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateIndex()
     {
-        await HtmlGenerationGroups.GenerateIndex(null, StatusContext.ProgressTracker());
+        await SiteGeneration.GenerateIndex(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task GenerateLatestContentGallery()
     {
-        await HtmlGenerationGroups.GenerateLatestContentGalleryHtml(null, StatusContext.ProgressTracker());
+        await SiteGeneration.GenerateLatestContentGalleryHtml(null, StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]

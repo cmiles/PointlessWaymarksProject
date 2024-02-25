@@ -41,7 +41,7 @@ public partial class GpxImportContext : IWebViewMessenger
 {
     private GpxImportContext(StatusControlContext statusContext, ObservableCollection<IGpxImportListItem> items,
         ObservableCollection<IGpxImportListItem> listSelection, ContentFolderContext folderContext,
-        TagsEditorContext tagsEditor)
+        TagsEditorContext tagsEditor, string serializedMapIcons)
     {
         StatusContext = statusContext;
 
@@ -61,7 +61,7 @@ public partial class GpxImportContext : IWebViewMessenger
         ToWebView = new WorkQueue<ToWebViewRequest>(true);
 
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, true,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, true, serializedMapIcons,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         ListSort = new ColumnSortControlContext
@@ -235,10 +235,12 @@ public partial class GpxImportContext : IWebViewMessenger
 
         var factoryTagEntry = await TagsEditorContext.CreateInstance(factoryContext, null);
 
+        var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newContext = new GpxImportContext(factoryContext, [],
-            [], factoryFolderEntry, factoryTagEntry);
+            [], factoryFolderEntry, factoryTagEntry, factoryMapIcons);
 
         return newContext;
     }

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -11,6 +12,8 @@ namespace PointlessWaymarks.CmsWpfControls.MapIconList;
 [NotifyPropertyChanged]
 public partial class MapIconListWindow
 {
+    private bool _closeConfirmed;
+
     public MapIconListWindow(MapIconListContext listContext, StatusControlContext statusContext)
     {
         InitializeComponent();
@@ -19,6 +22,8 @@ public partial class MapIconListWindow
         ListContext = listContext;
         WindowTitle = $"Map Icon List - {UserSettingsSingleton.CurrentSettings().SiteName}";
         DataContext = this;
+
+        Closing += Window_OnClosing;
     }
 
     public MapIconListContext ListContext { get; set; }
@@ -42,5 +47,35 @@ public partial class MapIconListWindow
         factoryStatus.RunFireAndForgetBlockingTask(factoryContext.LoadData);
 
         return window;
+    }
+
+    private void Window_OnClosing(object? sender, CancelEventArgs e)
+    {
+        if (_closeConfirmed) return;
+
+        e.Cancel = true;
+
+        StatusContext.RunFireAndForgetBlockingTask(WindowClosing);
+    }
+
+    private async Task WindowClosing()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!ListContext.Items.Any(x => x.HasChanges))
+        {
+            _closeConfirmed = true;
+            await ThreadSwitcher.ResumeForegroundAsync();
+            Close();
+        }
+
+        if (await StatusContext.ShowMessage("Unsaved Changes...",
+                "There are unsaved changes - do you want to discard your changes?",
+                ["Yes - Close Window", "No"]) == "Yes - Close Window")
+        {
+            _closeConfirmed = true;
+            await ThreadSwitcher.ResumeForegroundAsync();
+            Close();
+        }
     }
 }

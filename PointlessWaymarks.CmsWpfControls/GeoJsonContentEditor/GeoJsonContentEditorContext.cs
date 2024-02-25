@@ -38,7 +38,7 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation, IWebViewMessenger
 {
-    private GeoJsonContentEditorContext(StatusControlContext statusContext, GeoJsonContent dbEntry)
+    private GeoJsonContentEditorContext(StatusControlContext statusContext, GeoJsonContent dbEntry, string serializedMapIcons)
     {
         StatusContext = statusContext;
 
@@ -54,7 +54,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
 
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, true,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, true, serializedMapIcons,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         DbEntry = dbEntry;
@@ -134,8 +134,10 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        var factoryIcons = await MapIconGenerator.SerializedMapIcons();
+
         var newControl = new GeoJsonContentEditorContext(statusContext ?? new StatusControlContext(),
-            NewContentModels.InitializeGeoJsonContent(geoJsonContent));
+            NewContentModels.InitializeGeoJsonContent(geoJsonContent), factoryIcons);
         await newControl.LoadData(geoJsonContent);
         return newControl;
     }

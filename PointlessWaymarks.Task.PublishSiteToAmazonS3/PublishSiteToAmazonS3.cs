@@ -88,7 +88,7 @@ public class PublishSiteToAmazonS3
 
         await UserSettingsUtilities.EnsureDbIsPresent(consoleProgress);
 
-        await HtmlGenerationGroups.GenerateChangedToHtml(consoleProgress);
+        await SiteGeneration.ChangedSiteContent(consoleProgress);
         var toUpload = await S3CmsTools.FilesSinceLastUploadToUploadList(consoleProgress);
 
         if (!toUpload.validUploadList.Valid)

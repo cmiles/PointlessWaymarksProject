@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -23,7 +24,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 public partial class ContentMapContext : IWebViewMessenger
 {
     private ContentMapContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
-        ContentListContext factoryListContext, bool loadInBackground = true)
+        ContentListContext factoryListContext, string serializedMapIcons, bool loadInBackground = true)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
@@ -38,7 +39,7 @@ public partial class ContentMapContext : IWebViewMessenger
         MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
 
         this.SetupCmsLeafletMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault, false,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, false, serializedMapIcons,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
@@ -75,10 +76,11 @@ public partial class ContentMapContext : IWebViewMessenger
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
             await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), windowStatus);
+        var factoryIcons = await MapIconGenerator.SerializedMapIcons();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var toReturn = new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
+        var toReturn = new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext, factoryIcons, loadInBackground);
         toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
 
         return toReturn;
@@ -91,10 +93,11 @@ public partial class ContentMapContext : IWebViewMessenger
 
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
+        var factoryIcons = await MapIconGenerator.SerializedMapIcons();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var toReturn = new ContentMapContext(factoryStatusContext, null, factoryListContext, loadInBackground);
+        var toReturn = new ContentMapContext(factoryStatusContext, null, factoryListContext, factoryIcons, loadInBackground);
         toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
 
         return toReturn;

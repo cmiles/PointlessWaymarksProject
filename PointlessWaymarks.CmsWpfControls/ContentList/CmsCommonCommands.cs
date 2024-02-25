@@ -72,7 +72,7 @@ public partial class CmsCommonCommands
             WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
                 TaskbarItemProgressState.Indeterminate));
 
-            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+            await SiteGeneration.ChangedSiteContent(StatusContext.ProgressTracker());
         }
         finally
         {
@@ -91,7 +91,7 @@ public partial class CmsCommonCommands
             WindowStatus?.AddRequest(new WindowIconStatusRequest(StatusContext.StatusControlContextId,
                 TaskbarItemProgressState.Indeterminate));
 
-            await HtmlGenerationGroups.GenerateChangedToHtml(StatusContext.ProgressTracker());
+            await SiteGeneration.ChangedSiteContent(StatusContext.ProgressTracker());
         }
         finally
         {

@@ -22,7 +22,8 @@ public class MapIconTables : Migration
                             "IconSource" TEXT NULL,
                             "IconSvg" TEXT NULL,
                             "LastUpdatedBy" TEXT NULL,
-                            "LastUpdatedOn" TEXT NULL
+                            "LastUpdatedOn" TEXT NOT NULL,
+                            "ContentVersion" TEXT NOT NULL
                         )
                         """);
 
@@ -35,7 +36,8 @@ public class MapIconTables : Migration
                             "IconSource" TEXT NULL,
                             "IconSvg" TEXT NULL,
                             "LastUpdatedBy" TEXT NULL,
-                            "LastUpdatedOn" TEXT NULL
+                            "LastUpdatedOn" TEXT NOT NULL,
+                            "ContentVersion" TEXT NOT NULL
                         )
                         """);
     }

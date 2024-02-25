@@ -10,7 +10,7 @@ namespace PointlessWaymarks.WpfCommon.WpfHtml;
 public static class WpfHtmlDocument
 {
     public static FileBuilder CmsLeafletMapAndChartHtmlAndJs(string title, string styleBlock = "",
-        string javascript = "")
+        string javascript = "", string serializedMapIcons = "")
     {
         var htmlString = $$"""
                            <!doctype html>
@@ -50,12 +50,15 @@ public static class WpfHtmlDocument
             WpfHtmlResourcesHelper.LeafletBingLayerJs()));
         initialWebFilesMessage.Create.Add(new FileBuilderCreate("localMapCommon.js",
             WpfHtmlResourcesHelper.LocalMapCommonJs()));
+        initialWebFilesMessage.Create.AddRange(WpfHtmlResourcesHelper.AwesomeMapSvgMarkers());
+        if (!string.IsNullOrWhiteSpace(serializedMapIcons))
+            initialWebFilesMessage.Create.Add(new FileBuilderCreate("pwMapSvgIcons.json", serializedMapIcons));
         initialWebFilesMessage.Create.Add(new FileBuilderCreate("Index.html", htmlString, true));
 
         return initialWebFilesMessage;
     }
 
-    public static FileBuilder CmsLeafletMapHtmlAndJs(string title, string styleBlock = "", string javascript = "")
+    public static FileBuilder CmsLeafletMapHtmlAndJs(string title, string styleBlock = "", string javascript = "", string serializedMapIcons = "")
     {
         var htmlString = $$"""
                            <!doctype html>
@@ -92,17 +95,19 @@ public static class WpfHtmlDocument
             WpfHtmlResourcesHelper.LeafletBingLayerJs()));
         initialWebFilesMessage.Create.Add(new FileBuilderCreate("localMapCommon.js",
             WpfHtmlResourcesHelper.LocalMapCommonJs()));
-        initialWebFilesMessage.Create.Add(new FileBuilderCreate("Index.html", htmlString, true));
         initialWebFilesMessage.Create.AddRange(WpfHtmlResourcesHelper.AwesomeMapSvgMarkers());
+        if (!string.IsNullOrWhiteSpace(serializedMapIcons))
+            initialWebFilesMessage.Create.Add(new FileBuilderCreate("pwMapSvgIcons.json", serializedMapIcons));
+        initialWebFilesMessage.Create.Add(new FileBuilderCreate("Index.html", htmlString, true));
 
         return initialWebFilesMessage;
     }
 
     public static void SetupCmsLeafletMapHtmlAndJs(this IWebViewMessenger messenger, string title,
-        double initialLatitude, double initialLongitude, bool autoCloseMarkers, string calTopoApiKey = "",
+        double initialLatitude, double initialLongitude, bool autoCloseMarkers, string serializedMapIcons = "", string calTopoApiKey = "",
         string bingApiKey = "", string cssStyleBlock = "", string javascript = "")
     {
-        var initialWebFilesMessage = CmsLeafletMapHtmlAndJs(title, cssStyleBlock, javascript);
+        var initialWebFilesMessage = CmsLeafletMapHtmlAndJs(title, cssStyleBlock, javascript, serializedMapIcons);
 
         messenger.ToWebView.Enqueue(initialWebFilesMessage);
 
@@ -114,10 +119,10 @@ public static class WpfHtmlDocument
     }
 
     public static void SetupCmsLeafletMapWithLineElevationChartHtmlAndJs(this IWebViewMessenger messenger, string title,
-        double initialLatitude, double initialLongitude, string calTopoApiKey = "", string bingApiKey = "",
+        double initialLatitude, double initialLongitude, string serializedMapIcons = "", string calTopoApiKey = "", string bingApiKey = "",
         string cssStyleBlock = "", string javascript = "")
     {
-        var initialWebFilesMessage = CmsLeafletMapAndChartHtmlAndJs(title, cssStyleBlock, javascript);
+        var initialWebFilesMessage = CmsLeafletMapAndChartHtmlAndJs(title, cssStyleBlock, javascript, serializedMapIcons);
 
         messenger.ToWebView.Enqueue(initialWebFilesMessage);
 
@@ -129,10 +134,10 @@ public static class WpfHtmlDocument
     }
 
     public static void SetupCmsLeafletPointChooserMapHtmlAndJs(this IWebViewMessenger messenger, string title,
-        double initialLatitude, double initialLongitude, string calTopoApiKey = "", string bingApiKey = "",
+        double initialLatitude, double initialLongitude, string serializedMapIcons = "", string calTopoApiKey = "", string bingApiKey = "",
         string cssStyleBlock = "", string javascript = "")
     {
-        var initialWebFilesMessage = CmsLeafletMapHtmlAndJs(title, cssStyleBlock, javascript);
+        var initialWebFilesMessage = CmsLeafletMapHtmlAndJs(title, cssStyleBlock, javascript, serializedMapIcons);
 
         messenger.ToWebView.Enqueue(initialWebFilesMessage);
 

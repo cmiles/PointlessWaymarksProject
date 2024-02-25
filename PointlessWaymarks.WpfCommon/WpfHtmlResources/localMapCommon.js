@@ -17,7 +17,25 @@ let pointCircleMarkerOrangeOptions = {
     fillOpacity: 0.8
 };
 
+/*Source: https://raw.githubusercontent.com/nationalparkservice/symbol-library/gh-pages/src/standalone/photography-black-30.svg8*/
+const pointlessWaymarksCameraIcon = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" 
+    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 30 30" enable-background="new 0 0 30 30" xml:space="preserve">
+        <rect x="4" y="4" width="6" height="2"/>
+        <circle cx="10.5" cy="16.5" r="3.5"/>
+        <path d="M27,7H3c-1.7,0-3,1.3-3,3v13c0,1.6,1.3,3,3,3h24c1.7,0,3-1.4,3-3V10C30,8.3,28.7,7,27,7z M10.5,23.5c-3.9,0-7-3.1-7-7
+	        c0-3.9,3.1-7,7-7s7,3.1,7,7C17.5,20.4,14.4,23.5,10.5,23.5z M26,12h-3c-0.5,0-1-0.5-1-1s0.5-1,1-1h3c0.5,0,1,0.5,1,1S26.5,12,26,12z"/>
+</svg>`;
 
+/*Source: https://raw.githubusercontent.com/nationalparkservice/symbol-library/gh-pages/src/standalone/dot-black-30.svg*/
+const pointlessWaymarksDotIcon = `<svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" 
+	 viewBox="0 0 30 30" style="enable-background:new 0 0 30 30;" xml:space="preserve">
+    <circle  id="Oval-3-Copy-2" sketch:type="MSShapeGroup" cx="15" cy="15" r="8">
+    </circle>
+</svg>`;
+
+const mapIconColors = ['red', 'darkred', 'lightred', 'orange', 'beige', 'green', 'darkgreen', 'lightgreen', 'blue', 'darkblue', 'lightblue', 'purple', 'darkpurple', 'pink', 'cadetblue', 'white', 'gray', 'lightgray', 'black'];
 
 function broadcastProgress(progress) {
     console.log(progress);
@@ -273,9 +291,8 @@ function createPoints(useCircleMarkers) {
                 });
         }
 
-        if (feature.properties?.mapIcon) {
-            var icon = mapIcons.filter(x => x.IconName === feature.properties.mapIcon)[0];
-            return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${icon.IconSvg}`, markerColor: 'blue', iconColor: feature.properties.mapMarkerColor }) });
+        if (feature.properties?.mapIconName || feature.properties?.mapMarkerColor) {
+            return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(feature.properties.mapIcon)}`, markerColor: getMapMarkerColor(feature.properties?.mapMarkerColor), iconColor: '#000000' }) });
         }
 
         if (useCircleMarkers) {
@@ -285,6 +302,21 @@ function createPoints(useCircleMarkers) {
         return L.marker(latlng);
     }
 
+}
+
+function getMapMarkerColor(iconName) {
+    if (!iconName) return 'blue';
+    if (mapIconColors.includes(iconName)) return iconName;
+    return 'blue';
+}
+
+function getMapIconSvg(iconName) {
+    if (!iconName) return pointlessWaymarksDotIcon;
+    if(iconName === 'camera') return pointlessWaymarksCameraIcon;
+    if (iconName === 'dot') return pointlessWaymarksDotIcon;
+    var possibleMapJsonIcons = mapIcons.filter(x => x.IconName === iconName);
+    if (possibleMapJsonIcons.length === 0) return pointlessWaymarksDotIcon;
+    return possibleMapJsonIcons[0].IconSvg;
 }
 
 function postGeoJsonDataHandler(e, clearCurrent, center) {

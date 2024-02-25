@@ -24,7 +24,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndValidation,
     IHasValidationIssues, IWebViewMessenger
 {
-    public LocationChooserContext(StatusControlContext statusContext)
+    public LocationChooserContext(StatusControlContext statusContext, string serializedMapIcons)
     {
         StatusContext = statusContext;
 
@@ -40,7 +40,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         MapPreviewNavigationManager = MapCmsJson.LocalActionNavigation(StatusContext);
 
         this.SetupCmsLeafletPointChooserMapHtmlAndJs("Map", UserSettingsSingleton.CurrentSettings().LatitudeDefault,
-            UserSettingsSingleton.CurrentSettings().LongitudeDefault,
+            UserSettingsSingleton.CurrentSettings().LongitudeDefault, serializedMapIcons,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         PropertyChanged += OnPropertyChanged;
@@ -86,7 +86,9 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        return new LocationChooserContext(windowStatusContext)
+        var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
+
+        return new LocationChooserContext(windowStatusContext, factoryMapIcons)
         {
             InitialLatitude = initialLatitude ?? UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             InitialLongitude = initialLongitude ?? UserSettingsSingleton.CurrentSettings().LongitudeDefault,
