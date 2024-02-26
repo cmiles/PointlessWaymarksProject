@@ -311,6 +311,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             "The Map Marker Color";
         MapMarkerColorEntry.ReferenceValue = DbEntry.MapMarkerColor ?? string.Empty;
         MapMarkerColorEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapMarkerColor);
+        MapMarkerColorEntry.ValidationFunctions = [CommonContentValidation.ValidatePointMapMarkerColor];
 
         ElevationEntry =
             await ConversionDataEntryContext<double?>.CreateInstance(

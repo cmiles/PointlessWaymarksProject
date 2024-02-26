@@ -73,6 +73,10 @@ public static class PointGenerator
         if (!mapIconNameCheck.Valid)
             return GenerationReturn.Error(mapIconNameCheck.Explanation, pointContent.ContentId);
 
+        var mapMarkerColorCheck = await CommonContentValidation.ValidatePointMapMarkerColor(pointContent.MapMarkerColor);
+        if (!mapMarkerColorCheck.Valid)
+            return GenerationReturn.Error(mapMarkerColorCheck.Explanation, pointContent.ContentId);
+
         foreach (var loopDetails in pointContent.PointDetails)
         {
             if (loopDetails.ContentId == Guid.Empty)

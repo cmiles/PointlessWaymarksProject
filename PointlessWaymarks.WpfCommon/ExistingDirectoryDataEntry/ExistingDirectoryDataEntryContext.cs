@@ -23,16 +23,15 @@ public partial class ExistingDirectoryDataEntryContext : IHasChanges, IHasValida
 
     public Func<string, Task> AfterDirectoryChoice { get; set; } = _ => Task.CompletedTask;
     public Func<Task<string>> GetInitialDirectory { get; set; } = () => Task.FromResult("");
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public string HelpText { get; set; } = string.Empty;
     public string ReferenceValue { get; set; } = string.Empty;
-
     public StatusControlContext StatusContext { get; set; }
     public string Title { get; set; } = string.Empty;
     public string UserValue { get; set; } = string.Empty;
     public List<Func<string?, Task<IsValid>>> ValidationFunctions { get; set; } = new();
     public string ValidationMessage { get; set; } = string.Empty;
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
 
     public async Task CheckForChangesAndValidationIssues()

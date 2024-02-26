@@ -109,9 +109,13 @@
         </ListBox>
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button Command="{Binding AddDefaultLibraryIconsCommand}"
+                        Style="{StaticResource ActionPanelButtonStyle}">
+                    Add Default Icons
+                </Button>
                 <Button Command="{Binding AddNewListItemCommand}"
                         Style="{StaticResource ActionPanelButtonStyle}">
-                    Add
+                    New
                 </Button>
             </WrapPanel>
         </Border>

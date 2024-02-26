@@ -47,7 +47,7 @@ public partial class MapIconListListItem : ISelectedTextTracker, IHasChanges, IH
         factoryIconName.HelpText = "The name of the icon - can be used for reference with Point Content.";
 
         var factorySvgEntry = StringDataEntryContext.CreateInstance();
-        factorySvgEntry.Title = "SVG (<svg></svg>)";
+        factorySvgEntry.Title = "SVG (<svg></svg> - Remove height/width in <svg>)";
         factorySvgEntry.UserValue = dbEntry.IconSvg ?? string.Empty;
         factorySvgEntry.ReferenceValue = dbEntry.IconSvg ?? string.Empty;
         factorySvgEntry.HelpText = "The SVG Tag for the Icon";

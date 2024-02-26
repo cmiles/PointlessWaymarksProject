@@ -689,6 +689,18 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
+    public static Task<IsValid> ValidatePointMapMarkerColor(string? color)
+    {
+        if (string.IsNullOrWhiteSpace(color)) return Task.FromResult(new IsValid(true, "Blank Map Marker Color is Valid"));
+
+        if (!PointContent.MapMarkerColorChoices().Contains(color))
+        {
+            return Task.FromResult(new IsValid(false, "Not a current Map Marker Color choice."));
+        }
+
+        return Task.FromResult(new IsValid(true, string.Empty));
+    }
+
 
     public static async Task<IsValid> ValidateMapIconName(string? name, Guid contentId)
     {

@@ -68,6 +68,37 @@ public partial class MapIconListContext
     public string UserFilterText { get; set; } = string.Empty;
 
     [BlockingCommand]
+    private async Task AddDefaultLibraryIcons()
+    {
+        var defaultLibraryIcons = MapIconDefaultLibrary.DefaultIcons();
+
+        var context = await Db.Context();
+
+        var currentIcons = await context.MapIcons.Select(x => x.IconName).ToListAsync();
+
+        var defaultIconsToAdd = defaultLibraryIcons.Where(x => !currentIcons.Contains(x.IconName)).ToList();
+
+        var hasError = false;
+        var errorList = new List<string>();
+
+        foreach (var loopIcon in defaultIconsToAdd)
+        {
+            var result = await MapIconGenerator.SaveMapIcon(loopIcon);
+            if (result.IsT1)
+            {
+                hasError = true;
+                errorList.Add(result.AsT1.Value);
+            }
+        }
+
+        if (hasError)
+            await StatusContext.ShowMessageWithOkButton("Error Adding Default Icons",
+                $"{string.Join(Environment.NewLine, errorList)}");
+        else
+            StatusContext.ToastSuccess($"Added {defaultIconsToAdd.Count} Icons");
+    }
+
+    [BlockingCommand]
     public async Task AddNewListItem()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -159,6 +190,7 @@ public partial class MapIconListContext
         await FilterList();
     }
 
+    [BlockingCommand]
     public async Task DeleteItem(MapIconListListItem toSave)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -176,7 +208,8 @@ public partial class MapIconListContext
         }
 
         var uses = await context.PointContents
-            .Where(x => x.MapIconName != null && x.MapIconName == toSave.DbEntry.IconName!.ToLower()).OrderBy(x => x.Title)
+            .Where(x => x.MapIconName != null && x.MapIconName == toSave.DbEntry.IconName!.ToLower())
+            .OrderBy(x => x.Title)
             .ToListAsync();
 
         if (uses.Any())
@@ -236,6 +269,8 @@ public partial class MapIconListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+
         var context = await Db.Context();
 
         var allDbIcons = await context.MapIcons.OrderBy(x => x.IconName).ToListAsync();
@@ -247,6 +282,14 @@ public partial class MapIconListContext
         Items.Clear();
 
         toLoad.ForEach(x => Items.Add(x));
+
+        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+    }
+
+
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
+    {
+        DataNotificationsProcessor.Enqueue(e);
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -274,11 +317,6 @@ public partial class MapIconListContext
             return;
         }
 
-        var context = await Db.Context();
-
-        var possibleExistingItem =
-            await context.MapIcons.FirstOrDefaultAsync(x => x.ContentId == toSave.DbEntry.ContentId);
-
         var toAdd = new MapIcon
         {
             ContentId = toSave.DbEntry.ContentId, IconName = toSave.IconNameEntry.UserValue,
@@ -288,33 +326,11 @@ public partial class MapIconListContext
             ContentVersion = toSave.DbEntry.ContentVersion
         };
 
-        if (possibleExistingItem != null)
-        {
-            var historicEntry = new HistoricMapIcon
-            {
-                ContentId = possibleExistingItem.ContentId, IconName = possibleExistingItem.IconName,
-                IconSource = possibleExistingItem.IconSource,
-                IconSvg = possibleExistingItem.IconSvg, LastUpdatedBy = possibleExistingItem.LastUpdatedBy,
-                LastUpdatedOn = possibleExistingItem.LastUpdatedOn,
-                ContentVersion = possibleExistingItem.ContentVersion
-            };
+        var saveResult = await MapIconGenerator.SaveMapIcon(toAdd);
 
-            await context.HistoricMapIcons.AddAsync(historicEntry);
-            context.Remove(possibleExistingItem);
-        }
-
-        await context.AddAsync(toAdd);
-        await context.SaveChangesAsync();
-
-        if (possibleExistingItem is null)
-            DataNotifications.PublishDataNotification("Map Icon Added", DataNotificationContentType.MapIcon,
-                DataNotificationUpdateType.New, toAdd.ContentId.AsList());
+        if (saveResult.IsT1)
+            await StatusContext.ShowMessageWithOkButton($"Error Saving {toAdd.IconName}", saveResult.AsT1.Value);
         else
-            DataNotifications.PublishDataNotification("Map Icon Updated", DataNotificationContentType.MapIcon,
-                DataNotificationUpdateType.Update, toAdd.ContentId.AsList());
-
-        await MapIconGenerator.GenerateMapIconsFile();
-
-        StatusContext.ToastSuccess($"Saved {toAdd.IconName}");
+            StatusContext.ToastSuccess($"Saved {toAdd.IconName}");
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
@@ -30,7 +30,9 @@ public static class PointData
                 ? string.Empty
                 : new PictureSiteInformation(x.MainPicture.Value).Pictures?.SmallPicture?.SiteUrl ?? string.Empty,
             x.MapLabel,
-            DetailTypeString = string.Join(", ", PointDetailUtilities.PointDtoTypeList(x))
+            DetailTypeString = string.Join(", ", PointDetailUtilities.PointDtoTypeList(x)),
+            x.MapIconName,
+            x.MapMarkerColor
         }).ToList());
     }
 
