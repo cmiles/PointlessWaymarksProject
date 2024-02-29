@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using PointlessWaymarks.CmsData.Content;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
@@ -72,5 +73,15 @@ public class PhotoContent : IUpdateNotes, IContentCommon
         return Elevation is null
             ? new Point(Longitude.Value, Latitude.Value)
             : new Point(Longitude.Value, Latitude.Value, Elevation.Value);
+    }
+
+    public async Task<bool> HasValidLocation()
+    {
+        if (Longitude is null || Latitude is null) return false;
+
+        if(!(await CommonContentValidation.LatitudeValidation(Latitude.Value)).Valid) return false;
+        if(!(await CommonContentValidation.LongitudeValidation(Latitude.Value)).Valid) return false;
+
+        return true;
     }
 }

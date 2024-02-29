@@ -97,6 +97,41 @@
                     </Grid>
                 </Border>
             </DataTemplate>
+            <DataTemplate x:Key="MapElementPhotoTemplate"
+                          DataType="{x:Type mapComponentEditor:MapElementListPhotoItem}">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
+                                <Button Margin="0,4,0,0"
+                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                        CommandParameter="{Binding .}">
+                                    Edit
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource PhotoListItemTemplate}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
             <DataTemplate x:Key="MapElementPointTemplate" DataType="mapComponentEditor:MapElementListPointItem">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
@@ -135,6 +170,7 @@
                 x:Key="MapElementSelector"
                 GeoJsonTemplate="{StaticResource MapElementGeoJsonTemplate}"
                 LineTemplate="{StaticResource MapElementLineTemplate}"
+                PhotoTemplate="{StaticResource MapElementPhotoTemplate}"
                 PointTemplate="{StaticResource MapElementPointTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -214,7 +250,7 @@
                                     </Button>
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Grid.Column="1" Header="Search Titles" 
+                            <GroupBox Grid.Column="1" Header="Search Titles"
                                       Style="{StaticResource UiComponentGroupBoxStyle}">
                                 <TextBox
                                     VerticalAlignment="Stretch"
@@ -244,12 +280,14 @@
                                 behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding ListSelection.SelectedItems}"
                                 Style="{StaticResource ContentListListBoxStyle}">
                                 <b:Interaction.Behaviors>
-                                    <behaviors:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                                    <behaviors:AttachCommandBindingsBehavior
+                                        CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                                 </b:Interaction.Behaviors>
                             </ListBox>
                         </GroupBox>
                     </Grid>
-                    <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
+                    <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+                            Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <Button Command="{Binding RequestMapCenterOnSelectedItemsCommand}"
                                     Style="{StaticResource ActionPanelButtonStyle}">

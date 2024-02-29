@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 [NotifyPropertyChanged]
 public partial class PhotoListListItem : IContentListItem, IContentListSmallImage
 {
-    private PhotoListListItem(PhotoContentActions itemActions, PhotoContent dbEntry)
+    public PhotoListListItem(PhotoContentActions itemActions, PhotoContent dbEntry)
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;

@@ -20,6 +20,7 @@ using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.LineList;
+using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -198,6 +199,38 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         MapElements.Add(newLineItem);
 
         if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleLine.Title}");
+    }
+
+    private async Task AddPhoto(PhotoContent possiblePhoto, MapElement? loopContent = null,
+        bool guiNotificationAndMapRefreshWhenAdded = false)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapElements.Any(x => x.ContentId() == possiblePhoto.ContentId))
+        {
+            StatusContext.ToastWarning($"Photo {possiblePhoto.Title} is already on the map");
+            return;
+        }
+
+        if(!await possiblePhoto.HasValidLocation())
+        {
+            StatusContext.ToastWarning($"Photo {possiblePhoto.Title} doesn't have a valid location");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newPhotoContent = await MapElementListPhotoItem.CreateInstance(new PhotoContentActions(StatusContext));
+
+        newPhotoContent.DbEntry = possiblePhoto;
+        newPhotoContent.SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePhoto) ?? string.Empty;
+        newPhotoContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
+        newPhotoContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
+        newPhotoContent.Title = possiblePhoto.Title ?? string.Empty;
+
+        MapElements.Add(newPhotoContent);
+
+        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Photo - {possiblePhoto.Title}");
     }
 
     private async Task AddPoint(PointContentDto possiblePoint, MapElement? loopContent = null,
@@ -455,6 +488,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                     break;
                 case LineContent l:
                     await AddLine(l, loopContent);
+                    break;
+                case PhotoContent p:
+                    await AddPhoto(p, loopContent);
                     break;
                 case PointContentDto p:
                     await AddPoint(p, loopContent);
@@ -784,13 +820,6 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         var db = await Db.Context();
 
-        if (db.PointContents.Any(x => x.ContentId == toAdd))
-        {
-            await AddPoint((await Db.PointAndPointDetails(toAdd))!)
-                .ConfigureAwait(false);
-            return;
-        }
-
         if (db.GeoJsonContents.Any(x => x.ContentId == toAdd))
         {
             await AddGeoJson(await db.GeoJsonContents.SingleAsync(x => x.ContentId == toAdd)).ConfigureAwait(false);
@@ -800,6 +829,20 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         if (db.LineContents.Any(x => x.ContentId == toAdd))
         {
             await AddLine(await db.LineContents.SingleAsync(x => x.ContentId == toAdd)).ConfigureAwait(false);
+            return;
+        }
+
+        if (db.PhotoContents.Any(x => x.ContentId == toAdd))
+        {
+            await AddPhoto(await db.PhotoContents.SingleAsync(x => x.ContentId == toAdd))
+                .ConfigureAwait(false);
+            return;
+        }
+
+        if (db.PointContents.Any(x => x.ContentId == toAdd))
+        {
+            await AddPoint((await Db.PointAndPointDetails(toAdd))!)
+                .ConfigureAwait(false);
             return;
         }
 
@@ -844,11 +887,10 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         foreach (var loopCode in codes)
         {
-            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
-            if (possiblePoint != null)
+            var possibleGeoJson = await db.GeoJsonContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
+            if (possibleGeoJson != null)
             {
-                var pointDto = (await Db.PointAndPointDetails(possiblePoint.ContentId, db))!;
-                await AddPoint(pointDto);
+                await AddGeoJson(possibleGeoJson);
                 continue;
             }
 
@@ -859,15 +901,23 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 continue;
             }
 
-            var possibleGeoJson = await db.GeoJsonContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
-            if (possibleGeoJson != null)
+            var possiblePhoto = await db.PhotoContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
+            if (possiblePhoto != null)
             {
-                await AddGeoJson(possibleGeoJson);
+                await AddPhoto(possiblePhoto);
+                continue;
+            }
+
+            var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
+            if (possiblePoint != null)
+            {
+                var pointDto = (await Db.PointAndPointDetails(possiblePoint.ContentId, db))!;
+                await AddPoint(pointDto);
                 continue;
             }
 
             StatusContext.ToastWarning(
-                $"ContentId {loopCode} doesn't appear to be a valid point, line or GeoJson content for the map?");
+                $"ContentId {loopCode} doesn't appear to be a valid GeoJson, Line, Photo or Point content for the map?");
         }
 
         await RefreshMapPreview();
