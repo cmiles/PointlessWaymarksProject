@@ -1,4 +1,4 @@
-﻿using KellermanSoftware.CompareNetObjects;
+using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
@@ -41,21 +41,23 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
         Assert.That(contentDirectory.Exists, "Content Directory Not Found?");
 
         var filesInDirectory = contentDirectory.GetFiles().ToList();
+        var jsonDataFile = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
 
         Assert.Multiple(() =>
         {
             Assert.That(filesInDirectory.Any(x => x.Name == $"{newContent.Slug}.html"),
                     "Post Html file not found in Content Directory");
 
-            Assert.That(filesInDirectory.Any(x => x.Name == $"{Names.PostContentPrefix}{newContent.ContentId}.json"),
-                "Post Json file not found in Content Directory");
+            Assert.That(jsonDataFile.Exists,
+                "Post Json file not found in Content Data Directory");
         });
 
         var db = await Db.Context();
         if (db.HistoricPostContents.Any(x => x.ContentId == newContent.ContentId))
         {
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.HistoricPostContentPrefix}{newContent.ContentId}.json");
+                x.Name == $"{UserSettingsUtilities.HistoricPostContentPrefix}{newContent.ContentId}.json");
 
             Assert.That(historicJsonFile, Is.Not.Null, "Historic Post Json File not Found in Content Directory");
         }
@@ -96,14 +98,12 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
     public static void JsonTest(PostContent newContent)
     {
         //Check JSON File
-        var jsonFile =
-            new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalSitePostContentDirectory(newContent).FullName,
-                $"{Names.PostContentPrefix}{newContent.ContentId}.json"));
+        var jsonFile = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<PostContent>(
-            [jsonFile.FullName], Names.PostContentPrefix).Single();
+            [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

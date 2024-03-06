@@ -187,17 +187,14 @@ async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
 
 async function singleLineMapInit(mapElement, contentId, loadContentReferences) {
 
-    let lineDataResponse = await fetch(`/Lines/Data/Line-${contentId}.json`);
+    let lineDataResponse = await fetch(`/ContentData/${contentId}.json`);
     if (!lineDataResponse.ok)
         throw new Error(lineDataResponse.statusText);
 
     let lineContentReferencesData = null;
     
     if(loadContentReferences) {
-        let lineContentReferencesDataResponse = await fetch(`/Lines/Data/LineContentReferences-${contentId}.json`);
-        if (!lineContentReferencesDataResponse.ok)
-            lineContentReferencesDataResponse = null;
-        else lineContentReferencesData = await lineContentReferencesDataResponse.json();
+        let lineContentReferencesDataResponse = lineDataResponse.LineGeoJsonScene;
     }
     
     let lineData = await lineDataResponse.json();
@@ -232,7 +229,7 @@ async function singleLineMapInitFromLineData(contentId, mapElement, lineData, li
 
 async function singleLineElevationChartInit(chartCanvas, contentId) {
 
-    let lineDataResponse = await fetch(`/Lines/Data/Line-${contentId}.json`);
+    let lineDataResponse = await fetch(`/ContentData/${contentId}.json`);
     if (!lineDataResponse.ok)
         throw new Error(lineDataResponse.statusText);
 
@@ -433,7 +430,7 @@ async function mapComponentInit(mapElement, contentId) {
 
         for (let loopGeoJson of mapComponent.LineGuids) {
 
-            let response = await window.fetch(`/Lines/Data/Line-${loopGeoJson}.json`);
+            let response = await window.fetch(`/ContentData/${loopGeoJson}.json`);
 
             if (!response.ok)
                 throw new Error(response.statusText);

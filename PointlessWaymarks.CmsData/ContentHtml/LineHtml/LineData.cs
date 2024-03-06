@@ -4,9 +4,9 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
@@ -168,33 +168,18 @@ public static class LineData
         return LineTools.ElevationChartDataFromGeoJsonFeatureCollectionWithLinestring(lineContent.Line);
     }
 
-    public static async Task<string> GenerateLineJson(string lineGeoJson, string title, string pageUrl,
-        string smallImageUrl)
-    {
-        var dto = GenerateLineJsonDto(lineGeoJson, pageUrl, smallImageUrl);
-
-        return await GeoJsonTools.SerializeWithGeoJsonSerializer(dto);
-    }
-
-    public static LineSiteJsonData GenerateLineJsonDto(string lineGeoJson, string pageUrl,
-        string smallImageUrl)
-    {
-        var contentFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(lineGeoJson);
-
-        var bounds = GeoJsonTools.GeometryBoundingBox(GeoJsonTools.GeoJsonToGeometries(lineGeoJson));
-
-        var elevationPlot =
-            LineTools.ElevationChartDataFromGeoJsonFeatureCollectionWithLinestring(lineGeoJson);
-
-        return new LineSiteJsonData(pageUrl, smallImageUrl,
-            SpatialBounds.FromEnvelope(bounds),
-            contentFeatureCollection, elevationPlot);
-    }
-
     public static async Task<string> GenerateSerializedGeoJsonDataFromBodyContentReferences(LineContent lineContent)
     {
+        var toSerialize = await GeoJsonDataFromBodyContentReferences(lineContent);
+
+        return await GeoJsonTools.SerializeWithGeoJsonSerializer(toSerialize);
+    }
+
+    public static async Task<(SpatialBounds bounds, FeatureCollection featureList)>
+        GeoJsonDataFromBodyContentReferences(LineContent lineContent)
+    {
         if (!lineContent.ShowContentReferencesOnMap)
-            return await GeoJsonTools.SerializeWithGeoJsonSerializer(new FeatureCollection());
+            return (new SpatialBounds(0, 0, 0, 0), new FeatureCollection());
 
         var photos = (await BracketCodePhotos.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.ShowPhotoPosition).Cast<object>();
@@ -220,7 +205,33 @@ public static class LineData
         foreach (var loopFeature in loopFeatureCollection)
             toSerialize.Add(loopFeature);
 
-        return await GeoJsonTools.SerializeWithGeoJsonSerializer(toSerialize);
+        return (mapInformation.bounds, toSerialize);
+    }
+
+    public static async Task<SpatialContentIdReferences>
+        SpatialContentIdReferencesFromBodyContentReferences(LineContent lineContent)
+    {
+        if (!lineContent.ShowContentReferencesOnMap)
+            return new SpatialContentIdReferences(new List<Guid>(), new List<Guid>(), new List<Guid>(),
+                new List<Guid>());
+
+        var lineLinks = (await BracketCodeLineLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+            .OrderBy(x => x.Title).Select(x => x.ContentId).Distinct().ToList();
+        var photos = (await BracketCodePhotos.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.ShowPhotoPosition && x.HasLocation()).ToList();
+        var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.ShowPhotoPosition && x.HasLocation())
+            .OrderBy(x => x.Title).ToList();
+        var photoAllReferences = photos.Concat(photoLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+            .ToList();
+        var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+            .OrderBy(x => x.Title).Select(x => x.ContentId).Distinct().ToList();
+        var geoJsonLinks =
+            (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(lineContent.BodyContent)).OrderBy(x => x.Title)
+            .Select(x => x.ContentId).Distinct().ToList();
+
+
+        return new SpatialContentIdReferences(pointLinks, lineLinks, geoJsonLinks, photoAllReferences);
     }
 
     public static async Task WriteContentReferenceJsonData(LineContent lineContent)
@@ -229,28 +240,8 @@ public static class LineData
             throw new ArgumentException(
                 "WriteContentReferenceJsonData in LineData was given a LineContent with a null/blank/empty Line");
 
-        var dataFileInfo = new FileInfo(Path.Combine(
-            UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,
-            $"LineContentReferences-{lineContent.ContentId}.json"));
-
-        var currentSerializedDto = await GenerateSerializedGeoJsonDataFromBodyContentReferences(lineContent);
-
-        //If the file exists and the data is the same - don't write it again
-        if (dataFileInfo.Exists)
-        {
-            var onDiskDto = await File.ReadAllTextAsync(dataFileInfo.FullName);
-
-            if (onDiskDto == currentSerializedDto) return;
-        }
-
-        if (dataFileInfo.Exists)
-        {
-            dataFileInfo.Delete();
-            dataFileInfo.Refresh();
-        }
-
-        await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName, currentSerializedDto)
-            .ConfigureAwait(false);
+        //WriteLineContentData will check if an update is needed and log the file write
+        await Export.WriteLineContentData(lineContent, null);
     }
 
     public static async Task WriteGpxData(LineContent lineContent)
@@ -259,9 +250,7 @@ public static class LineData
             throw new ArgumentException(
                 "WriteGpxData in LineData was given a LineContent with a null/blank/empty Line");
 
-        var dataFileInfo = new FileInfo(Path.Combine(
-            UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,
-            $"Line-{lineContent.ContentId}.gpx"));
+        var dataFileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteLineGpxFile(lineContent);
 
         var trackList = GpxTools.GpxTrackFromLineFeature(lineContent.FeatureFromGeoJsonLine()!,
             lineContent.RecordingStartedOnUtc,
@@ -313,48 +302,4 @@ public static class LineData
 
         temporaryGpxFile.MoveTo(dataFileInfo.FullName);
     }
-
-    public static async Task WriteJsonData(LineContent lineContent)
-    {
-        if (string.IsNullOrWhiteSpace(lineContent.Line))
-            throw new ArgumentException(
-                "WriteJsonData in LineData was given a LineContent with a null/blank/empty Line");
-
-        var dataFileInfo = new FileInfo(Path.Combine(
-            UserSettingsSingleton.CurrentSettings().LocalSiteLineDataDirectory().FullName,
-            $"Line-{lineContent.ContentId}.json"));
-
-        var smallPictureUrl = lineContent.MainPicture == null
-            ? string.Empty
-            : new PictureSiteInformation(lineContent.MainPicture.Value).Pictures?.SmallPicture?.SiteUrl ?? string.Empty;
-
-        var currentDto = GenerateLineJsonDto(lineContent.Line,
-            UserSettingsSingleton.CurrentSettings().LinePageUrl(lineContent), smallPictureUrl);
-        var currentSerializedDto = await GeoJsonTools.SerializeWithGeoJsonSerializer(currentDto);
-
-        //If the file exists and the data is the same - don't write it again
-        if (dataFileInfo.Exists)
-        {
-            var onDiskDto = await File.ReadAllTextAsync(dataFileInfo.FullName);
-
-            if (onDiskDto == currentSerializedDto) return;
-        }
-
-        if (dataFileInfo.Exists)
-        {
-            dataFileInfo.Delete();
-            dataFileInfo.Refresh();
-        }
-
-        await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
-                currentSerializedDto)
-            .ConfigureAwait(false);
-    }
-
-    public record LineSiteJsonData(
-        string PageUrl,
-        string SmallPictureUrl,
-        SpatialBounds Bounds,
-        FeatureCollection GeoJson,
-        List<LineElevationChartDataPoint> ElevationPlotData);
 }

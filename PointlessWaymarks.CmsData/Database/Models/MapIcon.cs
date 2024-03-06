@@ -10,4 +10,18 @@ public class MapIcon
     public int Id { get; set; }
     public string? LastUpdatedBy { get; set; }
     public required DateTime LastUpdatedOn { get; set; }
+
+    public HistoricMapIcon ToHistoricMapIcon()
+    {
+        return new()
+        {
+            ContentId = ContentId,
+            ContentVersion = ContentVersion,
+            IconName = IconName,
+            IconSource = IconSource,
+            IconSvg = IconSvg,
+            LastUpdatedBy = LastUpdatedBy ?? "Historic Content Archivist",
+            LastUpdatedOn = LastUpdatedOn
+        };
+    }
 }

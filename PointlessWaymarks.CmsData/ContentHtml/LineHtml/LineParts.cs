@@ -15,10 +15,7 @@ public static class LineParts
         var settings = UserSettingsSingleton.CurrentSettings();
         var gpxDownloadLink =
             new LinkTag("Download GPX", settings.LineGpxDownloadUrl(content)).AddClass("file-download-link");
-        var jsonDownloadLink =
-            new LinkTag("Download GeoJson", settings.LineJsonDownloadUrl(content)).AddClass("file-download-link");
         downloadLinkContainer.Children.Add(gpxDownloadLink);
-        downloadLinkContainer.Children.Add(jsonDownloadLink);
 
         return downloadLinkContainer;
     }
@@ -36,23 +33,6 @@ public static class LineParts
         return tag + script;
     }
 
-    public static string LineDivAndScriptForDirectLocalAccess(LineContent content)
-    {
-        var divScriptGuidConnector = Guid.NewGuid();
-
-        var tag =
-            $"""<div id="Line-{divScriptGuidConnector}" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map"></div>""";
-
-        var smallPictureUrl = content.MainPicture == null
-            ? string.Empty
-            : new PictureSiteInformation(content.MainPicture.Value).Pictures?.SmallPicture?.SiteUrl ?? string.Empty;
-
-        var script =
-            $"""<script>lazyInit(document.querySelector("#Line-{divScriptGuidConnector}"), () => singleLineMapInitFromLineData(document.querySelector("#Line-{divScriptGuidConnector}"), {LineData.GenerateLineJson(content.Line ?? string.Empty, content.Title ?? string.Empty, string.Empty, smallPictureUrl).Result}))</script>""";
-
-        return tag + script;
-    }
-
     public static string LineDivAndScriptWithCaption(LineContent content)
     {
         var titleCaption =
@@ -61,17 +41,8 @@ public static class LineParts
         return $"<figure class=\"map-figure\">{LineDivAndScript(content)}{titleCaption}</figure>";
     }
 
-    public static string LineDivAndScriptWithCaptionForDirectLocalAccess(LineContent content)
-    {
-        var titleCaption =
-            $"""<a class="map-figure-title-caption" href="{UserSettingsSingleton.CurrentSettings().LinePageUrl(content)}">{content.Title}</a>""";
-
-        return $"""<figure class="map-figure">{LineDivAndScriptForDirectLocalAccess(content)}{titleCaption}</figure>""";
-    }
-
-
     /// <summary>
-    ///     Returns the total minutes and a well formatted human readable string of a Lines duration in
+    ///     Returns the total minutes and a well formatted human-readable string of a Lines duration in
     ///     Hours and Minutes or null if either the start or end time are null.
     /// </summary>
     /// <param name="dbEntry"></param>
@@ -146,8 +117,6 @@ public static class LineParts
             var settings = UserSettingsSingleton.CurrentSettings();
             outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineGpxDownloadUrl(dbEntry), "GPX",
                 "line-detail", "line-data", dbEntry.DescentElevation.ToString("F0")));
-            outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineJsonDownloadUrl(dbEntry), "GeoJson",
-                "line-detail", "line-data", dbEntry.DescentElevation.ToString("F0")));
         }
 
         //Return empty if there are no details
@@ -209,8 +178,6 @@ public static class LineParts
         {
             var settings = UserSettingsSingleton.CurrentSettings();
             outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineGpxDownloadUrl(dbEntry), "GPX",
-                "line-detail", "line-data", dbEntry.DescentElevation.ToString("F0")));
-            outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineJsonDownloadUrl(dbEntry), "GeoJson",
                 "line-detail", "line-data", dbEntry.DescentElevation.ToString("F0")));
         }
 

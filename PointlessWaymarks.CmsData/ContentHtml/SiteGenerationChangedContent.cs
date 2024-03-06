@@ -19,6 +19,7 @@ using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml;
 
@@ -612,7 +613,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SingleFilePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteFileContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -635,7 +636,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteGeoJsonContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -654,7 +655,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SingleImagePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteImageContentData(loopItem).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -677,7 +678,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteLineContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
 
         if (allItems.Any())
@@ -696,16 +697,17 @@ public static class SiteGenerationChangedContent
             .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
             .ConfigureAwait(false);
 
+        var allDtoItems = await allItems.SelectInSequenceAsync(async x => await x.ToMapComponentDto(db));
+
         var totalCount = allItems.Count;
 
         progress?.Report($"Found {totalCount} Map Components to Generate");
 
-        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
+        await Parallel.ForEachAsync(allDtoItems, async (loopItem, _) =>
         {
             progress?.Report($"Writing Data for {loopItem.Title}");
 
-            await MapData.WriteJsonData(loopItem.ContentId).ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteMapComponentContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -738,7 +740,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SingleNotePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteNoteContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -761,7 +763,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SinglePhotoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WritePhotoContentData(loopItem).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -791,7 +793,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SinglePointPage(loopItemAndDetails) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WritePointContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -815,7 +817,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WritePostContentData(loopItem, progress).ConfigureAwait(false);
 
             loopCount++;
         }).ConfigureAwait(false);
@@ -841,7 +843,7 @@ public static class SiteGenerationChangedContent
 
             var htmlModel = new SingleVideoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteVideoContentData(loopItem).ConfigureAwait(false);
 
             loopCount++;
         }).ConfigureAwait(false);

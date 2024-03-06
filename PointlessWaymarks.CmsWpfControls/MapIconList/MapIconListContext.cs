@@ -83,7 +83,7 @@ public partial class MapIconListContext
 
         foreach (var loopIcon in defaultIconsToAdd)
         {
-            var result = await MapIconGenerator.SaveMapIcon(loopIcon);
+            var result = await MapIconGenerator.SaveMapIconAndGenerateMapIconsJson(loopIcon);
             if (result.IsT1)
             {
                 hasError = true;
@@ -326,7 +326,7 @@ public partial class MapIconListContext
             ContentVersion = toSave.DbEntry.ContentVersion
         };
 
-        var saveResult = await MapIconGenerator.SaveMapIcon(toAdd);
+        var saveResult = await MapIconGenerator.SaveMapIconAndGenerateMapIconsJson(toAdd);
 
         if (saveResult.IsT1)
             await StatusContext.ShowMessageWithOkButton($"Error Saving {toAdd.IconName}", saveResult.AsT1.Value);

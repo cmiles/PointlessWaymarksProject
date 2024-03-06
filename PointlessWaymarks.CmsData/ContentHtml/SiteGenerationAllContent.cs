@@ -16,6 +16,7 @@ using PointlessWaymarks.CmsData.ContentHtml.SearchListHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml;
 
@@ -47,7 +48,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SingleFilePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteFileContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -67,7 +68,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SingleGeoJsonPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteGeoJsonContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -87,7 +88,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SingleImagePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WriteImageContentData(loopItem).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -107,7 +108,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteLineContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
 
         await MapComponentGenerator.GenerateAllLinesData();
@@ -150,7 +151,7 @@ public static class SiteGenerationAllContent
 
         var db = await Db.Context().ConfigureAwait(false);
 
-        var allItems = await db.MapComponents.ToListAsync().ConfigureAwait(false);
+        var allItems = await (await db.MapComponents.ToListAsync().ConfigureAwait(false)).SelectInSequenceAsync(async x => await x.ToMapComponentDto(db));
 
         var totalCount = allItems.Count;
 
@@ -160,8 +161,7 @@ public static class SiteGenerationAllContent
         {
             progress?.Report($"Writing Data for {loopItem.Title}");
 
-            await MapData.WriteJsonData(loopItem.ContentId).ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteMapComponentContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -181,7 +181,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SingleNotePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteNoteContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -201,7 +201,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SinglePhotoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem).ConfigureAwait(false);
+            await Export.WritePhotoContentData(loopItem).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -236,7 +236,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SinglePointPage(dto) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WritePointContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -256,7 +256,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SinglePostPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WritePostContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
@@ -290,7 +290,7 @@ public static class SiteGenerationAllContent
 
             var htmlModel = new SingleVideoPage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
-            await Export.WriteLocalDbJson(loopItem, progress).ConfigureAwait(false);
+            await Export.WriteVideoContentData(loopItem, progress).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 }

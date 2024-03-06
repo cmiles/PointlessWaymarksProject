@@ -1,5 +1,6 @@
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
@@ -67,7 +68,6 @@ public class PointContentDto : IUpdateNotes, IContentCommon
             Elevation = Elevation,
             FeedOn = FeedOn,
             Folder = Folder,
-            Id = Id,
             IsDraft = IsDraft,
             LastUpdatedBy = LastUpdatedBy,
             LastUpdatedOn = LastUpdatedOn,
@@ -82,6 +82,37 @@ public class PointContentDto : IUpdateNotes, IContentCommon
             Title = Title,
             UpdateNotes = UpdateNotes,
             UpdateNotesFormat = UpdateNotesFormat
+        };
+    }
+
+    public HistoricPointContent ToHistoricDbObject()
+    {
+        return new()
+        {
+            BodyContent = BodyContent,
+            BodyContentFormat = BodyContentFormat,
+            ContentId = ContentId,
+            ContentVersion = ContentVersion,
+            CreatedBy = CreatedBy,
+            CreatedOn = CreatedOn,
+            Elevation = Elevation,
+            FeedOn = FeedOn,
+            Folder = Folder,
+            IsDraft = IsDraft,
+            LastUpdatedBy = string.IsNullOrWhiteSpace(LastUpdatedBy) ? "Historic Entry Archivist" : LastUpdatedBy,
+            LastUpdatedOn = LastUpdatedOn ?? DateTime.Now,
+            Latitude = Latitude,
+            Longitude = Longitude,
+            MainPicture = MainPicture,
+            MapLabel = MapLabel,
+            ShowInMainSiteFeed = ShowInMainSiteFeed,
+            Slug = Slug,
+            Summary = Summary,
+            Tags = Tags,
+            Title = Title,
+            UpdateNotes = UpdateNotes,
+            UpdateNotesFormat = UpdateNotesFormat,
+            PointDetails = System.Text.Json.JsonSerializer.Serialize(PointDetails, JsonTools.WriteIndentedOptions)
         };
     }
 }

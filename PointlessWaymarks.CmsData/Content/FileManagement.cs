@@ -1040,10 +1040,8 @@ public static class FileManagement
             settings.LocalSiteDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteFileDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteGeoJsonDirectory().CreateIfItDoesNotExist(),
-            settings.LocalSiteGeoJsonDataDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteImageDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteLineDirectory().CreateIfItDoesNotExist(),
-            settings.LocalSiteLineDataDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteLinkDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteMapComponentDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteMapComponentDataDirectory().CreateIfItDoesNotExist(),
@@ -1056,7 +1054,8 @@ public static class FileManagement
             settings.LocalSitePostDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteVideoDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteTagsDirectory().CreateIfItDoesNotExist(),
-            settings.LocalSiteSiteResourcesDirectory().CreateIfItDoesNotExist()
+            settings.LocalSiteSiteResourcesDirectory().CreateIfItDoesNotExist(),
+            settings.LocalSiteContentDataDirectory().CreateIfItDoesNotExist()
         ];
     }
 

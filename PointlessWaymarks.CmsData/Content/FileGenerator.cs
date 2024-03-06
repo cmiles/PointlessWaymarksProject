@@ -37,7 +37,7 @@ public static class FileGenerator
         await Db.SaveFileContent(toSave).ConfigureAwait(false);
         await WriteFileFromMediaArchiveToLocalSiteIfNeeded(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
+        await Export.WriteFileContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
             DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });

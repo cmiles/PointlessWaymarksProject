@@ -208,7 +208,7 @@ public static class LineGenerator
 
         await Db.SaveLineContent(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
+        await Export.WriteLineContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Line Generator", DataNotificationContentType.Line,
             DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });

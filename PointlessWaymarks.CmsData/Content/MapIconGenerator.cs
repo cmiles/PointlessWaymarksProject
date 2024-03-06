@@ -26,41 +26,13 @@ public static class MapIconGenerator
             .ConfigureAwait(false);
     }
 
-    public static async Task<OneOf<Success, Error<string>>> SaveMapIcon(MapIcon toSave)
+    public static async Task<OneOf<Success, Error<string>>> SaveMapIconAndGenerateMapIconsJson(MapIcon toSave)
     {
         var validation = await ValidateMapIcon(toSave);
 
         if (!validation.Valid) return new Error<string>(validation.Explanation);
 
-        var context = await Db.Context();
-
-        var possibleExistingItem =
-            await context.MapIcons.FirstOrDefaultAsync(x => x.ContentId == toSave.ContentId);
-
-        if (possibleExistingItem != null)
-        {
-            var historicEntry = new HistoricMapIcon
-            {
-                ContentId = possibleExistingItem.ContentId, IconName = possibleExistingItem.IconName,
-                IconSource = possibleExistingItem.IconSource,
-                IconSvg = possibleExistingItem.IconSvg, LastUpdatedBy = possibleExistingItem.LastUpdatedBy,
-                LastUpdatedOn = possibleExistingItem.LastUpdatedOn,
-                ContentVersion = possibleExistingItem.ContentVersion
-            };
-
-            await context.HistoricMapIcons.AddAsync(historicEntry);
-            context.Remove(possibleExistingItem);
-        }
-
-        await context.AddAsync(toSave);
-        await context.SaveChangesAsync();
-
-        if (possibleExistingItem is null)
-            DataNotifications.PublishDataNotification("Map Icon Added", DataNotificationContentType.MapIcon,
-                DataNotificationUpdateType.New, toSave.ContentId.AsList());
-        else
-            DataNotifications.PublishDataNotification("Map Icon Updated", DataNotificationContentType.MapIcon,
-                DataNotificationUpdateType.Update, toSave.ContentId.AsList());
+        await Db.SaveMapIcon(toSave);
 
         await GenerateMapIconsFile();
 

@@ -29,7 +29,7 @@ public static class GeoJsonGenerator
 
         await Db.SaveGeoJsonContent(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
+        await Export.WriteGeoJsonContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("GeoJson Generator", DataNotificationContentType.GeoJson,
             DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});

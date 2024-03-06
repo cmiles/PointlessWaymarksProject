@@ -29,7 +29,7 @@ public static class PostGenerator
 
         await Db.SavePostContent(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
+        await Export.WritePostContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Post Generator", DataNotificationContentType.Post,
             DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});

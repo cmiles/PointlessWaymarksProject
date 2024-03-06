@@ -30,7 +30,7 @@ public static class PointGenerator
         var savedPoint = await Db.SavePointContent(toSave).ConfigureAwait(false);
 
         await GenerateHtml(savedPoint!, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content, progress)
+        await Export.WritePointContentData(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content, progress)
             .ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,

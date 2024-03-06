@@ -82,19 +82,16 @@ public static class TestFileInfo
 
         filesInDirectory.Remove(htmlFile);
 
-        var jsonFile =
-            filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.FileContentPrefix}{newContent.ContentId}.json");
+        var jsonDataFile = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
 
-        Assert.That(jsonFile, Is.Not.Null, "Json File not Found in File Content Directory");
-
-        filesInDirectory.Remove(jsonFile);
+        Assert.That(jsonDataFile.Exists, Is.True, "Json File not Found in File Content Directory");
 
         var db = await Db.Context();
         if (db.HistoricFileContents.Any(x => x.ContentId == newContent.ContentId))
         {
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.HistoricFileContentPrefix}{newContent.ContentId}.json");
+                x.Name == $"{UserSettingsUtilities.HistoricFileContentPrefix}{newContent.ContentId}.json");
 
             Assert.That(historicJsonFile, Is.Not.Null, "Historic Json File not Found in File Content Directory");
 
@@ -193,14 +190,12 @@ public static class TestFileInfo
     public static void JsonTest(FileContent newContent)
     {
         //Check JSON File
-        var jsonFile =
-            new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(newContent).FullName,
-                $"{Names.FileContentPrefix}{newContent.ContentId}.json"));
+        var jsonFile = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<FileContent>(
-            [jsonFile.FullName], Names.FileContentPrefix).Single();
+            [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

@@ -1,4 +1,4 @@
-﻿using KellermanSoftware.CompareNetObjects;
+using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
@@ -174,14 +174,12 @@ public static class IronwoodImageInfo
     public static void JsonTest(ImageContent newContent)
     {
         //Check JSON File
-        var jsonFile =
-            new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(newContent).FullName,
-                $"{Names.ImageContentPrefix}{newContent.ContentId}.json"));
+        var jsonFile = UserSettingsSingleton.CurrentSettings().LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
+
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<ImageContent>(
-            [jsonFile.FullName], Names.ImageContentPrefix).Single();
+            [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

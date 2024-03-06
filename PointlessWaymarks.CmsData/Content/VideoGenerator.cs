@@ -37,7 +37,7 @@ public static class VideoGenerator
         await Db.SaveVideoContent(toSave).ConfigureAwait(false);
         await WriteVideoFromMediaArchiveToLocalSiteIfNeeded(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
+        await Export.WriteVideoContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Video Generator", DataNotificationContentType.Video,
             DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });

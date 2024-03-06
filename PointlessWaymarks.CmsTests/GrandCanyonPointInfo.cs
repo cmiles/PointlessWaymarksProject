@@ -88,6 +88,9 @@ public static class GrandCanyonPointInfo
     {
         var contentDirectory = UserSettingsSingleton.CurrentSettings()
             .LocalSitePointContentDirectory(newContent, false);
+        var jsonDataFile = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
+
         Assert.That(contentDirectory.Exists, "Content Directory Not Found?");
 
         var filesInDirectory = contentDirectory.GetFiles().ToList();
@@ -97,15 +100,15 @@ public static class GrandCanyonPointInfo
             Assert.That(filesInDirectory.Any(x => x.Name == $"{newContent.Slug}.html"),
                     "Point Html file not found in Content Directory");
 
-            Assert.That(filesInDirectory.Any(x => x.Name == $"{Names.PointContentPrefix}{newContent.ContentId}.json"),
-                "Point Json file not found in Content Directory");
+            Assert.That(jsonDataFile.Exists,
+                "Point Json file not found in Content Data Directory");
         });
 
         var db = await Db.Context();
         if (db.HistoricPointContents.Any(x => x.ContentId == newContent.ContentId))
         {
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.HistoricPointContentPrefix}{newContent.ContentId}.json");
+                x.Name == $"{UserSettingsUtilities.HistoricPointContentPrefix}{newContent.ContentId}.json");
 
             Assert.That(historicJsonFile, Is.Not.Null, "Historic Point Json File not Found in Content Directory");
         }
@@ -166,14 +169,12 @@ public static class GrandCanyonPointInfo
 
     public static void JsonTest(PointContent newContent)
     {
-        var jsonFile =
-            new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalSitePointContentDirectory(newContent).FullName,
-                $"{Names.PointContentPrefix}{newContent.ContentId}.json"));
+        var jsonFile = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<PointContent>(
-            [jsonFile.FullName], Names.PointContentPrefix).Single();
+            [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

@@ -57,19 +57,16 @@ public static class IronwoodVideoInfo
 
         filesInDirectory.Remove(htmlFile);
 
-        var jsonFile =
-            filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.VideoContentPrefix}{newContent.ContentId}.json");
+        var jsonDataFile = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
 
-        Assert.That(jsonFile, Is.Not.Null, "Json File not Found in Video Content Directory");
-
-        filesInDirectory.Remove(jsonFile);
+        Assert.That(jsonDataFile.Exists, Is.True, "Json File not Found in Video Content Directory");
 
         var db = await Db.Context();
         if (db.HistoricFileContents.Any(x => x.ContentId == newContent.ContentId))
         {
             var historicJsonFile = filesInDirectory.SingleOrDefault(x =>
-                x.Name == $"{Names.HistoricVideoContentPrefix}{newContent.ContentId}.json");
+                x.Name == $"{UserSettingsUtilities.HistoricVideoContentPrefix}{newContent.ContentId}.json");
 
             Assert.That(historicJsonFile, Is.Not.Null, "Historic Json File not Found in Video Content Directory");
 
@@ -168,14 +165,12 @@ public static class IronwoodVideoInfo
     public static void JsonTest(VideoContent newContent)
     {
         //Check JSON File
-        var jsonFile =
-            new FileInfo(Path.Combine(
-                UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(newContent).FullName,
-                $"{Names.VideoContentPrefix}{newContent.ContentId}.json"));
+        var jsonFile = UserSettingsSingleton.CurrentSettings()
+            .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
         var jsonFileImported = Import.ContentFromFiles<VideoContent>(
-            [jsonFile.FullName], Names.VideoContentPrefix).Single();
+            [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
         var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
         Assert.That(comparisonResult.AreEqual,

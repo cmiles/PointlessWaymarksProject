@@ -431,8 +431,10 @@ public static class Db
     }
 
     /// <summary>
-    ///     A standardized conversion of a Content Type into a simple standard display string. Both Point and
-    ///     PointDto will return the same string.
+    ///     A standardized conversion of a Content Type into a simple standard display string. In some places in the code
+    /// this string may be used to identify a type (such as a serialized version of the type) BEWARE that for both Point and
+    /// Map the poco and DTO versions will return the same string and you will need to detect or know from context which
+    /// type is being used.
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
@@ -441,20 +443,34 @@ public static class Db
         //!!Content Type List!!
         return content switch
         {
-            FileContent => "File",
-            GeoJsonContent => "GeoJson",
-            ImageContent => "Image",
-            LineContent => "Line",
-            LinkContent => "Link",
-            NoteContent => "Note",
-            PhotoContent => "Photo",
-            PostContent => "Post",
-            PointContent => "Point",
-            PointContentDto => "Point",
-            VideoContent => "Video",
+            FileContent => ContentTypeDisplayStringForFile,
+            GeoJsonContent => ContentTypeDisplayStringForGeoJson,
+            ImageContent => ContentTypeDisplayStringForImage,
+            LineContent => ContentTypeDisplayStringForLine,
+            LinkContent => ContentTypeDisplayStringForLink,
+            MapComponent => ContentTypeDisplayStringForMap,
+            MapComponentDto => ContentTypeDisplayStringForMap,
+            NoteContent => ContentTypeDisplayStringForNote,
+            PhotoContent => ContentTypeDisplayStringForPhoto,
+            PostContent => ContentTypeDisplayStringForPost,
+            PointContent => ContentTypeDisplayStringForPoint,
+            PointContentDto => ContentTypeDisplayStringForPoint,
+            VideoContent => ContentTypeDisplayStringForVideo,
             _ => string.Empty
         };
     }
+
+    public const string ContentTypeDisplayStringForFile = "File";
+    public const string ContentTypeDisplayStringForGeoJson = "GeoJson";
+    public const string ContentTypeDisplayStringForImage = "Image";
+    public const string ContentTypeDisplayStringForLine = "Line";
+    public const string ContentTypeDisplayStringForLink = "Link";
+    public const string ContentTypeDisplayStringForMap = "Map";
+    public const string ContentTypeDisplayStringForNote = "Note";
+    public const string ContentTypeDisplayStringForPhoto = "Photo";
+    public const string ContentTypeDisplayStringForPost = "Post";
+    public const string ContentTypeDisplayStringForPoint = "Point";
+    public const string ContentTypeDisplayStringForVideo = "Video";
 
     /// <summary>
     ///     A standardized conversion of a Guid into a simple standard display string. Both Point and
@@ -2096,7 +2112,7 @@ public static class Db
         var groupLastUpdateOn = DateTime.Now;
         var updateGroup = Guid.NewGuid();
 
-        var toHistoric = await context.MapComponents.Where(x => x.ContentId == toSaveDto.Map.ContentId).ToListAsync()
+        var toHistoric = await context.MapComponents.Where(x => x.ContentId == toSaveDto.ContentId).ToListAsync()
             .ConfigureAwait(false);
 
         var isUpdate = toHistoric.Any();
@@ -2118,15 +2134,15 @@ public static class Db
             context.MapComponents.Remove(loopToHistoric);
         }
 
-        if (toSaveDto.Map.Id > 0) toSaveDto.Map.Id = 0;
-        toSaveDto.Map.ContentVersion = ContentVersionDateTime();
+        if (toSaveDto.Id > 0) toSaveDto.Id = 0;
+        toSaveDto.ContentVersion = ContentVersionDateTime();
 
-        await context.MapComponents.AddAsync(toSaveDto.Map).ConfigureAwait(false);
+        await context.MapComponents.AddAsync(toSaveDto.ToDbObject()).ConfigureAwait(false);
 
         await context.SaveChangesAsync(true).ConfigureAwait(false);
 
         var dbElements = await context.MapComponentElements
-            .Where(x => x.MapComponentContentId == toSaveDto.Map.ContentId).ToListAsync().ConfigureAwait(false);
+            .Where(x => x.MapComponentContentId == toSaveDto.ContentId).ToListAsync().ConfigureAwait(false);
 
         var dbElementContentIds = dbElements.Select(x => x.ElementContentId).Distinct().ToList();
 
@@ -2170,11 +2186,11 @@ public static class Db
             .ToListAsync().ConfigureAwait(false);
         boundingBox = SpatialConverters.GeometryBoundingBox(geoJson, boundingBox);
 
-        toSaveDto.Map.InitialViewBoundsMaxLatitude = boundingBox.MaxY;
-        toSaveDto.Map.InitialViewBoundsMaxLongitude = boundingBox.MaxX;
-        toSaveDto.Map.InitialViewBoundsMinLatitude = boundingBox.MinY;
-        toSaveDto.Map.InitialViewBoundsMinLongitude = boundingBox.MinX;
-        DefaultPropertyCleanup(toSaveDto.Map);
+        toSaveDto.InitialViewBoundsMaxLatitude = boundingBox.MaxY;
+        toSaveDto.InitialViewBoundsMaxLongitude = boundingBox.MaxX;
+        toSaveDto.InitialViewBoundsMinLatitude = boundingBox.MinY;
+        toSaveDto.InitialViewBoundsMinLongitude = boundingBox.MinX;
+        DefaultPropertyCleanup(toSaveDto);
 
         await context.SaveChangesAsync().ConfigureAwait(false);
 
@@ -2184,7 +2200,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Map,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSaveDto.Map.ContentId });
+            new List<Guid> { toSaveDto.ContentId });
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
             DataNotificationUpdateType.New, newElements);
@@ -2789,4 +2805,30 @@ public static class Db
     }
 
     public record TagSlugAndIsExcluded(string TagSlug, bool IsExcluded);
+
+    public static async Task SaveMapIcon(MapIcon toSave)
+    {
+        var context = await Db.Context();
+
+        var possibleExistingItem =
+            await context.MapIcons.FirstOrDefaultAsync(x => x.ContentId == toSave.ContentId);
+
+        if (possibleExistingItem != null)
+        {
+            var historicEntry = toSave.ToHistoricMapIcon();
+
+            await context.HistoricMapIcons.AddAsync(historicEntry);
+            context.Remove(possibleExistingItem);
+        }
+
+        await context.AddAsync(toSave);
+        await context.SaveChangesAsync();
+
+        if (possibleExistingItem is null)
+            DataNotifications.PublishDataNotification("Map Icon Added", DataNotificationContentType.MapIcon,
+                DataNotificationUpdateType.New, toSave.ContentId.AsList());
+        else
+            DataNotifications.PublishDataNotification("Map Icon Updated", DataNotificationContentType.MapIcon,
+                DataNotificationUpdateType.Update, toSave.ContentId.AsList());
+    }
 }

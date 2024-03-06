@@ -1,10 +1,13 @@
 using System.Text.Json;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Json;
 
@@ -17,8 +20,7 @@ public static class Export
         var db = await Db.Context();
         var allContent = await db.LinkContents.OrderByDescending(x => x.CreatedOn).ToListAsync();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLinkDirectory().FullName,
-            $"{Names.LinkListFileName}.json"));
+        var jsonFile = settings.LocalSiteLinkListJsonFile();
 
         if (jsonFile.Exists)
         {
@@ -52,7 +54,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteLinkDirectory().FullName,
-            $"{Names.HistoricLinkListFileName}.json"));
+            $"{UserSettingsUtilities.HistoricLinkListFileName}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -61,19 +63,19 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(FileContent dbEntry, IProgress<string>? progress = null)
+    public static async Task WriteFileContentData(FileContent dbEntry, IProgress<string>? progress = null)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(dbEntry).FullName,
-            $"{Names.FileContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<FileContent>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<FileContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dbEntry, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"File - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -85,7 +87,9 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
+        var onDiskData = new FileContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -103,7 +107,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteFileContentDirectory(dbEntry).FullName,
-            $"{Names.HistoricFileContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricFileContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -112,19 +116,19 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(VideoContent dbEntry, IProgress<string>? progress = null)
+    public static async Task WriteVideoContentData(VideoContent dbEntry, IProgress<string>? progress = null)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteVideoContentDirectory(dbEntry).FullName,
-            $"{Names.VideoContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<VideoContent>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<VideoContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dbEntry, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"Video - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -136,7 +140,9 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
+        var onDiskData = new VideoContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -154,7 +160,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteVideoContentDirectory(dbEntry).FullName,
-            $"{Names.HistoricVideoContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricVideoContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -163,19 +169,19 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(PostContent dbEntry, IProgress<string>? progress)
+    public static async Task WritePostContentData(PostContent dbEntry, IProgress<string>? progress)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(dbEntry).FullName,
-            $"{Names.PostContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<PostContent>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<PostContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dbEntry, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"Post - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -187,7 +193,9 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
+        var onDiskData = new PostContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -205,7 +213,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePostContentDirectory(dbEntry).FullName,
-            $"{Names.HistoricPostContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricPostContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -214,19 +222,19 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(LineContent dbEntry, IProgress<string>? progress)
+    public static async Task WriteLineContentData(LineContent dbEntry, IProgress<string>? progress)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteLineContentDirectory(dbEntry).FullName,
-            $"{Names.LineContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<LineContent>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<LineContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dbEntry, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"Line - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -238,7 +246,9 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
+        var onDiskData = new LineContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry, LineData.GenerateLineElevationDataList(dbEntry), await LineData.SpatialContentIdReferencesFromBodyContentReferences(dbEntry));
+
+        var jsonDbEntry = await GeoJsonTools.SerializeWithGeoJsonSerializer(onDiskData);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -258,7 +268,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteLineContentDirectory(dbEntry).FullName,
-            $"{Names.HistoricLineContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricLineContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -269,19 +279,19 @@ public static class Export
         progress?.Report($"Line - {dbEntry.Title} - Done with Json Serialization");
     }
 
-    public static async Task WriteLocalDbJson(GeoJsonContent dbEntry, IProgress<string>? progress)
+    public static async Task WriteGeoJsonContentData(GeoJsonContent dbEntry, IProgress<string>? progress)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteGeoJsonContentDirectory(dbEntry).FullName,
-            $"{Names.GeoJsonContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<GeoJsonContent>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<GeoJsonContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dbEntry, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"GeoJson - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -293,7 +303,9 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
+        var onDiskData = new GeoJsonContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -314,7 +326,7 @@ public static class Export
 
         var jsonHistoricFile = new FileInfo(Path.Combine(
             settings.LocalSiteGeoJsonContentDirectory(dbEntry).FullName,
-            $"{Names.HistoricGeoJsonContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricGeoJsonContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -325,21 +337,21 @@ public static class Export
         progress?.Report($"GeoJson - {dbEntry.Title} - Done with Json Serialization");
     }
 
-    public static async Task WriteLocalDbJson(MapComponent dbEntry, IProgress<string>? progress)
+    public static async Task WriteMapComponentContentData(MapComponentDto dbEntry, IProgress<string>? progress)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
         var dtoToArchive = await Db.MapComponentDtoFromContentId(dbEntry.ContentId);
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteMapComponentDataDirectory().FullName,
-            $"{Names.MapComponentContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<MapComponentDto>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<MapComponentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dtoToArchive, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dtoToArchive, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report(
                     $"MapComponent - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
@@ -352,13 +364,28 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dtoToArchive, JsonTools.WriteIndentedOptions);
+        var dtoElementGuids = dtoToArchive.Elements.Select(x => x.ElementContentId).ToList();
+
+        var db = await Db.Context().ConfigureAwait(false);
+        var pointGuids = await db.PointContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
+            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+        var lineGuids = await db.LineContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
+            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+        var geoJsonGuids = await db.GeoJsonContents.Where(x => dtoElementGuids.Contains(x.ContentId))
+            .OrderBy(x => x.Title)
+            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+        var photoGuids = await db.PhotoContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
+            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+        var showDetailsGuids = dtoToArchive.Elements.Where(x => x.ShowDetailsDefault).Select(x => x.ElementContentId)
+            .Distinct().ToList();
+
+        var onDiskData = new MapComponentOnDiskData(Db.ContentTypeDisplayString(dtoToArchive), dtoToArchive, new SpatialContentIdReferences(pointGuids, lineGuids, geoJsonGuids, photoGuids), showDetailsGuids);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
         progress?.Report($"MapComponent - {dbEntry.Title} - Serializing and Writing Historic Entries");
-
-        var db = await Db.Context().ConfigureAwait(false);
 
         var latestHistoricEntries = await db.HistoricMapComponents.Where(x => x.ContentId == dbEntry.ContentId)
             .OrderByDescending(x => x.LastUpdatedOn).Take(10).ToListAsync();
@@ -370,7 +397,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteMapComponentDataDirectory().FullName,
-            $"{Names.HistoricMapComponentContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricMapComponentContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -379,7 +406,7 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(PointContent dbEntry, IProgress<string>? progress)
+    public static async Task WritePointContentData(PointContent dbEntry, IProgress<string>? progress)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
@@ -387,15 +414,15 @@ public static class Export
 
         var dtoToArchive = await Db.PointContentDtoFromPoint(dbEntry, db);
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dtoToArchive).FullName,
-            $"{Names.PointContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<PointContentDto>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<PointContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dtoToArchive, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dtoToArchive, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"Point - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -407,7 +434,9 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dtoToArchive, JsonTools.WriteIndentedOptions);
+        var onDiskData = new PointContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dtoToArchive);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -423,7 +452,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePointContentDirectory(dtoToArchive).FullName,
-            $"{Names.HistoricPointContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricPointContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -432,19 +461,19 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(NoteContent dbEntry, IProgress<string>? progress = null)
+    public static async Task WriteNoteContentData(NoteContent dbEntry, IProgress<string>? progress = null)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(dbEntry).FullName,
-            $"{Names.NoteContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<NoteContent>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<NoteContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dbEntry, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"Note - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -456,7 +485,9 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
+        var onDiskData = new NoteContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -474,7 +505,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteNoteContentDirectory(dbEntry).FullName,
-            $"{Names.HistoricNoteContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricNoteContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -483,19 +514,19 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(ImageContent dbEntry, IProgress<string>? progress = null)
+    public static async Task WriteImageContentData(ImageContent dbEntry, IProgress<string>? progress = null)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(dbEntry).FullName,
-            $"{Names.ImageContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<ImageContent>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<ImageContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dbEntry, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"Image - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -507,7 +538,14 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
+        var pictureInfo = PictureAssetProcessing.ProcessPictureDirectory(dbEntry.ContentId);
+        var smallImageUrl = pictureInfo?.SmallPicture?.SiteUrl;
+        var displayImageUrl = pictureInfo?.DisplayPicture?.SiteUrl;
+
+        var onDiskData = new ImageContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry, smallImageUrl,
+            displayImageUrl);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -525,7 +563,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteImageContentDirectory(dbEntry).FullName,
-            $"{Names.HistoricImageContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricImageContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -534,19 +572,19 @@ public static class Export
             .ConfigureAwait(false);
     }
 
-    public static async Task WriteLocalDbJson(PhotoContent dbEntry, IProgress<string>? progress = null)
+    public static async Task WritePhotoContentData(PhotoContent dbEntry, IProgress<string>? progress = null)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(dbEntry).FullName,
-            $"{Names.PhotoContentPrefix}{dbEntry.ContentId}.json"));
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<PhotoContent>(jsonFileStream);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<PhotoContentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dbEntry, onDiskObject).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report($"Photo - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
                 return;
@@ -558,7 +596,14 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var jsonDbEntry = JsonSerializer.Serialize(dbEntry, JsonTools.WriteIndentedOptions);
+        var pictureInfo = PictureAssetProcessing.ProcessPictureDirectory(dbEntry.ContentId);
+        var smallImageUrl = pictureInfo?.SmallPicture?.SiteUrl;
+        var displayImageUrl = pictureInfo?.DisplayPicture?.SiteUrl;
+
+        var onDiskData = new PhotoContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry, smallImageUrl,
+            displayImageUrl);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
@@ -576,7 +621,7 @@ public static class Export
         var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
 
         var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSitePhotoContentDirectory(dbEntry).FullName,
-            $"{Names.HistoricPhotoContentPrefix}{dbEntry.ContentId}.json"));
+            $"{UserSettingsUtilities.HistoricPhotoContentPrefix}{dbEntry.ContentId}.json"));
 
         if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
         jsonHistoricFile.Refresh();
@@ -592,8 +637,7 @@ public static class Export
         var db = await Db.Context();
         var allContent = await db.MenuLinks.OrderByDescending(x => x.MenuOrder).ToListAsync();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteDirectory().FullName,
-            $"{Names.MenuLinksFileName}.json"));
+        var jsonFile = settings.LocalSiteMenuLinksJsonFile();
 
         if (jsonFile.Exists)
         {
@@ -624,8 +668,7 @@ public static class Export
         var db = await Db.Context();
         var allContent = await db.TagExclusions.OrderByDescending(x => x.Tag).ToListAsync();
 
-        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteTagsDirectory().FullName,
-            $"{Names.TagExclusionsFileName}.json"));
+        var jsonFile = settings.LocalSiteTagExclusionsJsonFile();
 
         if (jsonFile.Exists)
         {

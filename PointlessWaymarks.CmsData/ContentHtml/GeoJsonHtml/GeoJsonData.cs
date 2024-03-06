@@ -26,34 +26,6 @@ public static class GeoJsonData
         return jsonString;
     }
 
-    public static async Task WriteJsonData(GeoJsonContent geoJsonContent)
-    {
-        var dataFileInfo = new FileInfo(Path.Combine(
-            UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonDataDirectory().FullName,
-            $"GeoJson-{geoJsonContent.ContentId}.json"));
-
-        if (dataFileInfo.Exists)
-        {
-            dataFileInfo.Delete();
-            dataFileInfo.Refresh();
-        }
-
-        if (string.IsNullOrWhiteSpace(geoJsonContent.GeoJson))
-        {
-            var toThrow = new ArgumentException(
-                $"GeoJson Content with Blank GeoJson Submitted to WriteJsonData, ContentId {geoJsonContent.ContentId}, Title {geoJsonContent.Title}");
-            toThrow.Data.Add("ContentId", geoJsonContent.ContentId);
-            toThrow.Data.Add("Title", geoJsonContent.Title);
-
-            throw toThrow;
-        }
-
-        await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName,
-                await GenerateGeoJson(geoJsonContent.GeoJson,
-                    UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(geoJsonContent)).ConfigureAwait(false))
-            .ConfigureAwait(false);
-    }
-
     // ReSharper disable NotAccessedPositionalProperty.Global - Happy with Data Structures Here
     public record GeoJsonSiteJsonData(string PageUrl, SpatialBounds Bounds, FeatureCollection GeoJson);
     // ReSharper restore NotAccessedPositionalProperty.Global

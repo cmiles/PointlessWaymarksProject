@@ -32,7 +32,7 @@ public static class NoteGenerator
 
         await Db.SaveNoteContent(toSave).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave, progress).ConfigureAwait(false);
+        await Export.WriteNoteContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,
             DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});

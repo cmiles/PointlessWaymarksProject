@@ -10,7 +10,6 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CommonTools;
 using Serilog;
 
@@ -18,6 +17,17 @@ namespace PointlessWaymarks.CmsData;
 
 public static class UserSettingsUtilities
 {
+    public const string HistoricFileContentPrefix = "HistoricFiles---";
+    public const string HistoricGeoJsonContentPrefix = "HistoricGeoJsonContents---";
+    public const string HistoricImageContentPrefix = "HistoricImages---";
+    public const string HistoricLineContentPrefix = "HistoricLines---";
+    public const string HistoricLinkListFileName = "HistoricLinkList";
+    public const string HistoricMapComponentContentPrefix = "HistoricMapComponents---";
+    public const string HistoricNoteContentPrefix = "HistoricNotes---";
+    public const string HistoricPhotoContentPrefix = "HistoricPhotos---";
+    public const string HistoricPointContentPrefix = "HistoricPoints---";
+    public const string HistoricPostContentPrefix = "HistoricPosts---";
+    public const string HistoricVideoContentPrefix = "HistoricVideos---";
     public static readonly double ProjectDefaultLatitude = 32.119742;
     public static readonly double ProjectDefaultLongitude = -110.5230213;
     public static string SettingsFileFullName { get; set; } = "PointlessWaymarksCmsSettings.ini";
@@ -336,12 +346,7 @@ public static class UserSettingsUtilities
 
     public static string LineGpxDownloadUrl(this UserSettings settings, LineContent content)
     {
-        return $"{settings.SiteUrl()}/Lines/Data/Line-{content.ContentId}.gpx";
-    }
-
-    public static string LineJsonDownloadUrl(this UserSettings settings, LineContent content)
-    {
-        return $"{settings.SiteUrl()}/Lines/Data/Line-{content.ContentId}.json";
+        return $"{settings.SiteUrl()}/Lines/GpxData/Line-{content.ContentId}.gpx";
     }
 
     public static string LineMonthlyActivitySummaryUrl(this UserSettings settings)
@@ -517,6 +522,23 @@ public static class UserSettingsUtilities
         return new FileInfo($"{Path.Combine(directory.FullName, "CameraRoll")}.html");
     }
 
+
+
+    public static DirectoryInfo LocalSiteContentDataDirectory(this UserSettings settings)
+    {
+        var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "ContentData"));
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
+
+    public static FileInfo LocalSiteContentDataDirectoryDataFile(this UserSettings settings, Guid contentId)
+    {
+        return new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName, $"{contentId}.json"));
+    }
+
     public static DirectoryInfo LocalSiteDailyPhotoGalleryDirectory(this UserSettings settings)
     {
         var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Photos",
@@ -638,16 +660,6 @@ public static class UserSettingsUtilities
         if (directory.Exists || !createDirectoryIfNotFound) return directory;
 
         directory.Create();
-        directory.Refresh();
-
-        return directory;
-    }
-
-    public static DirectoryInfo LocalSiteGeoJsonDataDirectory(this UserSettings settings)
-    {
-        var directory = new DirectoryInfo(Path.Combine(LocalSiteGeoJsonDirectory(settings).FullName, "Data"));
-        if (!directory.Exists) directory.Create();
-
         directory.Refresh();
 
         return directory;
@@ -778,9 +790,9 @@ public static class UserSettingsUtilities
         return directory;
     }
 
-    public static DirectoryInfo LocalSiteLineDataDirectory(this UserSettings settings)
+    public static DirectoryInfo LocalSiteLineGpxDirectory(this UserSettings settings)
     {
-        var directory = new DirectoryInfo(Path.Combine(LocalSiteLineDirectory(settings).FullName, "Data"));
+        var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteLineDirectory().FullName, "GpxData"));
         if (!directory.Exists) directory.Create();
 
         directory.Refresh();
@@ -788,12 +800,10 @@ public static class UserSettingsUtilities
         return directory;
     }
 
-    public static FileInfo? LocalSiteLineDataFile(this UserSettings settings, LineContent? content)
+    public static FileInfo LocalSiteLineGpxFile(this UserSettings settings, LineContent content)
     {
-        if (content is null) return null;
-
-        var directory = settings.LocalSiteLineDataDirectory();
-        return new FileInfo($"{Path.Combine(directory.FullName, $"Line-{content.ContentId.ToString()}.json")}");
+        var directory = settings.LocalSiteLineGpxDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, content.ContentId.ToString())}.gpx");
     }
 
     public static DirectoryInfo LocalSiteLineDirectory(this UserSettings settings)
@@ -848,6 +858,12 @@ public static class UserSettingsUtilities
         return new FileInfo($"{Path.Combine(directory.FullName, "LinkList")}.html");
     }
 
+    public static FileInfo LocalSiteLinkListJsonFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteLinkDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "LinkList")}.json");
+    }
+
     public static FileInfo LocalSiteLinkRssFile(this UserSettings settings)
     {
         var directory = settings.LocalSiteLinkDirectory();
@@ -864,13 +880,6 @@ public static class UserSettingsUtilities
         return directory;
     }
 
-    public static FileInfo LocalSiteMapComponentDataFile(this UserSettings settings, Guid contentId)
-    {
-        var directory = settings.LocalSiteMapComponentDataDirectory();
-        return new FileInfo(
-            $"{Path.Combine(directory.FullName, Names.MapComponentContentPrefix, contentId.ToString())}.json");
-    }
-
     public static DirectoryInfo LocalSiteMapComponentDirectory(this UserSettings settings)
     {
         var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Maps"));
@@ -885,6 +894,12 @@ public static class UserSettingsUtilities
     {
         var directory = settings.LocalSitePointDataDirectory();
         return new FileInfo($"{Path.Combine(directory.FullName, "pwmapicons")}.json");
+    }
+
+    public static FileInfo LocalSiteMenuLinksJsonFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteLinkDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "MenuLinks")}.json");
     }
 
     public static DirectoryInfo LocalSiteNoteContentDirectory(this UserSettings settings, NoteContent content,
@@ -1186,6 +1201,12 @@ public static class UserSettingsUtilities
         return directory;
     }
 
+    public static FileInfo LocalSiteTagExclusionsJsonFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteLinkDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "TagExclusions")}.json");
+    }
+
     public static FileInfo LocalSiteTagListFileInfo(this UserSettings settings, string tag)
     {
         var directory = settings.LocalSiteTagsDirectory();
@@ -1346,11 +1367,6 @@ public static class UserSettingsUtilities
 
         return processedContent?.SmallPicture?.SiteUrl;
         ;
-    }
-
-    public static string PointDataUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Points/Data/pointdata.json";
     }
 
     public static string PointPageUrl(this UserSettings settings, PointContent content)

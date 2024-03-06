@@ -771,7 +771,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             return;
         }
 
-        await LoadData(newContent.Map);
+        await LoadData(newContent.ToDbObject());
 
         if (closeAfterSave)
         {

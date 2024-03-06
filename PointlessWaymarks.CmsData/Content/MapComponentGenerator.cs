@@ -65,22 +65,15 @@ public static class MapComponentGenerator
 
         var savedComponent = await Db.SaveMapComponent(mapDto).ConfigureAwait(false);
 
-        await Export.WriteLocalDbJson(savedComponent.Map, progress).ConfigureAwait(false);
+        await Export.WriteMapComponentContentData(savedComponent, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { mapDto.Map.ContentId });
+            DataNotificationUpdateType.LocalContent, new List<Guid> { mapDto.ContentId });
 
         return (
             GenerationReturn.Success(
-                $"Saved and Generated Map Component {mapDto.Map.ContentId} - {allLines.Title}"),
+                $"Saved and Generated Map Component {mapDto.ContentId} - {allLines.Title}"),
             mapDto);
-    }
-
-    public static async Task GenerateData(MapComponentDto toGenerate, IProgress<string>? progress = null)
-    {
-        progress?.Report($"Map Component - Generate Data for {toGenerate.Map.ContentId}, {toGenerate.Map.Title}");
-
-        await MapData.WriteJsonData(toGenerate).ConfigureAwait(false);
     }
 
     public static async Task<(GenerationReturn generationReturn, MapComponentDto? mapDto)> SaveAndGenerateData(
@@ -94,16 +87,14 @@ public static class MapComponentGenerator
 
         var savedComponent = await Db.SaveMapComponent(toSave).ConfigureAwait(false);
 
-        await GenerateData(savedComponent, progress).ConfigureAwait(false);
-
-        await Export.WriteLocalDbJson(savedComponent.Map, progress).ConfigureAwait(false);
+        await Export.WriteMapComponentContentData(savedComponent, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { savedComponent.Map.ContentId });
+            DataNotificationUpdateType.LocalContent, new List<Guid> { savedComponent.ContentId });
 
         return (
             GenerationReturn.Success(
-                $"Saved and Generated Map Component {savedComponent.Map.ContentId} - {savedComponent.Map.Title}"),
+                $"Saved and Generated Map Component {savedComponent.ContentId} - {savedComponent.Title}"),
             savedComponent);
     }
 
@@ -113,16 +104,16 @@ public static class MapComponentGenerator
 
         if (!rootDirectoryCheck.Valid)
             return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
-                mapComponent.Map.ContentId);
+                mapComponent.ContentId);
 
         var commonContentCheck = await CommonContentValidation.ValidateMapComponent(mapComponent).ConfigureAwait(false);
         if (!commonContentCheck.Valid)
-            return GenerationReturn.Error(commonContentCheck.Explanation, mapComponent.Map.ContentId);
+            return GenerationReturn.Error(commonContentCheck.Explanation, mapComponent.ContentId);
 
         var updateFormatCheck =
-            CommonContentValidation.ValidateUpdateContentFormat(mapComponent.Map.UpdateNotesFormat);
+            CommonContentValidation.ValidateUpdateContentFormat(mapComponent.UpdateNotesFormat);
         if (!updateFormatCheck.Valid)
-            return GenerationReturn.Error(updateFormatCheck.Explanation, mapComponent.Map.ContentId);
+            return GenerationReturn.Error(updateFormatCheck.Explanation, mapComponent.ContentId);
 
         return GenerationReturn.Success("GeoJson Content Validation Successful");
     }

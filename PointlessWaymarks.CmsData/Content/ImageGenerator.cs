@@ -130,7 +130,7 @@ public static class ImageGenerator
         await Db.SaveImageContent(toSave).ConfigureAwait(false);
         await WriteImageFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);
+        await Export.WriteImageContentData(toSave).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Image Generator", DataNotificationContentType.Image,
             DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });

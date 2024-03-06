@@ -1,6 +1,7 @@
-﻿using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
@@ -48,7 +49,7 @@ public partial class SingleGeoJsonPage
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        await GeoJsonData.WriteJsonData(DbEntry).ConfigureAwait(false);
+        await Export.WriteGeoJsonContentData(DbEntry, null).ConfigureAwait(false);
 
         var htmlString = TransformText();
 

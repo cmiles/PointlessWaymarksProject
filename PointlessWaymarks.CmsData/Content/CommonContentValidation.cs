@@ -602,18 +602,18 @@ public static class CommonContentValidation
 
     public static async Task<IsValid> ValidateMapComponent(MapComponentDto mapComponent)
     {
-        var isNewEntry = mapComponent.Map.Id < 1;
+        var isNewEntry = mapComponent.Id < 1;
 
         var isValid = true;
         var errorMessage = new List<string?>();
 
-        if (mapComponent.Map.ContentId == Guid.Empty)
+        if (mapComponent.ContentId == Guid.Empty)
         {
             isValid = false;
             errorMessage.Add("Content ID is Empty");
         }
 
-        var titleValidation = await ValidateTitle(mapComponent.Map.Title);
+        var titleValidation = await ValidateTitle(mapComponent.Title);
 
         if (!titleValidation.Valid)
         {
@@ -621,7 +621,7 @@ public static class CommonContentValidation
             errorMessage.Add(titleValidation.Explanation);
         }
 
-        var summaryValidation = await ValidateSummary(mapComponent.Map.Summary);
+        var summaryValidation = await ValidateSummary(mapComponent.Summary);
 
         if (!summaryValidation.Valid)
         {
@@ -630,7 +630,7 @@ public static class CommonContentValidation
         }
 
         var (createdUpdatedIsValid, createdUpdatedExplanation) =
-            await ValidateCreatedAndUpdatedBy(mapComponent.Map, isNewEntry);
+            await ValidateCreatedAndUpdatedBy(mapComponent, isNewEntry);
 
         if (!createdUpdatedIsValid)
         {
@@ -652,7 +652,7 @@ public static class CommonContentValidation
             errorMessage.Add("Not all map elements have a valid Content Id.");
         }
 
-        if (mapComponent.Elements.Any(x => x.MapComponentContentId != mapComponent.Map.ContentId))
+        if (mapComponent.Elements.Any(x => x.MapComponentContentId != mapComponent.ContentId))
         {
             isValid = false;
             errorMessage.Add("Not all map elements are correctly associated with the map.");

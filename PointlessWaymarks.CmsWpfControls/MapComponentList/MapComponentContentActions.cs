@@ -6,6 +6,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.MapComponentEditor;
@@ -129,7 +130,9 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         StatusContext.Progress($"Generating Html for {content.Title}");
 
-        await MapData.WriteJsonData(content.ContentId);
+        var dto = await Db.MapComponentDtoFromContentId(content.ContentId);
+
+        await Export.WriteMapComponentContentData(dto, StatusContext.ProgressTracker());
 
         StatusContext.ToastSuccess("Generated Map Data");
     }

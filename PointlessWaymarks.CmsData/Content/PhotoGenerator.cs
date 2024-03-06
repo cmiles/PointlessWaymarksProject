@@ -120,8 +120,10 @@ public static class PhotoGenerator
         var isoString = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
         if (!string.IsNullOrWhiteSpace(isoString)) toReturn.Iso = int.Parse(isoString);
 
-        toReturn.CameraMake = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-        toReturn.CameraModel = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+        toReturn.CameraMake = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ??
+                              exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+        toReturn.CameraModel = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ??
+                               exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
         toReturn.FocalLength = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagFocalLength) ?? string.Empty;
 
         toReturn.Lens = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagLensModel) ?? string.Empty;
@@ -282,25 +284,12 @@ public static class PhotoGenerator
         await Db.SavePhotoContent(toSave).ConfigureAwait(false);
         await WritePhotoFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress).ConfigureAwait(false);
         await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLocalDbJson(toSave).ConfigureAwait(false);
+        await Export.WritePhotoContentData(toSave).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Photo Generator", DataNotificationContentType.Photo,
             DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
-    }
-
-    public static async Task<(GenerationReturn generationReturn, PhotoContent? photoContent)> SaveToDb(
-        PhotoContent toSave, FileInfo selectedFile)
-    {
-        var validationReturn = await Validate(toSave, selectedFile).ConfigureAwait(false);
-
-        if (validationReturn.HasError) return (validationReturn, null);
-
-        await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
-        await Db.SavePhotoContent(toSave).ConfigureAwait(false);
-
-        return (GenerationReturn.Success($"Saved {toSave.Title}"), toSave);
     }
 
     public static async Task<GenerationReturn> Validate(PhotoContent? photoContent, FileInfo? selectedFile)
