@@ -147,8 +147,6 @@ public static class SiteGenerationAllContent
 
     public static async Task GenerateAllMapData(DateTime? generationVersion, IProgress<string>? progress = null)
     {
-        await PointData.WriteJsonData().ConfigureAwait(false);
-
         var db = await Db.Context().ConfigureAwait(false);
 
         var allItems = await (await db.MapComponents.ToListAsync().ConfigureAwait(false)).SelectInSequenceAsync(async x => await x.ToMapComponentDto(db));
@@ -207,8 +205,6 @@ public static class SiteGenerationAllContent
 
     public static async Task GenerateAllPointHtml(DateTime? generationVersion, IProgress<string>? progress = null)
     {
-        await PointData.WriteJsonData().ConfigureAwait(false);
-
         var db = await Db.Context().ConfigureAwait(false);
 
         var allItems = await db.PointContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);

@@ -1,6 +1,7 @@
 let globalLineMaps = [];
 let globalElevationCharts = [];
 let globalElevationChartLineMarkers = [];
+let mapIcons;
 
 const lazyInit = (elementToObserve, fn) => {
     const observer = new IntersectionObserver((entries) => {
@@ -42,6 +43,26 @@ function nationalBaseMapTopoMapLayer() {
             attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
         });
 }
+
+/*Source: https://raw.githubusercontent.com/nationalparkservice/symbol-library/gh-pages/src/standalone/photography-black-30.svg8*/
+const pointlessWaymarksCameraIcon = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" 
+    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 30 30" enable-background="new 0 0 30 30" xml:space="preserve">
+        <rect x="4" y="4" width="6" height="2"/>
+        <circle cx="10.5" cy="16.5" r="3.5"/>
+        <path d="M27,7H3c-1.7,0-3,1.3-3,3v13c0,1.6,1.3,3,3,3h24c1.7,0,3-1.4,3-3V10C30,8.3,28.7,7,27,7z M10.5,23.5c-3.9,0-7-3.1-7-7
+	        c0-3.9,3.1-7,7-7s7,3.1,7,7C17.5,20.4,14.4,23.5,10.5,23.5z M26,12h-3c-0.5,0-1-0.5-1-1s0.5-1,1-1h3c0.5,0,1,0.5,1,1S26.5,12,26,12z"/>
+</svg>`;
+
+/*Source: https://raw.githubusercontent.com/nationalparkservice/symbol-library/gh-pages/src/standalone/dot-black-30.svg*/
+const pointlessWaymarksDotIcon = `<svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" 
+	 viewBox="0 0 30 30" style="enable-background:new 0 0 30 30;" xml:space="preserve">
+    <circle  id="Oval-3-Copy-2" sketch:type="MSShapeGroup" cx="15" cy="15" r="8">
+    </circle>
+</svg>`;
+
+const mapIconColors = ['red', 'darkred', 'lightred', 'orange', 'beige', 'green', 'darkgreen', 'lightgreen', 'blue', 'darkblue', 'lightblue', 'purple', 'darkpurple', 'pink', 'cadetblue', 'white', 'gray', 'lightgray', 'black'];
 
 function geoJsonLayerStyle(feature) {
     //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
@@ -139,7 +160,7 @@ async function singleGeoJsonMapInit(mapElement, contentId) {
     await singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData);
 }
 
-function standardMap(mapElement) {
+async function standardMap(mapElement) {
 
     let openTopoMap = openTopoMapLayer();
     let tnmTopo = nationalBaseMapTopoMapLayer();
@@ -166,12 +187,16 @@ function standardMap(mapElement) {
         }
     }));
 
+    let iconsResponse = await fetch("/Points/Data/pwmapicons.json");
+    if (iconsResponse.ok) mapIcons = await iconsResponse.json();
+    else mapIcons = [];
+
     return map;
 }
 
 async function singleGeoJsonMapInitFromGeoJson(mapElement, geoJsonData) {
 
-    let map = standardMap(mapElement);
+    let map = await standardMap(mapElement);
 
     map.fitBounds([
         [geoJsonData.Content.InitialViewBoundsMinLatitude, geoJsonData.Content.InitialViewBoundsMinLongitude],
@@ -198,7 +223,7 @@ async function singleLineMapInit(mapElement, contentId) {
 
 async function singleLineMapInitFromLineData(contentId, mapElement, lineData) {
 
-    let map = standardMap(mapElement);
+    let map = await standardMap(mapElement);
 
     map.fitBounds([
         [lineData.Content.InitialViewBoundsMinLatitude, lineData.Content.InitialViewBoundsMinLongitude],
@@ -375,7 +400,7 @@ async function mapComponentInit(mapElement, contentId) {
 
     let mapComponent = await mapComponentResponse.json();
 
-    let map = standardMap(mapElement);
+    let map = await standardMap(mapElement);
 
     map.fitBounds([
         [mapComponent.Content.InitialViewBoundsMinLatitude, mapComponent.Content.InitialViewBoundsMinLongitude],
@@ -396,7 +421,7 @@ async function showMapElementsList(map, mapElementList) {
 
             let pointData = await response.json();
 
-            await AddTextOrCircleMarkerToMap(map, pointData);
+            await AddMarkerToMap(map, pointData);
         }
     }
 
@@ -425,7 +450,7 @@ async function showMapElementsList(map, mapElementList) {
 
             let geoJsonData = await response.json();
 
-            let newMapLayer = new L.geoJSON(geoJsonData.Content.GeoJson, {
+            let newMapLayer = new L.geoJSON(JSON.parse(geoJsonData.Content.GeoJson), {
                 onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
             });
 
@@ -435,16 +460,16 @@ async function showMapElementsList(map, mapElementList) {
 
     if (mapElementList.LineContentIds != null && mapElementList.LineContentIds.length > 0) {
 
-        for (let loopGeoJson of mapElementList.LineContentIds) {
+        for (let loopLines of mapElementList.LineContentIds) {
 
-            let response = await window.fetch(`/ContentData/${loopGeoJson}.json`);
+            let response = await window.fetch(`/ContentData/${loopLines}.json`);
 
             if (!response.ok)
                 throw new Error(response.statusText);
 
-            let geoJsonData = await response.json();
+            let lineData = await response.json();
 
-            let newMapLayer = new L.geoJSON(geoJsonData.Content.GeoJson, {
+            let newMapLayer = new L.geoJSON(JSON.parse(lineData.Content.Line), {
                 onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
             });
 
@@ -466,37 +491,10 @@ async function singlePointMapInit(mapElement, pointContentId) {
 
 async function singlePointMapInitFromPointData(mapElement, pointData) {
 
-    let pagePoint = pointData.Content;
+    let map = await standardMap(mapElement);
+    map.setView([pointData.Content.Latitude, pointData.Content.Longitude], 13);
 
-    var openTopoMap = openTopoMapLayer();
-    var tnmTopo = nationalBaseMapTopoMapLayer();
-    var tnmImageTopoMap = nationalBaseMapTopoImageMapLayer();
-
-    let map = L.map(mapElement,
-        {
-            center: { lat: pagePoint.Latitude, lng: pagePoint.Longitude },
-            zoom: 13,
-            layers: [tnmTopo],
-            doubleClickZoom: false,
-            gestureHandling: true,
-            closePopupOnClick: false
-        });
-
-    var baseLayers = {
-        "TNM Topo": tnmTopo,
-        "TNM Topo Image": tnmImageTopoMap,
-        "OpenTopo": openTopoMap
-    };
-
-    L.control.layers(baseLayers).addTo(map);
-
-    map.addControl(L.control.locate({
-        locateOptions: {
-            enableHighAccuracy: true
-        }
-    }));
-
-    AddMarkerToMap(map, pagePoint);
+    AddMarkerToMap(map, pointData);
 }
 
 async function AddTextOrCircleMarkerToMap(map, pointToAdd) {
@@ -550,34 +548,47 @@ async function AddMarkerToMap(map, pointToAdd) {
             if (pictureData.SmallPictureUrl) popupContent += `<p style="text-align: center;"><img src="${pictureData.SmallPictureUrl}"></img></p>`;
         }
     }
-    if (pointToAdd.Content.MainPicture.Summary) popupContent += `<p>${pointToAdd.Content.MainPicture.Summary}</p>`;
+    if (pointToAdd.Content.Summary) popupContent += `<p>${pointToAdd.Content.Summary}</p>`;
 
     if (pointToAdd.Content.MapLabel) {
-        let toAdd = L.marker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
+
+        let labelMarker = L.circleMarker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
+            { radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5 });
+
+        labelMarker.addTo(map);
+
+        let labelText = L.marker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
             {
                 icon: L.divIcon({
                     className: 'point-map-label',
-                    html: pointToAdd.Content.MapLabel,
-                    iconAnchor: [0, 0]
+                    html: `<p style="font-size: 24px;font-weight: bold; height: auto !important;width: max-content !important;">${pointToAdd.Content.MapLabel}</p>`,
+                    iconAnchor: [-6, 48]
                 })
             });
-        const textMarkerPopup = L.popup({ autoClose: false, autoPan: false })
+
+        const labelMarkerPopup = L.popup({ autoClose: false, autoPan: false })
             .setContent(popupContent);
-        const boundTextMarkerPopup = toAdd.bindPopup(textMarkerPopup);
-        toAdd.addTo(map);
+        const boundLabelMarkerPopup = labelText.bindPopup(labelMarkerPopup);
+        labelText.addTo(map);
+    }
 
-        let labelMarker = L.marker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
-            { draggable: false, autoPan: true, iconAnchor: [0, 0] });
+    if (!pointToAdd.Content.MapLabel || (pointToAdd.Content.MapIconName || pointToAdd.Content.MapMarkerColor)) {
+        let standardMarkerSvg = `data:image/svg+xml;utf8,${getMapIconSvg(pointToAdd.Content.MapIconName)}`;
+        let standardMarkerColor = getMapMarkerColor(pointToAdd.Content.MapMarkerColor);
 
-        labelMarker.addTo(map);
-    } else {
-        let toAdd = L.marker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
-            { draggable: false, autoPan: true, iconAnchor: [0, 0] });
+        let standardMarkerToAdd = L.marker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
+            {
+                icon: L.AwesomeSVGMarkers.icon({
+                    svgIcon: standardMarkerSvg,
+                    markerColor: standardMarkerColor,
+                    iconColor: '#000000'
+                })
+            });
 
-        const circlePopup = L.popup({ autoClose: false, autoPan: false })
+        const standardMarkerPopup = L.popup({ autoClose: false, autoPan: false })
             .setContent(popupContent);
-        toAdd.bindPopup(circlePopup);
-        toAdd.addTo(map);
+        const standardLabelMarkerPopup = standardMarkerToAdd.bindPopup(standardMarkerPopup);
+        standardMarkerToAdd.addTo(map);
     }
 }
 
@@ -585,8 +596,8 @@ function urlFromContent(content) {
     const currentOrigin = window.location.origin;
 
     if (!content.ContentType) return currentOrigin;
-    if (content.ContentType == 'Photo') return `${currentOrigin}/Photos/${content.Content.Slug}/${content.Content.Slug}.html}`;
-    if (content.ContentType == 'Point') return `${currentOrigin}/Points/${content.Content.Slug}/${content.Content.Slug}.html}`;
+    if (content.ContentType == 'Photo') return `${currentOrigin}/Photos/${content.Content.Folder}/${content.Content.Slug}/${content.Content.Slug}.html`;
+    if (content.ContentType == 'Point') return `${currentOrigin}/Points/${content.Content.Folder}/${content.Content.Slug}/${content.Content.Slug}.html`;
 
     return currentOrigin;
 }
@@ -598,10 +609,28 @@ function AddPhotoMarkerToMap(map, photoToAdd) {
     if (photoToAdd.Content.Summary) popupContent += `<p>${photoToAdd.Content.Summary}</p>`;
 
     let toAdd = L.marker([photoToAdd.Content.Latitude, photoToAdd.Content.Longitude],
-        { draggable: false, autoPan: true, iconAnchor: [0, 0] });
+        {
+            icon: L.AwesomeSVGMarkers.icon({
+                svgIcon: `data:image/svg+xml;utf8,${pointlessWaymarksCameraIcon}`,
+                markerColor: 'blue', iconColor: '#000000'
+            })
+        });
 
-    const circlePopup = L.popup({ autoClose: false, autoPan: false })
+    const photoPopup = L.popup({ autoClose: false, autoPan: false })
         .setContent(popupContent);
-    toAdd.bindPopup(circlePopup);
+    toAdd.bindPopup(photoPopup);
     toAdd.addTo(map);
+}
+
+function getMapMarkerColor(iconName) {
+    if (!iconName) return 'blue';
+    if (mapIconColors.includes(iconName)) return iconName;
+    return 'blue';
+}
+
+function getMapIconSvg(iconName) {
+    if (!iconName) return pointlessWaymarksDotIcon;
+    var possibleMapJsonIcons = mapIcons.filter(x => x.IconName === iconName);
+    if (possibleMapJsonIcons.length === 0) return pointlessWaymarksDotIcon;
+    return possibleMapJsonIcons[0].IconSvg;
 }

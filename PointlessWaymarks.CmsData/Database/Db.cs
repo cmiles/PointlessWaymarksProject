@@ -2137,12 +2137,14 @@ public static class Db
         if (toSaveDto.Id > 0) toSaveDto.Id = 0;
         toSaveDto.ContentVersion = ContentVersionDateTime();
 
-        await context.MapComponents.AddAsync(toSaveDto.ToDbObject()).ConfigureAwait(false);
+        var dbMap = toSaveDto.ToDbObject();
+
+        await context.MapComponents.AddAsync(dbMap).ConfigureAwait(false);
 
         await context.SaveChangesAsync(true).ConfigureAwait(false);
 
         var dbElements = await context.MapComponentElements
-            .Where(x => x.MapComponentContentId == toSaveDto.ContentId).ToListAsync().ConfigureAwait(false);
+            .Where(x => x.MapComponentContentId == dbMap.ContentId).ToListAsync().ConfigureAwait(false);
 
         var dbElementContentIds = dbElements.Select(x => x.ElementContentId).Distinct().ToList();
 
@@ -2178,19 +2180,23 @@ public static class Db
             .ConfigureAwait(false);
         var boundingBox = SpatialConverters.PointBoundingBox(points);
 
+        var photos = await context.PhotoContents.Where(x => newElementsContentIds.Contains(x.ContentId)).ToListAsync()
+            .ConfigureAwait(false);
+        if(photos.Any()) boundingBox = SpatialConverters.PhotoBoundingBox(photos, boundingBox);
+
         var geoJsonLines = await context.LineContents.Where(x => newElementsContentIds.Contains(x.ContentId))
             .ToListAsync().ConfigureAwait(false);
-        boundingBox = SpatialConverters.GeometryBoundingBox(geoJsonLines, boundingBox);
+        if(geoJsonLines.Any()) boundingBox = SpatialConverters.GeometryBoundingBox(geoJsonLines, boundingBox);
 
         var geoJson = await context.GeoJsonContents.Where(x => newElementsContentIds.Contains(x.ContentId))
             .ToListAsync().ConfigureAwait(false);
-        boundingBox = SpatialConverters.GeometryBoundingBox(geoJson, boundingBox);
+        if(geoJson.Any()) boundingBox = SpatialConverters.GeometryBoundingBox(geoJson, boundingBox);
 
-        toSaveDto.InitialViewBoundsMaxLatitude = boundingBox.MaxY;
-        toSaveDto.InitialViewBoundsMaxLongitude = boundingBox.MaxX;
-        toSaveDto.InitialViewBoundsMinLatitude = boundingBox.MinY;
-        toSaveDto.InitialViewBoundsMinLongitude = boundingBox.MinX;
-        DefaultPropertyCleanup(toSaveDto);
+        dbMap.InitialViewBoundsMaxLatitude = boundingBox.MaxY;
+        dbMap.InitialViewBoundsMaxLongitude = boundingBox.MaxX;
+        dbMap.InitialViewBoundsMinLatitude = boundingBox.MinY;
+        dbMap.InitialViewBoundsMinLongitude = boundingBox.MinX;
+        DefaultPropertyCleanup(dbMap);
 
         await context.SaveChangesAsync().ConfigureAwait(false);
 
@@ -2200,7 +2206,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Map,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSaveDto.ContentId });
+            new List<Guid> { dbMap.ContentId });
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
             DataNotificationUpdateType.New, newElements);

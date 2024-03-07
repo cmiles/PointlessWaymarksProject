@@ -35,19 +35,4 @@ public static class PointData
             x.MapMarkerColor
         }).ToList());
     }
-
-    public static async Task WriteJsonData()
-    {
-        var pointJson = await JsonDataToString().ConfigureAwait(false);
-
-        var dataFileInfo = new FileInfo($"{UserSettingsSingleton.CurrentSettings().LocalSitePointDataFile()}");
-
-        if (dataFileInfo.Exists)
-        {
-            dataFileInfo.Delete();
-            dataFileInfo.Refresh();
-        }
-
-        await FileManagement.WriteAllTextToFileAndLogAsync(dataFileInfo.FullName, pointJson).ConfigureAwait(false);
-    }
 }

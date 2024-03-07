@@ -341,8 +341,6 @@ public static class Export
     {
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var dtoToArchive = await Db.MapComponentDtoFromContentId(dbEntry.ContentId);
-
         var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
             $"{dbEntry.ContentId}.json"));
 
@@ -351,7 +349,7 @@ public static class Export
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
             var onDiskObject = await JsonSerializer.DeserializeAsync<MapComponentOnDiskData>(jsonFileStream);
 
-            if (new CompareLogic().Compare(dtoToArchive, onDiskObject?.Content).AreEqual)
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
             {
                 progress?.Report(
                     $"MapComponent - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
@@ -364,7 +362,7 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
-        var dtoElementGuids = dtoToArchive.Elements.Select(x => x.ElementContentId).ToList();
+        var dtoElementGuids = dbEntry.Elements.Select(x => x.ElementContentId).ToList();
 
         var db = await Db.Context().ConfigureAwait(false);
         var pointGuids = await db.PointContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
@@ -376,10 +374,10 @@ public static class Export
             .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
         var photoGuids = await db.PhotoContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
             .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        var showDetailsGuids = dtoToArchive.Elements.Where(x => x.ShowDetailsDefault).Select(x => x.ElementContentId)
+        var showDetailsGuids = dbEntry.Elements.Where(x => x.ShowDetailsDefault).Select(x => x.ElementContentId)
             .Distinct().ToList();
 
-        var onDiskData = new MapComponentOnDiskData(Db.ContentTypeDisplayString(dtoToArchive), dtoToArchive, new SpatialContentIdReferences(pointGuids, lineGuids, geoJsonGuids, photoGuids), showDetailsGuids);
+        var onDiskData = new MapComponentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry, new SpatialContentIdReferences(pointGuids, lineGuids, geoJsonGuids, photoGuids), showDetailsGuids);
 
         var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
 

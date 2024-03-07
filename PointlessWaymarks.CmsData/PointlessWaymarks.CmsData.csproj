@@ -41,6 +41,13 @@
     <None Remove="SiteResources\images\marker-icon-2x.png" />
     <None Remove="SiteResources\images\marker-icon.png" />
     <None Remove="SiteResources\images\marker-shadow.png" />
+    <None Remove="SiteResources\images\markers-matte.png" />
+    <None Remove="SiteResources\images\markers-matte@2x.png" />
+    <None Remove="SiteResources\images\markers-plain.png" />
+    <None Remove="SiteResources\images\markers-shadow.png" />
+    <None Remove="SiteResources\images\markers-shadow@2x.png" />
+    <None Remove="SiteResources\images\markers-soft.png" />
+    <None Remove="SiteResources\images\markers-soft@2x.png" />
     <None Remove="SiteResources\L.Control.Locate.min.css" />
     <None Remove="SiteResources\L.Control.Locate.min.css.map" />
     <None Remove="SiteResources\L.Control.Locate.min.js" />
@@ -48,6 +55,8 @@
     <None Remove="SiteResources\leaflet-gesture-handling.min.css" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.js" />
     <None Remove="SiteResources\leaflet-gesture-handling.min.js.map" />
+    <None Remove="SiteResources\leaflet.awesome-svg-markers.css" />
+    <None Remove="SiteResources\leaflet.awesome-svg-markers.js" />
     <None Remove="SiteResources\leaflet.js.map" />
     <None Remove="SiteResources\location-arrow-solid.svg" />
     <None Remove="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
@@ -375,6 +384,13 @@
     <EmbeddedResource Include="SiteResources\images\marker-icon-2x.png" />
     <EmbeddedResource Include="SiteResources\images\marker-icon.png" />
     <EmbeddedResource Include="SiteResources\images\marker-shadow.png" />
+    <EmbeddedResource Include="SiteResources\images\markers-matte.png" />
+    <EmbeddedResource Include="SiteResources\images\markers-matte@2x.png" />
+    <EmbeddedResource Include="SiteResources\images\markers-plain.png" />
+    <EmbeddedResource Include="SiteResources\images\markers-shadow.png" />
+    <EmbeddedResource Include="SiteResources\images\markers-shadow@2x.png" />
+    <EmbeddedResource Include="SiteResources\images\markers-soft.png" />
+    <EmbeddedResource Include="SiteResources\images\markers-soft@2x.png" />
     <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css" />
     <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css.map" />
     <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js" />
@@ -382,6 +398,8 @@
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.css" />
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js" />
     <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js.map" />
+    <EmbeddedResource Include="SiteResources\leaflet.awesome-svg-markers.css" />
+    <EmbeddedResource Include="SiteResources\leaflet.awesome-svg-markers.js" />
     <EmbeddedResource Include="SiteResources\leaflet.css" />
     <EmbeddedResource Include="SiteResources\leaflet.js" />
     <EmbeddedResource Include="SiteResources\leaflet.js.map" />
