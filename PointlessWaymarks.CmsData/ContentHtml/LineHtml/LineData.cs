@@ -218,9 +218,9 @@ public static class LineData
         var lineLinks = (await BracketCodeLineLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .OrderBy(x => x.Title).Select(x => x.ContentId).Distinct().ToList();
         var photos = (await BracketCodePhotos.DbContentFromBracketCodes(lineContent.BodyContent))
-            .Where(x => x.ShowPhotoPosition && x.HasLocation()).ToList();
+            .Where(x => x.HasLocation()).ToList();
         var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(lineContent.BodyContent))
-            .Where(x => x.ShowPhotoPosition && x.HasLocation())
+            .Where(x => x.HasLocation())
             .OrderBy(x => x.Title).ToList();
         var photoAllReferences = photos.Concat(photoLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
             .ToList();
@@ -232,16 +232,6 @@ public static class LineData
 
 
         return new SpatialContentIdReferences(pointLinks, lineLinks, geoJsonLinks, photoAllReferences);
-    }
-
-    public static async Task WriteContentReferenceJsonData(LineContent lineContent)
-    {
-        if (string.IsNullOrWhiteSpace(lineContent.Line))
-            throw new ArgumentException(
-                "WriteContentReferenceJsonData in LineData was given a LineContent with a null/blank/empty Line");
-
-        //WriteLineContentData will check if an update is needed and log the file write
-        await Export.WriteLineContentData(lineContent, null);
     }
 
     public static async Task WriteGpxData(LineContent lineContent)

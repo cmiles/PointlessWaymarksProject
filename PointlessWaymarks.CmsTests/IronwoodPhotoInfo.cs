@@ -296,8 +296,7 @@ public static class IronwoodPhotoInfo
         var expectedNumberOfFiles = PictureResizing.SrcSetSizeAndQualityList().Count(x => x.size < originalWidth) //
                                     + 1 //Original image
                                     + 1 //Display image
-                                    + 1 //HTML file
-                                    + 1; //json file
+                                    + 1; //HTML file
         Assert.That(expectedNumberOfFiles, Is.EqualTo(contentDirectory.GetFiles().Length),
             "Expected Number of Files Does Not Match");
 
@@ -408,10 +407,10 @@ public static class IronwoodPhotoInfo
         var jsonFile = UserSettingsSingleton.CurrentSettings().LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
-        var jsonFileImported = Import.ContentFromFiles<PhotoContent>(
+        var jsonFileImported = Import.ContentFromFiles<PhotoContentOnDiskData>(
             [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
-        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
+        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported.Content);
         Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected Content {comparisonResult.DifferencesString}");
     }

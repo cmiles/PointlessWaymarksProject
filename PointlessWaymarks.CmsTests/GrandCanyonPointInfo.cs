@@ -167,16 +167,16 @@ public static class GrandCanyonPointInfo
         await IronwoodHtmlHelpers.CommonContentChecks(document, newContent);
     }
 
-    public static void JsonTest(PointContent newContent)
+    public static void JsonTest(PointContentDto newContent)
     {
         var jsonFile = UserSettingsSingleton.CurrentSettings()
             .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
-        var jsonFileImported = Import.ContentFromFiles<PointContent>(
+        var jsonFileImported = Import.ContentFromFiles<PointContentOnDiskData>(
             [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
-        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
+        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported.Content);
         Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
     }
@@ -195,7 +195,7 @@ public static class GrandCanyonPointInfo
 
         await CheckForExpectedFilesAfterHtmlGeneration(newContent);
 
-        JsonTest(Db.PointContentDtoToPointContentAndDetails(newContent).content);
+        JsonTest(newContent);
 
         await HtmlChecks(newContent);
 

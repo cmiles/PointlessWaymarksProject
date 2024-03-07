@@ -194,10 +194,10 @@ public static class TestFileInfo
             .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
-        var jsonFileImported = Import.ContentFromFiles<FileContent>(
+        var jsonFileImported = Import.ContentFromFiles<FileContentOnDiskData>(
             [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
-        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
+        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported.Content);
         Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected File Content {comparisonResult.DifferencesString}");
     }

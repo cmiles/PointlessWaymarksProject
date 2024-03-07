@@ -169,10 +169,10 @@ public static class IronwoodVideoInfo
             .LocalSiteContentDataDirectoryDataFile(newContent.ContentId);
         Assert.That(jsonFile.Exists, $"Json file {jsonFile.FullName} does not exist?");
 
-        var jsonFileImported = Import.ContentFromFiles<VideoContent>(
+        var jsonFileImported = Import.ContentFromFiles<VideoContentOnDiskData>(
             [jsonFile.FullName]).Single();
         var compareLogic = new CompareLogic();
-        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported);
+        var comparisonResult = compareLogic.Compare(newContent, jsonFileImported.Content);
         Assert.That(comparisonResult.AreEqual,
             $"Json Import does not match expected Video Content {comparisonResult.DifferencesString}");
     }

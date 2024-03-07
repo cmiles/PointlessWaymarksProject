@@ -17,7 +17,8 @@ public class AddPointMarkerIconAndColor : Migration
             Execute.Sql(@"ALTER TABLE PointContents 
                     ADD COLUMN MapMarkerColor TEXT");
 
-        if (!Schema.Table("PointContents").Column("MapIcon").Exists())
+        if (!Schema.Table("PointContents").Column("MapIcon").Exists() &&
+            !Schema.Table("PointContents").Column("MapIconName").Exists())
             Execute.Sql(@"ALTER TABLE PointContents 
                     ADD COLUMN MapIcon TEXT");
 
@@ -25,7 +26,8 @@ public class AddPointMarkerIconAndColor : Migration
             Execute.Sql(@"ALTER TABLE HistoricPointContents 
                     ADD COLUMN MapMarkerColor TEXT");
 
-        if (!Schema.Table("HistoricPointContents").Column("MapIcon").Exists())
+        if (!Schema.Table("HistoricPointContents").Column("MapIcon").Exists() &&
+            !Schema.Table("HistoricPointContents").Column("MapIconName").Exists())
             Execute.Sql(@"ALTER TABLE HistoricPointContents 
                     ADD COLUMN MapIcon TEXT");
     }

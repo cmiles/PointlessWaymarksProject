@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -251,7 +251,7 @@ public static class PointParts
         return containerDiv;
     }
 
-    public static string PointDivAndScript(string pointSlug)
+    public static string PointDivAndScript(Guid pointContentId)
     {
         var divScriptGuidConnector = Guid.NewGuid();
 
@@ -259,20 +259,7 @@ public static class PointParts
             $"<div id=\"Point-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
 
         var script =
-            $"<script>lazyInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), () => singlePointMapInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), \"{pointSlug}\"))</script>";
-
-        return tag + script;
-    }
-
-    public static string PointDivAndScriptForDirectLocalAccess(string pointSlug)
-    {
-        var divScriptGuidConnector = Guid.NewGuid();
-
-        var tag =
-            $"<div id=\"Point-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
-
-        var script =
-            $"<script>lazyInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), () => singlePointMapInitFromPointData(document.querySelector(\"#Point-{divScriptGuidConnector}\"), \"{pointSlug}\", {PointData.JsonDataToString().Result}))</script>";
+            $"<script>lazyInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), () => singlePointMapInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), \"{pointContentId}\"))</script>";
 
         return tag + script;
     }

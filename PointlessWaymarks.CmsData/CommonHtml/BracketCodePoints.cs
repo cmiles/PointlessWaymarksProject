@@ -68,7 +68,7 @@ public static class BracketCodePoints
             progress?.Report($"Adding point {dbContent.Title} from Code");
 
             toProcess = toProcess.ReplaceEach(loopMatch.bracketCodeText,
-                () => PointParts.PointDivAndScript(dbContent.Slug));
+                () => PointParts.PointDivAndScript(dbContent.ContentId));
         }
 
         return toProcess;

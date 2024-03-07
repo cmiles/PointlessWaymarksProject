@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" debug="true"#>
+<#@ template language="C#" debug="true"#>
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
@@ -54,7 +54,7 @@
     <#=
                     Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#=
-                    PointParts.PointDivAndScript(DbEntry.Slug) #>
+                    PointParts.PointDivAndScript(DbEntry.ContentId) #>
     <#= PointParts.PointTextInfoDiv(DbEntry) #>
     <#=
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>

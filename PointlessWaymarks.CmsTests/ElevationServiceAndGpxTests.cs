@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using NUnit.Framework;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.SpatialTools;
