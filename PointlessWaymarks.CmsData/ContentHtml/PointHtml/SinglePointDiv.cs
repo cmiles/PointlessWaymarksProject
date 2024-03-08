@@ -33,6 +33,13 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml
             
             #line default
             #line hidden
+            this.Write("\" data-contentid=\"");
+            
+            #line 4 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentId.ToString()));
+            
+            #line default
+            #line hidden
             this.Write("\">\r\n    ");
             
             #line 5 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PointHtml\SinglePointDiv.tt"

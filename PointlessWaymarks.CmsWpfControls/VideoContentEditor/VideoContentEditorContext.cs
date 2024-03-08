@@ -149,7 +149,7 @@ Notes:
             return;
         }
 
-        if (!FileHelpers.VideoFileTypeIsSupported(newFile))
+        if (!VideoGenerator.VideoFileTypeIsSupported(newFile))
         {
             StatusContext.ToastError("Only JPEGs are supported...");
             return;
@@ -422,7 +422,7 @@ Notes:
             }
         }
 
-        if (DbEntry.Id < 1 && InitialVideo is { Exists: true } && FileHelpers.VideoFileTypeIsSupported(InitialVideo))
+        if (DbEntry.Id < 1 && InitialVideo is { Exists: true } && VideoGenerator.VideoFileTypeIsSupported(InitialVideo))
         {
             SelectedFile = InitialVideo;
             InitialVideo = null;

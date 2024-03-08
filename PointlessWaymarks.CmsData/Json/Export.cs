@@ -303,6 +303,10 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
 
+        dbEntry.GeoJson = dbEntry.GeoJson?.Replace("{{self}}", UserSettingsSingleton.CurrentSettings().GeoJsonPageUrl(dbEntry));
+
+        dbEntry.GeoJson = await BracketCodeCommon.ProcessCodesForSite(dbEntry.GeoJson).ConfigureAwait(false);
+
         var onDiskData = new GeoJsonContentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry);
 
         var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);

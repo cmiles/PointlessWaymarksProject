@@ -346,7 +346,7 @@ public static class UserSettingsUtilities
 
     public static string LineGpxDownloadUrl(this UserSettings settings, LineContent content)
     {
-        return $"{settings.SiteUrl()}/Lines/GpxData/Line-{content.ContentId}.gpx";
+        return $"{settings.SiteUrl()}/Lines/GpxData/{content.ContentId}.gpx";
     }
 
     public static string LineMonthlyActivitySummaryUrl(this UserSettings settings)

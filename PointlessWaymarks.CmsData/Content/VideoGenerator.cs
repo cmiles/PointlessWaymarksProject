@@ -123,4 +123,12 @@ public static class VideoGenerator
             await sourceVideo.CopyToAndLog(targetVideo.FullName).ConfigureAwait(false);
         }
     }
+
+    public static bool VideoFileTypeIsSupported(FileInfo toCheck)
+    {
+        if (toCheck is not { Exists: true }) return false;
+        return toCheck.Extension.ToUpperInvariant().Contains("MP4") ||
+               toCheck.Extension.ToUpperInvariant().Contains("WEBM") ||
+               toCheck.Extension.ToUpperInvariant().Contains("OGG");
+    }
 }

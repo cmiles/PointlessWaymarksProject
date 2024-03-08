@@ -15,6 +15,26 @@ namespace PointlessWaymarks.CmsData.Database;
 
 public static class Db
 {
+    public const string ContentTypeDisplayStringForFile = "File";
+    public const string ContentTypeDisplayStringForGeoJson = "GeoJson";
+    public const string ContentTypeDisplayStringForImage = "Image";
+    public const string ContentTypeDisplayStringForLine = "Line";
+    public const string ContentTypeDisplayStringForLink = "Link";
+    public const string ContentTypeDisplayStringForMap = "Map";
+    public const string ContentTypeDisplayStringForNote = "Note";
+    public const string ContentTypeDisplayStringForPhoto = "Photo";
+    public const string ContentTypeDisplayStringForPoint = "Point";
+    public const string ContentTypeDisplayStringForPost = "Post";
+    public const string ContentTypeDisplayStringForVideo = "Video";
+
+    public static async Task<List<string>> ActivityTypesFromLines()
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        return await db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.ActivityType)).GroupBy(x => x.ActivityType)
+            .Select(x => x.Key ?? string.Empty).OrderBy(x => x).ToListAsync();
+    }
+
     /// <summary>
     ///     Returns a ContentCommonShell based on the ContentId - all content that types are included but because of the
     ///     transformation to a concrete ContentCommonShell not all data will be available.
@@ -432,9 +452,10 @@ public static class Db
 
     /// <summary>
     ///     A standardized conversion of a Content Type into a simple standard display string. In some places in the code
-    /// this string may be used to identify a type (such as a serialized version of the type) BEWARE that for both Point and
-    /// Map the poco and DTO versions will return the same string and you will need to detect or know from context which
-    /// type is being used.
+    ///     this string may be used to identify a type (such as a serialized version of the type) BEWARE that for both Point
+    ///     and
+    ///     Map the poco and DTO versions will return the same string and you will need to detect or know from context which
+    ///     type is being used.
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
@@ -459,18 +480,6 @@ public static class Db
             _ => string.Empty
         };
     }
-
-    public const string ContentTypeDisplayStringForFile = "File";
-    public const string ContentTypeDisplayStringForGeoJson = "GeoJson";
-    public const string ContentTypeDisplayStringForImage = "Image";
-    public const string ContentTypeDisplayStringForLine = "Line";
-    public const string ContentTypeDisplayStringForLink = "Link";
-    public const string ContentTypeDisplayStringForMap = "Map";
-    public const string ContentTypeDisplayStringForNote = "Note";
-    public const string ContentTypeDisplayStringForPhoto = "Photo";
-    public const string ContentTypeDisplayStringForPost = "Post";
-    public const string ContentTypeDisplayStringForPoint = "Point";
-    public const string ContentTypeDisplayStringForVideo = "Video";
 
     /// <summary>
     ///     A standardized conversion of a Guid into a simple standard display string. Both Point and
@@ -1201,13 +1210,6 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Video,
             DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
-    }
-
-    public static async Task<List<string>> ActivityTypesFromLines()
-    {
-        var db = await Context().ConfigureAwait(false);
-
-        return await db.LineContents.Where(x => !string.IsNullOrWhiteSpace(x.ActivityType)).GroupBy(x => x.ActivityType).Select(x => x.Key ?? string.Empty).OrderBy(x => x).ToListAsync();
     }
 
     /// <summary>
@@ -2182,15 +2184,15 @@ public static class Db
 
         var photos = await context.PhotoContents.Where(x => newElementsContentIds.Contains(x.ContentId)).ToListAsync()
             .ConfigureAwait(false);
-        if(photos.Any()) boundingBox = SpatialConverters.PhotoBoundingBox(photos, boundingBox);
+        if (photos.Any()) boundingBox = SpatialConverters.PhotoBoundingBox(photos, boundingBox);
 
         var geoJsonLines = await context.LineContents.Where(x => newElementsContentIds.Contains(x.ContentId))
             .ToListAsync().ConfigureAwait(false);
-        if(geoJsonLines.Any()) boundingBox = SpatialConverters.GeometryBoundingBox(geoJsonLines, boundingBox);
+        if (geoJsonLines.Any()) boundingBox = SpatialConverters.GeometryBoundingBox(geoJsonLines, boundingBox);
 
         var geoJson = await context.GeoJsonContents.Where(x => newElementsContentIds.Contains(x.ContentId))
             .ToListAsync().ConfigureAwait(false);
-        if(geoJson.Any()) boundingBox = SpatialConverters.GeometryBoundingBox(geoJson, boundingBox);
+        if (geoJson.Any()) boundingBox = SpatialConverters.GeometryBoundingBox(geoJson, boundingBox);
 
         dbMap.InitialViewBoundsMaxLatitude = boundingBox.MaxY;
         dbMap.InitialViewBoundsMaxLongitude = boundingBox.MaxX;
@@ -2218,6 +2220,32 @@ public static class Db
             DataNotificationUpdateType.Delete, deletedElements);
 
         return toSaveDto;
+    }
+
+    public static async Task SaveMapIcon(MapIcon toSave)
+    {
+        var context = await Context();
+
+        var possibleExistingItem =
+            await context.MapIcons.FirstOrDefaultAsync(x => x.ContentId == toSave.ContentId);
+
+        if (possibleExistingItem != null)
+        {
+            var historicEntry = toSave.ToHistoricMapIcon();
+
+            await context.HistoricMapIcons.AddAsync(historicEntry);
+            context.Remove(possibleExistingItem);
+        }
+
+        await context.AddAsync(toSave);
+        await context.SaveChangesAsync();
+
+        if (possibleExistingItem is null)
+            DataNotifications.PublishDataNotification("Map Icon Added", DataNotificationContentType.MapIcon,
+                DataNotificationUpdateType.New, toSave.ContentId.AsList());
+        else
+            DataNotifications.PublishDataNotification("Map Icon Updated", DataNotificationContentType.MapIcon,
+                DataNotificationUpdateType.Update, toSave.ContentId.AsList());
     }
 
     public static async Task SaveNoteContent(NoteContent? toSave)
@@ -2811,30 +2839,4 @@ public static class Db
     }
 
     public record TagSlugAndIsExcluded(string TagSlug, bool IsExcluded);
-
-    public static async Task SaveMapIcon(MapIcon toSave)
-    {
-        var context = await Db.Context();
-
-        var possibleExistingItem =
-            await context.MapIcons.FirstOrDefaultAsync(x => x.ContentId == toSave.ContentId);
-
-        if (possibleExistingItem != null)
-        {
-            var historicEntry = toSave.ToHistoricMapIcon();
-
-            await context.HistoricMapIcons.AddAsync(historicEntry);
-            context.Remove(possibleExistingItem);
-        }
-
-        await context.AddAsync(toSave);
-        await context.SaveChangesAsync();
-
-        if (possibleExistingItem is null)
-            DataNotifications.PublishDataNotification("Map Icon Added", DataNotificationContentType.MapIcon,
-                DataNotificationUpdateType.New, toSave.ContentId.AsList());
-        else
-            DataNotifications.PublishDataNotification("Map Icon Updated", DataNotificationContentType.MapIcon,
-                DataNotificationUpdateType.Update, toSave.ContentId.AsList());
-    }
 }

@@ -1,11 +1,11 @@
-﻿<#@ template language="C#" #>
+<#@ template language="C#" #>
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
 <html lang="en">
 <head data-contentversion="<#=
                     DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>" data-generationversion="<#=
-                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>" lang="<#= LangAttribute #>" dir="<#= DirAttribute #>">
+                    GenerationVersion?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") ?? string.Empty #>" data-contentid="<#= DbEntry.ContentId.ToString() #>" lang="<#= LangAttribute #>" dir="<#= DirAttribute #>">
     <meta charset="utf-8">
         <#
     if (DbEntry.IsDraft)

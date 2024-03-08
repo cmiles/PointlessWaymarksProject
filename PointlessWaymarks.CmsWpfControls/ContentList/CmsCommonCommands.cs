@@ -295,17 +295,17 @@ public partial class CmsCommonCommands
 
         selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-        if (!selectedFileInfos.Any(FileHelpers.ImageFileTypeIsSupported))
+        if (!selectedFileInfos.Any(ImageGenerator.ImageFileTypeIsSupported))
         {
             StatusContext.ToastError("None of the files appear to be supported file types...");
             return;
         }
 
-        if (selectedFileInfos.Any(x => !FileHelpers.ImageFileTypeIsSupported(x)))
+        if (selectedFileInfos.Any(x => !ImageGenerator.ImageFileTypeIsSupported(x)))
             StatusContext.ToastWarning(
-                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.ImageFileTypeIsSupported(x)))}");
+                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !ImageGenerator.ImageFileTypeIsSupported(x)))}");
 
-        foreach (var loopFile in selectedFileInfos.Where(FileHelpers.ImageFileTypeIsSupported))
+        foreach (var loopFile in selectedFileInfos.Where(ImageGenerator.ImageFileTypeIsSupported))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -589,17 +589,17 @@ public partial class CmsCommonCommands
 
         selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-        if (!selectedFileInfos.Any(FileHelpers.PhotoFileTypeIsSupported))
+        if (!selectedFileInfos.Any(PhotoGenerator.PhotoFileTypeIsSupported))
         {
             StatusContext.ToastError("None of the files appear to be supported file types...");
             return;
         }
 
-        if (selectedFileInfos.Any(x => !FileHelpers.PhotoFileTypeIsSupported(x)))
+        if (selectedFileInfos.Any(x => !PhotoGenerator.PhotoFileTypeIsSupported(x)))
             StatusContext.ToastWarning(
-                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.PhotoFileTypeIsSupported(x)))}");
+                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !PhotoGenerator.PhotoFileTypeIsSupported(x)))}");
 
-        var validFiles = selectedFileInfos.Where(FileHelpers.PhotoFileTypeIsSupported).ToList();
+        var validFiles = selectedFileInfos.Where(PhotoGenerator.PhotoFileTypeIsSupported).ToList();
 
         var loopCount = 0;
 
@@ -782,17 +782,17 @@ public partial class CmsCommonCommands
 
         selectedFileInfos = selectedFileInfos.Where(x => x.Exists).ToList();
 
-        if (!selectedFileInfos.Any(FileHelpers.VideoFileTypeIsSupported))
+        if (!selectedFileInfos.Any(VideoGenerator.VideoFileTypeIsSupported))
         {
             StatusContext.ToastError("None of the files appear to be supported file types...");
             return;
         }
 
-        if (selectedFileInfos.Any(x => !FileHelpers.VideoFileTypeIsSupported(x)))
+        if (selectedFileInfos.Any(x => !VideoGenerator.VideoFileTypeIsSupported(x)))
             StatusContext.ToastWarning(
-                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !FileHelpers.VideoFileTypeIsSupported(x)))}");
+                $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !VideoGenerator.VideoFileTypeIsSupported(x)))}");
 
-        foreach (var loopFile in selectedFileInfos.Where(FileHelpers.VideoFileTypeIsSupported))
+        foreach (var loopFile in selectedFileInfos.Where(VideoGenerator.VideoFileTypeIsSupported))
         {
             cancellationToken.ThrowIfCancellationRequested();
 

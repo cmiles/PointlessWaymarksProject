@@ -432,4 +432,6 @@ public partial class FileBasedGeoTaggerContext
 
         SelectedTab = 4;
     }
+
+    public record GeoJsonSiteJsonData(string PageUrl, SpatialBounds Bounds, FeatureCollection GeoJson);
 }

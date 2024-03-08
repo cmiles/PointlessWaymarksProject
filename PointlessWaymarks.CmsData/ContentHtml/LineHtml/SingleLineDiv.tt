@@ -1,7 +1,7 @@
 <#@ template language="C#" #>
 <#@ import namespace="CommonHtml" #>
 
-<div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>">
+<div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>" data-contentid="<#= DbEntry.ContentId.ToString() #>">
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry) #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= LineParts.LineDivAndScript(DbEntry) #>

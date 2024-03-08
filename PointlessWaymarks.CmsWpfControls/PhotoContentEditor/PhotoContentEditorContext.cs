@@ -179,7 +179,7 @@ Photo Content Notes:
             return;
         }
 
-        if (!FileHelpers.PhotoFileTypeIsSupported(newFile))
+        if (!PhotoGenerator.PhotoFileTypeIsSupported(newFile))
         {
             StatusContext.ToastError("Only JPEGs are supported...");
             return;
@@ -570,7 +570,7 @@ Photo Content Notes:
             PhotoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         ]);
 
-        if (DbEntry.Id < 1 && InitialPhoto is { Exists: true } && FileHelpers.PhotoFileTypeIsSupported(InitialPhoto))
+        if (DbEntry.Id < 1 && InitialPhoto is { Exists: true } && PhotoGenerator.PhotoFileTypeIsSupported(InitialPhoto))
         {
             SelectedFile = InitialPhoto;
             ResizeSelectedFile = true;

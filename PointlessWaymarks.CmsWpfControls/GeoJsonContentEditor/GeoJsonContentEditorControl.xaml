@@ -108,7 +108,7 @@
             <TabItem Header="Raw GeoJson">
                 <TextBox
                     Style="{StaticResource ReadOnlyTextBoxStyle}"
-                    Text="{Binding GeoJsonText}"
+                    Text="{Binding GeoJsonText, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Visible" />
             </TabItem>
@@ -145,6 +145,7 @@
             Grid.RowSpan="2"
             Grid.Column="0"
             HorizontalContentAlignment="Right"
-            VerticalContentAlignment="Bottom" />
+            VerticalContentAlignment="Bottom" 
+            d:IsHidden="true"/>
     </Grid>
 </UserControl>

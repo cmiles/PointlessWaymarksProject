@@ -118,7 +118,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
             return;
         }
 
-        if (!FileHelpers.ImageFileTypeIsSupported(newFile))
+        if (!ImageGenerator.ImageFileTypeIsSupported(newFile))
         {
             StatusContext.ToastError("Only jpeg files are supported...");
             return;
@@ -271,7 +271,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         AltTextEntry.ReferenceValue = DbEntry.AltText ?? string.Empty;
         AltTextEntry.UserValue = DbEntry.AltText.TrimNullToEmpty();
 
-        if (DbEntry.Id < 1 && InitialImage is { Exists: true } && FileHelpers.ImageFileTypeIsSupported(InitialImage))
+        if (DbEntry.Id < 1 && InitialImage is { Exists: true } && ImageGenerator.ImageFileTypeIsSupported(InitialImage))
         {
             SelectedFile = InitialImage;
             ResizeSelectedFile = true;

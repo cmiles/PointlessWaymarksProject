@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Text;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using PointlessWaymarks.CmsData.Database;
@@ -108,55 +107,6 @@ public static class FileManagement
             dbContent.ContentId);
     }
 
-    public static async Task<GenerationReturn> CheckVideoOriginalFileIsInMediaAndContentDirectories(
-        VideoContent? dbContent)
-    {
-        if (dbContent == null)
-            return GenerationReturn.Error(
-                "Null Video Content was submitted to the Check of File in the Media and Content Directories");
-
-        UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
-
-        if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
-            return GenerationReturn.Error($"Video {dbContent.Title} does not have an Original File assigned",
-                dbContent.ContentId);
-
-        var archiveFile = new FileInfo(Path.Combine(
-            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveVideoDirectory().FullName,
-            dbContent.OriginalFileName));
-
-        var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(dbContent);
-
-        var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
-
-        if (!archiveFile.Exists && !contentFile.Exists)
-            return GenerationReturn.Error(
-                $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
-                $"there appears to be a file missing for the Video Titled {dbContent.Title} " +
-                $"slug {dbContent.Slug}",
-                dbContent.ContentId);
-
-        if (archiveFile.Exists && !contentFile.Exists)
-            await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
-
-        if (!archiveFile.Exists && contentFile.Exists)
-            await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
-
-        archiveFile.Refresh();
-        contentFile.Refresh();
-
-        var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
-
-        if (bothFilesPresent)
-            return GenerationReturn.Success($"Video {dbContent.Title} Present in both Content and Media Folders",
-                dbContent.ContentId);
-
-        return GenerationReturn.Error(
-            $"There was a problem - Archive Video Present: {archiveFile.Exists}, " +
-            $"Content Video Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
-            dbContent.ContentId);
-    }
-
     public static async Task<GenerationReturn> CheckImageFileIsInMediaAndContentDirectories(ImageContent? dbContent)
     {
         if (dbContent == null)
@@ -254,6 +204,55 @@ public static class FileManagement
             dbContent.ContentId);
     }
 
+    public static async Task<GenerationReturn> CheckVideoOriginalFileIsInMediaAndContentDirectories(
+        VideoContent? dbContent)
+    {
+        if (dbContent == null)
+            return GenerationReturn.Error(
+                "Null Video Content was submitted to the Check of File in the Media and Content Directories");
+
+        UserSettingsSingleton.CurrentSettings().VerifyOrCreateAllTopLevelFolders();
+
+        if (string.IsNullOrWhiteSpace(dbContent.OriginalFileName))
+            return GenerationReturn.Error($"Video {dbContent.Title} does not have an Original File assigned",
+                dbContent.ContentId);
+
+        var archiveFile = new FileInfo(Path.Combine(
+            UserSettingsSingleton.CurrentSettings().LocalMediaArchiveVideoDirectory().FullName,
+            dbContent.OriginalFileName));
+
+        var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoContentDirectory(dbContent);
+
+        var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, dbContent.OriginalFileName));
+
+        if (!archiveFile.Exists && !contentFile.Exists)
+            return GenerationReturn.Error(
+                $"Neither {archiveFile.FullName} nor {contentFile.FullName} exists - " +
+                $"there appears to be a file missing for the Video Titled {dbContent.Title} " +
+                $"slug {dbContent.Slug}",
+                dbContent.ContentId);
+
+        if (archiveFile.Exists && !contentFile.Exists)
+            await archiveFile.CopyToAndLogAsync(contentFile.FullName).ConfigureAwait(false);
+
+        if (!archiveFile.Exists && contentFile.Exists)
+            await contentFile.CopyToAndLogAsync(archiveFile.FullName).ConfigureAwait(false);
+
+        archiveFile.Refresh();
+        contentFile.Refresh();
+
+        var bothFilesPresent = archiveFile.Exists && contentFile.Exists;
+
+        if (bothFilesPresent)
+            return GenerationReturn.Success($"Video {dbContent.Title} Present in both Content and Media Folders",
+                dbContent.ContentId);
+
+        return GenerationReturn.Error(
+            $"There was a problem - Archive Video Present: {archiveFile.Exists}, " +
+            $"Content Video Present {contentFile.Exists} - {archiveFile.FullName}; {contentFile.FullName}",
+            dbContent.ContentId);
+    }
+
     public static async Task<List<GenerationReturn>> CleanAndResizeAllImageFiles(IProgress<string>? progress = null)
     {
         var db = await Db.Context().ConfigureAwait(false);
@@ -347,11 +346,12 @@ public static class FileManagement
             }
             catch (Exception e)
             {
-                Log.ForContext(nameof(loopFiles), loopFiles.SafeObjectDump()).Error(e, "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
+                Log.ForContext(nameof(loopFiles), loopFiles.SafeObjectDump()).Error(e,
+                    "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
             }
 
         var allDirectories = temporaryDirectory.GetDirectories();
-        
+
         foreach (var loopDirectories in allDirectories)
             try
             {
@@ -366,7 +366,8 @@ public static class FileManagement
             }
             catch (Exception e)
             {
-                Log.ForContext(nameof(loopDirectories), loopDirectories.SafeObjectDump()).Error(e, "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
+                Log.ForContext(nameof(loopDirectories), loopDirectories.SafeObjectDump()).Error(e,
+                    "FileManagement.CleanUpTemporaryFiles - could not delete temporary file.");
             }
     }
 
@@ -452,9 +453,102 @@ public static class FileManagement
         await LogFileWriteAsync(destinationFile).ConfigureAwait(false);
     }
 
+    public static async Task RemoveGpxFilesNotInCurrentDb(IProgress<string>? progress)
+    {
+        var db = await Db.Context().ConfigureAwait(false);
+        var lineContentIds = await db.LineContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+
+        var gpxFiles = UserSettingsSingleton.CurrentSettings().LocalSiteLineGpxDirectory().GetFiles("*.gpx").ToList();
+
+        var fileCount = 0;
+
+        foreach (var loopGpxFiles in gpxFiles)
+        {
+            fileCount++;
+
+            if (fileCount % 500 == 0)
+                progress?.Report(
+                    $"ContentData Directory Cleanup - Checking Existing File {fileCount} of {gpxFiles.Count}");
+
+            if (Guid.TryParse(Path.GetFileNameWithoutExtension(loopGpxFiles.Name), out var parsedGuid))
+            {
+                if (!lineContentIds.Contains(parsedGuid))
+                    try
+                    {
+                        loopGpxFiles.Delete();
+                        progress?.Report($"Deleted {loopGpxFiles.FullName}");
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump()).Debug(
+                            "Error Deleting {file} from the Gpx Directory - Error Ignored",
+                            loopGpxFiles.FullName);
+                    }
+            }
+            else
+            {
+                loopGpxFiles.Delete();
+            }
+        }
+    }
+
+    public static async Task RemoveContentDataJsonFilesNotInCurrentDb(IProgress<string>? progress)
+    {
+        progress?.Report("ContentData Directory Cleanup - Starting Queries for All Database Content Ids");
+
+        var db = await Db.Context().ConfigureAwait(false);
+        var allContentIds = new List<Guid>();
+
+        allContentIds.AddRange(await db.FileContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.GeoJsonContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.ImageContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.LineContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.MapComponents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.NoteContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.PhotoContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.PointContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.PostContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.VideoContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+
+        progress?.Report(
+            $"ContentData Directory Cleanup - found {allContentIds.Count} Content Ids in the Database - Getting Files");
+
+        var allContentDataFiles = UserSettingsSingleton.CurrentSettings().LocalSiteContentDataDirectory()
+            .GetFiles("*.json").ToList();
+
+        progress?.Report($"ContentData Directory Cleanup - found {allContentDataFiles.Count} Files to Check");
+
+        var fileCount = 0;
+
+        foreach (var loopFiles in allContentDataFiles)
+        {
+            fileCount++;
+
+            if (fileCount % 500 == 0)
+                progress?.Report(
+                    $"ContentData Directory Cleanup - Checking Existing File {fileCount} of {allContentDataFiles.Count}");
+
+            var contentId = Path.GetFileNameWithoutExtension(loopFiles.Name);
+            if (Guid.TryParse(contentId, out var parsedGuid))
+                if (!allContentIds.Contains(parsedGuid))
+                    try
+                    {
+                        loopFiles.Delete();
+                        progress?.Report($"Deleted {loopFiles.FullName}");
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump()).Debug(
+                            "Error Deleting {file} from the ContentData Directory - Error Ignored",
+                            loopFiles.FullName);
+                    }
+        }
+    }
+
     public static async Task RemoveContentDirectoriesAndFilesNotFoundInCurrentDatabase(
         IProgress<string>? progress = null)
     {
+        //!!Content List
         await RemoveFileDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemoveImageDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
@@ -463,6 +557,9 @@ public static class FileManagement
         await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemovePointDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemovePostDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+        await RemoveVideoDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+        await RemoveContentDataJsonFilesNotInCurrentDb(progress).ConfigureAwait(false);
+        await RemoveGpxFilesNotInCurrentDb(progress).ConfigureAwait(false);
         await RemoveTagContentFilesNotInCurrentDatabase(progress).ConfigureAwait(false);
     }
 
@@ -509,6 +606,38 @@ public static class FileManagement
 
                 progress?.Report($"{loopExistingContentDirectories.FullName} matches current File Content");
             }
+        }
+
+        var allContent = await db.FileContents.ToListAsync();
+
+        foreach (var loopFileContent in allContent)
+        {
+            var folder = UserSettingsSingleton.CurrentSettings().LocalSiteFileContentDirectory(loopFileContent, false);
+
+            if (!folder.Exists) continue;
+
+            var fileList = folder.GetFiles().ToList();
+            fileList.RemoveAll(x =>
+                x.Name.StartsWith(folder.Name, StringComparison.OrdinalIgnoreCase));
+            fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(loopFileContent.OriginalFileName))
+                fileList.RemoveAll(x =>
+                    x.Name.Equals(loopFileContent.OriginalFileName, StringComparison.OrdinalIgnoreCase));
+
+            if (fileList.Any())
+                progress?.Report(
+                    $"Deleting Files in {folder.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+            foreach (var loopFiles in fileList)
+                try
+                {
+                    loopFiles.Delete();
+                }
+                catch (Exception e)
+                {
+                    Log.ForContext("exception", e.SafeObjectDump())
+                        .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                }
         }
 
         progress?.Report("Ending File Directory Cleanup");
@@ -583,6 +712,26 @@ public static class FileManagement
                     continue;
                 }
 
+                var fileList = loopExistingContentDirectories.GetFiles().ToList();
+                fileList.RemoveAll(x =>
+                    x.Name.StartsWith(loopExistingContentDirectories.Name, StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+
+                if (fileList.Any())
+                    progress?.Report(
+                        $"Deleting Files in {loopExistingContentDirectories.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+                foreach (var loopFiles in fileList)
+                    try
+                    {
+                        loopFiles.Delete();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump())
+                            .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                    }
+
                 progress?.Report($"{loopExistingContentDirectories.FullName} matches current GeoJson Content");
             }
         }
@@ -630,6 +779,27 @@ public static class FileManagement
                     loopExistingContentDirectories.Delete(true);
                     continue;
                 }
+
+                var fileList = loopExistingContentDirectories.GetFiles().ToList();
+                fileList.RemoveAll(x =>
+                    x.Name.StartsWith(loopExistingContentDirectories.Name, StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(ImageGenerator.ImageFileTypeIsSupported);
+
+                if (fileList.Any())
+                    progress?.Report(
+                        $"Deleting Files in {loopExistingContentDirectories.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+                foreach (var loopFiles in fileList)
+                    try
+                    {
+                        loopFiles.Delete();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump())
+                            .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                    }
 
                 progress?.Report($"{loopExistingContentDirectories.FullName} matches current Image Content");
             }
@@ -706,6 +876,26 @@ public static class FileManagement
                     loopExistingContentDirectories.Delete(true);
                     continue;
                 }
+
+                var fileList = loopExistingContentDirectories.GetFiles().ToList();
+                fileList.RemoveAll(x =>
+                    x.Name.StartsWith(loopExistingContentDirectories.Name, StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+
+                if (fileList.Any())
+                    progress?.Report(
+                        $"Deleting Files in {loopExistingContentDirectories.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+                foreach (var loopFiles in fileList)
+                    try
+                    {
+                        loopFiles.Delete();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump())
+                            .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                    }
 
                 progress?.Report($"{loopExistingContentDirectories.FullName} matches current Line Content");
             }
@@ -818,6 +1008,27 @@ public static class FileManagement
                     continue;
                 }
 
+                var fileList = loopExistingContentDirectories.GetFiles().ToList();
+                fileList.RemoveAll(x =>
+                    x.Name.StartsWith(loopExistingContentDirectories.Name, StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(PhotoGenerator.PhotoFileTypeIsSupported);
+
+                if (fileList.Any())
+                    progress?.Report(
+                        $"Deleting Files in {loopExistingContentDirectories.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+                foreach (var loopFiles in fileList)
+                    try
+                    {
+                        loopFiles.Delete();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump())
+                            .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                    }
+
                 progress?.Report($"{loopExistingContentDirectories.FullName} matches current Photo Content");
             }
         }
@@ -927,6 +1138,26 @@ public static class FileManagement
                     continue;
                 }
 
+                var fileList = loopExistingContentDirectories.GetFiles().ToList();
+                fileList.RemoveAll(x =>
+                    x.Name.StartsWith(loopExistingContentDirectories.Name, StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+
+                if (fileList.Any())
+                    progress?.Report(
+                        $"Deleting Files in {loopExistingContentDirectories.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+                foreach (var loopFiles in fileList)
+                    try
+                    {
+                        loopFiles.Delete();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump())
+                            .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                    }
+
                 progress?.Report($"{loopExistingContentDirectories.FullName} matches current Point Content");
             }
         }
@@ -975,6 +1206,26 @@ public static class FileManagement
                     continue;
                 }
 
+                var fileList = loopExistingContentDirectories.GetFiles().ToList();
+                fileList.RemoveAll(x =>
+                    x.Name.StartsWith(loopExistingContentDirectories.Name, StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+
+                if (fileList.Any())
+                    progress?.Report(
+                        $"Deleting Files in {loopExistingContentDirectories.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+                foreach (var loopFiles in fileList)
+                    try
+                    {
+                        loopFiles.Delete();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump())
+                            .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                    }
+
                 progress?.Report($"{loopExistingContentDirectories.FullName} matches current Post Content");
             }
         }
@@ -999,6 +1250,75 @@ public static class FileManagement
 
             if (!tags.Contains(fileTag)) loopFiles.Delete();
         }
+    }
+
+    public static async Task RemoveVideoDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
+    {
+        progress?.Report("Starting Directory Cleanup");
+
+        var db = await Db.Context().ConfigureAwait(false);
+        var dbFolders = db.VideoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+
+        var siteTopLevelVideoDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoDirectory();
+        var folderDirectories = siteTopLevelVideoDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        progress?.Report(
+            $"Found {folderDirectories.Count} Existing Video Directories to Check against {dbFolders.Count} Video Folders in the Database");
+
+        foreach (var loopExistingDirectories in folderDirectories)
+        {
+            if (!dbFolders.Contains(loopExistingDirectories.Name))
+            {
+                progress?.Report($"Deleting {loopExistingDirectories.FullName}");
+
+                loopExistingDirectories.Delete(true);
+                continue;
+            }
+
+            progress?.Report($"Staring Video Content Directory Check for {loopExistingDirectories.FullName}");
+
+            var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
+            var dbContentSlugs = db.VideoContents.Where(x => x.Folder == loopExistingDirectories.Name)
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
+
+            progress?.Report(
+                $"Found {existingContentDirectories.Count} Existing Video Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
+
+            foreach (var loopExistingContentDirectories in existingContentDirectories)
+            {
+                if (!dbContentSlugs.Contains(loopExistingContentDirectories.Name))
+                {
+                    progress?.Report($"Deleting {loopExistingContentDirectories.FullName}");
+                    loopExistingContentDirectories.Delete(true);
+                    continue;
+                }
+
+                var fileList = loopExistingContentDirectories.GetFiles().ToList();
+                fileList.RemoveAll(x =>
+                    x.Name.StartsWith(loopExistingContentDirectories.Name, StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(VideoGenerator.VideoFileTypeIsSupported);
+
+                if (fileList.Any())
+                    progress?.Report(
+                        $"Deleting Files in {loopExistingContentDirectories.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+                foreach (var loopFiles in fileList)
+                    try
+                    {
+                        loopFiles.Delete();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump())
+                            .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                    }
+
+                progress?.Report($"{loopExistingContentDirectories.FullName} matches current Video Content");
+            }
+        }
+
+        progress?.Report("Ending Video Directory Cleanup");
     }
 
     public static async Task<string> SpatialScriptsAsString()

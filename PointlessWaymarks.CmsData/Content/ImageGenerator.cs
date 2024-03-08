@@ -216,4 +216,11 @@ public static class ImageGenerator
         await PictureResizing.ResizeForDisplayAndSrcset(imageContent, forcedResizeOverwriteExistingFiles, progress)
             .ConfigureAwait(false);
     }
+
+    public static bool ImageFileTypeIsSupported(FileInfo toCheck)
+    {
+        if (toCheck is not { Exists: true }) return false;
+        return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
+               toCheck.Extension.ToUpperInvariant().Contains("JPEG");
+    }
 }
