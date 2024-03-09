@@ -128,7 +128,7 @@ public static class SiteGeneration
         }
 
         progress?.Report("Write Site Resources");
-        await FileManagement.WriteSiteResourcesToGeneratedSite(progress).ConfigureAwait(false);
+        await FileManagement.WriteChangedSiteResourcesToGeneratedSite(progress).ConfigureAwait(false);
 
         progress?.Report($"Generation HTML based on changes after UTC - {lastGenerationValues.GenerationVersion}");
 
