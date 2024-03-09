@@ -292,7 +292,7 @@ function createPoints(useCircleMarkers) {
         }
 
         if (feature.properties?.mapIconName || feature.properties?.mapMarkerColor) {
-            return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(feature.properties.mapIcon)}`, markerColor: getMapMarkerColor(feature.properties?.mapMarkerColor), iconColor: '#000000' }) });
+            return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(feature.properties?.mapIcon)}`, markerColor: getMapMarkerColor(feature.properties?.mapMarkerColor), iconColor: '#000000' }) });
         }
 
         if (useCircleMarkers) {
