@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using PointlessWaymarks.CmsData.Content;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 

@@ -3,10 +3,11 @@ using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.ImageHelpers;
 using PointlessWaymarks.CmsData.Json;
 using PointlessWaymarks.CommonTools;
 

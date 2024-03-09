@@ -1,7 +1,7 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 

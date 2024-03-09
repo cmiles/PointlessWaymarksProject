@@ -6,7 +6,7 @@ using Garmin.Connect.Auth;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;

@@ -4,7 +4,7 @@ using System.Text.Json;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CommonTools;

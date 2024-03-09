@@ -1,5 +1,4 @@
 ﻿using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml;

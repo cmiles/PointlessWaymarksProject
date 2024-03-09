@@ -4,7 +4,7 @@ using System.Net;
 using System.Windows.Data;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;

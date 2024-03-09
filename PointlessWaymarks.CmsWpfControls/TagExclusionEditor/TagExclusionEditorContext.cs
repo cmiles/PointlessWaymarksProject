@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;

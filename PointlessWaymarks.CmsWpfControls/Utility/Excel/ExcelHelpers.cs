@@ -5,7 +5,7 @@ using Omu.ValueInjecter;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsData.Import;
+using PointlessWaymarks.CmsData.ExcelImport;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;

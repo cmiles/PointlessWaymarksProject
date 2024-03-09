@@ -4,7 +4,7 @@ using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;

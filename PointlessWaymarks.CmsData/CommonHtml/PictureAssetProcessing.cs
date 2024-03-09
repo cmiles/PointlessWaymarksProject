@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
-using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.ImageHelpers;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 

@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using PointlessWaymarks.CmsData.Content;
+using System.ComponentModel;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;

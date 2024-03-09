@@ -1,7 +1,7 @@
-﻿using System.Text;
+using System.Text;
 using System.Web;
 using HtmlTableHelper;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 

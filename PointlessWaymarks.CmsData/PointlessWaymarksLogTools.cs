@@ -1,5 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Content;
-using PointlessWaymarks.CommonTools;
+﻿using PointlessWaymarks.CommonTools;
 using Serilog;
 using Serilog.Formatting.Compact;
 

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows.Shell;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CommonTools;

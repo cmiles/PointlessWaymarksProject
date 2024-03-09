@@ -1,9 +1,10 @@
 using System.Windows;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsData.ImageHelpers;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;

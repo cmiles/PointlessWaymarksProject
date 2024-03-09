@@ -1,4 +1,4 @@
-using PointlessWaymarks.CmsData.Content;
+using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.Database;

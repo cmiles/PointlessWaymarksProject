@@ -21,7 +21,6 @@ using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
 using XmpCore;
-using static PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml.GeoJsonData;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
 

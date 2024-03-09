@@ -1,6 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Content;
-
-namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
+﻿namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
 
 public partial class ErrorPage
 {

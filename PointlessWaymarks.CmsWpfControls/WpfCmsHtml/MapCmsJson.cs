@@ -3,6 +3,7 @@ using System.Net;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;

@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.CmsData.ContentHtml;
+﻿using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsWpfControls.Diagnostics;
 using PointlessWaymarks.WpfCommon;
 
