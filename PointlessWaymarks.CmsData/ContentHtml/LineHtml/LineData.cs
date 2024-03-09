@@ -4,6 +4,7 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using PointlessWaymarks.CmsData.CommonHtml;
+using PointlessWaymarks.CmsData.Content;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Json;
@@ -290,6 +291,6 @@ public static class LineData
             dataFileInfo.Refresh();
         }
 
-        temporaryGpxFile.MoveTo(dataFileInfo.FullName);
+        await FileManagement.MoveFileAndLogAsync(temporaryGpxFile.FullName, dataFileInfo.FullName);
     }
 }
