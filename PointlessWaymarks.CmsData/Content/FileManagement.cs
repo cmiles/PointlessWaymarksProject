@@ -453,45 +453,6 @@ public static class FileManagement
         await LogFileWriteAsync(destinationFile).ConfigureAwait(false);
     }
 
-    public static async Task RemoveGpxFilesNotInCurrentDb(IProgress<string>? progress)
-    {
-        var db = await Db.Context().ConfigureAwait(false);
-        var lineContentIds = await db.LineContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-
-        var gpxFiles = UserSettingsSingleton.CurrentSettings().LocalSiteLineGpxDirectory().GetFiles("*.gpx").ToList();
-
-        var fileCount = 0;
-
-        foreach (var loopGpxFiles in gpxFiles)
-        {
-            fileCount++;
-
-            if (fileCount % 500 == 0)
-                progress?.Report(
-                    $"ContentData Directory Cleanup - Checking Existing File {fileCount} of {gpxFiles.Count}");
-
-            if (Guid.TryParse(Path.GetFileNameWithoutExtension(loopGpxFiles.Name), out var parsedGuid))
-            {
-                if (!lineContentIds.Contains(parsedGuid))
-                    try
-                    {
-                        loopGpxFiles.Delete();
-                        progress?.Report($"Deleted {loopGpxFiles.FullName}");
-                    }
-                    catch (Exception e)
-                    {
-                        Log.ForContext("exception", e.SafeObjectDump()).Debug(
-                            "Error Deleting {file} from the Gpx Directory - Error Ignored",
-                            loopGpxFiles.FullName);
-                    }
-            }
-            else
-            {
-                loopGpxFiles.Delete();
-            }
-        }
-    }
-
     public static async Task RemoveContentDataJsonFilesNotInCurrentDb(IProgress<string>? progress)
     {
         progress?.Report("ContentData Directory Cleanup - Starting Queries for All Database Content Ids");
@@ -553,6 +514,7 @@ public static class FileManagement
         await RemoveGeoJsonDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemoveImageDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemoveLineDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+        await RemoveMapHistoryDataDirectoryFilesNotInCurrentDb(progress).ConfigureAwait(false);
         await RemoveNoteDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemovePointDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
@@ -571,7 +533,16 @@ public static class FileManagement
         var dbFolders = db.FileContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelFileDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteFileDirectory();
-        var folderDirectories = siteTopLevelFileDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        var firstLevelFolders = siteTopLevelFileDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
 
         progress?.Report(
             $"Found {folderDirectories.Count} Existing File Directories to Check against {dbFolders.Count} File Folders in the Database");
@@ -678,8 +649,16 @@ public static class FileManagement
         var dbFolders = db.GeoJsonContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelGeoJsonDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonDirectory();
-        var folderDirectories = siteTopLevelGeoJsonDirectory.GetDirectories().Where(x => x.Name != "Data")
-            .OrderBy(x => x.Name).ToList();
+
+        var firstLevelFolders = siteTopLevelGeoJsonDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
 
         progress?.Report(
             $"Found {folderDirectories.Count} Existing GeoJson Directories to Check against {dbFolders.Count} GeoJson Folders in the Database");
@@ -739,6 +718,45 @@ public static class FileManagement
         progress?.Report("Ending GeoJson Directory Cleanup");
     }
 
+    public static async Task RemoveGpxFilesNotInCurrentDb(IProgress<string>? progress)
+    {
+        var db = await Db.Context().ConfigureAwait(false);
+        var lineContentIds = await db.LineContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+
+        var gpxFiles = UserSettingsSingleton.CurrentSettings().LocalSiteLineGpxDirectory().GetFiles("*.gpx").ToList();
+
+        var fileCount = 0;
+
+        foreach (var loopGpxFiles in gpxFiles)
+        {
+            fileCount++;
+
+            if (fileCount % 500 == 0)
+                progress?.Report(
+                    $"ContentData Directory Cleanup - Checking Existing File {fileCount} of {gpxFiles.Count}");
+
+            if (Guid.TryParse(Path.GetFileNameWithoutExtension(loopGpxFiles.Name), out var parsedGuid))
+            {
+                if (!lineContentIds.Contains(parsedGuid))
+                    try
+                    {
+                        loopGpxFiles.Delete();
+                        progress?.Report($"Deleted {loopGpxFiles.FullName}");
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump()).Debug(
+                            "Error Deleting {file} from the Gpx Directory - Error Ignored",
+                            loopGpxFiles.FullName);
+                    }
+            }
+            else
+            {
+                loopGpxFiles.Delete();
+            }
+        }
+    }
+
     public static async Task RemoveImageDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
     {
         progress?.Report("Starting Directory Cleanup");
@@ -747,7 +765,16 @@ public static class FileManagement
         var dbFolders = db.ImageContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelImageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageDirectory();
-        var folderDirectories = siteTopLevelImageDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        var firstLevelFolders = siteTopLevelImageDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
 
         progress?.Report(
             $"Found {folderDirectories.Count} Existing Image Directories to Check against {dbFolders.Count} Image Folders in the Database");
@@ -843,8 +870,17 @@ public static class FileManagement
         var dbFolders = db.LineContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelLineDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteLineDirectory();
-        var folderDirectories = siteTopLevelLineDirectory.GetDirectories().Where(x => x.Name != "Data")
-            .OrderBy(x => x.Name).ToList();
+
+        var firstLevelFolders = siteTopLevelLineDirectory.GetDirectories()
+            .Where(x => !x.Name.Equals("GpxData", StringComparison.OrdinalIgnoreCase)).OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
 
         progress?.Report(
             $"Found {folderDirectories.Count} Existing Line Directories to Check against {dbFolders.Count} Line Folders in the Database");
@@ -904,6 +940,33 @@ public static class FileManagement
         progress?.Report("Ending Line Directory Cleanup");
     }
 
+    public static async Task RemoveMapHistoryDataDirectoryFilesNotInCurrentDb(IProgress<string>? progress)
+    {
+        var db = await Db.Context().ConfigureAwait(false);
+        var mapContentIds = await db.MapComponents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+
+        var mapHistoryDataDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteMapComponentDataDirectory();
+
+        if (!mapHistoryDataDirectory.Exists) return;
+
+        var mapHistoryDataFiles = mapHistoryDataDirectory.GetFiles().ToList();
+
+        foreach (var loopFiles in mapHistoryDataFiles)
+        {
+            var fileNameParts = Path.GetFileNameWithoutExtension(loopFiles.Name).Split("---");
+
+            if (!loopFiles.Name.StartsWith(UserSettingsUtilities.HistoricMapComponentContentPrefix,
+                    StringComparison.OrdinalIgnoreCase) || fileNameParts.Length != 2 ||
+                !Guid.TryParse(fileNameParts[1], out var parsedContentId))
+            {
+                loopFiles.Delete();
+                continue;
+            }
+
+            if (!mapContentIds.Contains(parsedContentId)) loopFiles.Delete();
+        }
+    }
+
     public static async Task RemoveMediaArchiveFilesNotInDatabase(IProgress<string>? progress)
     {
         await RemoveFileMediaArchiveFilesNotInCurrentDatabase(progress).ConfigureAwait(false);
@@ -919,7 +982,16 @@ public static class FileManagement
         var dbFolders = db.NoteContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelNoteDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteNoteDirectory();
-        var folderDirectories = siteTopLevelNoteDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        var firstLevelFolders = siteTopLevelNoteDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
 
         progress?.Report(
             $"Found {folderDirectories.Count} Existing Note Directories to Check against {dbFolders.Count} Note Folders in the Database");
@@ -971,18 +1043,27 @@ public static class FileManagement
         progress?.Report("Starting Directory Cleanup");
 
         var db = await Db.Context().ConfigureAwait(false);
-        var dbPhotoFolders = db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+        var dbFolders = db.PhotoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelPhotoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory();
-        var photoFolderDirectories = siteTopLevelPhotoDirectory.GetDirectories().Where(x => x.Name != "Galleries")
+
+        var firstLevelFolders = siteTopLevelPhotoDirectory.GetDirectories().Where(x => x.Name != "Galleries")
             .OrderBy(x => x.Name).ToList();
 
-        progress?.Report(
-            $"Found {photoFolderDirectories.Count} Existing Photo Directories to Check against {dbPhotoFolders.Count} Photo Folders in the Database");
+        List<DirectoryInfo> folderDirectories = [];
 
-        foreach (var loopExistingDirectories in photoFolderDirectories)
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
+
+        progress?.Report(
+            $"Found {folderDirectories.Count} Existing Photo Directories to Check against {dbFolders.Count} Photo Folders in the Database");
+
+        foreach (var loopExistingDirectories in folderDirectories)
         {
-            if (!dbPhotoFolders.Contains(loopExistingDirectories.Name))
+            if (!dbFolders.Contains(loopExistingDirectories.Name))
             {
                 progress?.Report($"Deleting {loopExistingDirectories.FullName}");
 
@@ -1104,8 +1185,17 @@ public static class FileManagement
         var dbFolders = db.PointContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelPointDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePointDirectory();
-        var folderDirectories = siteTopLevelPointDirectory.GetDirectories().Where(x => x.Name != "Data")
+
+        var firstLevelFolders = siteTopLevelPointDirectory.GetDirectories().Where(x => x.Name != "Data")
             .OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
 
         progress?.Report(
             $"Found {folderDirectories.Count} Existing Point Directories to Check against {dbFolders.Count} Point Folders in the Database");
@@ -1173,7 +1263,16 @@ public static class FileManagement
         var dbFolders = db.PostContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelPostDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePostDirectory();
-        var folderDirectories = siteTopLevelPostDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        var firstLevelFolders = siteTopLevelPostDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
 
         progress?.Report(
             $"Found {folderDirectories.Count} Existing Post Directories to Check against {dbFolders.Count} Post Folders in the Database");
@@ -1260,7 +1359,16 @@ public static class FileManagement
         var dbFolders = db.VideoContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
 
         var siteTopLevelVideoDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteVideoDirectory();
-        var folderDirectories = siteTopLevelVideoDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        var firstLevelFolders = siteTopLevelVideoDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
 
         progress?.Report(
             $"Found {folderDirectories.Count} Existing Video Directories to Check against {dbFolders.Count} Video Folders in the Database");
@@ -1423,6 +1531,56 @@ public static class FileManagement
         await File.WriteAllTextAsync(path, contents, encoding).ConfigureAwait(false);
 
         await LogFileWriteAsync(path).ConfigureAwait(false);
+    }
+
+    public static async Task WriteChangedSiteResourcesToGeneratedSite(IProgress<string>? progress = null)
+    {
+        var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
+
+        var siteResources = embeddedProvider.GetDirectoryContents("");
+
+        foreach (var loopSiteResources in siteResources.Where(x => x.Name.StartsWith("SiteResources")))
+        {
+            var fileAsStream = loopSiteResources.CreateReadStream();
+
+            string filePathStyleName;
+
+            if (loopSiteResources.Name.StartsWith("SiteResources.images."))
+                filePathStyleName = $"SiteResources\\images\\{loopSiteResources.Name[21..]}";
+            else if (loopSiteResources.Name.StartsWith("SiteResources."))
+                filePathStyleName = $"SiteResources\\{loopSiteResources.Name[14..]}";
+            else
+                filePathStyleName = loopSiteResources.Name;
+
+            var destinationFile =
+                new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
+                    filePathStyleName));
+
+            if (destinationFile.Exists)
+            {
+                var streamMd5 = FileAndFolderTools.CalculateMD5(fileAsStream);
+                var diskMd5 = FileAndFolderTools.CalculateMD5(destinationFile.FullName);
+
+                if (streamMd5 == diskMd5)
+                {
+                    progress?.Report(
+                        $"Site Resources - Skipping {loopSiteResources.Name} to {destinationFile.FullName} - No Change");
+                    continue;
+                }
+            }
+
+            var destinationDirectory = destinationFile.Directory;
+            if (destinationDirectory is { Exists: false }) destinationDirectory.Create();
+
+            var fileStream = File.Create(destinationFile.FullName);
+            fileAsStream.Seek(0, SeekOrigin.Begin);
+            await fileAsStream.CopyToAsync(fileStream).ConfigureAwait(false);
+            fileStream.Close();
+
+            await LogFileWriteAsync(destinationFile.FullName).ConfigureAwait(false);
+
+            progress?.Report($"Site Resources - Writing {loopSiteResources.Name} to {destinationFile.FullName}");
+        }
     }
 
     public static async Task WriteFavIconToGeneratedSite(IProgress<string>? progress)
