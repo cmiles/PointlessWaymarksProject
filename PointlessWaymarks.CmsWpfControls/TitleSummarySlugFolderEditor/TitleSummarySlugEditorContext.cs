@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.DataEntry;
@@ -8,7 +8,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
-using ContentFolderContext = PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry.ContentFolderContext;
+using ContentFolderContext = PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry.ContentFolderContext;
 
 namespace PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
@@ -10,10 +10,10 @@ using PointlessWaymarks.WpfCommon.Status;
 using Serilog;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry;
+namespace PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry;
 
 [NotifyPropertyChanged]
-public partial class ContentFolderContext : IStringWithDropdownEntryContext
+public partial class ContentFolderContext : IStringWithDropdownDataEntryContext
 {
     private ContentFolderContext(StatusControlContext statusContext, ITitleSummarySlugFolder? dbEntry,
         Func<Task<List<string>>> loader, List<string> initialFolderList)

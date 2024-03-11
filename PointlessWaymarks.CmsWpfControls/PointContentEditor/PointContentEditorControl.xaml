@@ -22,7 +22,8 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:stringWithDropdownEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry"
+    xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
+    xmlns:dropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.DropdownDataEntry"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -89,7 +90,7 @@
                                         <Setter Property="Width" Value="210" />
                                         <Setter Property="HorizontalAlignment" Value="Left"></Setter>
                                     </Style>
-                                    <Style TargetType="stringWithDropdownEntry:StringWithDropdownEntryControl">
+                                    <Style TargetType="stringWithDropdownDataEntry:StringWithDropdownDataEntryControl">
                                         <Setter Property="Width" Value="210" />
                                         <Setter Property="HorizontalAlignment" Value="Left"></Setter>
                                     </Style>
@@ -115,9 +116,9 @@
                                     Add Feature Intersect Tags
                                 </Button>
                                 <stringDataEntry:StringDataEntryControl DataContext="{Binding MapLabelContentEntry}" />
-                                <stringDataEntry:StringDataEntryControl
+                                <dropdownDataEntry:DropdownDataEntryControl
                                     DataContext="{Binding MapIconEntry}" />
-                                <stringDataEntry:StringDataEntryControl
+                                <dropdownDataEntry:DropdownDataEntryControl
                                     DataContext="{Binding MapMarkerColorEntry}" />
                             </StackPanel>
                         </ScrollViewer>
@@ -134,8 +135,24 @@
                             Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <Button
-                                Command="{Binding SearchInBoundsCommand}"
-                                Content="Search"
+                                Command="{Binding SearchPointsInBoundsCommand}"
+                                Content="Search Points"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
+                                Command="{Binding SearchPhotosInBoundsCommand}"
+                                Content="Search Photos"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
+                                Command="{Binding SearchLinesInBoundsCommand}"
+                                Content="Search Lines"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
+                                Command="{Binding SearchGeoJsonInBoundsCommand}"
+                                Content="Search GeoJson"
+                                Style="{StaticResource ActionPanelButtonStyle}" />
+                            <Button
+                                Command="{Binding ClearSearchInBoundsCommand}"
+                                Content="Clear Search"
                                 Style="{StaticResource ActionPanelButtonStyle}" />
                             <Button
                                 Command="{Binding CenterMapOnSelectedLocationCommand}"
@@ -193,6 +210,7 @@
             Grid.RowSpan="2"
             Grid.Column="0"
             HorizontalContentAlignment="Right"
-            VerticalContentAlignment="Bottom" />
+            VerticalContentAlignment="Bottom"
+            d:IsHidden="true"/>
     </Grid>
 </UserControl>

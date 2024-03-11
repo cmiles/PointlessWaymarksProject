@@ -1,10 +1,10 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 
-namespace PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry;
+namespace PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry;
 
-public interface IStringWithDropdownEntryContext : IHasChanges, IHasValidationIssues
+public interface IDropdownDataEntryContext : IHasChanges, IHasValidationIssues
 {
     ObservableCollection<string> ExistingChoices { get; set; }
     string HelpText { get; set; }

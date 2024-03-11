@@ -4,13 +4,13 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using SQLitePCL;
+using WinRT;
 
 namespace PointlessWaymarks.CmsData.Database;
 
@@ -167,6 +167,34 @@ public static class Db
         var photos = (await PhotoContentFromBoundingBox(db, bounds)).Cast<dynamic>().ToList();
 
         return points.Union(lines).Union(geoJson).Union(photos).ToList();
+    }
+
+    /// <summary>
+    ///     Returns a Bounding Box Search Filtered by Content Type - use the Db.ContentTypeDisplayStringFor_____ strings
+    ///     as constants for the contentTypeIdentifiers list.
+    /// </summary>
+    /// <param name="db"></param>
+    /// <param name="bounds"></param>
+    /// <param name="contentTypeIdentifiers"></param>
+    /// <returns></returns>
+    public static async Task<List<dynamic>> ContentFromBoundingBox(this PointlessWaymarksContext db,
+        SpatialBounds bounds, List<string> contentTypeIdentifiers)
+    {
+        var returnList = new List<dynamic>();
+
+        if (contentTypeIdentifiers.Contains(ContentTypeDisplayStringForPoint,
+                StringComparer.InvariantCultureIgnoreCase))
+            returnList.AddRange(await PointContentFromBoundingBox(db, bounds));
+        if (contentTypeIdentifiers.Contains(ContentTypeDisplayStringForLine, StringComparer.InvariantCultureIgnoreCase))
+            returnList.AddRange(await LineContentFromBoundingBox(db, bounds));
+        if (contentTypeIdentifiers.Contains(ContentTypeDisplayStringForGeoJson,
+                StringComparer.InvariantCultureIgnoreCase))
+            returnList.AddRange(await GeoJsonContentFromBoundingBox(db, bounds));
+        if (contentTypeIdentifiers.Contains(ContentTypeDisplayStringForPhoto,
+                StringComparer.InvariantCultureIgnoreCase))
+            returnList.AddRange(await PhotoContentFromBoundingBox(db, bounds));
+
+        return returnList;
     }
 
     /// <summary>
@@ -1612,6 +1640,12 @@ public static class Db
             .ToListAsync().ConfigureAwait(false);
 
         return new MapComponentDto(map, elements);
+    }
+
+    public static async Task<List<string>> MapIconNames()
+    {
+        var db = await Context();
+        return "".AsList().Concat(await db.MapIcons.Select(x => x.IconName).OrderBy(x => x).ToListAsync()).ToList();
     }
 
     public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(List<ITag>? toAdd,

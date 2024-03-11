@@ -52,7 +52,7 @@ public class PointContent : IUpdateNotes, IContentCommon
     {
         return
         [
-            "red", "darkred", "lightred", "orange", "beige", "green", "darkgreen", "lightgreen", "blue", "darkblue",
+            "", "red", "darkred", "lightred", "orange", "beige", "green", "darkgreen", "lightgreen", "blue", "darkblue",
             "lightblue", "purple", "darkpurple", "pink", "cadetblue", "white", "gray", "lightgray", "black"
         ];
     }

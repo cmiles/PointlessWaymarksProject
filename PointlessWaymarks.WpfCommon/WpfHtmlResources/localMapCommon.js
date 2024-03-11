@@ -319,6 +319,29 @@ function getMapIconSvg(iconName) {
     return possibleMapJsonIcons[0].IconSvg;
 }
 
+
+function removeGeoJsonDataHandler(e) {
+
+    if (Object.keys(e.data.IdentifierList).length === 0) return;
+
+    if (Object.keys(mapLayers).length > 0) {
+
+        let toRemove = [];
+        map.eachLayer(function (l) {
+            if (!l.feature?.properties?.displayId) return;
+            if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
+                console.log(`removing l.feature ${l.feature}`);
+                map.removeLayer(l);
+
+                let index = mapLayers.indexOf(l);
+                if (index !== -1) { mapLayers.splice(index, 1) };
+            }
+        });
+
+        mapLayers = mapLayers.filter(x => !toRemove.includes(x));
+    }
+}
+
 function postGeoJsonDataHandler(e, clearCurrent, center) {
 
     if(clearCurrent) {
@@ -357,7 +380,9 @@ function processMapMessage(e)
 
     if(e.data.MessageType === 'NewFeatureCollection') postGeoJsonDataHandler(e, true, false);
 
-    if(e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true, true);
+    if (e.data.MessageType === 'NewFeatureCollectionAndCenter') postGeoJsonDataHandler(e, true, true);
+
+    if (e.data.MessageType === 'RemoveFeatures') removeGeoJsonDataHandler(e);
 
     if(e.data.MessageType === 'AddFeatureCollection') postGeoJsonDataHandler(e, false, false);
 

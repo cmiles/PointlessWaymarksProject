@@ -420,8 +420,4 @@
     <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Content\" />
-  </ItemGroup>
-
 </Project>

@@ -15,6 +15,7 @@ using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -297,21 +298,13 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         MapLabelContentEntry.ReferenceValue = DbEntry.MapLabel ?? string.Empty;
         MapLabelContentEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapLabel);
 
-        MapIconEntry = StringDataEntryContext.CreateInstance();
-        MapIconEntry.Title = "Map Icon";
-        MapIconEntry.HelpText =
-            "The small icon that will be shown on the map.";
+        MapIconEntry = await ContentMapIconContext.CreateInstance(StatusContext, DbEntry);
         MapIconEntry.ReferenceValue = DbEntry.MapIconName ?? string.Empty;
         MapIconEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapIconName);
-        MapIconEntry.ValidationFunctions = [CommonContentValidation.ValidatePointMapIconName];
 
-        MapMarkerColorEntry = StringDataEntryContext.CreateInstance();
-        MapMarkerColorEntry.Title = "Map Marker Color";
-        MapMarkerColorEntry.HelpText =
-            "The Map Marker Color";
+        MapMarkerColorEntry = await ContentMapMarkerColorContext.CreateInstance(StatusContext, DbEntry);
         MapMarkerColorEntry.ReferenceValue = DbEntry.MapMarkerColor ?? string.Empty;
         MapMarkerColorEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapMarkerColor);
-        MapMarkerColorEntry.ValidationFunctions = [CommonContentValidation.ValidatePointMapMarkerColor];
 
         ElevationEntry =
             await ConversionDataEntryContext<double?>.CreateInstance(
@@ -360,7 +353,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         var db = await Db.Context();
         var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
-        var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds))
+        var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds, [Db.ContentTypeDisplayStringForPoint]))
             .Where(x => x.ContentId != DbEntry.ContentId && !DisplayedContentGuids.Contains(x.ContentId)).ToList();
         var mapInformation = await MapCmsJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
         DisplayedContentGuids =
@@ -376,9 +369,9 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    public StringDataEntryContext? MapMarkerColorEntry { get; set; }
+    public ContentMapMarkerColorContext MapMarkerColorEntry { get; set; }
 
-    public StringDataEntryContext? MapIconEntry { get; set; }
+    public ContentMapIconContext MapIconEntry { get; set; }
 
     public async Task MapMessageReceived(string json)
     {
@@ -467,7 +460,30 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     }
 
     [NonBlockingCommand]
-    public async Task SearchInBounds()
+    public async Task SearchPointsInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForPoint]);
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchLinesInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForLine]);
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchGeoJsonInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForGeoJson]);
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchPhotosInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForPhoto]);
+    }
+
+    public async Task SearchInBounds(List<string> searchContentTypes)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -477,7 +493,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             return;
         }
 
-        var searchResult = (await (await Db.Context()).ContentFromBoundingBox(MapBounds)).Where(x =>
+        var searchResult = (await (await Db.Context()).ContentFromBoundingBox(MapBounds, searchContentTypes)).Where(x =>
             x.ContentId != DbEntry.ContentId && !DisplayedContentGuids.Contains(x.ContentId)).ToList();
 
         if (!searchResult.Any())
@@ -498,6 +514,30 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));
+    }
+
+    [NonBlockingCommand]
+    public async Task ClearSearchInBounds()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapBounds == null)
+        {
+            StatusContext.ToastError("No Map Bounds?");
+            return;
+        }
+
+        var searchResultIds = (await (await Db.Context()).ContentFromBoundingBox(MapBounds)).Select(x => x.ContentId).Cast<Guid>().ToList();
+
+        if (!searchResultIds.Any())
+        {
+            StatusContext.ToastWarning("No New Items Found");
+            return;
+        }
+
+        DisplayedContentGuids = DisplayedContentGuids.Where(x => !searchResultIds.Contains(x)).ToList();
+
+        ToWebView.Enqueue(JsonData.CreateRequest(JsonSerializer.Serialize(new MapJsonFeatureListDto(searchResultIds, "RemoveFeatures"))));
     }
 
     [BlockingCommand]

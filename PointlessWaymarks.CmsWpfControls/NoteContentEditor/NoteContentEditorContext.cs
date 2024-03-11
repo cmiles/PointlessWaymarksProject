@@ -21,7 +21,7 @@ using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
-using ContentFolderContext = PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry.ContentFolderContext;
+using ContentFolderContext = PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry.ContentFolderContext;
 
 namespace PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 

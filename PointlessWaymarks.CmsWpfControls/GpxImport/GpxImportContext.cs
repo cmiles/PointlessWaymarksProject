@@ -31,7 +31,7 @@ using PointlessWaymarks.WpfCommon.WpfHtml;
 using Serilog;
 using ColumnSortControlContext = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlContext;
 using ColumnSortControlSortItem = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlSortItem;
-using ContentFolderContext = PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry.ContentFolderContext;
+using ContentFolderContext = PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry.ContentFolderContext;
 
 namespace PointlessWaymarks.CmsWpfControls.GpxImport;
 

@@ -22,7 +22,7 @@
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
     xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers"
-    xmlns:stringWithDropdownEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry">
+    xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -1219,7 +1219,7 @@
         x:Shared="False"
         Header="New"
         ItemsSource="{StaticResource NewMenuItemValues}" />
-    <Style TargetType="stringWithDropdownEntry:StringWithDropdownEntryControl">
+    <Style TargetType="stringWithDropdownDataEntry:StringWithDropdownDataEntryControl">
         <Setter Property="Width" Value="240" />
         <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>

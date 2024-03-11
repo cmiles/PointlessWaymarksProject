@@ -1,8 +1,9 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -10,32 +11,27 @@ using PointlessWaymarks.WpfCommon.Status;
 using Serilog;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarks.CmsWpfControls.StringWithDropdownEntry;
+namespace PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
 
 [NotifyPropertyChanged]
-public partial class ActivityTypeContext : IStringWithDropdownEntryContext
+public partial class ContentMapIconContext : IDropdownDataEntryContext
 {
-    private ActivityTypeContext(StatusControlContext statusContext, LineContent? dbEntry,
-        Func<Task<List<string>>> loader, List<string> initialFolderList)
+    private ContentMapIconContext(StatusControlContext statusContext, Func<Task<List<string>>> loader,
+        PointContent dbEntry, List<string> initialIconNameList)
     {
         StatusContext = statusContext;
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
-        Title = "Activity Type";
+        Title = "Map Icon";
         HelpText =
-            "The type of Activity - used for filtering the Activity Log.";
+            "A small Map Icon that will appear inside the map marker - no value is required. Map Icons can be added in the Map Icon Editor under the View menu.";
 
-        GetCurrentActivityTypes = loader;
+        GetCurrentIconNames = loader;
 
-        ExistingChoices = new ObservableCollection<string>(initialFolderList);
-        OnlyIncludeDataNotificationsForTypes = new List<DataNotificationContentType>
-        {
-            DataNotificationContentType.Line
-        };
-
-        ReferenceValue = dbEntry?.ActivityType ?? string.Empty;
-        UserValue = dbEntry?.ActivityType ?? string.Empty;
+        ExistingChoices = new ObservableCollection<string>(initialIconNameList);
+        ReferenceValue = dbEntry.MapIconName ?? string.Empty;
+        UserValue = dbEntry.MapIconName ?? string.Empty;
 
         ValidationFunctions = new List<Func<string?, IsValid>>();
 
@@ -45,18 +41,17 @@ public partial class ActivityTypeContext : IStringWithDropdownEntryContext
     }
 
     public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
+    public Func<Task<List<string>>> GetCurrentIconNames { get; set; }
+    public List<Func<string?, IsValid>> ValidationFunctions { get; set; }
     public ObservableCollection<string> ExistingChoices { get; set; }
-    public Func<Task<List<string>>> GetCurrentActivityTypes { get; set; }
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public string HelpText { get; set; }
-    public List<DataNotificationContentType> OnlyIncludeDataNotificationsForTypes { get; set; }
     public string? ReferenceValue { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string Title { get; set; }
     public string? UserValue { get; set; }
-    public List<Func<string?, IsValid>> ValidationFunctions { get; set; }
     public string ValidationMessage { get; set; } = string.Empty;
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     private void CheckForChangesAndValidate()
     {
@@ -78,18 +73,18 @@ public partial class ActivityTypeContext : IStringWithDropdownEntryContext
         ValidationMessage = string.Empty;
     }
 
-    public static async Task<ActivityTypeContext> CreateInstance(StatusControlContext? statusContext,
-        LineContent dbEntry)
+    public static async Task<ContentMapIconContext> CreateInstance(StatusControlContext? statusContext,
+        PointContent dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
-        var initialFolderList = await Db.ActivityTypesFromLines();
+        var loader = Db.MapIconNames;
+        var initialMapIconList = await Db.MapIconNames();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new ActivityTypeContext(factoryContext, dbEntry,
-            async () => await Db.ActivityTypesFromLines(), initialFolderList);
+        var newControl = new ContentMapIconContext(factoryContext, loader, dbEntry, initialMapIconList);
 
         newControl.CheckForChangesAndValidate();
 
@@ -108,23 +103,28 @@ public partial class ActivityTypeContext : IStringWithDropdownEntryContext
             return;
         }
 
-        if (translatedMessage.UpdateType == DataNotificationUpdateType.LocalContent ||
-            (OnlyIncludeDataNotificationsForTypes.Any() &&
-             !OnlyIncludeDataNotificationsForTypes.Contains(translatedMessage.ContentType))) return;
+        if (translatedMessage.ContentType != DataNotificationContentType.MapIcon) return;
 
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        var currentDbActivityTypes = await GetCurrentActivityTypes();
+        var currentDbIcons = await GetCurrentIconNames();
 
-        var newFolderNames = currentDbActivityTypes.Except(ExistingChoices).ToList();
+        var tempUserValue = currentDbIcons.Any(x => x.Equals(UserValue)) ? UserValue : string.Empty;
 
-        if (newFolderNames.Any())
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            ExistingChoices.Clear();
-            currentDbActivityTypes.ForEach(x => ExistingChoices.Add(x));
-            ExistingChoices.SortBy(x => x);
-        }
+        var toAdd = currentDbIcons.Where(x => !ExistingChoices.Contains(x)).ToList();
+        var toRemove = new List<string>();
+
+        foreach (var loopExisting in ExistingChoices)
+            if (!currentDbIcons.Any(x => x.Equals(loopExisting)))
+                toRemove.Add(loopExisting);
+
+        toRemove.ForEach(x => ExistingChoices.Remove(x));
+        toAdd.ForEach(x => ExistingChoices.Add(x));
+        ExistingChoices.SortBy(x => x);
+
+        UserValue = tempUserValue;
+
+        CheckForChangesAndValidate();
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
