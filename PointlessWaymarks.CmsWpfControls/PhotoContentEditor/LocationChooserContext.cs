@@ -131,8 +131,8 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
                 ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => (o == null && u == null) || o.IsApproximatelyEqualTo(u, .001);
-        ElevationEntry.Title = "Elevation";
-        ElevationEntry.HelpText = "Elevation in Feet";
+        ElevationEntry.Title = "Elevation (m)";
+        ElevationEntry.HelpText = "Elevation in Meters";
         ElevationEntry.ReferenceValue = InitialElevation;
         ElevationEntry.UserText = InitialElevation?.ToString("F2") ?? string.Empty;
 

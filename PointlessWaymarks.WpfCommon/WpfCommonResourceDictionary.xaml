@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime">
@@ -6,6 +6,7 @@
     <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
     <valueConverters:BooleanOrToNotVisibilityMultiConverter x:Key="BooleanNotToVisibilityMulti" />
     <valueConverters:NullOrWhiteSpaceStringToCollapsedVisibilityConverter x:Key="NullOrWhiteSpaceStringToCollapsed" />
+    <valueConverters:NullOrWhiteSpaceStringToHiddenVisibilityConverter x:Key="NullOrWhiteSpaceStringToHidden" />
     <valueConverters:NullOrWhiteSpaceStringToVisibleVisibilityConverter x:Key="NullOrWhiteSpaceStringToVisible" />
     <valueConverters:NullOrWhiteSpaceStringToDefaultConverter x:Key="NullOrWhiteSpaceStringToDefault" />
     <valueConverters:BooleanNotToVisibilityConverter x:Key="BooleanNotToHidden" />

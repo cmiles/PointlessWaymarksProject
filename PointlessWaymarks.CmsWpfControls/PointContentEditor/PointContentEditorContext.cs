@@ -311,8 +311,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
                 ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => (o == null && u == null) || o.IsApproximatelyEqualTo(u, .001);
-        ElevationEntry.Title = "Elevation (Feet)";
-        ElevationEntry.HelpText = "Elevation in Feet";
+        ElevationEntry.Title = "Elevation (m)";
+        ElevationEntry.HelpText = "Elevation in Meters";
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 

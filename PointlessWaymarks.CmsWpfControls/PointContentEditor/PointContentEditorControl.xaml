@@ -101,6 +101,13 @@
                                     DataContext="{Binding LongitudeEntry}" />
                                 <conversionDataEntry:ConversionDataEntryControl
                                     DataContext="{Binding ElevationEntry}" />
+                                <TextBox
+                                    Margin="0,4,0,2"
+                                    VerticalAlignment="Bottom"
+                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                    Text="{Binding ElevationEntry.UserText, Converter={StaticResource MetersToFeet}, StringFormat='{}({0:N0} feet)'}"
+                                    TextAlignment="Right"
+                                    Visibility="{Binding ElevationEntry.UserText, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}" />
                                 <Button
                                     Width="190"
                                     Margin="5,10,5,12"

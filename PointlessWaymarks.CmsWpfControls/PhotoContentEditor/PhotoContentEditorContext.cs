@@ -562,8 +562,8 @@ Photo Content Notes:
                 ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .001);
-        ElevationEntry.Title = "Elevation";
-        ElevationEntry.HelpText = "Elevation in Feet";
+        ElevationEntry.Title = "Elevation (m)";
+        ElevationEntry.HelpText = "Elevation in Meters";
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
         ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
 
