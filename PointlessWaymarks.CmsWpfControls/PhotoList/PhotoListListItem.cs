@@ -6,7 +6,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
 [NotifyPropertyChanged]
-public partial class PhotoListListItem : IContentListItem, IContentListSmallImage
+public partial class PhotoListListItem : IContentListItem, IContentListImage
 {
     public PhotoListListItem(PhotoContentActions itemActions, PhotoContent dbEntry)
     {
@@ -17,6 +17,8 @@ public partial class PhotoListListItem : IContentListItem, IContentListSmallImag
     public PhotoContent DbEntry { get; set; }
     public PhotoContentActions ItemActions { get; set; }
     public bool ShowType { get; set; }
+    public string? DisplayImageUrl { get; set; }
+    public string? SmallImageUrl { get; set; }
 
     public IContentCommon Content()
     {
@@ -68,7 +70,6 @@ public partial class PhotoListListItem : IContentListItem, IContentListSmallImag
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public string? SmallImageUrl { get; set; }
     public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
 
     public static Task<PhotoListListItem> CreateInstance(PhotoContentActions itemActions)

@@ -232,7 +232,9 @@ public partial class PostContentActions : IContentActions<PostContent>
     {
         var item = await PostListListItem.CreateInstance(itemActions);
         item.DbEntry = content;
-        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(content);
+        item.SmallImageUrl = smallImageUrl;
+        item.DisplayImageUrl = displayImageUrl;
         item.ShowType = showType;
         return item;
     }

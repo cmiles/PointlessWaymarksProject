@@ -164,7 +164,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var newGeoJsonItem = await MapElementListGeoJsonItem.CreateInstance(new GeoJsonContentActions(StatusContext));
 
         newGeoJsonItem.DbEntry = possibleGeoJson;
-        newGeoJsonItem.SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleGeoJson) ?? string.Empty;
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possibleGeoJson);
+        newGeoJsonItem.SmallImageUrl = smallImageUrl;
+        newGeoJsonItem.DisplayImageUrl = displayImageUrl;
         newGeoJsonItem.ShowType = true;
         newGeoJsonItem.InInitialView = loopContent?.IncludeInDefaultView ?? true;
         newGeoJsonItem.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
@@ -191,7 +193,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var newLineItem = await MapElementListLineItem.CreateInstance(new LineContentActions(StatusContext));
 
         newLineItem.DbEntry = possibleLine;
-        newLineItem.SmallImageUrl = ContentListContext.GetSmallImageUrl(possibleLine) ?? string.Empty;
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possibleLine);
+        newLineItem.SmallImageUrl = smallImageUrl;
+        newLineItem.DisplayImageUrl = displayImageUrl;
         newLineItem.ShowType = true;
         newLineItem.InInitialView = loopContent?.IncludeInDefaultView ?? true;
         newLineItem.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
@@ -224,7 +228,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var newPhotoContent = await MapElementListPhotoItem.CreateInstance(new PhotoContentActions(StatusContext));
 
         newPhotoContent.DbEntry = possiblePhoto;
-        newPhotoContent.SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePhoto) ?? string.Empty;
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possiblePhoto);
+        newPhotoContent.SmallImageUrl = smallImageUrl;
+        newPhotoContent.DisplayImageUrl = displayImageUrl;
         newPhotoContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
         newPhotoContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
         newPhotoContent.Title = possiblePhoto.Title ?? string.Empty;
@@ -250,7 +256,9 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var newPointContent = await MapElementListPointItem.CreateInstance(new PointContentActions(StatusContext));
 
         newPointContent.DbEntry = possiblePoint.ToDbObject();
-        newPointContent.SmallImageUrl = ContentListContext.GetSmallImageUrl(possiblePoint) ?? string.Empty;
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possiblePoint);
+        newPointContent.SmallImageUrl = smallImageUrl;
+        newPointContent.DisplayImageUrl = displayImageUrl;
         newPointContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
         newPointContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
         newPointContent.Title = possiblePoint.Title ?? string.Empty;

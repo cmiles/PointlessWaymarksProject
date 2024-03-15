@@ -435,8 +435,10 @@
         Margin="2"
         VerticalAlignment="Top"
         x:Shared="False"
-        Source="{Binding SmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}"
-        ToolTip="Shift Double Click to Edit Post">
+        Source="{Binding SmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}">
+        <Image.ToolTip>
+            <Image Source="{Binding DisplayImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}"></Image>
+        </Image.ToolTip>
         <Image.InputBindings>
             <MouseBinding
                 Command="{Binding ItemActions.EditCommand}"
@@ -448,8 +450,10 @@
         x:Key="ContentListSmallImageContentDisplay"
         Margin="2"
         x:Shared="False"
-        Source="{Binding SmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}"
-        ToolTip="Double Click to View, Shift Double Click to Edit">
+        Source="{Binding SmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}">
+        <Image.ToolTip>
+            <Image Source="{Binding DisplayImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}"></Image>
+        </Image.ToolTip>
         <Image.InputBindings>
             <MouseBinding
                 Command="{Binding ItemActions.ViewFileCommand}"

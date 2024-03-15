@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
@@ -7,7 +7,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
 [NotifyPropertyChanged]
-public partial class LineListListItem : IContentListItem, IContentListSmallImage
+public partial class LineListListItem : IContentListItem, IContentListImage
 {
     private protected LineListListItem(LineContentActions itemActions, LineContent dbEntry)
     {
@@ -20,8 +20,8 @@ public partial class LineListListItem : IContentListItem, IContentListSmallImage
     public LineContent DbEntry { get; set; }
     public LineContentActions ItemActions { get; set; }
     public double? RecordedOnLengthInMinutes { get; set; } = null;
-    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
     public bool ShowType { get; set; }
+    public string? DisplayImageUrl { get; set; }
     public string? SmallImageUrl { get; set; }
 
     public IContentCommon Content()
@@ -73,6 +73,8 @@ public partial class LineListListItem : IContentListItem, IContentListSmallImage
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
+
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
 
     public static Task<LineListListItem> CreateInstance(LineContentActions itemActions)
     {

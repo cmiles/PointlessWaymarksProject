@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -6,7 +6,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.VideoList;
 
 [NotifyPropertyChanged]
-public partial class VideoListListItem : IContentListItem, IContentListSmallImage
+public partial class VideoListListItem : IContentListItem, IContentListImage
 {
     private VideoListListItem(VideoContentActions itemActions, VideoContent dbEntry)
     {
@@ -17,6 +17,8 @@ public partial class VideoListListItem : IContentListItem, IContentListSmallImag
     public VideoContent DbEntry { get; set; }
     public VideoContentActions ItemActions { get; set; }
     public bool ShowType { get; set; }
+    public string? DisplayImageUrl { get; set; }
+    public string? SmallImageUrl { get; set; }
 
     public IContentCommon Content()
     {
@@ -68,7 +70,6 @@ public partial class VideoListListItem : IContentListItem, IContentListSmallImag
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public string? SmallImageUrl { get; set; }
     public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
 
     public static Task<VideoListListItem> CreateInstance(VideoContentActions itemActions)

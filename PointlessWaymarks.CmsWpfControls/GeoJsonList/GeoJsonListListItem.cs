@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -6,7 +6,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.GeoJsonList;
 
 [NotifyPropertyChanged]
-public partial class GeoJsonListListItem : IContentListItem, IContentListSmallImage
+public partial class GeoJsonListListItem : IContentListItem, IContentListImage
 {
     private protected GeoJsonListListItem(GeoJsonContentActions itemActions, GeoJsonContent dbEntry)
     {
@@ -16,15 +16,15 @@ public partial class GeoJsonListListItem : IContentListItem, IContentListSmallIm
 
     public GeoJsonContent DbEntry { get; set; }
     public GeoJsonContentActions ItemActions { get; set; }
-    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
     public bool ShowType { get; set; }
-
+    public string? DisplayImageUrl { get; set; }
     public string? SmallImageUrl { get; set; }
 
     public IContentCommon Content()
     {
         return DbEntry;
     }
+
 
     public Guid? ContentId()
     {
@@ -70,6 +70,8 @@ public partial class GeoJsonListListItem : IContentListItem, IContentListSmallIm
     {
         await ItemActions.ViewOnSite(DbEntry);
     }
+
+    public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
 
     public static Task<GeoJsonListListItem> CreateInstance(GeoJsonContentActions itemActions)
     {

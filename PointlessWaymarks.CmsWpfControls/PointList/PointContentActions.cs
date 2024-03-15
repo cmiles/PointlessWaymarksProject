@@ -240,7 +240,9 @@ public partial class PointContentActions : IContentActions<PointContent>
     {
         var item = await PointListListItem.CreateInstance(itemActions);
         item.DbEntry = content;
-        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(content);
+        item.SmallImageUrl = smallImageUrl;
+        item.DisplayImageUrl = displayImageUrl;
         item.ShowType = showType;
         return item;
     }
@@ -251,7 +253,9 @@ public partial class PointContentActions : IContentActions<PointContent>
     {
         var item = await PointListListItem.CreateInstance(itemActions);
         item.DbEntry = content.ToDbObject();
-        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(content);
+        item.SmallImageUrl = smallImageUrl;
+        item.DisplayImageUrl = displayImageUrl;
         item.ShowType = showType;
         return item;
     }

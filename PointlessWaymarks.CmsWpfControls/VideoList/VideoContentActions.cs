@@ -231,7 +231,9 @@ public partial class VideoContentActions : IContentActions<VideoContent>
     {
         var item = await VideoListListItem.CreateInstance(itemActions);
         item.DbEntry = content;
-        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(content);
+        item.SmallImageUrl = smallImageUrl;
+        item.DisplayImageUrl = displayImageUrl;
         item.ShowType = showType;
 
         return item;

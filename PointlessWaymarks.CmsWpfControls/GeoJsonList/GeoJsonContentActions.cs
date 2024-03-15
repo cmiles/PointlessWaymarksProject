@@ -234,7 +234,9 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
     {
         var item = await GeoJsonListListItem.CreateInstance(itemActions);
         item.DbEntry = content;
-        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(content);
+        item.SmallImageUrl = smallImageUrl;
+        item.DisplayImageUrl = displayImageUrl;
         item.ShowType = showType;
         return item;
     }

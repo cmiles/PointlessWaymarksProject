@@ -379,8 +379,12 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 ((dynamic)existingItem).DbEntry = (dynamic)loopItem;
             // ReSharper restore All
 
-            if (loopItem is IMainImage mainImage && existingItem is IContentListSmallImage itemWithSmallImage)
-                itemWithSmallImage.SmallImageUrl = GetSmallImageUrl(mainImage);
+            if (loopItem is IMainImage mainImage && existingItem is IContentListImage itemWithListImage)
+            {
+                var (smallImageUrl, displayImageUrl) = GetContentItemImageUrls(mainImage);
+                itemWithListImage.SmallImageUrl = smallImageUrl;
+                itemWithListImage.DisplayImageUrl = displayImageUrl;
+            }
         }
 
         if (StatusContext.BlockUi) FilterOnUiShown = true;
@@ -582,23 +586,26 @@ public partial class ContentListContext : IDragSource, IDropTarget
         }
     }
 
-    public static string? GetSmallImageUrl(IMainImage? content)
+    public static (string? smallImageUrl, string? displayImageUrl) GetContentItemImageUrls(IMainImage? content)
     {
-        if (content?.MainPicture == null) return null;
+        if (content?.MainPicture == null) return (null, null);
 
         string? smallImageUrl;
+        string? displayImageUrl;
 
         try
         {
-            smallImageUrl = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value)?.SmallPicture
-                ?.File?.FullName;
+            var pictureAsset = PictureAssetProcessing.ProcessPictureDirectory(content.MainPicture.Value);
+            smallImageUrl = pictureAsset?.SmallPicture?.File?.FullName;
+            displayImageUrl = pictureAsset?.DisplayPicture?.File?.FullName;
         }
         catch
         {
             smallImageUrl = null;
+            displayImageUrl = null;
         }
 
-        return smallImageUrl;
+        return (smallImageUrl, displayImageUrl);
     }
 
     [BlockingCommand]
@@ -736,12 +743,16 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (translatedMessage?.ContentIds == null) return;
 
-        var smallImageListItems = Items.Where(x => x is IContentListSmallImage).Cast<IContentListSmallImage>().ToList();
+        var smallImageListItems = Items.Where(x => x is IContentListImage).Cast<IContentListImage>().ToList();
 
         foreach (var loopListItem in smallImageListItems)
             if (((dynamic)loopListItem).DbEntry is IMainImage { MainPicture: not null } dbMainImageEntry &&
                 translatedMessage.ContentIds.Contains(dbMainImageEntry.MainPicture.Value))
-                loopListItem.SmallImageUrl = GetSmallImageUrl(dbMainImageEntry);
+            {
+                var (smallImageUrl, displayImageUrl) = GetContentItemImageUrls(dbMainImageEntry);
+                loopListItem.SmallImageUrl = smallImageUrl;
+                loopListItem.DisplayImageUrl = displayImageUrl;
+            }
     }
 
     public static async Task RunReport(Func<Task<List<object>>> toRun, string title)

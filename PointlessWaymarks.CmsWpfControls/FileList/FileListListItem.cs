@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -6,7 +6,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CmsWpfControls.FileList;
 
 [NotifyPropertyChanged]
-public partial class FileListListItem : IContentListItem, IContentListSmallImage
+public partial class FileListListItem : IContentListItem, IContentListImage
 {
     private FileListListItem(FileContentActions itemActions, FileContent dbEntry)
     {
@@ -17,6 +17,8 @@ public partial class FileListListItem : IContentListItem, IContentListSmallImage
     public FileContent DbEntry { get; set; }
     public FileContentActions ItemActions { get; set; }
     public bool ShowType { get; set; }
+    public string? DisplayImageUrl { get; set; }
+    public string? SmallImageUrl { get; set; }
 
     public IContentCommon Content()
     {
@@ -68,7 +70,6 @@ public partial class FileListListItem : IContentListItem, IContentListSmallImage
         await ItemActions.ViewOnSite(DbEntry);
     }
 
-    public string? SmallImageUrl { get; set; }
     public CurrentSelectedTextTracker? SelectedTextTracker { get; set; } = new();
 
     public static Task<FileListListItem> CreateInstance(FileContentActions itemActions)

@@ -339,7 +339,9 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
     {
         var item = await PhotoListListItem.CreateInstance(photoContentActions);
         item.DbEntry = content;
-        item.SmallImageUrl = ContentListContext.GetSmallImageUrl(content);
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(content);
+        item.SmallImageUrl = smallImageUrl;
+        item.DisplayImageUrl = displayImageUrl;
         item.ShowType = showType;
         return item;
     }
