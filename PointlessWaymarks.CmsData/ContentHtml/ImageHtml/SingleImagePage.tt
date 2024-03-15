@@ -51,6 +51,8 @@
     <#= Tags.FavIconFileString() #>
 
     <#= HeaderContentBasedAdditions.HeaderAdditions(DbEntry) #>
+
+    <#= PictureZoom.SwipeZoomHeader(PictureInformation) #>
 </head>
 
 <body class="single-photo-body">

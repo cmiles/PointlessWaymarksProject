@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.Database.Models;

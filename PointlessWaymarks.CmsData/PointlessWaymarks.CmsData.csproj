@@ -59,6 +59,13 @@
     <None Remove="SiteResources\leaflet.awesome-svg-markers.js" />
     <None Remove="SiteResources\leaflet.js.map" />
     <None Remove="SiteResources\location-arrow-solid.svg" />
+    <None Remove="SiteResources\photoswipe-lightbox.esm.js" />
+    <None Remove="SiteResources\photoswipe-lightbox.esm.js.map" />
+    <None Remove="SiteResources\photoswipe-lightbox.esm.min.js" />
+    <None Remove="SiteResources\photoswipe.css" />
+    <None Remove="SiteResources\photoswipe.esm.js" />
+    <None Remove="SiteResources\photoswipe.esm.js.map" />
+    <None Remove="SiteResources\photoswipe.esm.min.js" />
     <None Remove="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
     <None Remove="SiteResources\pointless-waymarks-content-gallery.js" />
     <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
@@ -404,6 +411,13 @@
     <EmbeddedResource Include="SiteResources\leaflet.js" />
     <EmbeddedResource Include="SiteResources\leaflet.js.map" />
     <EmbeddedResource Include="SiteResources\location-arrow-solid.svg" />
+    <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.js" />
+    <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.js.map" />
+    <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.min.js" />
+    <EmbeddedResource Include="SiteResources\photoswipe.css" />
+    <EmbeddedResource Include="SiteResources\photoswipe.esm.js" />
+    <EmbeddedResource Include="SiteResources\photoswipe.esm.js.map" />
+    <EmbeddedResource Include="SiteResources\photoswipe.esm.min.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-content-gallery.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
     <EmbeddedResource Include="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
