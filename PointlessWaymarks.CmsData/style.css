@@ -114,6 +114,10 @@ body {
     width: 100%;
 }
 
+.single-photo-body .single-photo {
+    cursor: zoom-in;
+}
+
 .single-photo-caption {
     caption-side: bottom;
     color: var(--foreground-secondary-color);
