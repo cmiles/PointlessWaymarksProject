@@ -23,7 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Jot" Version="2.1.17" />
-    <PackageReference Include="Metalama.Framework" Version="2024.0.7" />
+    <PackageReference Include="Metalama.Framework" Version="2024.0.9" />
   </ItemGroup>
 
   <ItemGroup>
