@@ -118,6 +118,11 @@ body {
     cursor: zoom-in;
 }
 
+/* This is for the PhotoSwipe Toolbar - in full screen the 'x' collides with the visual search button edge adds. */
+.pswp__top-bar {
+    padding-right: 24px;
+}
+
 .single-photo-caption {
     caption-side: bottom;
     color: var(--foreground-secondary-color);
