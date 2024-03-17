@@ -34,6 +34,7 @@ using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
+using PointlessWaymarks.CmsWpfControls.SearchBuilder;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
@@ -821,6 +822,13 @@ public partial class CmsCommonCommands
     private async Task SearchHelpWindow()
     {
         var newWindow = await MarkdownViewerWindow.CreateInstance("Search Help", SearchHelpMarkdown.HelpBlock);
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    private async Task SearchBuildHelperWindow()
+    {
+        var newWindow = await SearchBuilderWindow.CreateInstance();
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 

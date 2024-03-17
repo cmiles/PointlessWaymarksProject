@@ -1,0 +1,113 @@
+<UserControl x:Class="PointlessWaymarks.CmsWpfControls.SearchBuilder.SearchBuilderControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.SearchBuilder"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate DataType="{x:Type local:TextSearchFieldBuilder}" x:Key="TextTemplate">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
+                                   Content="{Binding FieldTitle}">
+                            </Label>
+                            <TextBox Margin="16,4,4,4" MinWidth="240" TextAlignment="Left"
+                                     VerticalContentAlignment="Center" Padding="4"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
+                            </TextBox>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:NumericSearchFieldBuilder}" x:Key="NumericTemplate">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
+                                   Content="{Binding FieldTitle}">
+                            </Label>
+                            <ComboBox VerticalAlignment="Center" Margin="8,0,0,0"
+                                      ItemsSource="{Binding OperatorChoices}"
+                                      SelectedValue="{Binding SelectedOperatorOne}">
+                            </ComboBox>
+                            <TextBox Width="45" VerticalAlignment="Center" TextAlignment="Right"
+                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                     Text="{Binding UserNumberTextOne, UpdateSourceTrigger=PropertyChanged}">
+                            </TextBox>
+                            <ComboBox Margin="12,0,0,0" VerticalAlignment="Center"
+                                      ItemsSource="{Binding OperatorChoices}"
+                                      SelectedValue="{Binding SelectedOperatorTwo}">
+                            </ComboBox>
+                            <TextBox Width="45" VerticalAlignment="Center" TextAlignment="Right"
+                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                     Text="{Binding UserNumberTextTwo, UpdateSourceTrigger=PropertyChanged}">
+                            </TextBox>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:ContentTypeSearchBuilder}" x:Key="ContentTypeTemplate">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Content Type</Label>
+                        </StackPanel>
+                        <ListBox Grid.Row="1" Margin="24,4,12,0" BorderThickness="0" ItemsSource="{Binding ContentTypeChoices}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type local:ContentTypeSearchChoice}">
+                                    <CheckBox Content="{Binding TypeDescription}" IsChecked="{Binding IsSelected}"></CheckBox>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <local:FilterTemplateSelector x:Key="FilterSelector"
+                                          TextSearchTemplate="{StaticResource TextTemplate}"
+                                          NumericSearchTemplate="{StaticResource NumericTemplate}"
+                                          ContentSearchTemplate="{StaticResource ContentTypeTemplate}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,4,0,8">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Padding" Value="12,4,12,4"></Setter>
+                    <Setter Property="Margin" Value="2"></Setter>
+                </Style>
+            </StackPanel.Resources>
+            <Button Command="{Binding AddTitleSearchFilterCommand}">Title</Button>
+            <Button Command="{Binding AddSummarySearchFilterCommand}">Summary</Button>
+            <Button Command="{Binding AddFolderSearchFilterCommand}">Folder</Button>
+            <Button Command="{Binding AddTagsSearchFilterCommand}">Tags</Button>
+            <Button Command="{Binding AddIsoSearchFilterCommand}">ISO</Button>
+            <Button Command="{Binding AddContentFilterCommand}">Type</Button>
+        </StackPanel>
+        <ListBox Grid.Row="1" ItemsSource="{Binding SearchFilters}"
+                 ItemTemplateSelector="{StaticResource FilterSelector}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        </ListBox>
+    </Grid>
+</UserControl>

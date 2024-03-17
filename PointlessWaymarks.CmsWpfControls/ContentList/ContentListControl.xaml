@@ -66,15 +66,18 @@
                         AcceptsReturn="True"
                         Text="{Binding UserFilterText, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
                         TextWrapping="Wrap" />
-                    <Button
-                        Height="Auto"
-                        Padding="6,0,6,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Command="{Binding NewActions.SearchHelpWindowCommand}"
-                        Opacity=".9">
-                        Help
-                    </Button>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom">
+                        <Button Command="{Binding NewActions.SearchBuildHelperWindowCommand}">build</Button>
+                        <Button
+                            Height="Auto"
+                            Padding="6,0,6,0"
+                            Command="{Binding NewActions.SearchHelpWindowCommand}"
+                            Opacity=".9">
+                            Help
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </GroupBox>
             <GroupBox
@@ -108,7 +111,8 @@
                 SelectionChanged="Selector_OnSelectionChanged"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <b:Interaction.Behaviors>
-                    <behaviors:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                    <behaviors:AttachCommandBindingsBehavior
+                        CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                 </b:Interaction.Behaviors>
                 <ListBox.ContextMenu>
                     <ContextMenu ItemsSource="{Binding ContextMenuItems}">
