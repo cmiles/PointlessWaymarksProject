@@ -68,13 +68,22 @@
                         TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom">
-                        <Button Command="{Binding NewActions.SearchBuildHelperWindowCommand}">build</Button>
+                                VerticalAlignment="Bottom"
+                                Margin="2">
                         <Button
-                            Height="Auto"
+                            Height="20"
+                            Margin="0"
+                            Padding="6,0,6,0"
+                            Command="{Binding NewActions.SearchBuildHelperWindowCommand}"
+                            Opacity=".8">
+                            Build
+                        </Button>
+                        <Button
+                            Height="20"
                             Padding="6,0,6,0"
                             Command="{Binding NewActions.SearchHelpWindowCommand}"
-                            Opacity=".9">
+                            Opacity=".8"
+                            Margin="0">
                             Help
                         </Button>
                     </StackPanel>

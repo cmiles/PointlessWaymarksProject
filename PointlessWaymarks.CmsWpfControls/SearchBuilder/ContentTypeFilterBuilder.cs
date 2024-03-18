@@ -6,6 +6,7 @@ namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
 [NotifyPropertyChanged]
 public partial class ContentTypeSearchBuilder
 {
+    public bool Not { get; set; }
     public List<ContentTypeSearchChoice> ContentTypeChoices { get; set; } =
     [
         new ContentTypeSearchChoice { TypeDescription = Db.ContentTypeDisplayStringForFile },

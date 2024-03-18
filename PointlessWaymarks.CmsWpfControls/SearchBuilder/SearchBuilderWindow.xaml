@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.SearchBuilder"
         mc:Ignorable="d"
-        Title="Search Builder" Height="450" Width="800" d:DataContext="{d:DesignInstance local:SearchBuilderWindow}">
+        Title="Search Builder" Height="800" Width="800" d:DataContext="{d:DesignInstance local:SearchBuilderWindow}">
     <Grid>
         <local:SearchBuilderControl DataContext="{Binding SearchContext}"></local:SearchBuilderControl>
     </Grid>
