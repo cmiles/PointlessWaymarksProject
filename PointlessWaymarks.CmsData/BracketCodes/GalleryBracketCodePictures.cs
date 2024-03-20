@@ -12,7 +12,7 @@ public static class GalleryBracketCodePictures
 
     public static string Create(PhotoContent content)
     {
-        return $"{{{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}}}";
+        return $"[[{BracketCodeToken} {BracketCodePhotos.Create(content)}]]";
     }
 
     public static async Task<List<dynamic>> DbContentFromBracketCodes(string? toProcess,

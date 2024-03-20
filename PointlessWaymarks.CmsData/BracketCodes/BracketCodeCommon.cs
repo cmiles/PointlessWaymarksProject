@@ -24,18 +24,7 @@ public static partial class BracketCodeCommon
             matchResult = matchResult.NextMatch();
         }
 
-        var tripleMatchResult = GalleryBracketCodeSiteGuidListRegex().Match(toProcess);
-        while (tripleMatchResult.Success)
-        {
-            var splitGuids = tripleMatchResult.Groups["siteGuidList"].Value.Split(' ');
-            foreach (var loopGuid in splitGuids)
-            {
-                if (string.IsNullOrWhiteSpace(loopGuid)) continue;
-                if (Guid.TryParse(loopGuid.Trim(), out var toAdd)) returnList.Add(toAdd);
-            }
-
-            tripleMatchResult = tripleMatchResult.NextMatch();
-        }
+        //2024/3/20 - The Gallery Bracket Code surrounds regular bracket codes so will be matched above
 
         return returnList;
     }
@@ -47,7 +36,7 @@ public static partial class BracketCodeCommon
     {
         var codeMatches = new List<string>
         {
-            $"{{{{{{{GalleryBracketCodePictures.BracketCodeToken}"
+            $"[[{GalleryBracketCodePictures.BracketCodeToken}"
         };
 
         return codeMatches.Any(toProcess.Contains);
@@ -147,43 +136,18 @@ public static partial class BracketCodeCommon
 
         if (string.IsNullOrWhiteSpace(toProcess)) return resultList;
 
-        var withTextMatch = new Regex(
-            $@"{{{{{{{bracketCodeToken}(?<siteGuidList>[ ]*[\dA-Za-z-\s]*);\s*[Tt]ext (?<displayText>[^}};]*);[^}}]*}}}}}}",
-            RegexOptions.Singleline);
-        var noTextMatch = withTextMatch.Match(toProcess);
-        while (noTextMatch.Success)
-        {
-            var guidNoMatchList = new List<Guid>();
-            var splitGuids = noTextMatch.Groups["siteGuid"].Value.Split(' ');
-            foreach (var loopGuid in splitGuids)
-            {
-                if (string.IsNullOrWhiteSpace(loopGuid)) continue;
-                if (Guid.TryParse(loopGuid.Trim(), out var toAdd)) guidNoMatchList.Add(toAdd);
-            }
-
-            resultList.Add((noTextMatch.Value, guidNoMatchList, noTextMatch.Groups["displayText"].Value));
-            noTextMatch = noTextMatch.NextMatch();
-        }
-
-        //Remove the more specific pattern matches before processing the less specific matches,
-        //as currently written there are patterns that can match both.
-        foreach (var loopResultList in resultList)
-            toProcess = toProcess.Replace(loopResultList.bracketCodeText, string.Empty);
-
-        var regexObj = new Regex($@"{{{{{{{bracketCodeToken}[ ]*(?<siteGuid>[\dA-Za-z-\s]*);[^}}]*}}}}}}",
+        var regexObj = new Regex($@"\[\[{bracketCodeToken}\s(?<bracketCodes>(?s).*)]]",
             RegexOptions.Multiline);
         var textMatch = regexObj.Match(toProcess);
         while (textMatch.Success)
         {
-            var guidTextMatchList = new List<Guid>();
-            var splitGuids = textMatch.Groups["siteGuid"].Value.Split(' ');
-            foreach (var loopGuid in splitGuids)
-            {
-                if (string.IsNullOrWhiteSpace(loopGuid)) continue;
-                if (Guid.TryParse(loopGuid.Trim(), out var toAdd)) guidTextMatchList.Add(toAdd);
-            }
+            var galleryBracketCodes = textMatch.Groups["bracketCodes"].Value;
 
-            resultList.Add((textMatch.Value, guidTextMatchList, string.Empty));
+            if (string.IsNullOrWhiteSpace(galleryBracketCodes)) continue;
+
+            var contentIds = BracketCodeContentIds(galleryBracketCodes);
+
+            resultList.Add((textMatch.Value, contentIds, string.Empty));
             textMatch = textMatch.NextMatch();
         }
 
@@ -245,6 +209,10 @@ public static partial class BracketCodeCommon
 
     public static async Task<string?> ProcessCodesForSite(string? input, IProgress<string>? progress = null)
     {
+        // 2024/3/20 - The Gallery Bracket Code surrounds regular bracket codes and must be processed
+        //first!
+        input = await GalleryBracketCodePictures.ProcessToGallery(input, progress).ConfigureAwait(false);
+        
         input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileEmbed.Process(input, progress).ConfigureAwait(false);
@@ -270,7 +238,6 @@ public static partial class BracketCodeCommon
         input = await BracketCodeVideoLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeVideoImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeVideoEmbed.Process(input, progress).ConfigureAwait(false);
-        input = await GalleryBracketCodePictures.ProcessToGallery(input, progress).ConfigureAwait(false);
         input = BracketCodeSpecialPages.Process(input, progress);
 
         return input;
