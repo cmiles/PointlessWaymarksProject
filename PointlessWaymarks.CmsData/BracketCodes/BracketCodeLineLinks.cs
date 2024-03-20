@@ -1,10 +1,9 @@
-﻿using HtmlTags;
+using HtmlTags;
 using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.CommonHtml;
+namespace PointlessWaymarks.CmsData.BracketCodes;
 
 public static class BracketCodeLineLinks
 {
@@ -12,7 +11,7 @@ public static class BracketCodeLineLinks
 
     public static string Create(LineContent content)
     {
-        return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
     public static async Task<List<LineContent>> DbContentFromBracketCodes(string? toProcess,

@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CmsData.BracketCodes;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.CommonHtml;
+namespace PointlessWaymarks.CmsData.BracketCodes;
 
 public static class BracketCodeVideoEmbed
 {
@@ -12,7 +11,7 @@ public static class BracketCodeVideoEmbed
 
     public static string Create(VideoContent content)
     {
-        return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
     public static async Task<List<VideoContent>> DbContentFromBracketCodes(string? toProcess,

@@ -1,9 +1,10 @@
-﻿using System.IO;
+using System.IO;
 using Windows.Data.Pdf;
 using Windows.Graphics.Imaging;
 using Windows.Media.Editing;
 using Windows.Storage;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;

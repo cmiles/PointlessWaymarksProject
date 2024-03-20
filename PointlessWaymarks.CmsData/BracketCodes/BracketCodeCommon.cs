@@ -1,10 +1,9 @@
 using System.Text.RegularExpressions;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.BracketCodes;
 
-public static class BracketCodeCommon
+public static partial class BracketCodeCommon
 {
     /// <summary>
     ///     Extracts a list of Bracket Code ContentIds from the string.
@@ -17,8 +16,7 @@ public static class BracketCodeCommon
 
         if (string.IsNullOrWhiteSpace(toProcess)) return returnList;
 
-        var regexObj = new Regex(@"{{[a-zA-Z-]*[ ]*(?<siteGuid>[\dA-Za-z-]*);[^}]*}}");
-        var matchResult = regexObj.Match(toProcess);
+        var matchResult = BracketCodeSiteGuidRegex().Match(toProcess);
         while (matchResult.Success)
         {
             if (Guid.TryParse(matchResult.Groups["siteGuid"].Value, out var toAdd)) returnList.Add(toAdd);
@@ -26,7 +24,48 @@ public static class BracketCodeCommon
             matchResult = matchResult.NextMatch();
         }
 
+        var tripleMatchResult = GalleryBracketCodeSiteGuidListRegex().Match(toProcess);
+        while (tripleMatchResult.Success)
+        {
+            var splitGuids = tripleMatchResult.Groups["siteGuidList"].Value.Split(' ');
+            foreach (var loopGuid in splitGuids)
+            {
+                if (string.IsNullOrWhiteSpace(loopGuid)) continue;
+                if (Guid.TryParse(loopGuid.Trim(), out var toAdd)) returnList.Add(toAdd);
+            }
+
+            tripleMatchResult = tripleMatchResult.NextMatch();
+        }
+
         return returnList;
+    }
+
+    [GeneratedRegex(@"{{[a-zA-Z-]*[ ]*(?<siteGuid>[\dA-Za-z-]*);[^}]*}}")]
+    private static partial Regex BracketCodeSiteGuidRegex();
+
+    public static bool ContainsPictureGalleryDependentBracketCodes(string toProcess)
+    {
+        var codeMatches = new List<string>
+        {
+            $"{{{{{{{GalleryBracketCodePictures.BracketCodeToken}"
+        };
+
+        return codeMatches.Any(toProcess.Contains);
+    }
+
+    public static bool ContainsPictureGalleryDependentBracketCodes(IContentCommon? content)
+    {
+        if (content == null) return false;
+
+        var toSearch = string.Empty;
+
+        toSearch += content.BodyContent + content.Summary;
+
+        if (content is IUpdateNotes updateContent) toSearch += updateContent.UpdateNotes;
+
+        if (string.IsNullOrWhiteSpace(toSearch)) return false;
+
+        return ContainsPictureGalleryDependentBracketCodes(toSearch);
     }
 
     public static bool ContainsSpatialScriptDependentBracketCodes(string toProcess)
@@ -71,10 +110,9 @@ public static class BracketCodeCommon
 
         if (string.IsNullOrWhiteSpace(toProcess)) return resultList;
 
-        var withTextMatch =
-            new Regex(
-                $@"{{{{{bracketCodeToken} (?<siteGuid>[\dA-Za-z-]*);\s*[Tt]ext (?<displayText>[^}};]*);[^}}]*}}}}",
-                RegexOptions.Singleline);
+        var withTextMatch = new Regex(
+            $@"{{{{{bracketCodeToken} (?<siteGuid>[\dA-Za-z-]*);\s*[Tt]ext (?<displayText>[^}};]*);[^}}]*}}}}",
+            RegexOptions.Singleline);
         var noTextMatch = withTextMatch.Match(toProcess);
         while (noTextMatch.Success)
         {
@@ -100,6 +138,60 @@ public static class BracketCodeCommon
 
         return resultList;
     }
+
+    public static List<(string bracketCodeText, List<Guid> contentGuid, string displayText)>
+        ContentGalleryBracketCodeMatches(
+            string? toProcess, string bracketCodeToken)
+    {
+        var resultList = new List<(string bracketCodeText, List<Guid> contentGuid, string displayText)>();
+
+        if (string.IsNullOrWhiteSpace(toProcess)) return resultList;
+
+        var withTextMatch = new Regex(
+            $@"{{{{{{{bracketCodeToken}(?<siteGuidList>[ ]*[\dA-Za-z-\s]*);\s*[Tt]ext (?<displayText>[^}};]*);[^}}]*}}}}}}",
+            RegexOptions.Singleline);
+        var noTextMatch = withTextMatch.Match(toProcess);
+        while (noTextMatch.Success)
+        {
+            var guidNoMatchList = new List<Guid>();
+            var splitGuids = noTextMatch.Groups["siteGuid"].Value.Split(' ');
+            foreach (var loopGuid in splitGuids)
+            {
+                if (string.IsNullOrWhiteSpace(loopGuid)) continue;
+                if (Guid.TryParse(loopGuid.Trim(), out var toAdd)) guidNoMatchList.Add(toAdd);
+            }
+
+            resultList.Add((noTextMatch.Value, guidNoMatchList, noTextMatch.Groups["displayText"].Value));
+            noTextMatch = noTextMatch.NextMatch();
+        }
+
+        //Remove the more specific pattern matches before processing the less specific matches,
+        //as currently written there are patterns that can match both.
+        foreach (var loopResultList in resultList)
+            toProcess = toProcess.Replace(loopResultList.bracketCodeText, string.Empty);
+
+        var regexObj = new Regex($@"{{{{{{{bracketCodeToken}[ ]*(?<siteGuid>[\dA-Za-z-\s]*);[^}}]*}}}}}}",
+            RegexOptions.Multiline);
+        var textMatch = regexObj.Match(toProcess);
+        while (textMatch.Success)
+        {
+            var guidTextMatchList = new List<Guid>();
+            var splitGuids = textMatch.Groups["siteGuid"].Value.Split(' ');
+            foreach (var loopGuid in splitGuids)
+            {
+                if (string.IsNullOrWhiteSpace(loopGuid)) continue;
+                if (Guid.TryParse(loopGuid.Trim(), out var toAdd)) guidTextMatchList.Add(toAdd);
+            }
+
+            resultList.Add((textMatch.Value, guidTextMatchList, string.Empty));
+            textMatch = textMatch.NextMatch();
+        }
+
+        return resultList;
+    }
+
+    [GeneratedRegex(@"{{{[a-zA-Z-]*(?<siteGuidList>[ ]*[\dA-Za-z-]*);[^}]*}}}")]
+    private static partial Regex GalleryBracketCodeSiteGuidListRegex();
 
     /// <summary>
     ///     Extracts the Guid from the first {{(photo|image) guid;human_identifier}} in the string.
@@ -178,6 +270,7 @@ public static class BracketCodeCommon
         input = await BracketCodeVideoLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeVideoImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeVideoEmbed.Process(input, progress).ConfigureAwait(false);
+        input = await GalleryBracketCodePictures.ProcessToGallery(input, progress).ConfigureAwait(false);
         input = BracketCodeSpecialPages.Process(input, progress);
 
         return input;
@@ -210,7 +303,7 @@ public static class BracketCodeCommon
         foreach (var loopResultList in resultList)
             toProcess = toProcess.Replace(loopResultList.bracketCodeText, string.Empty);
 
-        var regexObj = new Regex($@"{{{{{bracketCodeToken};}}}}", RegexOptions.Singleline);
+        var regexObj = new Regex($"{{{{{bracketCodeToken};}}}}", RegexOptions.Singleline);
         var textMatch = regexObj.Match(toProcess);
         while (textMatch.Success)
         {

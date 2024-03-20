@@ -36,14 +36,21 @@ public static class PartialContentPreviewServer
                         <title>Pointless Waymarks Preview</title>
                         <link rel="stylesheet" href="http://{siteDomain}/style.css?v=1.0">
                         <link rel="shortcut icon" href="http://{siteDomain}/favicon.ico"/>
+                    
                         <link rel="stylesheet" href="http://{siteDomain}/SiteResources/leaflet.css" />
-                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script src="http://{siteDomain}/SiteResources/chart.min.js"></script>
                         <script src="http://{siteDomain}/SiteResources/leaflet.js"></script>
                         <link rel="stylesheet" href="http://{siteDomain}/SiteResources/leaflet-gesture-handling.min.css" type="text/css">
                         <script src="http://{siteDomain}/SiteResources/leaflet-gesture-handling.min.js"></script>
                         <link rel="stylesheet" href="http://{siteDomain}/SiteResources/L.Control.Locate.min.css" type="text/css">
                         <script src="http://{siteDomain}/SiteResources/L.Control.Locate.min.js"></script>
+                        <script src="http://{siteDomain}/SiteResources/leaflet.awesome-svg-markers.js"></script>
+                        <link rel="stylesheet" href="http://{siteDomain}/SiteResources/leaflet.awesome-svg-markers.css" />
                         <script src="http://{siteDomain}/SiteResources/pointless-waymarks-spatial-common.js"></script>
+                    
+                        <link rel="stylesheet" href="http://{siteDomain}/SiteResources/justifiedGallery.css" />
+                        <script src="http://{siteDomain}/SiteResources/jquery-3.7.1.slim.min.js"></script>
+                        <script src="http://{siteDomain}/SiteResources/jquery.justifiedGallery.js"></script>
                     </head>
 
                     <body>

@@ -1,11 +1,10 @@
-﻿using HtmlTags;
+using HtmlTags;
 using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.CommonHtml;
+namespace PointlessWaymarks.CmsData.BracketCodes;
 
 public static class BracketCodeDailyPhotoPage
 {
@@ -13,7 +12,7 @@ public static class BracketCodeDailyPhotoPage
 
     public static string Create(PhotoContent content)
     {
-        return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.PhotoCreatedOn:d} ({content.Title})}}}}";
+        return $"{{{{{BracketCodeToken} {content.ContentId}; {content.PhotoCreatedOn:d} ({content.Title})}}}}";
     }
 
     public static async Task<List<PhotoContent>> DbContentFromBracketCodes(string? toProcess,

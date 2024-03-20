@@ -1,11 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CmsData.BracketCodes;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.MapComponentData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
 
-namespace PointlessWaymarks.CmsData.CommonHtml;
+namespace PointlessWaymarks.CmsData.BracketCodes;
 
 public static class BracketCodeMapComponents
 {
@@ -13,7 +12,7 @@ public static class BracketCodeMapComponents
 
     public static string Create(MapComponent content)
     {
-        return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
     public static async Task<List<MapComponent>> DbContentFromBracketCodes(string? toProcess,

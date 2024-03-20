@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Windows;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;

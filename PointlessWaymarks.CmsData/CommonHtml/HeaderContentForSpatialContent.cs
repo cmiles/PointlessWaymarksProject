@@ -19,7 +19,7 @@ public class HeaderContentForSpatialContent : IHeaderContentBasedAdditions
     {
         return $"""
                 <link rel="stylesheet" href="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.css" />
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}chart.min.js"></script>
                 <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.js"></script>
                 <link rel="stylesheet" href="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.css" type="text/css">
                 <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.js"></script>
@@ -30,7 +30,6 @@ public class HeaderContentForSpatialContent : IHeaderContentBasedAdditions
                 <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}pointless-waymarks-spatial-common.js"></script>
                 """;
     }
-
 
     public bool IsNeeded(params string?[] stringContent)
     {
@@ -47,7 +46,8 @@ public class HeaderContentForSpatialContent : IHeaderContentBasedAdditions
 
     public bool IsNeeded(IContentCommon content)
     {
-        return BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes(content) || (content.GetType() == typeof(PointContentDto) || content.GetType() == typeof(GeoJsonContent) ||
-            content.GetType() == typeof(LineContent));
+        return BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes(content) ||
+               content.GetType() == typeof(PointContentDto) || content.GetType() == typeof(GeoJsonContent) ||
+               content.GetType() == typeof(LineContent);
     }
 }

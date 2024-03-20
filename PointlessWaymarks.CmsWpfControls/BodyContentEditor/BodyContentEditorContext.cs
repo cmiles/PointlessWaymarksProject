@@ -51,18 +51,12 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
     public ContentFormatChooserContext BodyContentFormat { get; set; }
     public bool BodyContentHasChanges { get; set; }
     public IBodyContent? DbEntry { get; set; }
-    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
-
     public string HtmlPreview { get; set; }
     public string? SelectedBodyText { get; set; }
     public StatusControlContext StatusContext { get; set; }
-    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public int UserBodyContentUserSelectionLength { get; set; }
     public int UserBodyContentUserSelectionStart { get; set; }
     public string? UserHtmlSelectedText { get; set; }
-
     public string? UserValue { get; set; }
 
     public void CheckForChangesAndValidationIssues()
@@ -72,6 +66,11 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
         HasChanges = BodyContentHasChanges || PropertyScanners.ChildPropertiesHaveValidationIssues(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveChanges(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
     public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         IBodyContent dbEntry)

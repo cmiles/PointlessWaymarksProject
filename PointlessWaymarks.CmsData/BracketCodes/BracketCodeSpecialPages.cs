@@ -1,7 +1,6 @@
 using HtmlTags;
-using PointlessWaymarks.CmsData.BracketCodes;
 
-namespace PointlessWaymarks.CmsData.CommonHtml;
+namespace PointlessWaymarks.CmsData.BracketCodes;
 
 public static class BracketCodeSpecialPages
 {

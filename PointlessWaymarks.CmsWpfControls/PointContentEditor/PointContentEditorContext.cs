@@ -6,6 +6,7 @@ using System.Windows;
 using NetTopologySuite.Features;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;

@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CmsData.BracketCodes;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.CommonHtml;
+namespace PointlessWaymarks.CmsData.BracketCodes;
 
 public static class BracketCodeFileEmbed
 {
@@ -12,7 +11,7 @@ public static class BracketCodeFileEmbed
 
     public static string Create(FileContent content)
     {
-        return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
     public static async Task<List<FileContent>> DbContentFromBracketCodes(string? toProcess,

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CmsData.BracketCodes;
+using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.CommonHtml;
+namespace PointlessWaymarks.CmsData.BracketCodes;
 
 public static class BracketCodePostImage
 {
@@ -11,7 +11,7 @@ public static class BracketCodePostImage
 
     public static string Create(PostContent content)
     {
-        return $@"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
+        return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
     public static async Task<List<PostContent>> DbContentFromBracketCodes(string? toProcess,
