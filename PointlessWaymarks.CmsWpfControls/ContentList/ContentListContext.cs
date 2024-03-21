@@ -9,6 +9,7 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -183,6 +184,49 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public bool TryCatchOccurredException(Exception exception)
     {
         return false;
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task PictureGalleryBracketCodeToClipboardSelected(CancellationToken cancelToken)
+    {
+        var currentSelected = SelectedListItems();
+
+        var bracketCodes = new List<string>();
+
+        foreach (var loopSelected in currentSelected)
+        {
+            var toAdd = loopSelected switch //!!Content List
+            {
+                FileListListItem f => BracketCodeFileImageLink.Create(f.DbEntry),
+                ImageListListItem i => BracketCodeImages.Create(i.DbEntry),
+                GeoJsonListListItem g => BracketCodeGeoJsonImageLink.Create(g.DbEntry),
+                LineListListItem l => BracketCodeLineImageLink.Create(l.DbEntry),
+                PhotoListListItem p => BracketCodePhotos.Create(p.DbEntry),
+                PointListListItem pt => BracketCodePointImageLink.Create(pt.DbEntry),
+                PostListListItem po => BracketCodePostImageLink.Create(po.DbEntry),
+                VideoListListItem v => BracketCodeVideoImageLink.Create(v.DbEntry),
+                _ => string.Empty
+            };
+
+            if(!string.IsNullOrWhiteSpace(toAdd)) bracketCodes.Add(toAdd);
+        }
+
+        var individualCodes = string.Join(Environment.NewLine, bracketCodes.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+        if (string.IsNullOrWhiteSpace(individualCodes))
+        {
+            StatusContext.ToastSuccess("No Bracket Codes Found?");
+            return;
+        }
+
+        var finalString = GalleryBracketCodePictures.Create(individualCodes);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
     }
 
     [BlockingCommand]

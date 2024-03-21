@@ -5,7 +5,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.BracketCodes;
 
-public static class BracketCodeFileImage
+public static class BracketCodeFileImageLink
 {
     public const string BracketCodeToken = "fileimagelink";
 

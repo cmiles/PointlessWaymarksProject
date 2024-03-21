@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -8,7 +7,6 @@ using NetTopologySuite.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -41,36 +39,46 @@ public partial class PointListWithActionsContext
 
         ListContext.ContextMenuItems =
         [
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Map Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = PointLinkBracketCodesToClipboardForSelectedCommand
             },
 
-            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
-            new() { ItemName = "Selected Points to GPX File", ItemCommand = SelectedToGpxFileCommand },
-            new()
+            new ContextMenuItemData
+            {
+                ItemName = "Picture Gallery to Clipboard",
+                ItemCommand = ListContext.PictureGalleryBracketCodeToClipboardSelectedCommand
+            },
+
+            new ContextMenuItemData
+                { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
+            new ContextMenuItemData
+                { ItemName = "Selected Points to GPX File", ItemCommand = SelectedToGpxFileCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Selected Points to Clipboard - GeoJson", ItemCommand = GeoJsonToClipboardForSelectedCommand
             },
 
-            new() { ItemName = "Selected Points to Clipboard - Text", ItemCommand = ToClipboardForSelectedCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new()
+            new ContextMenuItemData
+                { ItemName = "Selected Points to Clipboard - Text", ItemCommand = ToClipboardForSelectedCommand },
+            new ContextMenuItemData
+                { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
             },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+            new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
@@ -215,11 +223,26 @@ public partial class PointListWithActionsContext
     }
 
     [BlockingCommand]
-    private async Task RefreshData()
+    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 100, ActionVerb = "copy to clipboard")]
+    private async Task GeoJsonToClipboardForSelected()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        var frozenSelected = SelectedListItems();
 
-        await ListContext.LoadData();
+        var featureList = new List<IFeature>();
+
+        foreach (var loopSelected in frozenSelected)
+        {
+            var pointFeature = loopSelected.DbEntry.FeatureFromPoint();
+            featureList.Add(pointFeature);
+        }
+
+        var finalString = await GeoJsonTools.SerializeListOfFeaturesCollectionToGeoJson(featureList);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess($"GeoJson Points To Clipboard for {frozenSelected.Count} Points");
     }
 
     [NonBlockingCommand]
@@ -235,6 +258,14 @@ public partial class PointListWithActionsContext
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    private async Task RefreshData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        await ListContext.LoadData();
     }
 
     public List<PointListListItem> SelectedListItems()
@@ -287,29 +318,6 @@ public partial class PointListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedListItemsAskIfOverMax(MaxSelectedItems = 100, ActionVerb = "copy to clipboard")]
-    private async Task GeoJsonToClipboardForSelected()
-    {
-        var frozenSelected = SelectedListItems();
-
-        var featureList = new List<IFeature>();
-
-        foreach (var loopSelected in frozenSelected)
-        {
-            var pointFeature = loopSelected.DbEntry.FeatureFromPoint();
-            featureList.Add(pointFeature);
-        }
-
-        var finalString = await GeoJsonTools.SerializeListOfFeaturesCollectionToGeoJson(featureList);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess($"GeoJson Points To Clipboard for {frozenSelected.Count} Points");
-    }
-
-    [BlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
     private async Task ToClipboardForSelected()
     {
@@ -318,9 +326,7 @@ public partial class PointListWithActionsContext
         var pointList = new StringBuilder();
 
         foreach (var loopSelected in frozenSelected)
-        {
             pointList.AppendLine($"{loopSelected.DbEntry.Latitude},{loopSelected.DbEntry.Longitude}");
-        }
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

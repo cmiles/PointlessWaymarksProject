@@ -5,26 +5,26 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.BracketCodes;
 
-public static class BracketCodePostImage
+public static class BracketCodeLineImageLink
 {
-    public const string BracketCodeToken = "postimagelink";
+    public const string BracketCodeToken = "lineimagelink";
 
-    public static string Create(PostContent content)
+    public static string Create(LineContent content)
     {
         return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
-    public static async Task<List<PostContent>> DbContentFromBracketCodes(string? toProcess,
+    public static async Task<List<LineContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
-        progress?.Report("Searching for Post Content Codes...");
+        progress?.Report("Searching for Line Content Codes...");
 
         var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
             .Select(x => x.contentGuid).Distinct().ToList();
 
-        var returnList = new List<PostContent>();
+        var returnList = new List<LineContent>();
 
         if (!resultList.Any()) return returnList;
 
@@ -32,11 +32,11 @@ public static class BracketCodePostImage
         {
             var context = await Db.Context().ConfigureAwait(false);
 
-            var dbContent = await context.PostContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
+            var dbContent = await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
                 .ConfigureAwait(false);
             if (dbContent == null) continue;
 
-            progress?.Report($"Post Image Code - Adding DbContent For {dbContent.Title}");
+            progress?.Report($"Line Image Code - Adding DbContent For {dbContent.Title}");
 
             returnList.Add(dbContent);
         }
@@ -45,7 +45,7 @@ public static class BracketCodePostImage
     }
 
     /// <summary>
-    ///     Processes {{post guid;human_identifier}} with a specified function - best use may be for easily building
+    ///     Processes {{line guid;human_identifier}} with a specified function - best use may be for easily building
     ///     library code.
     /// </summary>
     /// <param name="toProcess"></param>
@@ -53,12 +53,12 @@ public static class BracketCodePostImage
     /// <param name="progress"></param>
     /// <returns></returns>
     private static async Task<string?> Process(string? toProcess,
-        Func<(PictureSiteInformation pictureInfo, string linkUrl), string> pageConversion,
+        Func<(PictureSiteInformation pictureInfo, string? linkUrl), string> pageConversion,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
-        progress?.Report("Searching for Post Image Link Codes");
+        progress?.Report("Searching for Line Image Link Codes");
 
         var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
@@ -68,72 +68,69 @@ public static class BracketCodePostImage
 
         foreach (var loopMatch in resultList)
         {
-            var dbPost = await context.PostContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+            var dbLine = await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
                 .ConfigureAwait(false);
 
-            if (dbPost == null) continue;
-            if (dbPost.MainPicture == null)
+            if (dbLine == null) continue;
+            if (dbLine.MainPicture == null)
             {
                 progress?.Report(
-                    $"Post Image Link without Main Image - converting to post - Post: {dbPost.Title}");
+                    $"Line Image Link without Main Image - converting to linelink - Line: {dbLine.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken,
-                    BracketCodePosts.BracketCodeToken,
-                    StringComparison.OrdinalIgnoreCase);
+                var newBracketCodeText =
+                    loopMatch.bracketCodeText.Replace("lineimagelink", "linelink", StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
-                await BracketCodePosts.Process(toProcess).ConfigureAwait(false);
+                await BracketCodeLines.Process(toProcess).ConfigureAwait(false);
 
                 continue;
             }
 
-            var dbPicture = new PictureSiteInformation(dbPost.MainPicture.Value);
+            var dbPicture = new PictureSiteInformation(dbLine.MainPicture.Value);
 
             if (dbPicture.Pictures == null)
             {
                 progress?.Report(
-                    $"Post Image Link with Null PictureSiteInformation - converting to post - Post: {dbPost.Title}");
+                    $"Line Image Link with Null PictureSiteInformation - converting to linelink - Line: {dbLine.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken,
-                    BracketCodePosts.BracketCodeToken,
-                    StringComparison.OrdinalIgnoreCase);
+                var newBracketCodeText =
+                    loopMatch.bracketCodeText.Replace("lineimagelink", "linelink", StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
-                await BracketCodePosts.Process(toProcess).ConfigureAwait(false);
+                await BracketCodeLines.Process(toProcess).ConfigureAwait(false);
 
                 continue;
             }
 
-            var conversion = pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().PostPageUrl(dbPost)));
+            var conversion = pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().LinePageUrl(dbLine)));
 
             if (string.IsNullOrWhiteSpace(conversion))
             {
                 progress?.Report(
-                    $"Post Image Link with Null/Empty conversion - converting to post - Post: {dbPost.Title}");
+                    $"Line Image Link converted to Null/Empty - converting to linelink - Line: {dbLine.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken,
-                    BracketCodePosts.BracketCodeToken,
-                    StringComparison.OrdinalIgnoreCase);
+                var newBracketCodeText =
+                    loopMatch.bracketCodeText.Replace("lineimagelink", "linelink", StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
-                await BracketCodePosts.Process(toProcess).ConfigureAwait(false);
+                await BracketCodeLines.Process(toProcess).ConfigureAwait(false);
 
                 continue;
             }
 
             toProcess = toProcess.Replace(loopMatch.bracketCodeText, conversion);
 
-            progress?.Report($"Post Image Link {dbPost.Title} processed");
+            progress?.Report($"Line Image Link {dbLine.Title} processed");
         }
 
         return toProcess;
     }
 
     /// <summary>
-    ///     This method processes a postimagelink code for use in email.
+    ///     This method processes a lineimagelink code for use in email.
     /// </summary>
     /// <param name="toProcess"></param>
     /// <param name="progress"></param>
@@ -146,7 +143,7 @@ public static class BracketCodePostImage
     }
 
     /// <summary>
-    ///     Processes {{image guid;human_identifier}} into figure html with a link to the post page.
+    ///     Processes {{image guid;human_identifier}} into figure html with a link to the line page.
     /// </summary>
     /// <param name="toProcess"></param>
     /// <param name="progress"></param>
@@ -154,7 +151,8 @@ public static class BracketCodePostImage
     public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
-            pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
+            pictureInfo => pictureInfo.pictureInfo
+                .PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl ?? string.Empty)
                 .ToString() ?? string.Empty, progress).ConfigureAwait(false);
     }
 }

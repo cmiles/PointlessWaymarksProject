@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -44,52 +43,61 @@ public partial class PhotoListWithActionsContext
 
         ListContext.ContextMenuItems =
         [
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
+            {
+                ItemName = "Picture Gallery to Clipboard",
+                ItemCommand = ListContext.PictureGalleryBracketCodeToClipboardSelectedCommand
+            },
+
+            new ContextMenuItemData
             {
                 ItemName = "Daily Photo Page Code to Clipboard",
                 ItemCommand = DailyPhotoLinkCodesToClipboardForSelectedCommand
             },
 
-            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "Photos to Point Content Editors", ItemCommand = PhotoToPointContentEditorCommand },
-            new() { ItemName = "View Photos", ItemCommand = ViewSelectedFilesCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new ContextMenuItemData
+                { ItemName = "Photos to Point Content Editors", ItemCommand = PhotoToPointContentEditorCommand },
+            new ContextMenuItemData { ItemName = "View Photos", ItemCommand = ViewSelectedFilesCommand },
+            new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new ContextMenuItemData
+                { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Rescan Metadata/Fill Blanks - Selected", ItemCommand = RescanMetadataAndFillBlanksCommand
             },
 
-            new() { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
-            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Process/Resize Selected", ItemCommand = ForcedResizeCommand },
+            new ContextMenuItemData
+                { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Generate Html/Process/Resize Selected",
                 ItemCommand = RegenerateHtmlAndReprocessPhotoForSelectedCommand
             },
 
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
             },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+            new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 
-        
+
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
     }
 
@@ -516,6 +524,45 @@ public partial class PhotoListWithActionsContext
     }
 
     [NonBlockingCommand]
+    public async Task ReportLicenseAndTakenYearDoNotMatch()
+    {
+        await RunReport(ReportLicenseAndTakenYearDoNotMatchGenerator, "License and Taken Date Don't Match");
+    }
+
+    private async Task<List<object>> ReportLicenseAndTakenYearDoNotMatchGenerator()
+    {
+        var db = await Db.Context();
+
+        var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
+
+        var returnList = new List<PhotoContent>();
+
+        foreach (var loopContents in allContents)
+        {
+            if (string.IsNullOrWhiteSpace(loopContents.License))
+            {
+                returnList.Add(loopContents);
+                continue;
+            }
+
+            var possibleYear = Regex.Match(loopContents.License, @"(?<PossibleYear>[12]\d\d\d)",
+                RegexOptions.IgnoreCase).Value;
+
+            if (string.IsNullOrWhiteSpace(possibleYear)) continue;
+
+            if (!int.TryParse(possibleYear, out var licenseYear)) continue;
+
+            var createdOn = loopContents.PhotoCreatedOn.Year;
+
+            if (createdOn == licenseYear) continue;
+
+            returnList.Add(loopContents);
+        }
+
+        return returnList.Cast<object>().ToList();
+    }
+
+    [NonBlockingCommand]
     public async Task ReportMultiSpacesInTitle()
     {
         await RunReport(ReportMultiSpacesInTitleGenerator, "Multiple Spaces in Title");
@@ -560,45 +607,6 @@ public partial class PhotoListWithActionsContext
             singleSelected.DbEntry.OriginalFileName));
 
         await PhotoMetadataReport.AllPhotoMetadataToHtml(archiveFile, StatusContext);
-    }
-
-    [NonBlockingCommand]
-    public async Task ReportLicenseAndTakenYearDoNotMatch()
-    {
-        await RunReport(ReportLicenseAndTakenYearDoNotMatchGenerator, "License and Taken Date Don't Match");
-    }
-
-    private async Task<List<object>> ReportLicenseAndTakenYearDoNotMatchGenerator()
-    {
-        var db = await Db.Context();
-
-        var allContents = await db.PhotoContents.OrderByDescending(x => x.PhotoCreatedOn).ToListAsync();
-
-        var returnList = new List<PhotoContent>();
-
-        foreach (var loopContents in allContents)
-        {
-            if (string.IsNullOrWhiteSpace(loopContents.License))
-            {
-                returnList.Add(loopContents);
-                continue;
-            }
-
-            var possibleYear = Regex.Match(loopContents.License, @"(?<PossibleYear>[12]\d\d\d)",
-                RegexOptions.IgnoreCase).Value;
-
-            if (string.IsNullOrWhiteSpace(possibleYear)) continue;
-
-            if (!int.TryParse(possibleYear, out var licenseYear)) continue;
-
-            var createdOn = loopContents.PhotoCreatedOn.Year;
-
-            if (createdOn == licenseYear) continue;
-
-            returnList.Add(loopContents);
-        }
-
-        return returnList.Cast<object>().ToList();
     }
 
     [NonBlockingCommand]

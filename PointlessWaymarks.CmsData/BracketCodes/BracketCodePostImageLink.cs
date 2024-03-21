@@ -5,26 +5,26 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.BracketCodes;
 
-public static class BracketCodeVideoImageLink
+public static class BracketCodePostImageLink
 {
-    public const string BracketCodeToken = "videoimagelink";
+    public const string BracketCodeToken = "postimagelink";
 
-    public static string Create(VideoContent content)
+    public static string Create(PostContent content)
     {
         return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
-    public static async Task<List<VideoContent>> DbContentFromBracketCodes(string? toProcess,
+    public static async Task<List<PostContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
-        progress?.Report("Searching for Video Content Codes...");
+        progress?.Report("Searching for Post Content Codes...");
 
         var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
             .Select(x => x.contentGuid).Distinct().ToList();
 
-        var returnList = new List<VideoContent>();
+        var returnList = new List<PostContent>();
 
         if (!resultList.Any()) return returnList;
 
@@ -32,11 +32,11 @@ public static class BracketCodeVideoImageLink
         {
             var context = await Db.Context().ConfigureAwait(false);
 
-            var dbContent = await context.VideoContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
+            var dbContent = await context.PostContents.FirstOrDefaultAsync(x => x.ContentId == loopGuid)
                 .ConfigureAwait(false);
             if (dbContent == null) continue;
 
-            progress?.Report($"Video Image Code - Adding DbContent For {dbContent.Title}");
+            progress?.Report($"Post Image Code - Adding DbContent For {dbContent.Title}");
 
             returnList.Add(dbContent);
         }
@@ -45,7 +45,7 @@ public static class BracketCodeVideoImageLink
     }
 
     /// <summary>
-    ///     Processes {{video guid;human_identifier}} with a specified function - best use may be for easily building
+    ///     Processes {{post guid;human_identifier}} with a specified function - best use may be for easily building
     ///     library code.
     /// </summary>
     /// <param name="toProcess"></param>
@@ -58,7 +58,7 @@ public static class BracketCodeVideoImageLink
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
 
-        progress?.Report("Searching for Video Image Link Codes");
+        progress?.Report("Searching for Post Image Link Codes");
 
         var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
 
@@ -68,70 +68,72 @@ public static class BracketCodeVideoImageLink
 
         foreach (var loopMatch in resultList)
         {
-            var dbVideo = await context.VideoContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+            var dbPost = await context.PostContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
                 .ConfigureAwait(false);
 
-            if (dbVideo == null) continue;
-
-            if (dbVideo.MainPicture == null)
+            if (dbPost == null) continue;
+            if (dbPost.MainPicture == null)
             {
                 progress?.Report(
-                    $"Video Image Link without Main Image - converting to videolink - Video: {dbVideo.Title}");
+                    $"Post Image Link without Main Image - converting to post - Post: {dbPost.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace("videoimagelink", "videolink",
+                var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken,
+                    BracketCodePosts.BracketCodeToken,
                     StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
-                await BracketCodeVideoEmbed.Process(toProcess).ConfigureAwait(false);
+                await BracketCodePosts.Process(toProcess).ConfigureAwait(false);
 
                 continue;
             }
 
-            var dbPicture = new PictureSiteInformation(dbVideo.MainPicture.Value);
+            var dbPicture = new PictureSiteInformation(dbPost.MainPicture.Value);
 
             if (dbPicture.Pictures == null)
             {
                 progress?.Report(
-                    $"Video Image Link with Null PictureSiteInformation - converting to videolink - Video: {dbVideo.Title}");
+                    $"Post Image Link with Null PictureSiteInformation - converting to post - Post: {dbPost.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace("videoimagelink", "videolink",
+                var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken,
+                    BracketCodePosts.BracketCodeToken,
                     StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
-                await BracketCodeVideoEmbed.Process(toProcess).ConfigureAwait(false);
+                await BracketCodePosts.Process(toProcess).ConfigureAwait(false);
 
                 continue;
             }
 
-            var conversion = pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().VideoPageUrl(dbVideo)));
+            var conversion = pageConversion((dbPicture, UserSettingsSingleton.CurrentSettings().PostPageUrl(dbPost)));
 
             if (string.IsNullOrWhiteSpace(conversion))
             {
                 progress?.Report(
-                    $"Video Image Link with Null/Empty conversion - converting to videolink - Video: {dbVideo.Title}");
+                    $"Post Image Link with Null/Empty conversion - converting to post - Post: {dbPost.Title}");
 
-                var newBracketCodeText = loopMatch.bracketCodeText.Replace("videoimagelink", "videolink",
+                var newBracketCodeText = loopMatch.bracketCodeText.Replace(BracketCodeToken,
+                    BracketCodePosts.BracketCodeToken,
                     StringComparison.OrdinalIgnoreCase);
 
                 toProcess = toProcess.Replace(loopMatch.bracketCodeText, newBracketCodeText);
 
-                await BracketCodeVideoEmbed.Process(toProcess).ConfigureAwait(false);
+                await BracketCodePosts.Process(toProcess).ConfigureAwait(false);
 
                 continue;
             }
 
             toProcess = toProcess.Replace(loopMatch.bracketCodeText, conversion);
 
-            progress?.Report($"Video Image Link {dbVideo.Title} processed");
+            progress?.Report($"Post Image Link {dbPost.Title} processed");
         }
 
         return toProcess;
     }
 
     /// <summary>
-    ///     This method processes a videoimagelink code for use in email.
+    ///     This method processes a postimagelink code for use in email.
     /// </summary>
     /// <param name="toProcess"></param>
     /// <param name="progress"></param>
@@ -144,15 +146,15 @@ public static class BracketCodeVideoImageLink
     }
 
     /// <summary>
-    ///     Processes {{image guid;human_identifier}} into figure html with a link to the video page.
+    ///     Processes {{image guid;human_identifier}} into figure html with a link to the post page.
     /// </summary>
     /// <param name="toProcess"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<string> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
+    public static async Task<string?> ProcessToFigureWithLink(string? toProcess, IProgress<string>? progress = null)
     {
         return await Process(toProcess,
             pictureInfo => pictureInfo.pictureInfo.PictureFigureWithCaptionAndLinkTag("100vw", pictureInfo.linkUrl)
-                .ToString() ?? string.Empty, progress).ConfigureAwait(false) ?? string.Empty;
+                .ToString() ?? string.Empty, progress).ConfigureAwait(false);
     }
 }

@@ -1,6 +1,5 @@
 using System.Windows;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
@@ -28,43 +27,52 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
         ListContext.ContextMenuItems =
         [
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand }, new()
+            new ContextMenuItemData { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = FilePageLinkCodesToClipboardForSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Download Code to Clipboard",
                 ItemCommand = FileDownloadLinkCodesToClipboardForSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Embed Code to Clipboard",
                 ItemCommand = FileEmbedCodesToClipboardForSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "URL Code to Clipboard", ItemCommand = FileUrlLinkCodesToClipboardForSelectedCommand
             },
 
-            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "View Files", ItemCommand = ViewSelectedFilesCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+            new ContextMenuItemData
+            {
+                ItemName = "Picture Gallery to Clipboard",
+                ItemCommand = ListContext.PictureGalleryBracketCodeToClipboardSelectedCommand
+            },
+
+            new ContextMenuItemData { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new ContextMenuItemData { ItemName = "View Files", ItemCommand = ViewSelectedFilesCommand },
+            new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new ContextMenuItemData
+                { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new ContextMenuItemData
+                { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
+            new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
@@ -72,7 +80,6 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
     public CmsCommonCommands CommonCommands { get; set; }
     public ContentListContext ListContext { get; set; }
-    public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
 
     public FileListListItem? SelectedListItem()
@@ -85,6 +92,8 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
         return ListContext.ListSelection.SelectedItems.Where(x => x is FileListListItem).Cast<FileListListItem>()
             .ToList();
     }
+
+    public StatusControlContext StatusContext { get; set; }
 
     public static async Task<FileListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)

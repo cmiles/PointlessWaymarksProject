@@ -1,6 +1,5 @@
 using System.Windows;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
@@ -27,33 +26,41 @@ public partial class VideoListWithActionsContext
 
         ListContext.ContextMenuItems =
         [
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Embed Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = VideoCoverImageLinkCodesToClipboardForSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = VideoPageLinkCodesToClipboardForSelectedCommand
             },
 
-            new() { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
-            new() { ItemName = "View Videos", ItemCommand = ViewSelectedVideosCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+            new ContextMenuItemData
+            {
+                ItemName = "Picture Gallery to Clipboard",
+                ItemCommand = ListContext.PictureGalleryBracketCodeToClipboardSelectedCommand
+            },
+
+            new ContextMenuItemData { ItemName = "Email Html to Clipboard", ItemCommand = EmailHtmlToClipboardCommand },
+            new ContextMenuItemData { ItemName = "View Videos", ItemCommand = ViewSelectedVideosCommand },
+            new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new ContextMenuItemData
+                { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new ContextMenuItemData
+                { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
+            new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);
@@ -107,6 +114,35 @@ public partial class VideoListWithActionsContext
 
     [BlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
+    private async Task VideoCoverImageLinkCodesToClipboardForSelected()
+    {
+        var finalString = string.Empty;
+
+        var showNoImageWarning = false;
+
+        foreach (var loopSelected in SelectedListItems())
+            if (loopSelected.DbEntry.MainPicture == null)
+            {
+                showNoImageWarning = true;
+                finalString += $"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            }
+            else
+            {
+                finalString += $"{BracketCodeVideoImageLink.Create(loopSelected.DbEntry)}{Environment.NewLine}";
+            }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        if (showNoImageWarning)
+            StatusContext.ToastWarning("Not all Videos had a main image - some bracket codes are text links...");
+        else
+            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task VideoPageLinkCodesToClipboardForSelected()
     {
         var finalString = string.Empty;
@@ -119,41 +155,6 @@ public partial class VideoListWithActionsContext
         Clipboard.SetText(finalString);
 
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    [BlockingCommand]
-    [StopAndWarnIfNoSelectedListItems]
-    private async Task VideoCoverImageLinkCodesToClipboardForSelected()
-    {
-        var finalString = string.Empty;
-
-        bool showNoImageWarning = false;
-
-        foreach (var loopSelected in SelectedListItems())
-        {
-            if (loopSelected.DbEntry.MainPicture == null)
-            {
-                showNoImageWarning = true;
-                finalString += $"{BracketCodeVideoLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}";
-            }
-            else
-            {
-                finalString += $"{BracketCodeVideoImage.Create(loopSelected.DbEntry)}{Environment.NewLine}";
-            }
-        }
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        if (showNoImageWarning)
-        {
-            StatusContext.ToastWarning("Not all Videos had a main image - some bracket codes are text links...");
-        }
-        else
-        {
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
-        }
     }
 
     [BlockingCommand]

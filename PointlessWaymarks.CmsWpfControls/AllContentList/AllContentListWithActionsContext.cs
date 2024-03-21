@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -60,7 +60,10 @@ public partial class AllContentListWithActionsContext
             {
                 ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-
+            new()
+            {
+                ItemName = "Picture Gallery to Clipboard", ItemCommand = ListContext.PictureGalleryBracketCodeToClipboardSelectedCommand
+            },
             new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },

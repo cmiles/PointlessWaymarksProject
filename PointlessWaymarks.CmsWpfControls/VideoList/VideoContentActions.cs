@@ -51,7 +51,7 @@ public partial class VideoContentActions : IContentActions<VideoContent>
         }
 
         var finalString = content.MainPicture != null
-            ? $"{BracketCodeVideoImage.Create(content)}{Environment.NewLine}"
+            ? $"{BracketCodeVideoImageLink.Create(content)}{Environment.NewLine}"
             : $"{BracketCodeVideoEmbed.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();

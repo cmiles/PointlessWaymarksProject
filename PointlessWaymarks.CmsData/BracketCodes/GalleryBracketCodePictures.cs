@@ -14,7 +14,7 @@ public static class GalleryBracketCodePictures
         return $"""
 
                 [[{BracketCodeToken}
-                    {innerBracketCodes}
+                {innerBracketCodes}
                 ]]
                 """;
     }

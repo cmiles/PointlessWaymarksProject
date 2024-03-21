@@ -140,7 +140,7 @@ public static class BodyContentReferences
         //5/4/2021 - Based on looking at Pointless Waymarks it doesn't seem useful to link back to all the content that is used - for example an Image that is displayed doesn't merit a related content link to the image (the display of the image seems self documenting), otoh just using a link to an image seems like it may be worth a related link.
         contentCommonList.AddRange(
             await BracketCodeFiles.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
-        //contentCommonList.AddRange(BracketCodeFileImage.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
+        //contentCommonList.AddRange(BracketCodeFileImageLink.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
         contentCommonList.AddRange(
             await BracketCodeFileDownloads.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
                 .ConfigureAwait(false));

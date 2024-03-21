@@ -4,7 +4,6 @@ using System.Windows;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -36,28 +35,36 @@ public partial class GeoJsonListWithActionsContext
 
         ListContext.ContextMenuItems =
         [
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Map Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
 
-            new()
+            new ContextMenuItemData
             {
                 ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand
             },
 
-            new() { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new()
+            new ContextMenuItemData
+            {
+                ItemName = "Picture Gallery to Clipboard",
+                ItemCommand = ListContext.PictureGalleryBracketCodeToClipboardSelectedCommand
+            },
+
+            new ContextMenuItemData
+                { ItemName = "Add Intersection Tags", ItemCommand = AddIntersectionTagsToSelectedCommand },
+            new ContextMenuItemData
+                { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
             },
-            new() { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
+            new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(RefreshData);

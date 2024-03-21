@@ -174,6 +174,7 @@ I am incredibly grateful to the all the people and projects that make it possibl
  - [SQLite](https://www.sqlite.org/index.html) - An absolutely brilliant project - having a Public Domain option for such a high quality data store that can be used locally and cross platform is amazing! Public Domain.
 
 **Images:**
+ - [GitHub - miromannino/Justified-Gallery: Javascript library to help creating high quality justified galleries of images.](https://github.com/miromannino/Justified-Gallery). MIT License.
  - [drewnoakes/metadata-extractor-dotnet: Extracts Exif, IPTC, XMP, ICC and other metadata from image, video and audio files](https://github.com/drewnoakes/metadata-extractor-dotnet) - Used to read the metadata in Photographs - there are a number of ways to get this data but it is amazing to have a single go to library to work with that already handles a number of the (many, many, many...) issues. Apache License, Version 2.0.
  - [Pictogrammers - Open-source iconography for designers and developers](https://pictogrammers.com/)
  - [saucecontrol/PhotoSauce: MagicScaler high-performance, high-quality image processing pipeline for .NET](https://github.com/saucecontrol/PhotoSauce) - Fast high quality Image Resizing. If you personally care about image quality image resizing becomes a complicated topic very quickly and I think the results from this library are excellent. Ms-Pl.

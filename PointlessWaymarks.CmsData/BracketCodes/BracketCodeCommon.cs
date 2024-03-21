@@ -181,19 +181,23 @@ public static partial class BracketCodeCommon
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileEmbed.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
-        input = await BracketCodeFileImage.ProcessForEmail(input, progress).ConfigureAwait(false);
+        input = await BracketCodeFileImageLink.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodeGeoJsonLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeGeoJsonImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeImages.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeDailyPhotoPage.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodePointImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
-        input = await BracketCodePostImage.ProcessForEmail(input, progress).ConfigureAwait(false);
+        input = await BracketCodePostImageLink.ProcessForEmail(input, progress).ConfigureAwait(false);
+        input = await BracketCodeVideoImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = BracketCodeSpecialPages.Process(input, progress);
 
         // 2020/12/19 These Codes produce maps on the site but aren't going to work
@@ -217,13 +221,15 @@ public static partial class BracketCodeCommon
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileEmbed.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFiles.Process(input, progress).ConfigureAwait(false);
-        input = await BracketCodeFileImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+        input = await BracketCodeFileImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeGeoJson.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeGeoJsonLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeGeoJsonImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeImages.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLines.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineElevationCharts.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeMapComponents.Process(input, progress).ConfigureAwait(false);
@@ -233,10 +239,12 @@ public static partial class BracketCodeCommon
         input = await BracketCodeDailyPhotoPage.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePoints.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodePointImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+        input = await BracketCodePostImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodePosts.Process(input, progress).ConfigureAwait(false);
-        input = await BracketCodePostImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+        input = await BracketCodePostImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeVideoLinks.Process(input, progress).ConfigureAwait(false);
-        input = await BracketCodeVideoImage.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+        input = await BracketCodeVideoImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeVideoEmbed.Process(input, progress).ConfigureAwait(false);
         input = BracketCodeSpecialPages.Process(input, progress);
 

@@ -37,7 +37,7 @@ public partial class FileContentActions : IContentActions<FileContent>
     {
         if (content?.ContentId == null) return string.Empty;
         return content.MainPicture != null
-            ? $"{BracketCodeFileImage.Create(content)}"
+            ? $"{BracketCodeFileImageLink.Create(content)}"
             : $"{BracketCodeFiles.Create(content)}";
     }
 
@@ -53,7 +53,7 @@ public partial class FileContentActions : IContentActions<FileContent>
         }
 
         var finalString = content.MainPicture != null
-            ? $"{BracketCodeFileImage.Create(content)}{Environment.NewLine}"
+            ? $"{BracketCodeFileImageLink.Create(content)}{Environment.NewLine}"
             : $"{BracketCodeFiles.Create(content)}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
