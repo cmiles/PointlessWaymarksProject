@@ -190,11 +190,11 @@ public static partial class Import
         if (!contentDataDirectory.Exists)
         {
             progress?.Report("Content Data Directory does not exist?");
-            return new List<(string type, string fullFileName)>();
+            return [];
         }
 
         var allFiles = Directory.GetFiles(rootDirectory.FullName, "*.json", SearchOption.AllDirectories).ToList();
-        List<(string type, string fullFileName)> returnList = new();
+        List<(string type, string fullFileName)> returnList = [];
 
         var fileCount = 0;
         foreach (var loopFile in allFiles)
@@ -231,7 +231,7 @@ public static partial class Import
         if (!rootDirectory.Exists)
         {
             progress?.Report("Content Data Directory does not exist?");
-            return new List<string>();
+            return [];
         }
 
         var returnList = rootDirectory.EnumerateFiles("*.json", SearchOption.TopDirectoryOnly).Select(x => x.FullName)

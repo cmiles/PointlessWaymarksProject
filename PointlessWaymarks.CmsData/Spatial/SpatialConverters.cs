@@ -9,7 +9,7 @@ public static class SpatialConverters
     public static List<Geometry> GeoJsonContentToGeometries(GeoJsonContent content)
     {
         return string.IsNullOrWhiteSpace(content.GeoJson)
-            ? new List<Geometry>()
+            ? []
             : GeoJsonTools.GeoJsonToGeometries(content.GeoJson);
     }
 

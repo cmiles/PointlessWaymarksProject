@@ -26,7 +26,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     public string? MapIconName { get; set; }
     public string? MapLabel { get; set; }
     public string? MapMarkerColor { get; set; }
-    public List<PointDetail> PointDetails { get; set; } = new();
+    public List<PointDetail> PointDetails { get; set; } = [];
     public bool ShowInMainSiteFeed { get; set; }
     public string? Slug { get; set; }
     public string? Summary { get; set; }

@@ -31,10 +31,10 @@ public static class S3CmsTools
         var userBucketRegion = UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion;
 
         if (string.IsNullOrEmpty(userBucketName))
-            return (new IsValid(false, "Bucket Name is Empty"), new List<S3UploadRequest>());
+            return (new IsValid(false, "Bucket Name is Empty"), []);
 
         if (string.IsNullOrEmpty(userBucketRegion))
-            return (new IsValid(false, "Bucket Region is Empty"), new List<S3UploadRequest>());
+            return (new IsValid(false, "Bucket Region is Empty"), []);
 
         progress.Report("Setting Up Db");
 
@@ -60,7 +60,7 @@ public static class S3CmsTools
 
         var dbItems = await searchQuery.OrderByDescending(x => x.WrittenOnVersion).ToListAsync();
 
-        if (!dbItems.Any()) return (new IsValid(false, "No Files Found to Upload?"), new List<S3UploadRequest>());
+        if (!dbItems.Any()) return (new IsValid(false, "No Files Found to Upload?"), []);
 
         var transformedItems = new List<FilesWrittenLog>();
 

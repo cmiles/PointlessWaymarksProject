@@ -17,7 +17,7 @@ public static class BracketCodeFileImage
     public static async Task<List<FileContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         progress?.Report("Searching for File Content Codes...");
 

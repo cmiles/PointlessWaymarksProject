@@ -17,7 +17,7 @@ public static class BracketCodePointLinks
     public static async Task<List<PointContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<PointContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         progress?.Report("Searching for Point Link Codes...");
 

@@ -6,7 +6,7 @@ public class PictureAsset
     public PictureFile? DisplayPicture { get; set; }
     public PictureFile? LargePicture { get; set; }
     public PictureFile? SmallPicture { get; set; }
-    public List<PictureFile> SrcsetImages { get; set; } = new();
+    public List<PictureFile> SrcsetImages { get; set; } = [];
 
     public string SrcSetString()
     {

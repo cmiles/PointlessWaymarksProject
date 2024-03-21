@@ -17,7 +17,7 @@ public static class BracketCodeGeoJsonLinks
     public static async Task<List<GeoJsonContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<GeoJsonContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         progress?.Report("Searching for GeoJson Link Codes...");
 

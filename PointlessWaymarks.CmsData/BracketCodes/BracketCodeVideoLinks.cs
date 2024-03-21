@@ -17,7 +17,7 @@ public static class BracketCodeVideoLinks
     public static async Task<List<VideoContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<VideoContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
             .Select(x => x.contentGuid).Distinct().ToList();

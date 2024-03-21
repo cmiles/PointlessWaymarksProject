@@ -1,7 +1,6 @@
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
-using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.BracketCodes;
@@ -10,15 +9,20 @@ public static class GalleryBracketCodePictures
 {
     public const string BracketCodeToken = "picturegallery";
 
-    public static string Create(PhotoContent content)
+    public static string Create(string innerBracketCodes)
     {
-        return $"[[{BracketCodeToken} {BracketCodePhotos.Create(content)}]]";
+        return $"""
+
+                [[{BracketCodeToken}
+                    {innerBracketCodes}
+                ]]
+                """;
     }
 
     public static async Task<List<dynamic>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<dynamic>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         progress?.Report("Searching for Photo Gallery Codes...");
 
@@ -37,7 +41,7 @@ public static class GalleryBracketCodePictures
         {
             if (!DynamicTypeTools.PropertyExists(loopContent, "MainPicture")) continue;
 
-            if (loopContent.MainPicture is not Guid mainPicture) continue;
+            if (loopContent.MainPicture is not Guid) continue;
 
             returnList.Add(loopContent);
         }
@@ -64,9 +68,6 @@ public static class GalleryBracketCodePictures
         var resultList = BracketCodeCommon.ContentGalleryBracketCodeMatches(toProcess, BracketCodeToken);
 
         if (!resultList.Any()) return toProcess;
-
-        var context = await Db.Context().ConfigureAwait(false);
-
 
         foreach (var loopMatch in resultList)
         {
@@ -110,9 +111,11 @@ public static class GalleryBracketCodePictures
 
                 var linkTag = new LinkTag(string.Empty, pageUrl);
 
-                var closestHeight = pictureAsset.SrcsetImages.Any(x => x.Height >= rowHeight) ? pictureAsset.SrcsetImages.Where(x => x.Height >= rowHeight).MinBy(x => rowHeight - x.Height) : pictureAsset.SrcsetImages.MaxBy(x => rowHeight - x.Height);
+                var closestHeight = pictureAsset.SrcsetImages.Any(x => x.Height >= rowHeight)
+                    ? pictureAsset.SrcsetImages.Where(x => x.Height >= rowHeight).MinBy(x => rowHeight - x.Height)
+                    : pictureAsset.SrcsetImages.MaxBy(x => rowHeight - x.Height);
 
-                if(closestHeight == null) continue;
+                if (closestHeight == null) continue;
 
                 var title = DynamicTypeTools.PropertyExists(loopContent, "Title") ? loopContent.Title : string.Empty;
 
@@ -122,16 +125,16 @@ public static class GalleryBracketCodePictures
             }
 
             var withScriptTag = $$"""
-                              {{galleryDiv}}
-                              <script>
-                              $("#{{galleryId}}").justifiedGallery({
-                                  rowHeight : {{rowHeight}},
-                                  lastRow : 'center',
-                                  margins : 3,
-                                  captions:	true
-                                });
-                              </script>
-                              """;
+                                  {{galleryDiv}}
+                                  <script>
+                                  $("#{{galleryId}}").justifiedGallery({
+                                      rowHeight : {{rowHeight}},
+                                      lastRow : 'center',
+                                      margins : 3,
+                                      captions:	true
+                                    });
+                                  </script>
+                                  """;
 
             return withScriptTag;
         }

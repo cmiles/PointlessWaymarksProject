@@ -27,7 +27,7 @@ public class MapComponentDto
         UpdateNotesFormat = mapComponent.UpdateNotesFormat;
     }
 
-    public List<MapElement> Elements { get; set; } = new();
+    public List<MapElement> Elements { get; set; } = [];
     public double InitialViewBoundsMaxLatitude { get; set; }
     public double InitialViewBoundsMaxLongitude { get; set; }
     public double InitialViewBoundsMinLatitude { get; set; }

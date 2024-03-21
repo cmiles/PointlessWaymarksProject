@@ -23,7 +23,7 @@ public class GenerationReturn
 
     public static (bool hasErrors, List<GenerationReturn> errorList) HasErrors(List<GenerationReturn> toFilter)
     {
-        if (!toFilter.Any()) return (false, new List<GenerationReturn>());
+        if (!toFilter.Any()) return (false, []);
 
         return (toFilter.Any(x => x.HasError),
             toFilter.Where(x => x.HasError).OrderByDescending(x => x.CreatedOn).ToList());
@@ -32,7 +32,7 @@ public class GenerationReturn
     public static (bool hasErrors, List<GenerationReturn> errorList) HasErrors(
         List<List<GenerationReturn>> toFilter)
     {
-        if (!toFilter.Any()) return (false, new List<GenerationReturn>());
+        if (!toFilter.Any()) return (false, []);
 
         return (toFilter.SelectMany(x => x).Any(x => x.HasError),
             toFilter.SelectMany(x => x).Where(x => x.HasError).OrderByDescending(x => x.CreatedOn).ToList());

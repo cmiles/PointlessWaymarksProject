@@ -17,7 +17,7 @@ public static class BracketCodeNotes
     public static async Task<List<NoteContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<NoteContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         progress?.Report("Searching for Note Codes...");
 

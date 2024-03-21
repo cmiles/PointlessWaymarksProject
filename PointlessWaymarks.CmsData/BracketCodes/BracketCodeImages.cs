@@ -17,7 +17,7 @@ public static class BracketCodeImages
     public static async Task<List<ImageContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<ImageContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         progress?.Report("Searching for Image Codes...");
 

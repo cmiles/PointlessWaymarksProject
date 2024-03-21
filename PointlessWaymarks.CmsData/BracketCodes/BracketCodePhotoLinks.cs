@@ -17,7 +17,7 @@ public static class BracketCodePhotoLinks
     public static async Task<List<PhotoContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<PhotoContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
             .Select(x => x.contentGuid).Distinct().ToList();

@@ -94,7 +94,7 @@ public static class Db
     public static async Task<List<ContentCommonShell>> ContentCommonShellFromContentIds(
         this PointlessWaymarksContext db, List<Guid>? contentIds)
     {
-        if (contentIds == null || !contentIds.Any()) return new List<ContentCommonShell>();
+        if (contentIds == null || !contentIds.Any()) return [];
 
         var returnList = new List<ContentCommonShell>();
 
@@ -264,7 +264,7 @@ public static class Db
     public static async Task<List<dynamic>> ContentFromContentIds(this PointlessWaymarksContext db,
         List<Guid> contentIds, bool pointsAsDtos = true)
     {
-        if (!contentIds.Any()) return new List<dynamic>();
+        if (!contentIds.Any()) return [];
 
         var returnList = new List<dynamic>();
 
@@ -345,7 +345,7 @@ public static class Db
 
     public static async Task<List<object>> ContentInFolder(string folderName)
     {
-        if (string.IsNullOrWhiteSpace(folderName)) return new List<object>();
+        if (string.IsNullOrWhiteSpace(folderName)) return [];
 
         var returnList = new List<object>();
 
@@ -1277,7 +1277,7 @@ public static class Db
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             PostContent => await db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
-            _ => new List<string>()
+            _ => []
         };
     }
 
@@ -1758,7 +1758,7 @@ public static class Db
     public static async Task<List<PointContentDto>> PointAndPointDetails(List<Guid>? pointContentIdList,
         PointlessWaymarksContext db)
     {
-        if (pointContentIdList == null) return new List<PointContentDto>();
+        if (pointContentIdList == null) return [];
 
         var returnList = new List<PointContentDto>();
 
@@ -2626,7 +2626,7 @@ public static class Db
 
     public static List<string> TagListCleanup(List<string> listToClean)
     {
-        if (!listToClean.Any()) return new List<string>();
+        if (!listToClean.Any()) return [];
 
         return listToClean.Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
     }
@@ -2687,8 +2687,8 @@ public static class Db
     /// <returns></returns>
     public static List<string> TagListParse(string? rawTagString)
     {
-        if (rawTagString == null) return new List<string>();
-        if (string.IsNullOrWhiteSpace(rawTagString)) return new List<string>();
+        if (rawTagString == null) return [];
+        if (string.IsNullOrWhiteSpace(rawTagString)) return [];
 
         return rawTagString.Split(",").Select(TagListItemCleanup).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
             .OrderBy(x => x).ToList();
@@ -2710,8 +2710,8 @@ public static class Db
 
     public static List<string> TagListParseToSlugs(string? rawTagString, bool removeExcludedTags)
     {
-        if (rawTagString == null) return new List<string>();
-        if (string.IsNullOrWhiteSpace(rawTagString)) return new List<string>();
+        if (rawTagString == null) return [];
+        if (string.IsNullOrWhiteSpace(rawTagString)) return [];
 
         var excludedTags = new List<string>();
 
@@ -2728,24 +2728,24 @@ public static class Db
 
     public static List<string> TagListParseToSlugs(ITag? tag, bool removeExcludedTags)
     {
-        if (tag == null) return new List<string>();
-        if (string.IsNullOrWhiteSpace(tag.Tags)) return new List<string>();
+        if (tag == null) return [];
+        if (string.IsNullOrWhiteSpace(tag.Tags)) return [];
 
         return TagListParseToSlugs(tag.Tags, removeExcludedTags);
     }
 
     public static List<TagSlugAndIsExcluded> TagListParseToSlugsAndIsExcluded(ITag? tag)
     {
-        if (tag == null) return new List<TagSlugAndIsExcluded>();
-        if (string.IsNullOrWhiteSpace(tag.Tags)) return new List<TagSlugAndIsExcluded>();
+        if (tag == null) return [];
+        if (string.IsNullOrWhiteSpace(tag.Tags)) return [];
 
         return TagListParseToSlugsAndIsExcluded(tag.Tags);
     }
 
     public static List<TagSlugAndIsExcluded> TagListParseToSlugsAndIsExcluded(string? rawTagString)
     {
-        if (rawTagString == null) return new List<TagSlugAndIsExcluded>();
-        if (string.IsNullOrWhiteSpace(rawTagString)) return new List<TagSlugAndIsExcluded>();
+        if (rawTagString == null) return [];
+        if (string.IsNullOrWhiteSpace(rawTagString)) return [];
 
         var db = Context().Result;
         var excludedTags = db.TagExclusions.ToList().Select(x => SlugTools.CreateSlug(true, x.Tag, 200)).ToList();

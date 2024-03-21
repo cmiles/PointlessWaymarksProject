@@ -18,7 +18,7 @@ public static class BracketCodeMapComponents
     public static async Task<List<MapComponent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<MapComponent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
             .Select(x => x.contentGuid).Distinct().ToList();

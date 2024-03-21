@@ -17,7 +17,7 @@ public static class BracketCodeFileDownloads
     public static async Task<List<FileContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<FileContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
             .Select(x => x.contentGuid).Distinct().ToList();

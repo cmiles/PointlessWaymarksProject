@@ -27,8 +27,8 @@ public partial class SingleVideoPage
         }
         else
         {
-            PreviousPosts = new List<IContentCommon>();
-            LaterPosts = new List<IContentCommon>();
+            PreviousPosts = [];
+            LaterPosts = [];
         }
     }
 

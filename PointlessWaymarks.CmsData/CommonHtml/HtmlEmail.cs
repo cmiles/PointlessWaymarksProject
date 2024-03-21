@@ -19,7 +19,8 @@ public static class HtmlEmail
 
         var tableBuilder = new StringBuilder();
 
-        var childNodes = document.QuerySelector("body")?.ChildNodes.Where(x => x.NodeType != NodeType.Text).ToList() ?? new List<INode>();
+        var childNodes = document.QuerySelector("body")?.ChildNodes.Where(x => x.NodeType != NodeType.Text).ToList() ??
+                         [];
 
         foreach (var topNodes in childNodes) tableBuilder.AppendLine($"<tr><td>{topNodes.ToHtml()}</td></tr>");
 

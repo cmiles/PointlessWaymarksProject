@@ -180,7 +180,7 @@ public static class LineData
         GeoJsonDataFromBodyContentReferences(LineContent lineContent)
     {
         if (!lineContent.ShowContentReferencesOnMap)
-            return (new SpatialBounds(0, 0, 0, 0), new FeatureCollection());
+            return (new SpatialBounds(0, 0, 0, 0), []);
 
         var photos = (await BracketCodePhotos.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.ShowPhotoPosition).Cast<object>();
@@ -213,8 +213,8 @@ public static class LineData
         SpatialContentIdReferencesFromBodyContentReferences(LineContent lineContent)
     {
         if (!lineContent.ShowContentReferencesOnMap)
-            return new SpatialContentIdReferences(new List<Guid>(), new List<Guid>(), new List<Guid>(),
-                new List<Guid>());
+            return new SpatialContentIdReferences([], [], [],
+                []);
 
         var lineLinks = (await BracketCodeLineLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .OrderBy(x => x.Title).Select(x => x.ContentId).Distinct().ToList();

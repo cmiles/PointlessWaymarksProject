@@ -6,7 +6,7 @@ public class ContentImportHeaderRow
 {
     public ContentImportHeaderRow(List<string> headerRow)
     {
-        Columns = new List<ContentImportColumn>();
+        Columns = [];
         if (!headerRow.Any()) return;
 
         foreach (var loopCells in headerRow)
@@ -22,7 +22,7 @@ public class ContentImportHeaderRow
 
     public ContentImportHeaderRow(IXLRangeRow headerRow)
     {
-        Columns = new List<ContentImportColumn>();
+        Columns = [];
         if (!headerRow.Cells().Any()) return;
 
         foreach (var loopCells in headerRow.Cells())

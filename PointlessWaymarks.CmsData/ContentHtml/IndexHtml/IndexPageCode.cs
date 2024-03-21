@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Web;
 using System.Xml.Linq;
 using HtmlTags;
@@ -42,7 +42,7 @@ public partial class IndexPage
 
         if (!IndexContent.Any() || IndexContent.Count <= settings.NumberOfItemsOnMainSitePage)
         {
-            PreviousPosts = new List<IContentCommon>();
+            PreviousPosts = [];
         }
         else
         {

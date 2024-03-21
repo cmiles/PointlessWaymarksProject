@@ -58,7 +58,7 @@ public static class DataNotifications
         var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{string.Join(",", contentGuidList ?? new List<Guid>())}");
+            $"{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{string.Join(",", contentGuidList ?? [])}");
     }
 
     public static InterProcessDataNotification TranslateDataNotification(IReadOnlyList<byte>? received)
@@ -99,7 +99,7 @@ public static class DataNotifications
 
 public record InterProcessDataNotification
 {
-    public List<Guid> ContentIds { get; init; } = new();
+    public List<Guid> ContentIds { get; init; } = [];
     public DataNotificationContentType ContentType { get; init; }
     public string? ErrorNote { get; init; }
     public bool HasError { get; init; }

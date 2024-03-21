@@ -17,7 +17,7 @@ public static class BracketCodeLineLinks
     public static async Task<List<LineContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<LineContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         progress?.Report("Searching for Line Link Codes...");
 

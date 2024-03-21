@@ -27,8 +27,8 @@ public partial class SingleFilePage
         }
         else
         {
-            PreviousPosts = new List<IContentCommon>();
-            LaterPosts = new List<IContentCommon>();
+            PreviousPosts = [];
+            LaterPosts = [];
         }
     }
 

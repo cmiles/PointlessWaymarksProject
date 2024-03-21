@@ -17,7 +17,7 @@ public static class BracketCodeVideoImage
     public static async Task<List<VideoContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
-        if (string.IsNullOrWhiteSpace(toProcess)) return new List<VideoContent>();
+        if (string.IsNullOrWhiteSpace(toProcess)) return [];
 
         progress?.Report("Searching for Video Content Codes...");
 
