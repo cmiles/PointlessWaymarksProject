@@ -19,7 +19,7 @@ public class HeaderContentForPictureGallery : IHeaderContentBasedAdditions
     {
         return $"""
                 <link rel="stylesheet" href="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}justifiedGallery.css" />
-                <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}jquery-3.7.1.slim.min.js"></script>
+                <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}jquery-3.7.1.min.js"></script>
                 <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}jquery.justifiedGallery.js"></script>
                 """;
     }

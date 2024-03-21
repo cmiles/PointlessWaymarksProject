@@ -49,7 +49,7 @@ public static class PartialContentPreviewServer
                         <script src="http://{siteDomain}/SiteResources/pointless-waymarks-spatial-common.js"></script>
                     
                         <link rel="stylesheet" href="http://{siteDomain}/SiteResources/justifiedGallery.css" />
-                        <script src="http://{siteDomain}/SiteResources/jquery-3.7.1.slim.min.js"></script>
+                        <script src="http://{siteDomain}/SiteResources/jquery-3.7.1.min.js"></script>
                         <script src="http://{siteDomain}/SiteResources/jquery.justifiedGallery.js"></script>
                     </head>
 

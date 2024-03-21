@@ -49,7 +49,7 @@
     <None Remove="SiteResources\images\markers-shadow@2x.png" />
     <None Remove="SiteResources\images\markers-soft.png" />
     <None Remove="SiteResources\images\markers-soft@2x.png" />
-    <None Remove="SiteResources\jquery-3.7.1.slim.min.js" />
+    <None Remove="SiteResources\jquery-3.7.1.min.js" />
     <None Remove="SiteResources\jquery.justifiedGallery.js" />
     <None Remove="SiteResources\justifiedGallery.css" />
     <None Remove="SiteResources\L.Control.Locate.min.css" />
@@ -403,7 +403,7 @@
     <EmbeddedResource Include="SiteResources\images\markers-shadow@2x.png" />
     <EmbeddedResource Include="SiteResources\images\markers-soft.png" />
     <EmbeddedResource Include="SiteResources\images\markers-soft@2x.png" />
-    <EmbeddedResource Include="SiteResources\jquery-3.7.1.slim.min.js" />
+    <EmbeddedResource Include="SiteResources\jquery-3.7.1.min.js" />
     <EmbeddedResource Include="SiteResources\jquery.justifiedGallery.js" />
     <EmbeddedResource Include="SiteResources\justifiedGallery.css" />
     <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css" />

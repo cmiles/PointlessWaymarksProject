@@ -119,7 +119,7 @@ public static class GalleryBracketCodePictures
 
                 var title = DynamicTypeTools.PropertyExists(loopContent, "Title") ? loopContent.Title : string.Empty;
 
-                linkTag.Children.Add(new HtmlTag("img").Attr("src", closestHeight.SiteUrl).Attr("alt", title));
+                linkTag.Children.Add(new HtmlTag("img").Attr("src", closestHeight.SiteUrl).Attr("alt", title).Attr("height", $"{closestHeight.Height}").Attr("width", $"{closestHeight.Width}").Attr("loading", "lazy"));
 
                 galleryDiv.Children.Add(linkTag);
             }
@@ -131,7 +131,8 @@ public static class GalleryBracketCodePictures
                                       rowHeight : {{rowHeight}},
                                       lastRow : 'center',
                                       margins : 3,
-                                      captions:	true
+                                      captions:	true,
+                                      waitThumbnailsLoad: false
                                     });
                                   </script>
                                   """;
