@@ -136,7 +136,7 @@ public static partial class BracketCodeCommon
 
         if (string.IsNullOrWhiteSpace(toProcess)) return resultList;
 
-        var regexObj = new Regex($@"\[\[{bracketCodeToken}\s(?<bracketCodes>(?s).*)]]",
+        var regexObj = new Regex($@"\[\[{bracketCodeToken}\s(?<bracketCodes>(?s).*?)]]",
             RegexOptions.Multiline);
         var textMatch = regexObj.Match(toProcess);
         while (textMatch.Success)
@@ -153,9 +153,6 @@ public static partial class BracketCodeCommon
 
         return resultList;
     }
-
-    [GeneratedRegex(@"{{{[a-zA-Z-]*(?<siteGuidList>[ ]*[\dA-Za-z-]*);[^}]*}}}")]
-    private static partial Regex GalleryBracketCodeSiteGuidListRegex();
 
     /// <summary>
     ///     Extracts the Guid from the first {{(photo|image) guid;human_identifier}} in the string.
