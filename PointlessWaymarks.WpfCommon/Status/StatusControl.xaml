@@ -185,7 +185,8 @@
                                 <Button
                                     Command="{Binding DataContext.UserMessageBoxResponseCommand, ElementName=StatusControlXaml}"
                                     CommandParameter="{Binding MessageText}"
-                                    Content="{Binding MessageText}">
+                                    Content="{Binding MessageText}"
+                                    Margin="4" MaxWidth="400" Height="30">
                                     <Button.Style>
                                         <Style>
                                             <Style.Triggers>
