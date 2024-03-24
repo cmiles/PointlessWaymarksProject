@@ -1,12 +1,10 @@
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Windows.Shell;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentMap;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
@@ -34,9 +32,7 @@ using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
-using PointlessWaymarks.CmsWpfControls.SearchBuilder;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
-using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
@@ -133,14 +129,6 @@ public partial class CmsCommonCommands
                 await AllContentListWithActionsContext.CreateInstance(null, WindowStatus));
         await newWindow.PositionWindowAndShowOnUiThread();
     }
-    
-    [NonBlockingCommand]
-    private async Task NewContentMapWindow()
-    {
-        var newWindow =
-            await ContentMap.ContentMapWindow.CreateInstance(new ContentMapListLoader("Content View/Search", []));
-        await newWindow.PositionWindowAndShowOnUiThread();
-    }
 
     [NonBlockingCommand]
     private async Task NewCmsWindow()
@@ -154,6 +142,14 @@ public partial class CmsCommonCommands
         if (command.EndsWith(".dll")) command = $"{command[..^4]}.exe";
 
         Process.Start(command);
+    }
+
+    [NonBlockingCommand]
+    private async Task NewContentMapWindow()
+    {
+        var newWindow =
+            await ContentMapWindow.CreateInstance(new ContentMapListLoader("Content View/Search", []));
+        await newWindow.PositionWindowAndShowOnUiThread();
     }
 
     [NonBlockingCommand]
@@ -527,6 +523,16 @@ public partial class CmsCommonCommands
     }
 
     [NonBlockingCommand]
+    private async Task NewMapIconListWindow()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newWindow = await MapIconListWindow.CreateInstance();
+
+        newWindow.PositionWindowAndShow();
+    }
+
+    [NonBlockingCommand]
     public async Task NewNoteContent()
     {
         var newContentWindow = await NoteContentEditorWindow.CreateInstance(null);
@@ -559,7 +565,8 @@ public partial class CmsCommonCommands
             StatusContext.StatusControlContextId);
     }
 
-    public async Task NewPhotoContentFromFilesBase(bool autoSaveAndClose, bool adjustFilename, CancellationToken cancellationToken)
+    public async Task NewPhotoContentFromFilesBase(bool autoSaveAndClose, bool adjustFilename,
+        CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -622,13 +629,16 @@ public partial class CmsCommonCommands
 
                 var (metaGenerationReturn, metaContent) = await
                     PhotoGenerator.PhotoMetadataToNewPhotoContent(photoFile, StatusContext.ProgressTracker());
-                
+
                 var fileNameValidation = await CommonContentValidation.PhotoFileValidation(photoFile, null);
 
                 if (metaContent != null && (!fileNameValidation.Valid || adjustFilename))
                 {
-                    var newBaseName = adjustFilename && !string.IsNullOrWhiteSpace(metaContent.Title) ? metaContent.Title : Path.GetFileNameWithoutExtension(photoFile.Name);
-                    var renameResult = await FileAndFolderTools.TryAutoRenameFileForProgramConventions(photoFile, newBaseName);
+                    var newBaseName = adjustFilename && !string.IsNullOrWhiteSpace(metaContent.Title)
+                        ? metaContent.Title
+                        : Path.GetFileNameWithoutExtension(photoFile.Name);
+                    var renameResult =
+                        await FileAndFolderTools.TryAutoRenameFileForProgramConventions(photoFile, newBaseName);
 
                     if (renameResult is { Exists: true })
                     {
@@ -731,16 +741,6 @@ public partial class CmsCommonCommands
     }
 
     [NonBlockingCommand]
-    private async Task NewMapIconListWindow()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var newWindow = await MapIconListWindow.CreateInstance();
-
-        newWindow.PositionWindowAndShow();
-    }
-
-    [NonBlockingCommand]
     public async Task NewVideoContent()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -822,13 +822,6 @@ public partial class CmsCommonCommands
     private async Task SearchHelpWindow()
     {
         var newWindow = await MarkdownViewerWindow.CreateInstance("Search Help", SearchHelpMarkdown.HelpBlock);
-        await newWindow.PositionWindowAndShowOnUiThread();
-    }
-
-    [NonBlockingCommand]
-    private async Task SearchBuildHelperWindow()
-    {
-        var newWindow = await SearchBuilderWindow.CreateInstance();
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 

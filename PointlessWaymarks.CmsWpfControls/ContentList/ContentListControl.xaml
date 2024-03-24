@@ -74,7 +74,7 @@
                             Height="20"
                             Margin="0"
                             Padding="6,0,6,0"
-                            Command="{Binding NewActions.SearchBuildHelperWindowCommand}"
+                            Command="{Binding SearchBuildHelperWindowCommand}"
                             Opacity=".8">
                             Build
                         </Button>

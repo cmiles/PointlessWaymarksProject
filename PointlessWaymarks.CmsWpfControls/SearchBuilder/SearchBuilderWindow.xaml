@@ -5,8 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.SearchBuilder"
         mc:Ignorable="d"
-        Title="Search Builder" Height="800" Width="800" d:DataContext="{d:DesignInstance local:SearchBuilderWindow}">
+        Title="Search Builder" Height="800" Width="800" d:DataContext="{d:DesignInstance local:SearchBuilderWindow}"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
         <local:SearchBuilderControl DataContext="{Binding SearchContext}"></local:SearchBuilderControl>
+        <Grid Height="30" Grid.Row="1" Margin="8,0,8,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Command="{Binding CancelSearchCommand}">Cancel</Button>
+            <Button Grid.Column="1" Command="{Binding RunSearchCommand}">Search</Button>
+        </Grid>
     </Grid>
 </Window>

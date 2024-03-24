@@ -28,6 +28,7 @@ using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.SearchBuilder;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
@@ -49,7 +50,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 {
     private ContentListContext(StatusControlContext? statusContext,
         ObservableCollection<IContentListItem> factoryContentListItems,
-        ContentListSelected<IContentListItem> factoryListSelection, IContentListLoader loader,
+        ContentListSelected<IContentListItem> factoryListSelection, SearchBuilderContext factorySearchBuilder,
+        IContentListLoader loader,
         WindowIconStatus? windowStatus = null)
     {
         StatusContext = statusContext ?? new StatusControlContext();
@@ -80,6 +82,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         NewActions = new CmsCommonCommands(StatusContext, WindowStatus);
 
+        SearchBuilder = factorySearchBuilder;
+
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
         ListSort = ContentListLoader.SortContext();
@@ -108,6 +112,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public PhotoContentActions PhotoItemActions { get; set; }
     public PointContentActions PointItemActions { get; set; }
     public PostContentActions PostItemActions { get; set; }
+    public SearchBuilderContext SearchBuilder { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string? UserFilterText { get; set; }
     public VideoContentActions VideoItemActions { get; set; }
@@ -124,6 +129,23 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
     {
+    }
+
+    public void Dropped(IDropInfo dropInfo)
+    {
+    }
+
+    public void StartDrag(IDragInfo dragInfo)
+    {
+        var defaultBracketCodeList = SelectedListItems().Select(x => x.DefaultBracketCode()).ToList();
+        dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
+        dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
+        dragInfo.Effects = DragDropEffects.Copy;
+    }
+
+    public bool TryCatchOccurredException(Exception exception)
+    {
+        return false;
     }
 
     public void DragOver(IDropInfo dropInfo)
@@ -167,66 +189,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
             StatusContext.RunBlockingTask(async () =>
                 await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList(), StatusContext));
         }
-    }
-
-    public void Dropped(IDropInfo dropInfo)
-    {
-    }
-
-    public void StartDrag(IDragInfo dragInfo)
-    {
-        var defaultBracketCodeList = SelectedListItems().Select(x => x.DefaultBracketCode()).ToList();
-        dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
-        dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
-        dragInfo.Effects = DragDropEffects.Copy;
-    }
-
-    public bool TryCatchOccurredException(Exception exception)
-    {
-        return false;
-    }
-
-    [BlockingCommand]
-    [StopAndWarnIfNoSelectedListItems]
-    public async Task PictureGalleryBracketCodeToClipboardSelected(CancellationToken cancelToken)
-    {
-        var currentSelected = SelectedListItems();
-
-        var bracketCodes = new List<string>();
-
-        foreach (var loopSelected in currentSelected)
-        {
-            var toAdd = loopSelected switch //!!Content List
-            {
-                FileListListItem f => BracketCodeFileImageLink.Create(f.DbEntry),
-                ImageListListItem i => BracketCodeImages.Create(i.DbEntry),
-                GeoJsonListListItem g => BracketCodeGeoJsonImageLink.Create(g.DbEntry),
-                LineListListItem l => BracketCodeLineImageLink.Create(l.DbEntry),
-                PhotoListListItem p => BracketCodePhotos.Create(p.DbEntry),
-                PointListListItem pt => BracketCodePointImageLink.Create(pt.DbEntry),
-                PostListListItem po => BracketCodePostImageLink.Create(po.DbEntry),
-                VideoListListItem v => BracketCodeVideoImageLink.Create(v.DbEntry),
-                _ => string.Empty
-            };
-
-            if(!string.IsNullOrWhiteSpace(toAdd)) bracketCodes.Add(toAdd);
-        }
-
-        var individualCodes = string.Join(Environment.NewLine, bracketCodes.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-        if (string.IsNullOrWhiteSpace(individualCodes))
-        {
-            StatusContext.ToastSuccess("No Bracket Codes Found?");
-            return;
-        }
-
-        var finalString = GalleryBracketCodePictures.Create(individualCodes);
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
     }
 
     [BlockingCommand]
@@ -283,8 +245,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
         await ThreadSwitcher.ResumeBackgroundAsync();
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
+        var factorySearchBuilder = await SearchBuilderContext.CreateInstance();
 
-        return new ContentListContext(statusContext, factoryObservable, factoryListSelection,
+        return new ContentListContext(statusContext, factoryObservable, factoryListSelection, factorySearchBuilder,
             loader, windowStatus);
     }
 
@@ -781,6 +744,49 @@ public partial class ContentListContext : IDragSource, IDropTarget
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task PictureGalleryBracketCodeToClipboardSelected(CancellationToken cancelToken)
+    {
+        var currentSelected = SelectedListItems();
+
+        var bracketCodes = new List<string>();
+
+        foreach (var loopSelected in currentSelected)
+        {
+            var toAdd = loopSelected switch //!!Content List
+            {
+                FileListListItem f => BracketCodeFileImageLink.Create(f.DbEntry),
+                ImageListListItem i => BracketCodeImages.Create(i.DbEntry),
+                GeoJsonListListItem g => BracketCodeGeoJsonImageLink.Create(g.DbEntry),
+                LineListListItem l => BracketCodeLineImageLink.Create(l.DbEntry),
+                PhotoListListItem p => BracketCodePhotos.Create(p.DbEntry),
+                PointListListItem pt => BracketCodePointImageLink.Create(pt.DbEntry),
+                PostListListItem po => BracketCodePostImageLink.Create(po.DbEntry),
+                VideoListListItem v => BracketCodeVideoImageLink.Create(v.DbEntry),
+                _ => string.Empty
+            };
+
+            if (!string.IsNullOrWhiteSpace(toAdd)) bracketCodes.Add(toAdd);
+        }
+
+        var individualCodes = string.Join(Environment.NewLine, bracketCodes.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+        if (string.IsNullOrWhiteSpace(individualCodes))
+        {
+            StatusContext.ToastSuccess("No Bracket Codes Found?");
+            return;
+        }
+
+        var finalString = GalleryBracketCodePictures.Create(individualCodes);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
+    }
+
     private async Task PossibleMainImageUpdateDataNotificationReceived(InterProcessDataNotification? translatedMessage)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -811,6 +817,20 @@ public partial class ContentListContext : IDragSource, IDropTarget
         newWindow.WindowTitle = title;
 
         await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+
+    [NonBlockingCommand]
+    private async Task SearchBuildHelperWindow()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var newWindow = await SearchBuilderWindow.CreateInstance(SearchBuilder);
+        newWindow.Owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ??
+                          Application.Current.Windows.OfType<Window>().FirstOrDefault();
+        newWindow.ShowDialog();
+        if (newWindow.WindowExitType == SearchBuilderWindowExitType.RunSearch)
+            UserFilterText = newWindow.SearchString;
+        await ThreadSwitcher.ResumeForegroundAsync();
     }
 
     public List<IContentListItem> SelectedListItems()

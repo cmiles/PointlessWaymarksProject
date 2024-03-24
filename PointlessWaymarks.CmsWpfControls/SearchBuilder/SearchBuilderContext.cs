@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Text;
 using Fractions;
 using PointlessWaymarks.LlamaAspects;
@@ -11,148 +13,152 @@ namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
 [GenerateStatusCommands]
 public partial class SearchBuilderContext
 {
-    public SearchBuilderContext(StatusControlContext statusContext)
+    public SearchBuilderContext(StatusControlContext statusContext, ObservableCollection<object> searchFilters)
     {
         StatusContext = statusContext;
+        SearchFilters = searchFilters;
+        SearchFilters.CollectionChanged += SearchFiltersOnCollectionChanged;
         BuildCommands();
     }
 
-    public required ObservableCollection<object> SearchFilters { get; set; }
+    public ObservableCollection<object> SearchFilters { get; set; }
 
-    public string SearchString { get; set; } = string.Empty;
+    public string SearchStringPreview { get; set; } = string.Empty;
 
     public StatusControlContext StatusContext { get; set; }
 
     [NonBlockingCommand]
     public async Task AddContentTypeFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new ContentTypeSearchBuilder());
+        await AddSearchFilter(new ContentTypeSearchBuilder());
     }
 
     [NonBlockingCommand]
     public async Task AddGeneralBodySearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new TextSearchFieldBuilder { FieldTitle = "Body" });
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Body" });
     }
 
     [NonBlockingCommand]
     public async Task AddGeneralFolderSearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new TextSearchFieldBuilder { FieldTitle = "Folder" });
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Folder" });
     }
 
     [NonBlockingCommand]
     public async Task AddGeneralSummarySearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new TextSearchFieldBuilder { FieldTitle = "Summary" });
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Summary" });
     }
 
     [NonBlockingCommand]
     public async Task AddGeneralTagsSearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new TextSearchFieldBuilder { FieldTitle = "Tags" });
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Tags" });
     }
 
     [NonBlockingCommand]
     public async Task AddGeneralTitleSearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new TextSearchFieldBuilder { FieldTitle = "Title" });
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Title" });
     }
 
     [NonBlockingCommand]
     public async Task AddLineClimbFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new NumericSearchFieldBuilder
+        await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "Climb", NumberConverterFunction = x => int.TryParse(x, out _) });
     }
 
     [NonBlockingCommand]
     public async Task AddLineDescentFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new NumericSearchFieldBuilder
+        await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "Descent", NumberConverterFunction = x => int.TryParse(x, out _) });
     }
 
     [NonBlockingCommand]
     public async Task AddLineMaxElevationFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new NumericSearchFieldBuilder
+        await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "Max Elevation", NumberConverterFunction = x => int.TryParse(x, out _) });
     }
 
     [NonBlockingCommand]
     public async Task AddLineMilesFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new NumericSearchFieldBuilder
+        await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "Miles", NumberConverterFunction = x => decimal.TryParse(x, out _) });
     }
 
     [NonBlockingCommand]
     public async Task AddLineMinElevationFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new NumericSearchFieldBuilder
+        await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "Min Elevation", NumberConverterFunction = x => int.TryParse(x, out _) });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddPhotoCameraSearchFilter()
+    {
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Camera" });
     }
 
     [NonBlockingCommand]
     public async Task AddPhotoFocalLengthSearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new NumericSearchFieldBuilder
+        await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "Focal Length", NumberConverterFunction = x => decimal.TryParse(x, out _) });
     }
 
     [NonBlockingCommand]
     public async Task AddPhotoIsoSearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new NumericSearchFieldBuilder
+        await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "ISO", NumberConverterFunction = x => int.TryParse(x, out _) });
     }
 
     [NonBlockingCommand]
     public async Task AddPhotoLensSearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new TextSearchFieldBuilder { FieldTitle = "Lens" });
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Lens" });
     }
 
     [NonBlockingCommand]
     public async Task AddPhotoLicenseSearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new TextSearchFieldBuilder { FieldTitle = "License" });
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "License" });
     }
 
     [NonBlockingCommand]
     public async Task AddPhotoShutterSpeedSearchFilter()
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        SearchFilters.Add(new NumericSearchFieldBuilder
+        await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "Shutter Speed", NumberConverterFunction = x => Fraction.TryParse(x, out _) });
+    }
+
+    public async Task AddSearchFilter(INotifyPropertyChanged toAdd)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        toAdd.PropertyChanged += ToAdd_PropertyChanged;
+        SearchFilters.Add(toAdd);
+    }
+
+    [NonBlockingCommand]
+    public async Task ClearSearchFilters()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        SearchFilters.Clear();
     }
 
     public static async Task<SearchBuilderContext> CreateInstance()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        return new SearchBuilderContext(new StatusControlContext())
-            { SearchFilters = new ObservableCollection<object>() };
+        return new SearchBuilderContext(new StatusControlContext(), new ObservableCollection<object>());
     }
 
-    [NonBlockingCommand]
-    public Task CreateSearch()
+    public string CreateSearch()
     {
         var searchString = new StringBuilder();
         var searchFilters = SearchFilters.ToList();
@@ -183,7 +189,16 @@ public partial class SearchBuilderContext
                     break;
             }
 
-        SearchString = searchString.ToString();
-        return Task.CompletedTask;
+        return searchString.ToString();
+    }
+
+    private void SearchFiltersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        SearchStringPreview = CreateSearch();
+    }
+
+    private void ToAdd_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        SearchStringPreview = CreateSearch();
     }
 }
