@@ -62,8 +62,12 @@ async function initialMapLoad(initialLatitude, initialLongitude, calTopoApiKey, 
     newLayerAutoClose = autoClosePopups;
     useCircleMarkerStyle = circleMarkerStyle;
 
-    let response = await fetch("pwMapSvgIcons.json");
-    mapIcons = await response.json();
+    try {
+        let response = await fetch("pwMapSvgIcons.json");
+        mapIcons = await response.json();
+    }
+    catch { }
+
 
     let [baseMaps, baseMapNames] = generateBaseMaps(calTopoApiKey, bingApiKey);
 
@@ -100,8 +104,11 @@ async function initialMapLoadWithUserPointChooser(initialLatitude, initialLongit
     newLayerAutoClose = true;
     useCircleMarkerStyle = true;
 
-    let response = await fetch("pwMapSvgIcons.json");
-    mapIcons = await response.json();
+    try {
+        let response = await fetch("pwMapSvgIcons.json");
+        mapIcons = await response.json();
+    }
+    catch { }
 
     let [baseMaps, baseMapNames] = generateBaseMaps(calTopoApiKey, bingApiKey);
 
@@ -314,6 +321,7 @@ function getMapIconSvg(iconName) {
     if (!iconName) return pointlessWaymarksDotIcon;
     if(iconName === 'camera') return pointlessWaymarksCameraIcon;
     if (iconName === 'dot') return pointlessWaymarksDotIcon;
+    if(!mapIcons) return pointlessWaymarksDotIcon;
     var possibleMapJsonIcons = mapIcons.filter(x => x.IconName === iconName);
     if (possibleMapJsonIcons.length === 0) return pointlessWaymarksDotIcon;
     return possibleMapJsonIcons[0].IconSvg;
