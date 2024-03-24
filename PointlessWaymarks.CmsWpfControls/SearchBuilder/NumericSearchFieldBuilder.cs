@@ -12,7 +12,6 @@ public partial class NumericSearchFieldBuilder
     }
 
     public bool EnableNumberTwo { get; set; }
-
     public required string FieldTitle { get; set; }
     public bool Not { get; set; }
     public required Func<string, bool> NumberConverterFunction { get; set; }
@@ -34,16 +33,16 @@ public partial class NumericSearchFieldBuilder
             ShowNumberOneTextWarning = !string.IsNullOrWhiteSpace(UserNumberTextOne) && !UserNumberOneTextConverts;
         }
 
-        if ((e.PropertyName?.Equals(nameof(UserNumberTextOne)) ?? false) || (e.PropertyName?.Equals(nameof(SelectedOperatorOne)) ?? false))
-        {
+        if ((e.PropertyName?.Equals(nameof(UserNumberTextOne)) ?? false) ||
+            (e.PropertyName?.Equals(nameof(SelectedOperatorOne)) ?? false))
             EnableNumberTwo = UserNumberOneTextConverts && SelectedOperatorOne != "==";
-        }
 
         if (e.PropertyName?.Equals(nameof(UserNumberTextTwo)) ?? false)
         {
             UserNumberTwoTextConverts = NumberConverterFunction(UserNumberTextTwo);
             ShowNumberTwoTextWarning = EnableNumberTwo && (!UserNumberOneTextConverts ||
-                                       (!string.IsNullOrWhiteSpace(UserNumberTextTwo) && !UserNumberTwoTextConverts));
+                                                           (!string.IsNullOrWhiteSpace(UserNumberTextTwo) &&
+                                                            !UserNumberTwoTextConverts));
         }
     }
 }

@@ -6,9 +6,9 @@ namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
 public class FilterTemplateSelector : DataTemplateSelector
 {
     public DataTemplate? ContentSearchTemplate { get; set; }
+    public DataTemplate? DateSearchTemplate { get; set; }
     public DataTemplate? NumericSearchTemplate { get; set; }
     public DataTemplate? TextSearchTemplate { get; set; }
-
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -17,6 +17,7 @@ public class FilterTemplateSelector : DataTemplateSelector
             TextSearchFieldBuilder => TextSearchTemplate,
             NumericSearchFieldBuilder => NumericSearchTemplate,
             ContentTypeSearchBuilder => ContentSearchTemplate,
+            DateTimeSearchFieldBuilder => DateSearchTemplate,
             _ => null
         };
     }

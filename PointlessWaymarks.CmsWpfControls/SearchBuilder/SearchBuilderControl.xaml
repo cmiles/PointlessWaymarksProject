@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.SearchBuilder"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             xmlns:dateTimePicker="clr-namespace:PointlessWaymarks.WpfCommon.DateTimePicker;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:SearchBuilderContext}">
     <UserControl.Resources>
@@ -43,7 +44,7 @@
                                      Text="{Binding UserNumberTextOne, UpdateSourceTrigger=PropertyChanged}" />
                             <Image
                                 Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
                                 Visibility="{Binding ShowNumberOneTextWarning, Converter={StaticResource BooleanToVisibility}}"
                                 Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
                                 <Image.ToolTip>
@@ -81,12 +82,91 @@
                             </TextBox>
                             <Image
                                 Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
                                 Visibility="{Binding ShowNumberTwoTextWarning, Converter={StaticResource BooleanToVisibility}}"
                                 Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
                                 <Image.ToolTip>
                                     <ToolTip>Please enter a valid value</ToolTip>
                                 </Image.ToolTip>
+                            </Image>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:DateTimeSearchFieldBuilder}" x:Key="DateTimeTemplate">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
+                                   Content="{Binding FieldTitle}" />
+                            <ComboBox VerticalAlignment="Center" Margin="8,0,0,0"
+                                      ItemsSource="{Binding OperatorChoices}"
+                                      SelectedValue="{Binding SelectedOperatorOne}" />
+                            <TextBox MinWidth="90" VerticalAlignment="Center" TextAlignment="Right"
+                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                     AcceptsReturn="False" TextWrapping="Wrap"
+                                     Text="{Binding UserDateTimeTextOne, UpdateSourceTrigger=PropertyChanged}" />
+                            <Image
+                                Margin="4,0,4,0"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding ShowDateTimeOneTextWarning, Converter={StaticResource BooleanToVisibility}}"
+                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                <Image.ToolTip>
+                                    <ToolTip>Please enter a valid value</ToolTip>
+                                </Image.ToolTip>
+                            </Image>
+                            <Image
+                                Margin="4,0,4,0"
+                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding UserDateTimeOneTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}"
+                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center"
+                                ToolTip="{Binding UserDateTimeOneTranslation}">
+                            </Image>
+                            <ComboBox Margin="12,0,0,0" VerticalAlignment="Center"
+                                      ItemsSource="{Binding OperatorChoices}"
+                                      SelectedValue="{Binding SelectedOperatorTwo}"
+                                      IsEnabled="{Binding EnableDateTimeTwo}">
+                                <ComboBox.Style>
+                                    <Style TargetType="ComboBox">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding EnableDateTimeTwo}" Value="False">
+                                                <Setter Property="Opacity" Value=".3" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ComboBox.Style>
+                            </ComboBox>
+                            <TextBox MinWidth="90" VerticalAlignment="Center" TextAlignment="Right"
+                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                     AcceptsReturn="False" TextWrapping="Wrap"
+                                     Text="{Binding UserDateTimeTextTwo, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding EnableDateTimeTwo}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding EnableDateTimeTwo}" Value="False">
+                                                <Setter Property="Opacity" Value=".3" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            <Image
+                                Margin="4,0,4,0"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding ShowDateTimeTwoTextWarning, Converter={StaticResource BooleanToVisibility}}"
+                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                <Image.ToolTip>
+                                    <ToolTip>Please enter a valid value</ToolTip>
+                                </Image.ToolTip>
+                            </Image>
+                            <Image
+                                Margin="4,0,4,0"
+                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding UserDateTimeTwoTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}"
+                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center"
+                                ToolTip="{Binding UserDateTimeTwoTranslation}">
                             </Image>
                         </StackPanel>
                     </Grid>
@@ -123,7 +203,8 @@
             <local:FilterTemplateSelector x:Key="FilterSelector"
                                           TextSearchTemplate="{StaticResource TextTemplate}"
                                           NumericSearchTemplate="{StaticResource NumericTemplate}"
-                                          ContentSearchTemplate="{StaticResource ContentTypeTemplate}" />
+                                          ContentSearchTemplate="{StaticResource ContentTypeTemplate}"
+                                          DateSearchTemplate="{StaticResource DateTimeTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -154,6 +235,10 @@
                     <Button Command="{Binding AddGeneralFolderSearchFilterCommand}">Folder</Button>
                     <Button Command="{Binding AddGeneralTagsSearchFilterCommand}">Tags</Button>
                     <Button Command="{Binding AddGeneralBodySearchFilterCommand}">Body</Button>
+                    <Button Command="{Binding AddGeneralCreatedByFilterCommand}">Created By</Button>
+                    <Button Command="{Binding AddGeneralCreatedOnSearchFilterCommand}">Created On</Button>
+                    <Button Command="{Binding AddGeneralLastUpdatedBySearchFilterCommand}">Updated By</Button>
+                    <Button Command="{Binding AddGeneralLastUpdatedOnSearchFilterCommand}">Updated On</Button>
                     <Button Command="{Binding AddContentTypeFilterCommand}">Type</Button>
                 </WrapPanel>
             </GroupBox>
@@ -168,6 +253,7 @@
                     <Button Command="{Binding AddPhotoShutterSpeedSearchFilterCommand}">Shutter Speed</Button>
                     <Button Command="{Binding AddPhotoFocalLengthSearchFilterCommand}">Focal Length</Button>
                     <Button Command="{Binding AddPhotoIsoSearchFilterCommand}">ISO</Button>
+                    <Button Command="{Binding AddPhotoCreatedOnFilterCommand}">Created</Button>
                     <Button Command="{Binding AddPhotoCameraSearchFilterCommand}">Camera</Button>
                     <Button Command="{Binding AddPhotoLensSearchFilterCommand}">Lens</Button>
                     <Button Command="{Binding AddPhotoLicenseSearchFilterCommand}">License</Button>
@@ -194,7 +280,7 @@
                 <RowDefinition></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
-            <GroupBox  Margin="4" Grid.Row="0" Header="Search">
+            <GroupBox Margin="4" Grid.Row="0" Header="Search">
                 <TextBox BorderThickness="0" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
                          Text="{Binding SearchStringPreview}" />
             </GroupBox>

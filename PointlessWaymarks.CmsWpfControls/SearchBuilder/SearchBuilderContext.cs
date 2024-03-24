@@ -40,9 +40,33 @@ public partial class SearchBuilderContext
     }
 
     [NonBlockingCommand]
+    public async Task AddGeneralCreatedByFilter()
+    {
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Created By" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddGeneralCreatedOnSearchFilter()
+    {
+        await AddSearchFilter(new DateTimeSearchFieldBuilder { FieldTitle = "Created On" });
+    }
+
+    [NonBlockingCommand]
     public async Task AddGeneralFolderSearchFilter()
     {
         await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Folder" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddGeneralLastUpdatedBySearchFilter()
+    {
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Last Updated By" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddGeneralLastUpdatedOnSearchFilter()
+    {
+        await AddSearchFilter(new DateTimeSearchFieldBuilder { FieldTitle = "Last Updated On" });
     }
 
     [NonBlockingCommand]
@@ -102,6 +126,12 @@ public partial class SearchBuilderContext
     public async Task AddPhotoCameraSearchFilter()
     {
         await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Camera" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddPhotoCreatedOnFilter()
+    {
+        await AddSearchFilter(new DateTimeSearchFieldBuilder { FieldTitle = "Photo Created On" });
     }
 
     [NonBlockingCommand]
@@ -177,6 +207,18 @@ public partial class SearchBuilderContext
                             $"{(t.Not ? "!" : "")}{t.FieldTitle}: {t.SelectedOperatorOne} {t.UserNumberTextOne}";
                         if (t.UserNumberTwoTextConverts && !string.IsNullOrWhiteSpace(t.UserNumberTextTwo))
                             numericSearchString += $" {t.SelectedOperatorTwo} {t.UserNumberTextTwo}";
+                        if (!string.IsNullOrWhiteSpace(numericSearchString))
+                            searchString.AppendLine(numericSearchString);
+                    }
+
+                    break;
+                case DateTimeSearchFieldBuilder t:
+                    if (t.UserDateTimeOneTextConverts && !string.IsNullOrWhiteSpace(t.UserDateTimeTextOne))
+                    {
+                        var numericSearchString =
+                            $"{(t.Not ? "!" : "")}{t.FieldTitle}: {t.SelectedOperatorOne} {t.UserDateTimeTextOne}";
+                        if (t.UserDateTimeTwoTextConverts && !string.IsNullOrWhiteSpace(t.UserDateTimeTextTwo))
+                            numericSearchString += $" {t.SelectedOperatorTwo} {t.UserDateTimeTextTwo}";
                         if (!string.IsNullOrWhiteSpace(numericSearchString))
                             searchString.AppendLine(numericSearchString);
                     }
