@@ -350,13 +350,13 @@ public static class ContentImport
 
             if (importResult.hasError)
             {
-                errorNotes.Add($"Excel Row {loopRow.RowIdentifier} - {importResult.errorNotes}");
+                errorNotes.Add($"Excel {loopRow.RowIdentifier} - {importResult.errorNotes}");
                 continue;
             }
 
             if (importResult.processContent == null)
             {
-                errorNotes.Add($"Excel Row {loopRow.RowIdentifier} - Unexpected Null");
+                errorNotes.Add($"Excel {loopRow.RowIdentifier} - Unexpected Null");
                 continue;
             }
 
@@ -368,9 +368,9 @@ public static class ContentImport
             catch
             {
                 Log.Warning(
-                    "Excel Import - Excel Row {0} - Excel Import via dynamics - Tags threw an error on ContentId {1} - property probably not present",
+                    "Excel Import - Excel {0} - Excel Import via dynamics - Tags threw an error on ContentId {1} - property probably not present",
                     loopRow.RowIdentifier, importResult.processContent.ContentId ?? "New Entry");
-                errorNotes.Add($"Excel Row {loopRow.RowIdentifier} - Tags could not be processed");
+                errorNotes.Add($"Excel {loopRow.RowIdentifier} - Tags could not be processed");
                 continue;
             }
 
@@ -385,7 +385,7 @@ public static class ContentImport
 
                 if (currentDbEntry == null)
                 {
-                    errorNotes.Add($"Excel Row {loopRow.RowIdentifier} - Didn't find expected DB Entry");
+                    errorNotes.Add($"Excel {loopRow.RowIdentifier} - Didn't find expected DB Entry");
                     continue;
                 }
 
@@ -399,7 +399,7 @@ public static class ContentImport
                 if (comparisonResult.AreEqual)
                 {
                     progress?.Report(
-                        $"Excel Row {loopRow.RowIdentifier} of {lastRow} - No Changes - Title: {currentDbEntry.Title}");
+                        $"Excel {loopRow.RowIdentifier} of {lastRow} - No Changes - Title: {currentDbEntry.Title}");
                     continue;
                 }
 
@@ -442,8 +442,8 @@ public static class ContentImport
 
             if (validationResult.HasError)
             {
-                errorNotes.Add($"Excel Row {loopRow.RowIdentifier} - {validationResult.GenerationNote}");
-                progress?.Report($"Excel Row {loopRow.RowIdentifier} of {lastRow} - Validation Error.");
+                errorNotes.Add($"Excel {loopRow.RowIdentifier} - {validationResult.GenerationNote}");
+                progress?.Report($"Excel {loopRow.RowIdentifier} of {lastRow} - Validation Error.");
                 continue;
             }
 
@@ -451,7 +451,7 @@ public static class ContentImport
                 importResult.processContent));
 
             progress?.Report(
-                $"Excel Row {loopRow.RowIdentifier} of {lastRow} - Adding To Changed List ({updateList.Count}) - Title: {importResult.processContent.Title}");
+                $"Excel {loopRow.RowIdentifier} of {lastRow} - Adding To Changed List ({updateList.Count}) - Title: {importResult.processContent.Title}");
         }
 
         if (!errorNotes.Any())
