@@ -515,8 +515,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedOn;
             else if (searchString.StartsWith("LAST UPDATED BY:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedBy;
+            else if (searchString.StartsWith("SHOW IN MAIN SITE FEED:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchShowInMainSiteFeed;
             else if (searchString.StartsWith("TAGS:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchTags;
+            else if (searchString.StartsWith("SLUG:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchSlug;
+            else if (searchString.StartsWith("ORIGINAL FILE NAME:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchOriginalFileName;
             else if (searchString.StartsWith("CAMERA:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchCamera;
             else if (searchString.StartsWith("LENS:", StringComparison.InvariantCultureIgnoreCase))

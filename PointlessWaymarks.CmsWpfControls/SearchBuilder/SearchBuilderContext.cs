@@ -28,6 +28,12 @@ public partial class SearchBuilderContext
     public StatusControlContext StatusContext { get; set; }
 
     [NonBlockingCommand]
+    public async Task AddActivityLogFilter()
+    {
+        await AddSearchFilter(new BooleanSearchFieldBuilder { FieldTitle = "Activity Log" });
+    }
+
+    [NonBlockingCommand]
     public async Task AddContentTypeFilter()
     {
         await AddSearchFilter(new ContentTypeSearchBuilder());
@@ -40,7 +46,7 @@ public partial class SearchBuilderContext
     }
 
     [NonBlockingCommand]
-    public async Task AddGeneralCreatedByFilter()
+    public async Task AddGeneralCreatedBySearchFilter()
     {
         await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Created By" });
     }
@@ -67,6 +73,18 @@ public partial class SearchBuilderContext
     public async Task AddGeneralLastUpdatedOnSearchFilter()
     {
         await AddSearchFilter(new DateTimeSearchFieldBuilder { FieldTitle = "Last Updated On" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddGeneralShowInMainSiteFeedSearchFilter()
+    {
+        await AddSearchFilter(new BooleanSearchFieldBuilder { FieldTitle = "Show In Main Site Feed" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddGeneralSlugFilter()
+    {
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Slug" });
     }
 
     [NonBlockingCommand]
@@ -120,6 +138,12 @@ public partial class SearchBuilderContext
     {
         await AddSearchFilter(new NumericSearchFieldBuilder
             { FieldTitle = "Min Elevation", NumberConverterFunction = x => int.TryParse(x, out _) });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddMultiTypeOriginalFileNameFilter()
+    {
+        await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Original File Name" });
     }
 
     [NonBlockingCommand]
@@ -200,6 +224,10 @@ public partial class SearchBuilderContext
                     searchString.AppendLine(
                         $"{(t.Not ? "!" : "")}{t.FieldTitle}: {t.SearchText}");
                     break;
+                case BooleanSearchFieldBuilder t:
+                    searchString.AppendLine(
+                        $"{t.FieldTitle}: {t.SearchBoolean}");
+                    break;
                 case NumericSearchFieldBuilder t:
                     if (t.UserNumberOneTextConverts && !string.IsNullOrWhiteSpace(t.UserNumberTextOne))
                     {
@@ -232,6 +260,15 @@ public partial class SearchBuilderContext
             }
 
         return searchString.ToString();
+    }
+
+    [NonBlockingCommand]
+    public async Task RemoveSearchFilter(object toRemove)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        if (toRemove is INotifyPropertyChanged remove)
+            remove.PropertyChanged -= ToAdd_PropertyChanged;
+        SearchFilters.Remove(toRemove);
     }
 
     private void SearchFiltersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

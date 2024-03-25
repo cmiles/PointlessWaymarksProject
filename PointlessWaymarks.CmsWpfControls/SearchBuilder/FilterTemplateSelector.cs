@@ -9,6 +9,7 @@ public class FilterTemplateSelector : DataTemplateSelector
     public DataTemplate? DateSearchTemplate { get; set; }
     public DataTemplate? NumericSearchTemplate { get; set; }
     public DataTemplate? TextSearchTemplate { get; set; }
+    public DataTemplate BooleanSearchTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -18,6 +19,7 @@ public class FilterTemplateSelector : DataTemplateSelector
             NumericSearchFieldBuilder => NumericSearchTemplate,
             ContentTypeSearchBuilder => ContentSearchTemplate,
             DateTimeSearchFieldBuilder => DateSearchTemplate,
+            BooleanSearchFieldBuilder => BooleanSearchTemplate,
             _ => null
         };
     }

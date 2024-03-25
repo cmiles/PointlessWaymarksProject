@@ -75,33 +75,33 @@ public static class ContentListSearch
         Func<bool, bool> searchResultModifier)
     {
         searchString = searchString[5..].TrimNullToEmpty();
+        var contentTypes =
+            searchString.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         //!!Content Type List!!
         var matchFound =
-            (searchString.Equals("File", StringComparison.OrdinalIgnoreCase) && toFilter is FileListListItem)
-            || (searchString.Equals("File", StringComparison.OrdinalIgnoreCase) &&
-                toFilter is FileListListItem)
-            || (searchString.Equals("GeoJson", StringComparison.OrdinalIgnoreCase) &&
+            (contentTypes.Contains("File", StringComparer.OrdinalIgnoreCase) && toFilter is FileListListItem)
+            || (contentTypes.Contains("GeoJson", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is GeoJsonListListItem)
-            || (searchString.Equals("Image", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Image", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is ImageListListItem)
-            || (searchString.Equals("Line", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Line", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is LineListListItem)
-            || (searchString.Equals("Link", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Link", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is LinkListListItem)
-            || (searchString.Equals("Map", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Map", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is MapComponentListListItem)
-            || (searchString.Equals("Note", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Note", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is NoteListListItem)
-            || (searchString.Equals("Photo", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Photo", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is PhotoListListItem)
-            || (searchString.Equals("Photograph", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Photograph", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is PhotoListListItem)
-            || (searchString.Equals("Point", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Point", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is PointListListItem)
-            || (searchString.Equals("Post", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Post", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is PostListListItem)
-            || (searchString.Equals("Video", StringComparison.OrdinalIgnoreCase) &&
+            || (contentTypes.Contains("Video", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is VideoListListItem);
 
         if (!matchFound)
@@ -324,6 +324,26 @@ public static class ContentListSearch
                 "Min Elevation"), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchOriginalFileName(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Original File Name with no Search String - Including"),
+                searchResultModifier);
+
+        var dynamicContent = toFilter.Content() as dynamic;
+
+        if (!DynamicTypeTools.PropertyExists(toFilter.Content() as dynamic, "OriginalFileName"))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "No OriginalFileName Property - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(dynamicContent.OriginalFileName ?? string.Empty,
+                searchString.Trim(), "Original File Name"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchPhotoCreatedOn(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -337,6 +357,14 @@ public static class ContentListSearch
                 "Photo Created On"), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchShowInMainSiteFeed(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterBoolean(toFilter.Content().ShowInMainSiteFeed, searchString,
+                "Show in Main Site Feed"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchShutterSpeed(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -348,6 +376,19 @@ public static class ContentListSearch
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterShutterSpeedLength(photoItem.DbEntry.ShutterSpeed, searchString),
             searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchSlug(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Slug Search with no Search String - Including"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(toFilter.Content().Slug ?? string.Empty,
+                searchString.Trim(), "Slug"), searchResultModifier);
     }
 
     public static ContentListSearchReturn SearchSummary(IContentListItem toFilter, string searchString,

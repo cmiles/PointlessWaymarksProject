@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.SearchBuilder"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
-             xmlns:dateTimePicker="clr-namespace:PointlessWaymarks.WpfCommon.DateTimePicker;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:SearchBuilderContext}">
     <UserControl.Resources>
@@ -13,6 +13,14 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+            <Style x:Key="RemoveFilterButtonStyle" TargetType="Button">
+                <Setter Property="Margin" Value="4,0,4,0" />
+                <Setter Property="Padding" Value="8,0,8,0" />
+                <Setter Property="Command"
+                        Value="{Binding Data.RemoveSearchFilterCommand, Source={StaticResource Proxy}}" />
+                <Setter Property="CommandParameter" Value="{Binding .}" />
+            </Style>
             <DataTemplate DataType="{x:Type local:TextSearchFieldBuilder}" x:Key="TextTemplate">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
@@ -24,6 +32,22 @@
                                      VerticalContentAlignment="Center" Padding="4"
                                      AcceptsReturn="False" TextWrapping="Wrap"
                                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
+                                Remove
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:BooleanSearchFieldBuilder}" x:Key="BooleanTemplate">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding SearchBoolean}"
+                                      Content="{Binding FieldTitle}" />
+                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
+                                Remove
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -89,6 +113,9 @@
                                     <ToolTip>Please enter a valid value</ToolTip>
                                 </Image.ToolTip>
                             </Image>
+                            <Button Style="{Binding }">
+                                Remove
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -121,8 +148,7 @@
                                 Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                                 Visibility="{Binding UserDateTimeOneTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}"
                                 Width="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                ToolTip="{Binding UserDateTimeOneTranslation}">
-                            </Image>
+                                ToolTip="{Binding UserDateTimeOneTranslation}" />
                             <ComboBox Margin="12,0,0,0" VerticalAlignment="Center"
                                       ItemsSource="{Binding OperatorChoices}"
                                       SelectedValue="{Binding SelectedOperatorTwo}"
@@ -166,8 +192,10 @@
                                 Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
                                 Visibility="{Binding UserDateTimeTwoTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}"
                                 Width="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                ToolTip="{Binding UserDateTimeTwoTranslation}">
-                            </Image>
+                                ToolTip="{Binding UserDateTimeTwoTranslation}" />
+                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
+                                Remove
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -178,6 +206,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
@@ -197,6 +226,9 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
+                        <Button Grid.Row="2" Style="{StaticResource RemoveFilterButtonStyle}">
+                            Remove
+                        </Button>
                     </Grid>
                 </Border>
             </DataTemplate>
@@ -204,7 +236,9 @@
                                           TextSearchTemplate="{StaticResource TextTemplate}"
                                           NumericSearchTemplate="{StaticResource NumericTemplate}"
                                           ContentSearchTemplate="{StaticResource ContentTypeTemplate}"
-                                          DateSearchTemplate="{StaticResource DateTimeTemplate}" />
+                                          DateSearchTemplate="{StaticResource DateTimeTemplate}" 
+                                          BooleanSearchTemplate="{StaticResource BooleanTemplate}" 
+                                          />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -218,9 +252,9 @@
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
             </Grid.RowDefinitions>
             <GroupBox Header="General" Margin="4">
                 <WrapPanel Orientation="Horizontal" Margin="0,4,0,8">
@@ -235,10 +269,12 @@
                     <Button Command="{Binding AddGeneralFolderSearchFilterCommand}">Folder</Button>
                     <Button Command="{Binding AddGeneralTagsSearchFilterCommand}">Tags</Button>
                     <Button Command="{Binding AddGeneralBodySearchFilterCommand}">Body</Button>
-                    <Button Command="{Binding AddGeneralCreatedByFilterCommand}">Created By</Button>
+                    <Button Command="{Binding AddGeneralShowInMainSiteFeedSearchFilterCommand}">Main Feed</Button>
+                    <Button Command="{Binding AddGeneralCreatedBySearchFilterCommand}">Created By</Button>
                     <Button Command="{Binding AddGeneralCreatedOnSearchFilterCommand}">Created On</Button>
                     <Button Command="{Binding AddGeneralLastUpdatedBySearchFilterCommand}">Updated By</Button>
                     <Button Command="{Binding AddGeneralLastUpdatedOnSearchFilterCommand}">Updated On</Button>
+                    <Button Command="{Binding AddGeneralSlugFilterCommand}">Slug</Button>
                     <Button Command="{Binding AddContentTypeFilterCommand}">Type</Button>
                 </WrapPanel>
             </GroupBox>
@@ -257,6 +293,7 @@
                     <Button Command="{Binding AddPhotoCameraSearchFilterCommand}">Camera</Button>
                     <Button Command="{Binding AddPhotoLensSearchFilterCommand}">Lens</Button>
                     <Button Command="{Binding AddPhotoLicenseSearchFilterCommand}">License</Button>
+                    <Button Command="{Binding AddMultiTypeOriginalFileNameFilterCommand}">File Name</Button>
                 </WrapPanel>
             </GroupBox>
             <GroupBox Grid.Row="2" Grid.Column="0" Header="Lines" Margin="4,0,4,4">
@@ -272,13 +309,14 @@
                     <Button Command="{Binding AddLineMaxElevationFilterCommand}">Max Elevation</Button>
                     <Button Command="{Binding AddLineClimbFilterCommand}">Climb</Button>
                     <Button Command="{Binding AddLineDescentFilterCommand}">Descent</Button>
+                    <Button Command="{Binding AddActivityLogFilterCommand}">Activity Log</Button>
                 </WrapPanel>
             </GroupBox>
         </Grid>
         <Grid Grid.Row="0" Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <GroupBox Margin="4" Grid.Row="0" Header="Search">
                 <TextBox BorderThickness="0" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
