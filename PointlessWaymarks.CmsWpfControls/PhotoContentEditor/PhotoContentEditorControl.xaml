@@ -30,7 +30,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <valueConverters:MetersToFeetValueConverter x:Key="MetersToFeet" />
             <photoContentEditor:PhotoHasLatLongVisibilityConverter x:Key="PhotoHasLatLong" />
         </ResourceDictionary>
     </UserControl.Resources>

@@ -15,7 +15,7 @@
             </ResourceDictionary.MergedDictionaries>
             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
             <Style x:Key="RemoveFilterButtonStyle" TargetType="Button">
-                <Setter Property="Margin" Value="4,0,4,0" />
+                <Setter Property="Margin" Value="12,0,4,0" />
                 <Setter Property="Padding" Value="8,0,8,0" />
                 <Setter Property="Command"
                         Value="{Binding Data.RemoveSearchFilterCommand, Source={StaticResource Proxy}}" />
@@ -113,7 +113,77 @@
                                     <ToolTip>Please enter a valid value</ToolTip>
                                 </Image.ToolTip>
                             </Image>
-                            <Button Style="{Binding }">
+                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
+                                Remove
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:BoundsSearchFieldBuilder}" x:Key="BoundsTemplate">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
+                                   Content="{Binding FieldTitle}" />
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Lat</Label>
+                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                     AcceptsReturn="False" TextWrapping="Wrap"
+                                     Text="{Binding UserMinLatitude, UpdateSourceTrigger=PropertyChanged}" />
+                            <Image
+                                Margin="4,0,4,0"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding UserMinLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
+                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                <Image.ToolTip>
+                                    <ToolTip>Please enter a valid value</ToolTip>
+                                </Image.ToolTip>
+                            </Image>
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Long</Label>
+                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                     AcceptsReturn="False" TextWrapping="Wrap"
+                                     Text="{Binding UserMinLongitude, UpdateSourceTrigger=PropertyChanged}" />
+                            <Image
+                                Margin="4,0,4,0"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding UserMinLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
+                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                <Image.ToolTip>
+                                    <ToolTip>Please enter a valid value</ToolTip>
+                                </Image.ToolTip>
+                            </Image>
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Lat</Label>
+                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                     AcceptsReturn="False" TextWrapping="Wrap"
+                                     Text="{Binding UserMaxLatitude, UpdateSourceTrigger=PropertyChanged}" />
+                            <Image
+                                Margin="4,0,4,0"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding UserMaxLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
+                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                <Image.ToolTip>
+                                    <ToolTip>Please enter a valid value</ToolTip>
+                                </Image.ToolTip>
+                            </Image>
+                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Long</Label>
+                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                     AcceptsReturn="False" TextWrapping="Wrap"
+                                     Text="{Binding UserMaxLongitude, UpdateSourceTrigger=PropertyChanged}" />
+                            <Image
+                                Margin="4,0,4,0"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding UserMaxLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
+                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                <Image.ToolTip>
+                                    <ToolTip>Please enter a valid value</ToolTip>
+                                </Image.ToolTip>
+                            </Image>
+                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
                                 Remove
                             </Button>
                         </StackPanel>
@@ -236,9 +306,9 @@
                                           TextSearchTemplate="{StaticResource TextTemplate}"
                                           NumericSearchTemplate="{StaticResource NumericTemplate}"
                                           ContentSearchTemplate="{StaticResource ContentTypeTemplate}"
-                                          DateSearchTemplate="{StaticResource DateTimeTemplate}" 
-                                          BooleanSearchTemplate="{StaticResource BooleanTemplate}" 
-                                          />
+                                          DateSearchTemplate="{StaticResource DateTimeTemplate}"
+                                          BooleanSearchTemplate="{StaticResource BooleanTemplate}"
+                                          BoundsSearchTemplate="{StaticResource BoundsTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -276,6 +346,8 @@
                     <Button Command="{Binding AddGeneralLastUpdatedOnSearchFilterCommand}">Updated On</Button>
                     <Button Command="{Binding AddGeneralSlugFilterCommand}">Slug</Button>
                     <Button Command="{Binding AddContentTypeFilterCommand}">Type</Button>
+                    <Button Command="{Binding AddMultiTypeOriginalFileNameFilterCommand}">File Name</Button>
+                    <Button Command="{Binding AddMultiTypeElevationFilterCommand}">Elevation</Button>
                 </WrapPanel>
             </GroupBox>
             <GroupBox Grid.Row="1" Grid.Column="0" Header="Photographs" Margin="4,0,4,0">
@@ -293,7 +365,6 @@
                     <Button Command="{Binding AddPhotoCameraSearchFilterCommand}">Camera</Button>
                     <Button Command="{Binding AddPhotoLensSearchFilterCommand}">Lens</Button>
                     <Button Command="{Binding AddPhotoLicenseSearchFilterCommand}">License</Button>
-                    <Button Command="{Binding AddMultiTypeOriginalFileNameFilterCommand}">File Name</Button>
                 </WrapPanel>
             </GroupBox>
             <GroupBox Grid.Row="2" Grid.Column="0" Header="Lines" Margin="4,0,4,4">

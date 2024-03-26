@@ -1,5 +1,4 @@
 using System.Windows;
-using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
@@ -10,6 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
 ///     Interaction logic for SearchBuilderWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[GenerateStatusCommands]
 public partial class SearchBuilderWindow : Window
 {
     public SearchBuilderWindow(SearchBuilderContext context)
@@ -17,24 +17,24 @@ public partial class SearchBuilderWindow : Window
         SearchContext = context;
         StatusContext = context.StatusContext;
 
-        RunSearchCommand = new RelayCommand(RunSearch);
-        CancelSearchCommand = new RelayCommand(CancelSearch);
+        BuildCommands();
 
         DataContext = this;
         InitializeComponent();
     }
 
-    public RelayCommand CancelSearchCommand { get; set; }
-    public RelayCommand RunSearchCommand { get; set; }
     public SearchBuilderContext SearchContext { get; set; }
     public string SearchString { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public SearchBuilderWindowExitType WindowExitType { get; set; } = SearchBuilderWindowExitType.NotSet;
 
-    public void CancelSearch()
+    [NonBlockingCommand]
+    public async Task CancelSearch()
     {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         WindowExitType = SearchBuilderWindowExitType.Cancel;
-        Close();
+        DialogResult = false;
     }
 
     public static async Task<SearchBuilderWindow> CreateInstance(SearchBuilderContext searchContext)
@@ -44,11 +44,15 @@ public partial class SearchBuilderWindow : Window
         return new SearchBuilderWindow(searchContext);
     }
 
-    public void RunSearch()
+    [NonBlockingCommand]
+    public async Task RunSearch()
     {
         SearchString = SearchContext.CreateSearch();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         WindowExitType = SearchBuilderWindowExitType.RunSearch;
-        Close();
+        DialogResult = true;
     }
 }
 

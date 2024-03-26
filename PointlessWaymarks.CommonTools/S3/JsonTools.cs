@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace PointlessWaymarks.CommonTools.S3;
 
 public class JsonTools
 {
-    public static JsonSerializerOptions WriteIndentedOptions = JsonTools.WriteIndentedOptions;
+    public static JsonSerializerOptions WriteIndentedOptions = new() { WriteIndented = true };
 }

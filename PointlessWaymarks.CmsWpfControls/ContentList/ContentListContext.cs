@@ -551,6 +551,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchDescent;
             else if (searchString.StartsWith("ACTIVITY LOG:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchActivityLog;
+            else if (searchString.StartsWith("ELEVATION:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchElevation;
             else searchFilterFunction = ContentListSearch.SearchGeneral;
 
             searchFilterStack.Add((searchFilterFunction, searchString, searchResultModifier));

@@ -6,7 +6,6 @@ using System.Windows;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -78,9 +77,6 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public LineContent DbEntry { get; set; }
     public ConversionDataEntryContext<double>? DescentElevationEntry { get; set; }
     public ConversionDataEntryContext<double>? DistanceEntry { get; set; }
-    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public BoolDataEntryContext? IncludeInActivityLogEntry { get; set; }
     public WorkQueue<FromWebViewMessage> JsonFromWebView { get; set; }
@@ -97,7 +93,6 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
-    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
     public bool UpdateStatsOnImport { get; set; } = true;
 
@@ -106,6 +101,11 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
     [BlockingCommand]
     private async Task AddFeatureIntersectTags()

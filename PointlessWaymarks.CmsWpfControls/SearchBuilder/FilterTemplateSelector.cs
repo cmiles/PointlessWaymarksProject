@@ -5,11 +5,12 @@ namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
 
 public class FilterTemplateSelector : DataTemplateSelector
 {
+    public DataTemplate? BooleanSearchTemplate { get; set; }
+    public DataTemplate? BoundsSearchTemplate { get; set; }
     public DataTemplate? ContentSearchTemplate { get; set; }
     public DataTemplate? DateSearchTemplate { get; set; }
     public DataTemplate? NumericSearchTemplate { get; set; }
     public DataTemplate? TextSearchTemplate { get; set; }
-    public DataTemplate BooleanSearchTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -20,6 +21,7 @@ public class FilterTemplateSelector : DataTemplateSelector
             ContentTypeSearchBuilder => ContentSearchTemplate,
             DateTimeSearchFieldBuilder => DateSearchTemplate,
             BooleanSearchFieldBuilder => BooleanSearchTemplate,
+            BoundsSearchFieldBuilder => BoundsSearchTemplate,
             _ => null
         };
     }

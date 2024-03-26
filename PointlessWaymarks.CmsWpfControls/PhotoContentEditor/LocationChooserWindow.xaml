@@ -19,7 +19,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <valueConverters:MetersToFeetValueConverter x:Key="MetersToFeet" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>

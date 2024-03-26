@@ -33,6 +33,7 @@
     <lineList:LineRecordedOnSearchLabelConverter x:Key="LineRecordedOnSearchLabel" />
     <lineList:LineRecordedOnToStringConverter x:Key="LineRecordedOnToString" />
     <wpfHelpers:DbEntryHasLocationToCollapsedVisibilityConverter x:Key="DbEntryHasLocationToCollapsedVisibility" />
+    <wpfConverter:MetersToFeetValueConverter x:Key="MetersToFeet"></wpfConverter:MetersToFeetValueConverter>
 
     <Style x:Key="DataEntryComboBoxStyle" TargetType="ComboBox">
         <Setter Property="Margin" Value="6,0,0,0" />
@@ -499,7 +500,10 @@
                     <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
                         <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
-                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                        <WrapPanel Orientation="Horizontal">
+                            <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0" Text="{Binding DbEntry.Elevation, Converter={StaticResource MetersToFeet}, StringFormat='Elevation {0:N0}\''}" Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}"></TextBlock>
+                        </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
                     </StackPanel>
                     <ContentPresenter
@@ -815,7 +819,10 @@
                     <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
                         <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
-                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                        <WrapPanel Orientation="Horizontal">
+                            <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0" Text="{Binding DbEntry.Elevation, Converter={StaticResource MetersToFeet}, StringFormat='Elevation {0:N0}\''}" Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}"></TextBlock>
+                        </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListOriginalFileNameAndSlugDisplay}" />
                         <WrapPanel Margin="0,4,0,0" Orientation="Horizontal">
                             <WrapPanel.Resources>

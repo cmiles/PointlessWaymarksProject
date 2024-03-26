@@ -141,6 +141,13 @@ public partial class SearchBuilderContext
     }
 
     [NonBlockingCommand]
+    public async Task AddMultiTypeElevationFilter()
+    {
+        await AddSearchFilter(new NumericSearchFieldBuilder
+            { FieldTitle = "Elevation", NumberConverterFunction = x => decimal.TryParse(x, out _) });
+    }
+
+    [NonBlockingCommand]
     public async Task AddMultiTypeOriginalFileNameFilter()
     {
         await AddSearchFilter(new TextSearchFieldBuilder { FieldTitle = "Original File Name" });

@@ -153,6 +153,44 @@ public static class ContentListSearch
                 "Descent"), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchElevation(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is LineListListItem lineItem)
+        {
+            var minFilter = new ContentListSearchReturn(
+                ContentListSearchFunctions.FilterNumber((decimal)lineItem.DbEntry.MinimumElevation, searchString,
+                    "Elevation"), searchResultModifier);
+            var maxFilter = new ContentListSearchReturn(
+                ContentListSearchFunctions.FilterNumber((decimal)lineItem.DbEntry.MaximumElevation, searchString,
+                    "Elevation"), searchResultModifier);
+
+            var minFilterInclude = minFilter.SearchFunctionReturn.Include;
+            var maxFilterInclude = maxFilter.SearchFunctionReturn.Include;
+
+            if (minFilter.ResultModifier(minFilterInclude) || maxFilter.ResultModifier(maxFilterInclude))
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(true,
+                        $"Line Min Elevation Included {minFilterInclude} - Line Max Elevation Included {maxFilterInclude}"),
+                    searchResultModifier);
+        }
+
+        if (toFilter is PhotoListListItem { DbEntry.Elevation: not null } photoItem)
+            return new ContentListSearchReturn(
+                ContentListSearchFunctions.FilterNumber((decimal)photoItem.DbEntry.Elevation.MetersToFeet(),
+                    searchString,
+                    "Elevation"), searchResultModifier);
+
+        if (toFilter is PointListListItem { DbEntry.Elevation: not null } pointItem)
+            return new ContentListSearchReturn(
+                ContentListSearchFunctions.FilterNumber((decimal)pointItem.DbEntry.Elevation.MetersToFeet(),
+                    searchString,
+                    "Elevation"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            new ContentListSearchFunctionReturn(false, "No relevant type or data - Excluding"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchFocalLength(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
