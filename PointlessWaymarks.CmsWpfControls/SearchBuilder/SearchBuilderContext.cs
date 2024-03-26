@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text;
+using System.Text.Json;
 using Fractions;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -141,6 +142,13 @@ public partial class SearchBuilderContext
     }
 
     [NonBlockingCommand]
+    public async Task AddMultiBoundsFilter()
+    {
+        await AddSearchFilter(new BoundsSearchFieldBuilder(StatusContext)
+            { FieldTitle = "Bounds" });
+    }
+
+    [NonBlockingCommand]
     public async Task AddMultiTypeElevationFilter()
     {
         await AddSearchFilter(new NumericSearchFieldBuilder
@@ -256,6 +264,17 @@ public partial class SearchBuilderContext
                             numericSearchString += $" {t.SelectedOperatorTwo} {t.UserDateTimeTextTwo}";
                         if (!string.IsNullOrWhiteSpace(numericSearchString))
                             searchString.AppendLine(numericSearchString);
+                    }
+
+                    break;
+                case BoundsSearchFieldBuilder t:
+                    if (t.AllConvert())
+                    {
+                        var searchBounds = t.CurrentBounds;
+                        if (searchBounds is null) continue;
+
+                        searchString.AppendLine(
+                            $"{(t.Not ? "!" : "")}Bounds: {JsonSerializer.Serialize(searchBounds)}");
                     }
 
                     break;

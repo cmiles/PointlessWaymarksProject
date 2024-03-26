@@ -10,7 +10,8 @@
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:LocationBoundsChooserWindow}"
+        d:DesignHeight="450" d:DesignWidth="800" Height="800" Width="800"
+        d:DataContext="{d:DesignInstance local:LocationBoundsChooserWindow}"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <ResourceDictionary>
@@ -30,10 +31,21 @@
             Header="Location"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <TextBlock Text="{Binding LocationChooser.MapBounds.MinLatitude}"></TextBlock>
-                <TextBlock Text="{Binding LocationChooser.MapBounds.MinLongitude}"></TextBlock>
-                <TextBlock Text="{Binding LocationChooser.MapBounds.MaxLatitude}"></TextBlock>
-                <TextBlock Text="{Binding LocationChooser.MapBounds.MaxLatitude}"></TextBlock>
+                <Label FontWeight="Bold">Current Bounds</Label>
+                <Label Margin="12,0,0,0">Minimum Lat, Long:</Label>
+                <TextBlock VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,4,0"
+                           Text="{Binding LocationChooser.MapBounds.MinLatitude, StringFormat='{}{0:N6},'}">
+                </TextBlock>
+                <TextBlock VerticalAlignment="Center" FontWeight="Bold"
+                           Text="{Binding LocationChooser.MapBounds.MinLongitude, StringFormat='{}{0:N6}'}">
+                </TextBlock>
+                <Label Margin="12,0,0,0">Maximum Lat, Long:</Label>
+                <TextBlock VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,4,0"
+                           Text="{Binding LocationChooser.MapBounds.MaxLatitude, StringFormat='{}{0:N6},'}">
+                </TextBlock>
+                <TextBlock VerticalAlignment="Center" FontWeight="Bold"
+                           Text="{Binding LocationChooser.MapBounds.MaxLongitude, StringFormat='{}{0:N6}'}">
+                </TextBlock>
             </WrapPanel>
         </GroupBox>
         <wpf:WebView2

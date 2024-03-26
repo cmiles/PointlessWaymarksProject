@@ -553,6 +553,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchActivityLog;
             else if (searchString.StartsWith("ELEVATION:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchElevation;
+            else if (searchString.StartsWith("BOUNDS:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchBounds;
             else searchFilterFunction = ContentListSearch.SearchGeneral;
 
             searchFilterStack.Add((searchFilterFunction, searchString, searchResultModifier));

@@ -1,3 +1,5 @@
+using System.Text.Json;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.ImageList;
@@ -10,6 +12,7 @@ using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
@@ -39,6 +42,57 @@ public static class ContentListSearch
 
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterAperture(photoItem.DbEntry.Aperture, searchString), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchBounds(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (!string.IsNullOrWhiteSpace(searchString) &&
+            searchString.StartsWith("BOUNDS:", StringComparison.OrdinalIgnoreCase))
+            searchString = searchString[7..];
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(new ContentListSearchFunctionReturn(false,
+                "Blank Search String with Not Blank Shutter Speed (false)."), searchResultModifier);
+
+        var bounds = JsonSerializer.Deserialize<SpatialBounds>(searchString.Trim());
+
+        if (bounds == null)
+            return new ContentListSearchReturn(new ContentListSearchFunctionReturn(false,
+                "Could not Deserialize Bounds (false)."), searchResultModifier);
+
+        switch (toFilter)
+        {
+            case LineListListItem lineItem:
+                var includeLine = Db.LineContentBoundingBoxOverlaps(lineItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includeLine,
+                        $"Line Bounding Box Overlaps Search Bounding Box - {includeLine}"), searchResultModifier);
+            case PhotoListListItem photoItem:
+                var includePhoto = Db.PhotoContentIsInBoundingBox(photoItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includePhoto,
+                        $"Line Bounding Box Overlaps Search Bounding Box - {includePhoto}"), searchResultModifier);
+            case PointListListItem pointItem:
+                var includePoint = Db.PointContentIsInBoundingBox(pointItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includePoint,
+                        $"Line Bounding Box Overlaps Search Bounding Box - {includePoint}"), searchResultModifier);
+            case GeoJsonListListItem geoJsonItem:
+                var includeGeoJson = Db.GeoJsonBoundingBoxOverlaps(geoJsonItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includeGeoJson,
+                        $"Line Bounding Box Overlaps Search Bounding Box - {includeGeoJson}"), searchResultModifier);
+            case MapComponentListListItem mapItem:
+                var includeMap = Db.MapInitialBoundingBoxOverlaps(mapItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includeMap,
+                        $"Line Bounding Box Overlaps Search Bounding Box - {includeMap}"), searchResultModifier);
+            default:
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(false,
+                        "Bounds Search on Item that is not a Line, Photo, or Point - Excluding"), searchResultModifier);
+        }
     }
 
     public static ContentListSearchReturn SearchCamera(IContentListItem toFilter, string searchString,

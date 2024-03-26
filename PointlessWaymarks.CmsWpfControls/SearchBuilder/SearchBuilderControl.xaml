@@ -123,70 +123,86 @@
             <DataTemplate DataType="{x:Type local:BoundsSearchFieldBuilder}" x:Key="BoundsTemplate">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
-                        <StackPanel Orientation="Horizontal">
-                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
+                        <WrapPanel Grid.Column="1" Orientation="Horizontal">
                             <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
                                    Content="{Binding FieldTitle}" />
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Lat</Label>
-                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
-                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding UserMinLatitude, UpdateSourceTrigger=PropertyChanged}" />
-                            <Image
-                                Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding UserMinLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                <Image.ToolTip>
-                                    <ToolTip>Please enter a valid value</ToolTip>
-                                </Image.ToolTip>
-                            </Image>
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Long</Label>
-                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
-                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding UserMinLongitude, UpdateSourceTrigger=PropertyChanged}" />
-                            <Image
-                                Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding UserMinLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                <Image.ToolTip>
-                                    <ToolTip>Please enter a valid value</ToolTip>
-                                </Image.ToolTip>
-                            </Image>
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Lat</Label>
-                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
-                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding UserMaxLatitude, UpdateSourceTrigger=PropertyChanged}" />
-                            <Image
-                                Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding UserMaxLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                <Image.ToolTip>
-                                    <ToolTip>Please enter a valid value</ToolTip>
-                                </Image.ToolTip>
-                            </Image>
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Long</Label>
-                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
-                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding UserMaxLongitude, UpdateSourceTrigger=PropertyChanged}" />
-                            <Image
-                                Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding UserMaxLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                <Image.ToolTip>
-                                    <ToolTip>Please enter a valid value</ToolTip>
-                                </Image.ToolTip>
-                            </Image>
-                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
-                                Remove
-                            </Button>
-                        </StackPanel>
+                            <Button Padding="8,0,8,0" Margin="8,0,8,0" Command="{Binding GetBoundsFromMapCommand}">From Map</Button>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Lat</Label>
+                                <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                                         VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                         AcceptsReturn="False" TextWrapping="Wrap"
+                                         Text="{Binding UserMinLatitude, UpdateSourceTrigger=PropertyChanged}" />
+                                <Image
+                                    Margin="4,0,4,0"
+                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding UserMinLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
+                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    <Image.ToolTip>
+                                        <ToolTip>Please enter a valid value</ToolTip>
+                                    </Image.ToolTip>
+                                </Image>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Long</Label>
+                                <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                                         VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                         AcceptsReturn="False" TextWrapping="Wrap"
+                                         Text="{Binding UserMinLongitude, UpdateSourceTrigger=PropertyChanged}" />
+                                <Image
+                                    Margin="4,0,4,0"
+                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding UserMinLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
+                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    <Image.ToolTip>
+                                        <ToolTip>Please enter a valid value</ToolTip>
+                                    </Image.ToolTip>
+                                </Image>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+
+                                <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Lat</Label>
+                                <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                                         VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                         AcceptsReturn="False" TextWrapping="Wrap"
+                                         Text="{Binding UserMaxLatitude, UpdateSourceTrigger=PropertyChanged}" />
+                                <Image
+                                    Margin="4,0,4,0"
+                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding UserMaxLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
+                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    <Image.ToolTip>
+                                        <ToolTip>Please enter a valid value</ToolTip>
+                                    </Image.ToolTip>
+                                </Image>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+
+                                <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Long</Label>
+                                <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                                         VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
+                                         AcceptsReturn="False" TextWrapping="Wrap"
+                                         Text="{Binding UserMaxLongitude, UpdateSourceTrigger=PropertyChanged}" />
+                                <Image
+                                    Margin="4,0,4,0"
+                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding UserMaxLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
+                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    <Image.ToolTip>
+                                        <ToolTip>Please enter a valid value</ToolTip>
+                                    </Image.ToolTip>
+                                </Image>
+                            </StackPanel>
+                        </WrapPanel>
+                        <Button Grid.Column="2" Style="{StaticResource RemoveFilterButtonStyle}">
+                            Remove
+                        </Button>
                     </Grid>
                 </Border>
             </DataTemplate>
@@ -348,6 +364,7 @@
                     <Button Command="{Binding AddContentTypeFilterCommand}">Type</Button>
                     <Button Command="{Binding AddMultiTypeOriginalFileNameFilterCommand}">File Name</Button>
                     <Button Command="{Binding AddMultiTypeElevationFilterCommand}">Elevation</Button>
+                    <Button Command="{Binding AddMultiBoundsFilterCommand}">Bounds</Button>
                 </WrapPanel>
             </GroupBox>
             <GroupBox Grid.Row="1" Grid.Column="0" Header="Photographs" Margin="4,0,4,0">
@@ -397,7 +414,7 @@
         </Grid>
 
         <ListBox Grid.Row="1" Margin="4" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding SearchFilters}"
-                 ItemTemplateSelector="{StaticResource FilterSelector}"
+                 ItemTemplateSelector="{StaticResource FilterSelector}" HorizontalContentAlignment="Stretch"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
     </Grid>
 </UserControl>

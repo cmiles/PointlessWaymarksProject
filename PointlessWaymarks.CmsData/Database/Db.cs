@@ -10,7 +10,6 @@ using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using SQLitePCL;
-using WinRT;
 
 namespace PointlessWaymarks.CmsData.Database;
 
@@ -1308,6 +1307,27 @@ public static class Db
         return compiledList;
     }
 
+    public static bool GeoJsonBoundingBoxOverlaps(GeoJsonContent content, SpatialBounds bounds)
+    {
+        return (
+                   (bounds.MinLatitude >= content.InitialViewBoundsMinLatitude
+                    && bounds.MinLatitude <= content.InitialViewBoundsMaxLatitude)
+                   || (bounds.MaxLatitude >= content.InitialViewBoundsMinLatitude
+                       && bounds.MaxLatitude <= content.InitialViewBoundsMaxLatitude)
+                   || (bounds.MinLatitude <= content.InitialViewBoundsMinLatitude &&
+                       bounds.MaxLatitude >= content.InitialViewBoundsMaxLatitude)
+               )
+               &&
+               (
+                   (bounds.MinLongitude >= content.InitialViewBoundsMinLongitude
+                    && bounds.MinLongitude <= content.InitialViewBoundsMaxLongitude)
+                   || (bounds.MaxLongitude >= content.InitialViewBoundsMinLongitude
+                       && bounds.MaxLongitude <= content.InitialViewBoundsMaxLongitude)
+                   || (bounds.MinLongitude <= content.InitialViewBoundsMinLongitude &&
+                       bounds.MaxLongitude >= content.InitialViewBoundsMaxLongitude)
+               );
+    }
+
     public static async Task<List<GeoJsonContent>> GeoJsonContentFromBoundingBox(this PointlessWaymarksContext db,
         SpatialBounds bounds)
     {
@@ -1376,6 +1396,27 @@ public static class Db
     {
         return await db.HistoricPointDetails.Where(x => x.PointContentId == pointContentId).Take(entriesToReturn)
             .ToListAsync().ConfigureAwait(false);
+    }
+
+    public static bool LineContentBoundingBoxOverlaps(LineContent content, SpatialBounds bounds)
+    {
+        return (
+                   (bounds.MinLatitude >= content.InitialViewBoundsMinLatitude
+                    && bounds.MinLatitude <= content.InitialViewBoundsMaxLatitude)
+                   || (bounds.MaxLatitude >= content.InitialViewBoundsMinLatitude
+                       && bounds.MaxLatitude <= content.InitialViewBoundsMaxLatitude)
+                   || (bounds.MinLatitude <= content.InitialViewBoundsMinLatitude &&
+                       bounds.MaxLatitude >= content.InitialViewBoundsMaxLatitude)
+               )
+               &&
+               (
+                   (bounds.MinLongitude >= content.InitialViewBoundsMinLongitude
+                    && bounds.MinLongitude <= content.InitialViewBoundsMaxLongitude)
+                   || (bounds.MaxLongitude >= content.InitialViewBoundsMinLongitude
+                       && bounds.MaxLongitude <= content.InitialViewBoundsMaxLongitude)
+                   || (bounds.MinLongitude <= content.InitialViewBoundsMinLongitude &&
+                       bounds.MaxLongitude >= content.InitialViewBoundsMaxLongitude)
+               );
     }
 
     public static IQueryable<LineContent> LineContentFilteredForActivities(this IQueryable<LineContent> lineContent)
@@ -1648,6 +1689,27 @@ public static class Db
         return "".AsList().Concat(await db.MapIcons.Select(x => x.IconName).OrderBy(x => x).ToListAsync()).ToList();
     }
 
+    public static bool MapInitialBoundingBoxOverlaps(MapComponent content, SpatialBounds bounds)
+    {
+        return (
+                   (bounds.MinLatitude >= content.InitialViewBoundsMinLatitude
+                    && bounds.MinLatitude <= content.InitialViewBoundsMaxLatitude)
+                   || (bounds.MaxLatitude >= content.InitialViewBoundsMinLatitude
+                       && bounds.MaxLatitude <= content.InitialViewBoundsMaxLatitude)
+                   || (bounds.MinLatitude <= content.InitialViewBoundsMinLatitude &&
+                       bounds.MaxLatitude >= content.InitialViewBoundsMaxLatitude)
+               )
+               &&
+               (
+                   (bounds.MinLongitude >= content.InitialViewBoundsMinLongitude
+                    && bounds.MinLongitude <= content.InitialViewBoundsMaxLongitude)
+                   || (bounds.MaxLongitude >= content.InitialViewBoundsMinLongitude
+                       && bounds.MaxLongitude <= content.InitialViewBoundsMaxLongitude)
+                   || (bounds.MinLongitude <= content.InitialViewBoundsMinLongitude &&
+                       bounds.MaxLongitude >= content.InitialViewBoundsMaxLongitude)
+               );
+    }
+
     public static List<(string tag, List<object> contentObjects)> ParseToTagSlugsAndContentList(List<ITag>? toAdd,
         bool removeExcludedTags, IProgress<string>? progress = null)
     {
@@ -1735,6 +1797,15 @@ public static class Db
         return returnList;
     }
 
+    public static bool PhotoContentIsInBoundingBox(PhotoContent photo, SpatialBounds bounds)
+    {
+        return photo is { Latitude: not null, Longitude: not null } &&
+               photo.Latitude >= bounds.MinLatitude
+               && photo.Latitude <= bounds.MaxLatitude
+               && photo.Longitude >= bounds.MinLongitude
+               && photo.Longitude <= bounds.MaxLongitude;
+    }
+
     public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId)
     {
         var db = await Context().ConfigureAwait(false);
@@ -1815,7 +1886,6 @@ public static class Db
                         && x.Longitude >= bounds.MinLongitude
                         && x.Longitude <= bounds.MaxLongitude).ToListAsync());
 
-
         return returnList;
     }
 
@@ -1832,6 +1902,14 @@ public static class Db
 
 
         return returnList;
+    }
+
+    public static bool PointContentIsInBoundingBox(PointContent point, SpatialBounds bounds)
+    {
+        return point.Latitude >= bounds.MinLatitude
+               && point.Latitude <= bounds.MaxLatitude
+               && point.Longitude >= bounds.MinLongitude
+               && point.Longitude <= bounds.MaxLongitude;
     }
 
     public static IPointDetailData? PointDetailDataFromIdentifierAndJson(string dataIdentifier, string json)
