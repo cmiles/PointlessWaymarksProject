@@ -1,6 +1,7 @@
 using System.Windows;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -83,7 +84,8 @@ public partial class PostListWithActionsContext
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new PostListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryContext, new PostListLoader(100),
+                [Db.ContentTypeDisplayStringForPost], windowStatus);
 
         return new PostListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }

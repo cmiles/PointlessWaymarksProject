@@ -1,12 +1,12 @@
 using System.ComponentModel;
 using PointlessWaymarks.LlamaAspects;
 
-namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
+namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 
 [NotifyPropertyChanged]
-public partial class NumericSearchFieldBuilder
+public partial class NumericListFilterFieldBuilder
 {
-    public NumericSearchFieldBuilder()
+    public NumericListFilterFieldBuilder()
     {
         PropertyChanged += OnPropertyChanged;
     }

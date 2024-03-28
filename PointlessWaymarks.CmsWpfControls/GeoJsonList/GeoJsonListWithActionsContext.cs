@@ -209,7 +209,8 @@ public partial class GeoJsonListWithActionsContext
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new GeoJsonListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryContext, new GeoJsonListLoader(100),
+                [Db.ContentTypeDisplayStringForGeoJson], windowStatus);
 
         return new GeoJsonListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }

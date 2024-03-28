@@ -6,13 +6,13 @@ using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 
-namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
+namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class BoundsSearchFieldBuilder
+public partial class BoundsListFilterFieldBuilder
 {
-    public BoundsSearchFieldBuilder(StatusControlContext statusContext)
+    public BoundsListFilterFieldBuilder(StatusControlContext statusContext)
     {
         StatusContext = statusContext;
         BuildCommands();

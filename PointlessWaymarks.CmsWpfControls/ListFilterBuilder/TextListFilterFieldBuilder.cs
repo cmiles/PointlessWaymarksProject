@@ -1,9 +1,9 @@
 using PointlessWaymarks.LlamaAspects;
 
-namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
+namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 
 [NotifyPropertyChanged]
-public partial class TextSearchFieldBuilder
+public partial class TextListFilterFieldBuilder
 {
     public required string FieldTitle { get; set; }
     public bool Not { get; set; }

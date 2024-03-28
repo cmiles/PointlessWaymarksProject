@@ -217,7 +217,8 @@ public partial class PointListWithActionsContext
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new PointListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryContext, new PointListLoader(100),
+                [Db.ContentTypeDisplayStringForPoint], windowStatus);
 
         return new PointListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }

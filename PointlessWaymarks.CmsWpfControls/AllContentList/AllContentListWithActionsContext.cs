@@ -35,7 +35,8 @@ public partial class AllContentListWithActionsContext
     {
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), [],
+                windowStatus);
 
         return new AllContentListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext);
     }
@@ -44,7 +45,7 @@ public partial class AllContentListWithActionsContext
         IContentListLoader reportFilter, bool loadInBackground = true)
     {
         var factoryStatusContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
+        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter, []);
 
         return new AllContentListWithActionsContext(factoryStatusContext, null, factoryListContext, loadInBackground);
     }
@@ -55,24 +56,25 @@ public partial class AllContentListWithActionsContext
 
         ListContext.ContextMenuItems =
         [
-            new() { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
-            new()
+            new ContextMenuItemData { ItemName = "Edit", ItemCommand = ListContext.EditSelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Code to Clipboard", ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-            new()
+            new ContextMenuItemData
             {
-                ItemName = "Picture Gallery to Clipboard", ItemCommand = ListContext.PictureGalleryBracketCodeToClipboardSelectedCommand
+                ItemName = "Picture Gallery to Clipboard",
+                ItemCommand = ListContext.PictureGalleryBracketCodeToClipboardSelectedCommand
             },
-            new() { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
-            new() { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
-            new() { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new() { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
-            new()
+            new ContextMenuItemData
+                { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
+            new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
+            new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
             }
-
         ];
 
         await ListContext.LoadData();

@@ -5,7 +5,7 @@ using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 
-namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
+namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 
 /// <summary>
 ///     Interaction logic for LocationBoundsChooserWindow.xaml

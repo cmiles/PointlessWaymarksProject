@@ -22,13 +22,13 @@ using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.LinkList;
+using PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 using PointlessWaymarks.CmsWpfControls.MapComponentList;
 using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
-using PointlessWaymarks.CmsWpfControls.SearchBuilder;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
@@ -50,7 +50,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 {
     private ContentListContext(StatusControlContext? statusContext,
         ObservableCollection<IContentListItem> factoryContentListItems,
-        ContentListSelected<IContentListItem> factoryListSelection, SearchBuilderContext factorySearchBuilder,
+        ContentListSelected<IContentListItem> factoryListSelection, ListFilterBuilderContext factoryListFilterBuilder,
         IContentListLoader loader,
         WindowIconStatus? windowStatus = null)
     {
@@ -82,7 +82,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         NewActions = new CmsCommonCommands(StatusContext, WindowStatus);
 
-        SearchBuilder = factorySearchBuilder;
+        ListFilterBuilder = factoryListFilterBuilder;
 
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
 
@@ -112,7 +112,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public PhotoContentActions PhotoItemActions { get; set; }
     public PointContentActions PointItemActions { get; set; }
     public PostContentActions PostItemActions { get; set; }
-    public SearchBuilderContext SearchBuilder { get; set; }
+    public ListFilterBuilderContext ListFilterBuilder { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string? UserFilterText { get; set; }
     public VideoContentActions VideoItemActions { get; set; }
@@ -237,7 +237,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     public static async Task<ContentListContext> CreateInstance(StatusControlContext? statusContext,
-        IContentListLoader loader, WindowIconStatus? windowStatus = null)
+        IContentListLoader loader, List<string> searchBuilderContentTypes, WindowIconStatus? windowStatus = null)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         var factoryObservable = new ObservableCollection<IContentListItem>();
@@ -245,7 +245,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         await ThreadSwitcher.ResumeBackgroundAsync();
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
-        var factorySearchBuilder = await SearchBuilderContext.CreateInstance();
+        var factorySearchBuilder = await ListFilterBuilderContext.CreateInstance(searchBuilderContentTypes);
 
         return new ContentListContext(statusContext, factoryObservable, factoryListSelection, factorySearchBuilder,
             loader, windowStatus);
@@ -834,7 +834,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     private async Task SearchBuildHelperWindow()
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        var newWindow = await SearchBuilderWindow.CreateInstance(SearchBuilder);
+        var newWindow = await ListFilterBuilderWindow.CreateInstance(ListFilterBuilder);
         newWindow.Owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive) ??
                           Application.Current.Windows.OfType<Window>().FirstOrDefault();
         newWindow.ShowDialog();

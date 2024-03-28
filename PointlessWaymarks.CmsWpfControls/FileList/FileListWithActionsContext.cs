@@ -1,6 +1,7 @@
 using System.Windows;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.LlamaAspects;
@@ -102,7 +103,8 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryStatusContext, new FileListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryStatusContext, new FileListLoader(100),
+                [Db.ContentTypeDisplayStringForFile], windowStatus);
 
         return new FileListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
     }

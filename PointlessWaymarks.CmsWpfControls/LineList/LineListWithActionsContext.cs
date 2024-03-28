@@ -257,7 +257,8 @@ public partial class LineListWithActionsContext
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new LineListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryContext, new LineListLoader(100),
+                [Db.ContentTypeDisplayStringForLine], windowStatus);
 
         return new LineListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }

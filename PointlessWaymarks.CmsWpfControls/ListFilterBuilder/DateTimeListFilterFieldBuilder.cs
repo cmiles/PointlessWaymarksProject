@@ -3,12 +3,12 @@ using Microsoft.Recognizers.Text;
 using Microsoft.Recognizers.Text.DateTime;
 using PointlessWaymarks.LlamaAspects;
 
-namespace PointlessWaymarks.CmsWpfControls.SearchBuilder;
+namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 
 [NotifyPropertyChanged]
-public partial class DateTimeSearchFieldBuilder
+public partial class DateTimeListFilterFieldBuilder
 {
-    public DateTimeSearchFieldBuilder()
+    public DateTimeListFilterFieldBuilder()
     {
         PropertyChanged += OnPropertyChanged;
     }

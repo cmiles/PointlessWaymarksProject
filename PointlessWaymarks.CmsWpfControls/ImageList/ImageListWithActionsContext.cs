@@ -81,7 +81,8 @@ public partial class ImageListWithActionsContext
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new ImageListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryContext, new ImageListLoader(100),
+                [Db.ContentTypeDisplayStringForImage], windowStatus);
 
         return new ImageListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }

@@ -50,14 +50,14 @@ public partial class ContentMapContext : IWebViewMessenger
 
     public CmsCommonCommands CommonCommands { get; set; }
     public Envelope? ContentBounds { get; set; }
-    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public ContentListContext ListContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public bool RefreshMapOnCollectionChanged { get; set; }
     public StatusControlContext StatusContext { get; set; }
-    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
     [NonBlockingCommand]
     public Task CloseAllPopups()
@@ -75,12 +75,14 @@ public partial class ContentMapContext : IWebViewMessenger
 
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), [],
+                windowStatus);
         var factoryIcons = await MapIconGenerator.SerializedMapIcons();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var toReturn = new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext, factoryIcons, loadInBackground);
+        var toReturn = new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext, factoryIcons,
+            loadInBackground);
         toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
 
         return toReturn;
@@ -92,12 +94,13 @@ public partial class ContentMapContext : IWebViewMessenger
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryStatusContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter);
+        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter, []);
         var factoryIcons = await MapIconGenerator.SerializedMapIcons();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var toReturn = new ContentMapContext(factoryStatusContext, null, factoryListContext, factoryIcons, loadInBackground);
+        var toReturn = new ContentMapContext(factoryStatusContext, null, factoryListContext, factoryIcons,
+            loadInBackground);
         toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
 
         return toReturn;
@@ -146,7 +149,6 @@ public partial class ContentMapContext : IWebViewMessenger
         var messageType = parsedJson["messageType"]?.ToString() ?? string.Empty;
 
         if (messageType == "mapBoundsChange")
-        {
             try
             {
                 MapBounds = new SpatialBounds(parsedJson["bounds"]["_northEast"]["lat"].GetValue<double>(),
@@ -158,7 +160,6 @@ public partial class ContentMapContext : IWebViewMessenger
             {
                 Console.WriteLine(e);
             }
-        }
     }
 
     [NonBlockingCommand]

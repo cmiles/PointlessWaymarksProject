@@ -1,6 +1,7 @@
 using System.Windows;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -78,7 +79,8 @@ public partial class VideoListWithActionsContext
 
         var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new VideoListLoader(100), windowStatus);
+            await ContentListContext.CreateInstance(factoryContext, new VideoListLoader(100),
+                [Db.ContentTypeDisplayStringForVideo], windowStatus);
 
         return new VideoListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
     }
