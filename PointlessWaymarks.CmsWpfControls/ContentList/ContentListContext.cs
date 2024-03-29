@@ -515,14 +515,18 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedOn;
             else if (searchString.StartsWith("LAST UPDATED BY:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedBy;
-            else if (searchString.StartsWith("SHOW IN MAIN SITE FEED:", StringComparison.InvariantCultureIgnoreCase))
+            else if (searchString.StartsWith("IN MAIN SITE FEED:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchShowInMainSiteFeed;
             else if (searchString.StartsWith("TAGS:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchTags;
             else if (searchString.StartsWith("SLUG:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchSlug;
+            else if (searchString.StartsWith("UPDATE NOTES:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchUpdateNotes;
             else if (searchString.StartsWith("ORIGINAL FILE NAME:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchOriginalFileName;
+            else if (searchString.StartsWith("FILE EMBED:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchFileFileEmbed;
             else if (searchString.StartsWith("CAMERA:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchCamera;
             else if (searchString.StartsWith("LENS:", StringComparison.InvariantCultureIgnoreCase))
@@ -539,6 +543,12 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchIso;
             else if (searchString.StartsWith("FOCAL LENGTH:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchFocalLength;
+            else if (searchString.StartsWith("PHOTO SHOW POSITION:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchPhotoPosition;
+            else if (searchString.StartsWith("SHOW PICTURE SIZES:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchPictureShowSizes;
+            else if (searchString.StartsWith("IMAGE IN SEARCH:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchImageShowInSearch;
             else if (searchString.StartsWith("MILES:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchMiles;
             else if (searchString.StartsWith("MIN ELEVATION:", StringComparison.InvariantCultureIgnoreCase))
@@ -549,8 +559,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchClimb;
             else if (searchString.StartsWith("DESCENT:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchDescent;
-            else if (searchString.StartsWith("ACTIVITY LOG:", StringComparison.InvariantCultureIgnoreCase))
-                searchFilterFunction = ContentListSearch.SearchActivityLog;
+            else if (searchString.StartsWith("IN ACTIVITY LOG:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchIncludeInActivityLog;
+            else if (searchString.StartsWith("ACTIVITY TYPE:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchActivityType;
+            else if (searchString.StartsWith("MAP CONTENT REFERENCES:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchLineShowContentReferencesOnMap;
+            else if (searchString.StartsWith("PUBLIC DOWNLOAD:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchPublicDownloadLink;
             else if (searchString.StartsWith("ELEVATION:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchElevation;
             else if (searchString.StartsWith("BOUNDS:", StringComparison.InvariantCultureIgnoreCase))

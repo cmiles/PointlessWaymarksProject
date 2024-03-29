@@ -18,18 +18,17 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
 public static class ContentListSearch
 {
-    public static ContentListSearchReturn SearchActivityLog(IContentListItem toFilter, string searchString,
+    public static ContentListSearchReturn SearchActivityType(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
         if (toFilter is not LineListListItem lineItem)
             return new ContentListSearchReturn(
                 new ContentListSearchFunctionReturn(false,
-                    "Activity Log Search on Item that is not a Line - Excluding"),
-                searchResultModifier);
+                    "Activity Type Filter on Item that is not a Line - Excluding"), searchResultModifier);
 
         return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterBoolean(lineItem.DbEntry.IncludeInActivityLog, searchString,
-                "Activity Log"), searchResultModifier);
+            ContentListSearchFunctions.FilterStringContains(lineItem.DbEntry.ActivityType, searchString,
+                "Activity Type"), searchResultModifier);
     }
 
     public static ContentListSearchReturn SearchAperture(IContentListItem toFilter, string searchString,
@@ -245,6 +244,19 @@ public static class ContentListSearch
             new ContentListSearchFunctionReturn(false, "No relevant type or data - Excluding"), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchFileFileEmbed(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not FileListListItem fileItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "File Embed Search on Item that is not a File - Excluding"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterBoolean(fileItem.DbEntry.EmbedFile, searchString,
+                "File Embed"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchFocalLength(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -311,6 +323,32 @@ public static class ContentListSearch
             searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchImageShowInSearch(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not ImageListListItem fileItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Image Show In Search on Item that is not a File - Excluding"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterBoolean(fileItem.DbEntry.ShowInSearch, searchString,
+                "File Embed"), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchIncludeInActivityLog(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not LineListListItem lineItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Include In Activity Log on Item that is not a Line - Excluding"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterBoolean(lineItem.DbEntry.IncludeInActivityLog, searchString,
+                "Include In Activity Log"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchIso(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -373,6 +411,20 @@ public static class ContentListSearch
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterStringContains(photoItem.DbEntry.License, searchString, "License"),
             searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchLineShowContentReferencesOnMap(IContentListItem toFilter,
+        string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not LineListListItem lineItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Show Content References on Item that is not a Line - Excluding"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterBoolean(lineItem.DbEntry.ShowContentReferencesOnMap, searchString,
+                "Show Content References On Map"), searchResultModifier);
     }
 
     public static ContentListSearchReturn SearchMaxElevation(IContentListItem toFilter, string searchString,
@@ -449,6 +501,56 @@ public static class ContentListSearch
                 "Photo Created On"), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchPhotoPosition(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not PhotoListListItem photoItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Show Photo Position on Item that is not a Photo - Excluding"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterBoolean(photoItem.DbEntry.ShowPhotoPosition, searchString,
+                "Show Photo Position"), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchPictureShowSizes(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is PhotoListListItem photoItem)
+            return new ContentListSearchReturn(
+                ContentListSearchFunctions.FilterBoolean(photoItem.DbEntry.ShowPhotoSizes, searchString,
+                    "Show Photo Sizes"), searchResultModifier);
+        else if (toFilter is ImageListListItem imageItem)
+            return new ContentListSearchReturn(
+                ContentListSearchFunctions.FilterBoolean(imageItem.DbEntry.ShowImageSizes, searchString,
+                    "Show Image Sizes"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            new ContentListSearchFunctionReturn(false,
+                "Show Image Sizes on Item that is not an Image or Photo - Excluding"), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchPublicDownloadLink(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Public Download Link with no Search String - Including"),
+                searchResultModifier);
+
+        var dynamicContent = toFilter.Content() as dynamic;
+
+        if (!DynamicTypeTools.PropertyExists(toFilter.Content() as dynamic, "PublicDownloadLink"))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "No PublicDownloadLink Property - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterBoolean(dynamicContent.PublicDownloadLink,
+                searchString.Trim(), "Public Download Link"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchShowInMainSiteFeed(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -520,6 +622,26 @@ public static class ContentListSearch
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterStringContains(toFilter.Content().Title ?? string.Empty,
                 searchString.Trim(), "Title"), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchUpdateNotes(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Original File Name with no Search String - Including"),
+                searchResultModifier);
+
+        var dynamicContent = toFilter.Content() as dynamic;
+
+        if (!DynamicTypeTools.PropertyExists(toFilter.Content() as dynamic, "UpdateNotes"))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "No UpdateNotes Property - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(dynamicContent.UpdateNotes ?? string.Empty,
+                searchString.Trim(), "Update Notes"), searchResultModifier);
     }
 
     public record ContentListSearchReturn(

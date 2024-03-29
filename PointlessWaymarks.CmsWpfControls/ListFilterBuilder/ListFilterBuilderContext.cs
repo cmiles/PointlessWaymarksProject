@@ -27,8 +27,9 @@ public partial class ListFilterBuilderContext
         _generalBuilderItemsReference =
         [
             new ListFilterBuilderFilterAdd
+                { Description = "Type", AddFilterCommand = AddContentTypeFilterCommand, AppliesTo = [] },
+            new ListFilterBuilderFilterAdd
                 { Description = "Title", AddFilterCommand = AddGeneralTitleSearchFilterCommand, AppliesTo = [] },
-
             new ListFilterBuilderFilterAdd
                 { Description = "Summary", AddFilterCommand = AddGeneralSummarySearchFilterCommand, AppliesTo = [] },
             new ListFilterBuilderFilterAdd
@@ -38,6 +39,8 @@ public partial class ListFilterBuilderContext
             new ListFilterBuilderFilterAdd
                 { Description = "Body", AddFilterCommand = AddGeneralBodySearchFilterCommand, AppliesTo = [] },
             new ListFilterBuilderFilterAdd
+                { Description = "Updates", AddFilterCommand = AddGeneralUpdateNotesFilterCommand, AppliesTo = [] },
+            new ListFilterBuilderFilterAdd
             {
                 Description = "Created By", AddFilterCommand = AddGeneralCreatedBySearchFilterCommand, AppliesTo = []
             },
@@ -45,7 +48,6 @@ public partial class ListFilterBuilderContext
             {
                 Description = "Created On", AddFilterCommand = AddGeneralCreatedOnSearchFilterCommand, AppliesTo = []
             },
-
             new ListFilterBuilderFilterAdd
             {
                 Description = "Updated By", AddFilterCommand = AddGeneralLastUpdatedBySearchFilterCommand,
@@ -92,7 +94,29 @@ public partial class ListFilterBuilderContext
                 ]
             },
             new ListFilterBuilderFilterAdd
-                { Description = "Type", AddFilterCommand = AddContentTypeFilterCommand, AppliesTo = [] }
+            {
+                Description = "Public Download", AddFilterCommand = AddMultiPublicDownloadFilterCommand,
+                AppliesTo =
+                [
+                    Db.ContentTypeDisplayStringForFile, Db.ContentTypeDisplayStringForGeoJson,
+                    Db.ContentTypeDisplayStringForLine
+                ]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "File - File Embed", AddFilterCommand = AddFileFileEmbedSearchFilterCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForFile]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Image - In Search", AddFilterCommand = AddImageShowInSearchSearchFilterCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForImage]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Picture - Shows Sizes", AddFilterCommand = AddMultiShowPictureSizesSearchFilterCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForImage, Db.ContentTypeDisplayStringForPhoto]
+            }
         ];
 
         _photoBuilderItemsReference =
@@ -131,6 +155,11 @@ public partial class ListFilterBuilderContext
             {
                 Description = "License", AddFilterCommand = AddPhotoLicenseSearchFilterCommand,
                 AppliesTo = [Db.ContentTypeDisplayStringForPhoto]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Show Position", AddFilterCommand = AddPhotoShowPicturePositionCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForPhoto]
             }
         ];
 
@@ -160,6 +189,21 @@ public partial class ListFilterBuilderContext
             {
                 Description = "Max Elevation", AddFilterCommand = AddLineMaxElevationFilterCommand,
                 AppliesTo = [Db.ContentTypeDisplayStringForLine]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "In Activity Log", AddFilterCommand = AddLineIncludeInActivityLogFilterCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForLine]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Activity Type", AddFilterCommand = AddLineActivityTypeCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForLine]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Map Content", AddFilterCommand = AddLineShowContentReferencesOnMapCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForLine]
             }
         ];
     }
@@ -181,6 +225,12 @@ public partial class ListFilterBuilderContext
     public async Task AddContentTypeFilter()
     {
         await AddSearchFilter(new ContentTypeListFilterBuilder());
+    }
+
+    [NonBlockingCommand]
+    public async Task AddFileFileEmbedSearchFilter()
+    {
+        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "File Embed" });
     }
 
     [NonBlockingCommand]
@@ -222,7 +272,7 @@ public partial class ListFilterBuilderContext
     [NonBlockingCommand]
     public async Task AddGeneralShowInMainSiteFeedSearchFilter()
     {
-        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "Show In Main Site Feed" });
+        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "In Main Site Feed" });
     }
 
     [NonBlockingCommand]
@@ -250,6 +300,25 @@ public partial class ListFilterBuilderContext
     }
 
     [NonBlockingCommand]
+    public async Task AddGeneralUpdateNotesFilter()
+    {
+        await AddSearchFilter(new TextListFilterFieldBuilder { FieldTitle = "Update Notes" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddImageShowInSearchSearchFilter()
+    {
+        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "Image In Search" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddLineActivityType()
+    {
+        await AddSearchFilter(new TextListFilterFieldBuilder
+            { FieldTitle = "Activity Type" });
+    }
+
+    [NonBlockingCommand]
     public async Task AddLineClimbFilter()
     {
         await AddSearchFilter(new NumericListFilterFieldBuilder
@@ -261,6 +330,13 @@ public partial class ListFilterBuilderContext
     {
         await AddSearchFilter(new NumericListFilterFieldBuilder
             { FieldTitle = "Descent", NumberConverterFunction = x => int.TryParse(x, out _) });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddLineIncludeInActivityLogFilter()
+    {
+        await AddSearchFilter(new BooleanListFilterFieldBuilder
+            { FieldTitle = "In Activity Log" });
     }
 
     [NonBlockingCommand]
@@ -285,10 +361,30 @@ public partial class ListFilterBuilderContext
     }
 
     [NonBlockingCommand]
+    public async Task AddLineShowContentReferencesOnMap()
+    {
+        await AddSearchFilter(new BooleanListFilterFieldBuilder
+            { FieldTitle = "Map Content References" });
+    }
+
+    [NonBlockingCommand]
     public async Task AddMultiBoundsFilter()
     {
         await AddSearchFilter(new BoundsListFilterFieldBuilder(StatusContext)
             { FieldTitle = "Bounds" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddMultiPublicDownloadFilter()
+    {
+        await AddSearchFilter(new BooleanListFilterFieldBuilder
+            { FieldTitle = "Public Download" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddMultiShowPictureSizesSearchFilter()
+    {
+        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "Show Picture Sizes" });
     }
 
     [NonBlockingCommand]
@@ -340,6 +436,12 @@ public partial class ListFilterBuilderContext
     public async Task AddPhotoLicenseSearchFilter()
     {
         await AddSearchFilter(new TextListFilterFieldBuilder { FieldTitle = "License" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddPhotoShowPicturePosition()
+    {
+        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "Photo Show Position" });
     }
 
     [NonBlockingCommand]
