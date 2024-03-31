@@ -1,27 +1,9 @@
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.Input;
-using Metalama.Framework.Advising;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
 namespace PointlessWaymarks.LlamaAspects;
-
-public class StaThreadConstructorGuard : TypeAspect
-{
-    public override void BuildAspect(IAspectBuilder<INamedType> builder)
-    {
-        builder.Advice.AddInitializer(builder.Target, nameof(this.BeforeInstanceConstructor), InitializerKind.BeforeInstanceConstructor);
-    }
-
-    [Template]
-    private void BeforeInstanceConstructor()
-    {
-        if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-        {
-            throw new ThreadStateException("The current threads apartment state is not STA - this must run on the Main GUI Thread!");
-        }
-    }
-}
 
 public class GenerateStatusCommandsAttribute : TypeAspect
 {
@@ -43,7 +25,8 @@ public class GenerateStatusCommandsAttribute : TypeAspect
             var firstParameterType = method.Parameters[0].Type;
 
             builder.Advice.IntroduceAutomaticProperty(method.DeclaringType, $"{method.Name}Command",
-                ((INamedType)TypeFactory.GetType(typeof(RelayCommand<>))).WithTypeArguments(firstParameterType).ToNullableType(),
+                ((INamedType)TypeFactory.GetType(typeof(RelayCommand<>))).WithTypeArguments(firstParameterType)
+                .ToNullableType(),
                 IntroductionScope.Default,
                 OverrideStrategy.Ignore,
                 propertyBuilder =>
@@ -58,7 +41,8 @@ public class GenerateStatusCommandsAttribute : TypeAspect
                       p.Attributes.Any(typeof(NonBlockingCommandAttribute))) && p.Parameters.Count == 1 &&
                      p.Parameters[0].Type.ToType() == typeof(CancellationToken)))
             builder.Advice.IntroduceAutomaticProperty(method.DeclaringType, $"{method.Name}Command",
-                TypeFactory.GetType(typeof(RelayCommand)).ToNullableType(), IntroductionScope.Default, OverrideStrategy.Ignore,
+                TypeFactory.GetType(typeof(RelayCommand)).ToNullableType(), IntroductionScope.Default,
+                OverrideStrategy.Ignore,
                 propertyBuilder => propertyBuilder.Accessibility = Accessibility.Public);
 
         builder.Advice.IntroduceMethod(builder.Target, "BuildCommands");
