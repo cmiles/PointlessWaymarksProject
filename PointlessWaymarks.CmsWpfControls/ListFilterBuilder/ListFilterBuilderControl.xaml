@@ -16,6 +16,7 @@
             </ResourceDictionary.MergedDictionaries>
             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
             <Style x:Key="RemoveFilterButtonStyle" TargetType="Button">
+                <Setter Property="Height" Value="30"></Setter>
                 <Setter Property="Margin" Value="12,0,4,0" />
                 <Setter Property="Padding" Value="8,0,8,0" />
                 <Setter Property="Command"
@@ -25,6 +26,10 @@
             <DataTemplate DataType="{x:Type listFilterBuilder:TextListFilterFieldBuilder}" x:Key="TextTemplate">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
                             <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
@@ -33,29 +38,37 @@
                                      VerticalContentAlignment="Center" Padding="4"
                                      AcceptsReturn="False" TextWrapping="Wrap"
                                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
-                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
-                                Remove
-                            </Button>
                         </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
+                            Remove
+                        </Button>
                     </Grid>
                 </Border>
             </DataTemplate>
             <DataTemplate DataType="{x:Type listFilterBuilder:BooleanListFilterFieldBuilder}" x:Key="BooleanTemplate">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding SearchBoolean}"
                                       Content="{Binding FieldTitle}" />
-                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
-                                Remove
-                            </Button>
                         </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
+                            Remove
+                        </Button>
                     </Grid>
                 </Border>
             </DataTemplate>
             <DataTemplate DataType="{x:Type listFilterBuilder:NumericListFilterFieldBuilder}" x:Key="NumericTemplate">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
                             <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
@@ -63,7 +76,7 @@
                             <ComboBox VerticalAlignment="Center" Margin="8,0,0,0"
                                       ItemsSource="{Binding OperatorChoices}"
                                       SelectedValue="{Binding SelectedOperatorOne}" />
-                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                            <TextBox MinWidth="60" VerticalAlignment="Center" TextAlignment="Right"
                                      VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
                                      AcceptsReturn="False" TextWrapping="Wrap"
                                      Text="{Binding UserNumberTextOne, UpdateSourceTrigger=PropertyChanged}" />
@@ -90,7 +103,7 @@
                                     </Style>
                                 </ComboBox.Style>
                             </ComboBox>
-                            <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
+                            <TextBox MinWidth="60" VerticalAlignment="Center" TextAlignment="Right"
                                      VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
                                      AcceptsReturn="False" TextWrapping="Wrap"
                                      Text="{Binding UserNumberTextTwo, UpdateSourceTrigger=PropertyChanged}"
@@ -114,10 +127,10 @@
                                     <ToolTip>Please enter a valid value</ToolTip>
                                 </Image.ToolTip>
                             </Image>
-                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
-                                Remove
-                            </Button>
                         </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
+                            Remove
+                        </Button>
                     </Grid>
                 </Border>
             </DataTemplate>
@@ -127,14 +140,14 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <CheckBox VerticalAlignment="Top" Margin="4,6,0,0" IsChecked="{Binding Not}">Not</CheckBox>
                         <WrapPanel Grid.Column="1" Orientation="Horizontal">
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
+                            <Label Margin="4,0,0,8" FontWeight="Bold" VerticalAlignment="Center"
                                    Content="{Binding FieldTitle}" />
-                            <Button Padding="8,0,8,0" Margin="8,0,8,0" Command="{Binding GetBoundsFromMapCommand}">From Map</Button>
-                            <StackPanel Orientation="Horizontal">
+                            <Button Padding="8,4,8,4" Margin="8,0,8,0" VerticalAlignment="Top" Command="{Binding GetBoundsFromMapCommand}">From Map</Button>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Lat</Label>
                                 <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
                                          VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
@@ -150,7 +163,7 @@
                                     </Image.ToolTip>
                                 </Image>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Long</Label>
                                 <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
                                          VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
@@ -166,8 +179,7 @@
                                     </Image.ToolTip>
                                 </Image>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Lat</Label>
                                 <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
                                          VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
@@ -183,8 +195,7 @@
                                     </Image.ToolTip>
                                 </Image>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                 <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Long</Label>
                                 <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
                                          VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
@@ -210,6 +221,10 @@
             <DataTemplate DataType="{x:Type listFilterBuilder:DateTimeListFilterFieldBuilder}" x:Key="DateTimeTemplate">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
                             <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
@@ -280,10 +295,10 @@
                                 Visibility="{Binding UserDateTimeTwoTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}"
                                 Width="{StaticResource SmallIconSize}" VerticalAlignment="Center"
                                 ToolTip="{Binding UserDateTimeTwoTranslation}" />
-                            <Button Style="{StaticResource RemoveFilterButtonStyle}">
-                                Remove
-                            </Button>
                         </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
+                            Remove
+                        </Button>
                     </Grid>
                 </Border>
             </DataTemplate>
@@ -293,33 +308,36 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
                             <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Content Type</Label>
                         </StackPanel>
-                        <ListBox Grid.Row="1" Margin="24,4,12,0" BorderThickness="0"
-                                 ItemsSource="{Binding ContentTypeChoices}">
-                            <ListBox.ItemsPanel>
+                        <ItemsControl Grid.Column="0" Grid.Row="1" Margin="24,4,12,0" BorderThickness="0"
+                                 ItemsSource="{Binding ContentTypeChoices}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
                                 </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type listFilterBuilder:ContentTypeListFilterChoice}">
-                                    <CheckBox Content="{Binding TypeDescription}" IsChecked="{Binding IsSelected}" />
+                                    <CheckBox Content="{Binding TypeDescription}" IsChecked="{Binding IsSelected}" Margin="6,1,4,8"/>
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                        <Button Grid.Row="2" Style="{StaticResource RemoveFilterButtonStyle}">
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
                             Remove
                         </Button>
                     </Grid>
                 </Border>
             </DataTemplate>
             <DataTemplate DataType="{x:Type listFilterBuilder:ListFilterBuilderFilterAdd}" x:Key="BuilderButtonTemplate">
-                <Button Padding="12,4,12,4" Margin="0,2,0,2" Command="{Binding AddFilterCommand}"
+                <Button Padding="12,4,12,4" Margin="2" Command="{Binding AddFilterCommand}"
                         Content="{Binding Description}">
                 </Button>
             </DataTemplate>
@@ -347,42 +365,55 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <GroupBox Header="General" Margin="4"
                       Visibility="{Binding GeneralBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
-                <ListBox ItemsSource="{Binding GeneralBuilderItems}"
+                <ItemsControl ItemsSource="{Binding GeneralBuilderItems}"
                          ItemTemplate="{StaticResource BuilderButtonTemplate}"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemsPanel>
+                    <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
                         </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </GroupBox>
             <GroupBox Grid.Row="1" Grid.Column="0" Header="Photographs" Margin="4,0,4,0"
                       Visibility="{Binding PhotoBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
-                <ListBox ItemsSource="{Binding PhotoBuilderItems}"
+                <ItemsControl ItemsSource="{Binding PhotoBuilderItems}"
                          ItemTemplate="{StaticResource BuilderButtonTemplate}"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemsPanel>
+                    <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
                         </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </GroupBox>
             <GroupBox Grid.Row="2" Grid.Column="0" Header="Lines" Margin="4,0,4,4"
                       Visibility="{Binding LineBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
-                <ListBox ItemsSource="{Binding LineBuilderItems}"
+                <ItemsControl ItemsSource="{Binding LineBuilderItems}"
                          ItemTemplate="{StaticResource BuilderButtonTemplate}"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemsPanel>
+                    <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
                         </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </GroupBox>
+            <GroupBox Grid.Row="3" Grid.Column="0" Header="Points" Margin="4,0,4,4"
+                      Visibility="{Binding PointBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
+                <ItemsControl ItemsSource="{Binding PointBuilderItems}"
+                         ItemTemplate="{StaticResource BuilderButtonTemplate}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </GroupBox>
         </Grid>
         <Grid Grid.Row="0" Grid.Column="1">

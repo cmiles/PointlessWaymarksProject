@@ -104,6 +104,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public ObservableCollection<IContentListItem> Items { get; set; }
     public LineContentActions LineItemActions { get; set; }
     public LinkContentActions LinkItemActions { get; set; }
+    public ListFilterBuilderContext ListFilterBuilder { get; set; }
     public ContentListSelected<IContentListItem> ListSelection { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
     public MapComponentContentActions MapComponentItemActions { get; set; }
@@ -112,7 +113,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public PhotoContentActions PhotoItemActions { get; set; }
     public PointContentActions PointItemActions { get; set; }
     public PostContentActions PostItemActions { get; set; }
-    public ListFilterBuilderContext ListFilterBuilder { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string? UserFilterText { get; set; }
     public VideoContentActions VideoItemActions { get; set; }
@@ -565,6 +565,12 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchActivityType;
             else if (searchString.StartsWith("MAP CONTENT REFERENCES:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLineShowContentReferencesOnMap;
+            else if (searchString.StartsWith("MAP LABEL:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchMapLabel;
+            else if (searchString.StartsWith("MAP ICON:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchMapIcon;
+            else if (searchString.StartsWith("MAP MARKER COLOR:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchMapMarkerColor;
             else if (searchString.StartsWith("PUBLIC DOWNLOAD:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchPublicDownloadLink;
             else if (searchString.StartsWith("ELEVATION:", StringComparison.InvariantCultureIgnoreCase))

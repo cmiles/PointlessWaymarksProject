@@ -18,6 +18,7 @@ public partial class ListFilterBuilderContext
     private readonly List<ListFilterBuilderFilterAdd> _generalBuilderItemsReference;
     private readonly List<ListFilterBuilderFilterAdd> _lineBuilderItemsReference;
     private readonly List<ListFilterBuilderFilterAdd> _photoBuilderItemsReference;
+    private readonly List<ListFilterBuilderFilterAdd> _pointBuilderItemsReference;
 
     public ListFilterBuilderContext(StatusControlContext statusContext)
     {
@@ -206,11 +207,31 @@ public partial class ListFilterBuilderContext
                 AppliesTo = [Db.ContentTypeDisplayStringForLine]
             }
         ];
+
+        _pointBuilderItemsReference =
+        [
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Icon", AddFilterCommand = AddLineMilesFilterCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForPoint]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Marker Color", AddFilterCommand = AddLineMilesFilterCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForPoint]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Map Label", AddFilterCommand = AddLineMilesFilterCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForPoint]
+            }
+        ];
     }
 
     public required ObservableCollection<ListFilterBuilderFilterAdd> GeneralBuilderItems { get; set; }
     public required ObservableCollection<ListFilterBuilderFilterAdd> LineBuilderItems { get; set; }
     public required ObservableCollection<ListFilterBuilderFilterAdd> PhotoBuilderItems { get; set; }
+    public required ObservableCollection<ListFilterBuilderFilterAdd> PointBuilderItems { get; set; }
     public required ObservableCollection<object> SearchFilters { get; set; }
     public string SearchStringPreview { get; set; } = string.Empty;
     public StatusControlContext StatusContext { get; set; }
@@ -451,6 +472,24 @@ public partial class ListFilterBuilderContext
             { FieldTitle = "Shutter Speed", NumberConverterFunction = x => Fraction.TryParse(x, out _) });
     }
 
+    [NonBlockingCommand]
+    public async Task AddPointMapIconFilter()
+    {
+        await AddSearchFilter(new TextListFilterFieldBuilder { FieldTitle = "Map Icon" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddPointMapLabelFilter()
+    {
+        await AddSearchFilter(new TextListFilterFieldBuilder { FieldTitle = "Map Label" });
+    }
+
+    [NonBlockingCommand]
+    public async Task AddPointMapMarkerColorFilter()
+    {
+        await AddSearchFilter(new TextListFilterFieldBuilder { FieldTitle = "Map Marker Color" });
+    }
+
     public async Task AddSearchFilter(INotifyPropertyChanged toAdd)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -474,7 +513,8 @@ public partial class ListFilterBuilderContext
             GeneralBuilderItems = [],
             LineBuilderItems = [],
             PhotoBuilderItems = [],
-            SearchFilters = []
+            SearchFilters = [],
+            PointBuilderItems = []
         };
 
         newContext.SearchFilters.CollectionChanged += newContext.SearchFiltersOnCollectionChanged;
@@ -484,6 +524,7 @@ public partial class ListFilterBuilderContext
             newContext._generalBuilderItemsReference.ForEach(x => newContext.GeneralBuilderItems.Add(x));
             newContext._lineBuilderItemsReference.ForEach(x => newContext.LineBuilderItems.Add(x));
             newContext._photoBuilderItemsReference.ForEach(x => newContext.PhotoBuilderItems.Add(x));
+            newContext._pointBuilderItemsReference.ForEach(x => newContext.PointBuilderItems.Add(x));
         }
         else
         {
@@ -496,10 +537,14 @@ public partial class ListFilterBuilderContext
             newContext._photoBuilderItemsReference
                 .Where(y => !y.AppliesTo.Any() || y.AppliesTo.Any(typesForSearch.Contains)).ToList()
                 .ForEach(x => newContext.PhotoBuilderItems.Add(x));
+            newContext._pointBuilderItemsReference
+                .Where(y => !y.AppliesTo.Any() || y.AppliesTo.Any(typesForSearch.Contains)).ToList()
+                .ForEach(x => newContext.PointBuilderItems.Add(x));
         }
 
         return newContext;
     }
+
 
     public string CreateSearch()
     {

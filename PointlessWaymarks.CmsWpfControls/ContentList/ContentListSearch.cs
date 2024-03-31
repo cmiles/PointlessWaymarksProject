@@ -427,6 +427,45 @@ public static class ContentListSearch
                 "Show Content References On Map"), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchMapIcon(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not PointListListItem pointItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Map Icon Filter on Item that is not a Point - Excluding"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(pointItem.DbEntry.MapIconName, searchString,
+                "Map Icon"), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchMapLabel(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not PointListListItem pointItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Map Label Filter on Item that is not a Point - Excluding"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(pointItem.DbEntry.MapLabel, searchString,
+                "Map Label"), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchMapMarkerColor(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not PointListListItem pointItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Map Marker Color Filter on Item that is not a Point - Excluding"), searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterStringContains(pointItem.DbEntry.MapMarkerColor, searchString,
+                "Map Marker Color"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchMaxElevation(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
