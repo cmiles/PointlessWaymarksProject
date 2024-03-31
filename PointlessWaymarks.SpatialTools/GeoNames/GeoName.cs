@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.SpatialTools.GeoNames;
+namespace PointlessWaymarks.SpatialTools.GeoNames;
 
 public class GeoName
 {
@@ -13,8 +13,8 @@ public class GeoName
     public string? fcode { get; set; }
     public string? fcodeName { get; set; }
     public int geonameId { get; set; }
-    public double lat { get; set; }
-    public double lng { get; set; }
+    public string? lat { get; set; }
+    public string? lng { get; set; }
     public string? name { get; set; }
     public int population { get; set; }
     public string? toponymName { get; set; }

@@ -10,14 +10,12 @@ public static class GeoNamesSearch
     public static async Task<GeoNamesSearchReturn> Search(string search, string userName, string continentCode,
         string countryBias)
     {
-        return await "http://secure.geonames.org".AppendPathSegment("searchJSON")
+        return await "https://secure.geonames.org".AppendPathSegment("searchJSON")
             .SetQueryParams(new
             {
                 q = search,
                 username = userName,
                 style = "LONG",
-                continentCode,
-                countryBias
             })
             .PostAsync()
             .ReceiveJson<GeoNamesSearchReturn>();
@@ -29,7 +27,7 @@ public static class GeoNamesSearch
     {
         var rawResults = await Search(search, userName, continentCode, countryBias);
 
-        if (!rawResults.geonames.Any()) return new List<GeoNamesSimpleSearchEntry>();
+        if (!rawResults.geonames.Any()) return [];
 
         return rawResults.geonames
             .OrderByDescending(x => x.name.GetSimilarities(search.AsList(), SimMetricType.JaroWinkler).First().Score)
@@ -37,8 +35,8 @@ public static class GeoNamesSearch
             {
                 Name = x.name ?? x.toponymName ?? "(none)",
                 Description = $"{x.countryName} {x.adminName1} {x.fcodeName}",
-                Latitude = x.lat,
-                Longitude = x.lng
+                Latitude = double.Parse(x.lat),
+                Longitude = double.Parse(x.lng)
             }).ToList();
     }
 }

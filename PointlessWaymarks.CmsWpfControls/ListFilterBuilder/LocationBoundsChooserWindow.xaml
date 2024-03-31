@@ -9,6 +9,7 @@
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         xmlns:listFilterBuilder="clr-namespace:PointlessWaymarks.CmsWpfControls.ListFilterBuilder"
+        xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
         mc:Ignorable="d"
         d:DesignHeight="450" d:DesignWidth="800" Height="800" Width="800"
         d:DataContext="{d:DesignInstance listFilterBuilder:LocationBoundsChooserWindow}"
@@ -24,6 +25,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <GroupBox
@@ -58,6 +60,9 @@
             </b:Interaction.Behaviors>
         </wpf:WebView2>
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
+            <geoSearch:GeoSearchControl DataContext="{Binding LocationChooser.LocationSearchContext}"></geoSearch:GeoSearchControl>
+        </Border>
+        <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding LocationChooser.SearchInBoundsCommand}"
@@ -75,7 +80,7 @@
         </Border>
         <windowScreenShot:WindowScreenShotControl
             Grid.Row="0"
-            Grid.RowSpan="3"
+            Grid.RowSpan="4"
             HorizontalContentAlignment="Right"
             VerticalContentAlignment="Bottom" />
         <status:StatusControl Grid.Row="0" Grid.RowSpan="3" d:IsHidden="true" DataContext="{Binding StatusContext}" />

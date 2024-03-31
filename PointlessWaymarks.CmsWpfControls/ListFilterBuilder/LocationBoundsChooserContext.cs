@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsWpfControls.GeoSearch;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -16,9 +17,11 @@ namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public class LocationBoundsChooserContext : IWebViewMessenger
+[StaThreadConstructorGuard]
+public partial class LocationBoundsChooserContext : IWebViewMessenger
 {
-    public LocationBoundsChooserContext(StatusControlContext statusContext, string serializedMapIcons)
+    public LocationBoundsChooserContext(StatusControlContext statusContext, GeoSearchContext searchContext,
+        string serializedMapIcons)
     {
         StatusContext = statusContext;
 
@@ -37,12 +40,15 @@ public class LocationBoundsChooserContext : IWebViewMessenger
             UserSettingsSingleton.CurrentSettings().LongitudeDefault, false, serializedMapIcons,
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey,
             UserSettingsSingleton.CurrentSettings().BingApiKey);
+
+        LocationSearchContext = searchContext;
     }
 
     public bool BroadcastLatLongChange { get; set; } = true;
     public List<Guid> DisplayedContentGuids { get; set; } = [];
     public bool HasValidationIssues { get; set; }
     public SpatialBounds? InitialBounds { get; set; }
+    public GeoSearchContext LocationSearchContext { get; set; }
     public SpatialBounds? MapBounds { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public StatusControlContext StatusContext { get; set; }
@@ -55,8 +61,11 @@ public class LocationBoundsChooserContext : IWebViewMessenger
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
+        var factoryGeoSearchContext = await GeoSearchContext.CreateInstance(windowStatusContext);
 
-        return new LocationBoundsChooserContext(windowStatusContext, factoryMapIcons)
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return new LocationBoundsChooserContext(windowStatusContext, factoryGeoSearchContext, factoryMapIcons)
         {
             InitialBounds = initialBounds
         };

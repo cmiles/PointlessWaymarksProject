@@ -75,8 +75,4 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="GeoSearch\" />
-  </ItemGroup>
-
 </Project>

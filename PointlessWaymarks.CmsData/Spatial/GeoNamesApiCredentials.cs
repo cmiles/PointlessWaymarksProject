@@ -18,9 +18,9 @@ public static class GeoNamesApiCredentials
     ///     Retrieves the GEONAMES Credentials associated with this settings file
     /// </summary>
     /// <returns></returns>
-    public static (string accessKey, string secret) GetGeoNamesSiteCredentials()
+    public static string GetGeoNamesSiteCredentials()
     {
-        return PasswordVaultTools.GetCredentials(GeoNamesSiteCredentialResourceString());
+        return PasswordVaultTools.GetCredentials(GeoNamesSiteCredentialResourceString()).password;
     }
 
     /// <summary>
