@@ -2,6 +2,7 @@ using Amazon;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
+using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -53,14 +54,17 @@ public partial class UserSettingsEditorContext
     public static string HelpMarkdownFilesHavePublicDownloadLinkByDefault =>
         "Default setting for whether File Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
 
-    public static string HelpMarkdownLinesHavePublicDownloadLinkByDefault =>
-        "Default setting for whether Line Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
-    
-    public static string HelpMarkdownLinesShowContentReferencesOnMapByDefault =>
-        "Default setting for whether spatial content referenced in the Line Body are shown on the map by default.";
-
     public static string HelpMarkdownGeoJsonHasPublicDownloadLinkByDefault =>
         "Default setting for whether GeoJson Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
+
+    public static string HelpMarkdownGeoNamesInformation =>
+        "[GeoNames](https://www.geonames.org/) offers an [API](https://www.geonames.org/export/web-services.html) that this program can use to search for geographic locations - this is completely optional! In order to use the API you must have a User Name with GeoNames, you must enable web API access (the no cost API access has some limits, be sure to read the GeoNames site for details) and you need to enter that User Name here. User Names are stored securely by Windows - these are NOT stored in the database or in the settings file, but be aware that anyone with access to your Windows Account has access to these credentials!";
+
+    public static string HelpMarkdownLinesHavePublicDownloadLinkByDefault =>
+        "Default setting for whether Line Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
+
+    public static string HelpMarkdownLinesShowContentReferencesOnMapByDefault =>
+        "Default setting for whether spatial content referenced in the Line Body are shown on the map by default.";
 
     public static string HelpMarkdownLocalMediaArchive =>
         "The original/source media files are stored separately from the generated site - this (local) directory is very " +
@@ -82,7 +86,7 @@ public partial class UserSettingsEditorContext
         "The location the program should check for updates.";
 
     public static string HelpMarkdownS3Information =>
-        "This is NOT required. Amazon S3 - especially behind a service like Cloudflare - can be an excellent way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and AWS Site Credentials (these are not shown and are stored securely by windows - these are NOT stored in the database or in the settings file).";
+        "This is NOT required. Amazon S3 - especially behind a service like Cloudflare - can be an excellent way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and AWS Site Credentials (these are not shown and are stored securely by Windows - these are NOT stored in the database or in the settings, file but be aware that anyone with access to your Windows Account has access to these credentials!).";
 
     public static string HelpMarkdownShowImageSizesByDefault =>
         "Used as the default value for a Photo's or Image's 'Show Sizes' setting - if this is checked by default image pages will have links to every size available. ALL IMAGE FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
@@ -129,6 +133,14 @@ public partial class UserSettingsEditorContext
         AwsCredentials.RemoveAwsSiteCredentials();
     }
 
+    [BlockingCommand]
+    public async Task DeleteGeoNamesUserName()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        GeoNamesApiCredentials.RemoveGeoNamesSiteCredentials();
+    }
+
 
     [BlockingCommand]
     public async Task SaveSettings()
@@ -168,5 +180,24 @@ public partial class UserSettingsEditorContext
         }
 
         AwsCredentials.SaveAwsSiteCredential(cleanedKey, cleanedSecret);
+    }
+
+    [BlockingCommand]
+    public async Task UserGeoNamesUserName()
+    {
+        var newKeyEntry = await StatusContext.ShowStringEntry("GeoNames Web API Username",
+            "Enter your GeoNames Web API Username", string.Empty);
+
+        if (!newKeyEntry.Item1)
+        {
+            StatusContext.ToastWarning(" GeoNames Web API Username Entry Cancelled");
+            return;
+        }
+
+        var cleanedUsername = newKeyEntry.Item2.TrimNullToEmpty();
+
+        if (string.IsNullOrWhiteSpace(cleanedUsername)) return;
+
+        GeoNamesApiCredentials.SaveGeoNamesSiteCredential(cleanedUsername);
     }
 }

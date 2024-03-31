@@ -1,4 +1,4 @@
-﻿using Windows.Security.Credentials;
+using Windows.Security.Credentials;
 
 namespace PointlessWaymarks.CommonTools;
 
@@ -58,9 +58,9 @@ public static class PasswordVaultTools
     ///     Removes any existing AWS Credentials Associated with this settings file and Saves new Credentials
     /// </summary>
     /// <param name="resourceIdentifier"></param>
-    /// <param name="accessKey"></param>
-    /// <param name="secret"></param>
-    public static void SaveCredentials(string resourceIdentifier, string accessKey, string secret)
+    /// <param name="userName"></param>
+    /// <param name="password"></param>
+    public static void SaveCredentials(string resourceIdentifier, string userName, string password)
     {
         //The Credential Manager will update a password if the resource and username are the same but will otherwise
         //create a new entry - removing any previous records seem like the easiest way atm to keep only one entry per
@@ -68,7 +68,7 @@ public static class PasswordVaultTools
         RemoveCredentials(resourceIdentifier);
 
         var vault = new PasswordVault();
-        var credential = new PasswordCredential(resourceIdentifier, accessKey, secret);
+        var credential = new PasswordCredential(resourceIdentifier, userName, password);
         vault.Add(credential);
     }
 }

@@ -27,6 +27,7 @@
     <PackageReference Include="AnyClone" Version="1.1.6" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.307.2" />
     <PackageReference Include="ClosedXML" Version="0.102.2" />
+    <PackageReference Include="Flurl.Http" Version="4.0.2" />
     <PackageReference Include="GitInfo" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

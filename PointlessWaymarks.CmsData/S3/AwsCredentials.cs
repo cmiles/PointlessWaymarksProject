@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.S3;
 
@@ -11,7 +11,7 @@ public static class AwsCredentials
     public static string AwsSiteCredentialResourceString()
     {
         return
-            $"Pointless Waymarks CMS - AWS, Site - {UserSettingsSingleton.CurrentSettings().SettingsId.ToString()}";
+            $"Pointless Waymarks CMS - AWS, Site - {UserSettingsSingleton.CurrentSettings().SettingsId}";
     }
 
     /// <summary>

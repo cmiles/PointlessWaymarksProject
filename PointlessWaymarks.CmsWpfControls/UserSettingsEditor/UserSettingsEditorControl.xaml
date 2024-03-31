@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.UserSettingsEditor.UserSettingsEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -426,7 +426,6 @@
                             </b:Interaction.Behaviors>
                         </wpf:MarkdownViewer>
                     </StackPanel>
-
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
                             S3 Bucket Name
@@ -457,6 +456,18 @@
                         </Grid>
                         <Button Command="{Binding UserAwsKeyAndSecretEntryCommand}">Enter AWS Site Credentials</Button>
                         <Button Command="{Binding DeleteAwsCredentialsCommand}">Delete AWS Site Credentials</Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}">
+                            GeoNames API
+                        </Label>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownGeoNamesInformation}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                        <Button Command="{Binding UserGeoNamesUserNameCommand}">Enter GeoNames API User Name</Button>
+                        <Button Command="{Binding DeleteGeoNamesUserNameCommand}">Delete GeoNames API User Name</Button>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
