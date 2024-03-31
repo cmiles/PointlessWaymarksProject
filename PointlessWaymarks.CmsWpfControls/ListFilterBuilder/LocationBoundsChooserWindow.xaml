@@ -59,7 +59,7 @@
                     DeferNavigationTo="{Binding LocationChooser.MapPreviewNavigationManager}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
-        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
+        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}" Visibility="{Binding LocationChooser.LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
             <geoSearch:GeoSearchControl DataContext="{Binding LocationChooser.LocationSearchContext}"></geoSearch:GeoSearchControl>
         </Border>
         <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">

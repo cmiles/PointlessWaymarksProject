@@ -5,6 +5,7 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Spatial;
+using PointlessWaymarks.CmsWpfControls.GeoSearch;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
@@ -24,7 +25,8 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndValidation,
     IHasValidationIssues, IWebViewMessenger
 {
-    public LocationChooserContext(StatusControlContext statusContext, string serializedMapIcons)
+    public LocationChooserContext(StatusControlContext statusContext, string serializedMapIcons,
+        GeoSearchContext factoryLocationSearchContext)
     {
         StatusContext = statusContext;
 
@@ -44,29 +46,42 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         PropertyChanged += OnPropertyChanged;
+
+        LocationSearchContext = factoryLocationSearchContext;
+
+        LocationSearchContext.LocationSelected += (sender, args) =>
+        {
+            var centerData = new MapJsonCoordinateDto(args.Latitude, args.Longitude, "CenterCoordinateRequest");
+
+            var serializedData = JsonSerializer.Serialize(centerData);
+
+            ToWebView.Enqueue(new JsonData { Json = serializedData });
+        };
     }
 
     public bool BroadcastLatLongChange { get; set; } = true;
     public List<Guid> DisplayedContentGuids { get; set; } = [];
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
-    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public double? InitialElevation { get; set; }
     public double InitialLatitude { get; set; }
     public double InitialLongitude { get; set; }
     public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
+    public GeoSearchContext LocationSearchContext { get; set; }
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
     public SpatialBounds? MapBounds { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public StatusControlContext StatusContext { get; set; }
-    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
     [NonBlockingCommand]
     public async Task CenterMapOnSelectedLocation()
@@ -87,8 +102,9 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
+        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(windowStatusContext);
 
-        return new LocationChooserContext(windowStatusContext, factoryMapIcons)
+        return new LocationChooserContext(windowStatusContext, factoryMapIcons, factoryLocationSearchContext)
         {
             InitialLatitude = initialLatitude ?? UserSettingsSingleton.CurrentSettings().LatitudeDefault,
             InitialLongitude = initialLongitude ?? UserSettingsSingleton.CurrentSettings().LongitudeDefault,

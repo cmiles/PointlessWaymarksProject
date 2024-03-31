@@ -5,8 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
              xmlns:geoNames="clr-namespace:PointlessWaymarks.SpatialTools.GeoNames;assembly=PointlessWaymarks.SpatialTools"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:GeoSearchContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid Margin="4" Height="50">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -18,18 +27,22 @@
                      Text="{Binding UserSearchString, UpdateSourceTrigger=PropertyChanged, Delay=750}" Width="120" />
         </StackPanel>
         <ScrollViewer Grid.Column="1">
-        <ItemsControl ItemsSource="{Binding SearchResults}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type geoNames:GeoNamesSimpleSearchEntry}">
-                    <Button Margin="1" Content="{Binding Name}" ToolTip="{Binding Description}" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            <ItemsControl ItemsSource="{Binding SearchResults}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.VerticalScrollBarVisibility="Visible" HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type geoNames:GeoNamesSimpleSearchResult}">
+                        <Button Margin="1" Padding="3,1,3,1" Content="{Binding Name}" CommandParameter="{Binding .}"
+                                Command="{Binding Data.SelectLocationCommand, Source={StaticResource Proxy}}"
+                                ToolTip="{Binding Description}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
     </Grid>
 </UserControl>

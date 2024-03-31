@@ -7,36 +7,46 @@ namespace PointlessWaymarks.SpatialTools.GeoNames;
 
 public static class GeoNamesSearch
 {
-    public static async Task<GeoNamesSearchReturn> Search(string search, string userName, string continentCode,
-        string countryBias)
+    public static async Task<GeoNamesSearchReturn> Search(string search, string userName)
     {
         return await "https://secure.geonames.org".AppendPathSegment("searchJSON")
             .SetQueryParams(new
             {
                 q = search,
                 username = userName,
-                style = "LONG",
+                style = "LONG"
             })
             .PostAsync()
             .ReceiveJson<GeoNamesSearchReturn>();
     }
 
-    public static async Task<List<GeoNamesSimpleSearchEntry>> SearchSimple(string search, string userName,
-        string continentCode,
-        string countryBias)
+    public static async Task<List<GeoNamesSimpleSearchResult>> SearchSimple(string search, string userName)
     {
-        var rawResults = await Search(search, userName, continentCode, countryBias);
+        var rawResults = await Search(search, userName);
 
         if (!rawResults.geonames.Any()) return [];
 
-        return rawResults.geonames
+        var orderedResultsList = rawResults.geonames
             .OrderByDescending(x => x.name.GetSimilarities(search.AsList(), SimMetricType.JaroWinkler).First().Score)
-            .Select(x => new GeoNamesSimpleSearchEntry
+            .ToList();
+
+        var returnList = new List<GeoNamesSimpleSearchResult>();
+
+        foreach (var loopResult in orderedResultsList)
+        {
+            var titleItems = new List<string?>
+                { loopResult.name ?? loopResult.toponymName ?? "(none)", loopResult.adminCode1, loopResult.countryCode };
+            var descriptionItems = new List<string?>
+                { loopResult.countryName, loopResult.adminName1, loopResult.fcodeName };
+            returnList.Add(new GeoNamesSimpleSearchResult
             {
-                Name = x.name ?? x.toponymName ?? "(none)",
-                Description = $"{x.countryName} {x.adminName1} {x.fcodeName}",
-                Latitude = double.Parse(x.lat),
-                Longitude = double.Parse(x.lng)
-            }).ToList();
+                Name = string.Join(", ", titleItems.Where(x => !string.IsNullOrWhiteSpace(x))),
+                Description = string.Join(" - ", descriptionItems.Where(x => !string.IsNullOrWhiteSpace(x))),
+                Latitude = double.Parse(loopResult.lat ?? "0"),
+                Longitude = double.Parse(loopResult.lng ?? "0")
+            });
+        }
+
+        return returnList;
     }
 }

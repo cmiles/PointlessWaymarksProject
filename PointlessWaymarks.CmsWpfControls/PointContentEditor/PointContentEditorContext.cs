@@ -7,7 +7,6 @@ using NetTopologySuite.Features;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -17,6 +16,7 @@ using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
+using PointlessWaymarks.CmsWpfControls.GeoSearch;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -47,7 +47,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 {
     public EventHandler? RequestContentEditorWindowClose;
 
-    private PointContentEditorContext(StatusControlContext statusContext, PointContent pointContent, string serializedMapIcons)
+    private PointContentEditorContext(StatusControlContext statusContext, PointContent pointContent,
+        string serializedMapIcons, GeoSearchContext factoryLocationSearchContext)
     {
         StatusContext = statusContext;
 
@@ -69,6 +70,17 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             UserSettingsSingleton.CurrentSettings().CalTopoApiKey, UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         PropertyChanged += OnPropertyChanged;
+
+        LocationSearchContext = factoryLocationSearchContext;
+
+        LocationSearchContext.LocationSelected += (sender, args) =>
+        {
+            var centerData = new MapJsonCoordinateDto(args.Latitude, args.Longitude, "CenterCoordinateRequest");
+
+            var serializedData = JsonSerializer.Serialize(centerData);
+
+            ToWebView.Enqueue(new JsonData { Json = serializedData });
+        };
     }
 
     public BodyContentEditorContext? BodyContent { get; set; }
@@ -78,21 +90,20 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public PointContent DbEntry { get; set; }
     public List<Guid> DisplayedContentGuids { get; set; } = [];
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
-    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public ConversionDataEntryContext<double>? LatitudeEntry { get; set; }
+    public GeoSearchContext LocationSearchContext { get; set; }
     public ConversionDataEntryContext<double>? LongitudeEntry { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
+    public ContentMapIconContext MapIconEntry { get; set; }
     public StringDataEntryContext? MapLabelContentEntry { get; set; }
+    public ContentMapMarkerColorContext MapMarkerColorEntry { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public PointDetailListContext? PointDetails { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
-    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
 
     public void CheckForChangesAndValidationIssues()
@@ -100,6 +111,11 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
     [BlockingCommand]
     private async Task AddFeatureIntersectTags()
@@ -147,15 +163,44 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         ToWebView.Enqueue(JsonData.CreateRequest(serializedData));
     }
 
+    [NonBlockingCommand]
+    public async Task ClearSearchInBounds()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapBounds == null)
+        {
+            StatusContext.ToastError("No Map Bounds?");
+            return;
+        }
+
+        var searchResultIds = (await (await Db.Context()).ContentFromBoundingBox(MapBounds)).Select(x => x.ContentId)
+            .Cast<Guid>().ToList();
+
+        if (!searchResultIds.Any())
+        {
+            StatusContext.ToastWarning("No New Items Found");
+            return;
+        }
+
+        DisplayedContentGuids = DisplayedContentGuids.Where(x => !searchResultIds.Contains(x)).ToList();
+
+        ToWebView.Enqueue(
+            JsonData.CreateRequest(
+                JsonSerializer.Serialize(new MapJsonFeatureListDto(searchResultIds, "RemoveFeatures"))));
+    }
+
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PointContent? pointContent)
     {
         ThreadSwitcher.ResumeBackgroundAsync();
 
+        var factoryContext = statusContext ?? new StatusControlContext();
         var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
+        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryContext);
 
-        var newControl = new PointContentEditorContext(statusContext ?? new StatusControlContext(),
-            NewContentModels.InitializePointContent(pointContent), factoryMapIcons);
+        var newControl = new PointContentEditorContext(factoryContext,
+            NewContentModels.InitializePointContent(pointContent), factoryMapIcons, factoryLocationSearchContext);
         await newControl.LoadData(pointContent);
         return newControl;
     }
@@ -370,10 +415,6 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
 
-    public ContentMapMarkerColorContext MapMarkerColorEntry { get; set; }
-
-    public ContentMapIconContext MapIconEntry { get; set; }
-
     public async Task MapMessageReceived(string json)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -461,27 +502,9 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     }
 
     [NonBlockingCommand]
-    public async Task SearchPointsInBounds()
-    {
-        await SearchInBounds([Db.ContentTypeDisplayStringForPoint]);
-    }
-
-    [NonBlockingCommand]
-    public async Task SearchLinesInBounds()
-    {
-        await SearchInBounds([Db.ContentTypeDisplayStringForLine]);
-    }
-
-    [NonBlockingCommand]
     public async Task SearchGeoJsonInBounds()
     {
         await SearchInBounds([Db.ContentTypeDisplayStringForGeoJson]);
-    }
-
-    [NonBlockingCommand]
-    public async Task SearchPhotosInBounds()
-    {
-        await SearchInBounds([Db.ContentTypeDisplayStringForPhoto]);
     }
 
     public async Task SearchInBounds(List<string> searchContentTypes)
@@ -518,27 +541,21 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     }
 
     [NonBlockingCommand]
-    public async Task ClearSearchInBounds()
+    public async Task SearchLinesInBounds()
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        await SearchInBounds([Db.ContentTypeDisplayStringForLine]);
+    }
 
-        if (MapBounds == null)
-        {
-            StatusContext.ToastError("No Map Bounds?");
-            return;
-        }
+    [NonBlockingCommand]
+    public async Task SearchPhotosInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForPhoto]);
+    }
 
-        var searchResultIds = (await (await Db.Context()).ContentFromBoundingBox(MapBounds)).Select(x => x.ContentId).Cast<Guid>().ToList();
-
-        if (!searchResultIds.Any())
-        {
-            StatusContext.ToastWarning("No New Items Found");
-            return;
-        }
-
-        DisplayedContentGuids = DisplayedContentGuids.Where(x => !searchResultIds.Contains(x)).ToList();
-
-        ToWebView.Enqueue(JsonData.CreateRequest(JsonSerializer.Serialize(new MapJsonFeatureListDto(searchResultIds, "RemoveFeatures"))));
+    [NonBlockingCommand]
+    public async Task SearchPointsInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForPoint]);
     }
 
     [BlockingCommand]

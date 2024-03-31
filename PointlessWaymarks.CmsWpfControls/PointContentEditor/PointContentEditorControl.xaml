@@ -24,6 +24,7 @@
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
     xmlns:dropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.DropdownDataEntry"
+    xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -68,6 +69,7 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource ActionPanelBorderStyle}">
@@ -137,7 +139,10 @@
                                 DeferNavigationTo="{Binding MapPreviewNavigationManager}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
-                    <Border Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0"
+                    <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource ActionPanelBorderStyle}" Visibility="{Binding LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
+                        <geoSearch:GeoSearchControl DataContext="{Binding LocationSearchContext}"></geoSearch:GeoSearchControl>
+                    </Border>
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0"
                             Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <Button

@@ -7,6 +7,7 @@ using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.GeoSearch;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -21,10 +22,12 @@ namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class ContentMapContext : IWebViewMessenger
 {
     private ContentMapContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
-        ContentListContext factoryListContext, string serializedMapIcons, bool loadInBackground = true)
+        ContentListContext factoryListContext, string serializedMapIcons, GeoSearchContext factoryLocationSearchContext,
+        bool loadInBackground = true)
     {
         StatusContext = statusContext ?? new StatusControlContext();
         WindowStatus = windowStatus;
@@ -46,11 +49,23 @@ public partial class ContentMapContext : IWebViewMessenger
         ListContext = factoryListContext;
         BuildCommands();
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
+
+        LocationSearchContext = factoryLocationSearchContext;
+
+        LocationSearchContext.LocationSelected += (sender, args) =>
+        {
+            var centerData = new MapJsonCoordinateDto(args.Latitude, args.Longitude, "CenterCoordinateRequest");
+
+            var serializedData = JsonSerializer.Serialize(centerData);
+
+            ToWebView.Enqueue(new JsonData { Json = serializedData });
+        };
     }
 
     public CmsCommonCommands CommonCommands { get; set; }
     public Envelope? ContentBounds { get; set; }
     public ContentListContext ListContext { get; set; }
+    public GeoSearchContext LocationSearchContext { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public bool RefreshMapOnCollectionChanged { get; set; }
@@ -78,10 +93,12 @@ public partial class ContentMapContext : IWebViewMessenger
             await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), [],
                 windowStatus);
         var factoryIcons = await MapIconGenerator.SerializedMapIcons();
+        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryStatusContext);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var toReturn = new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext, factoryIcons,
+            factoryLocationSearchContext,
             loadInBackground);
         toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
 
@@ -96,12 +113,15 @@ public partial class ContentMapContext : IWebViewMessenger
         var factoryStatusContext = statusContext ?? new StatusControlContext();
         var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter, []);
         var factoryIcons = await MapIconGenerator.SerializedMapIcons();
+        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryStatusContext);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var toReturn = new ContentMapContext(factoryStatusContext, null, factoryListContext, factoryIcons,
+            factoryLocationSearchContext,
             loadInBackground);
         toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
+
 
         return toReturn;
     }

@@ -42,7 +42,17 @@ public partial class LocationBoundsChooserContext : IWebViewMessenger
             UserSettingsSingleton.CurrentSettings().BingApiKey);
 
         LocationSearchContext = searchContext;
+
+        LocationSearchContext.LocationSelected += (sender, args) =>
+        {
+            var centerData = new MapJsonCoordinateDto(args.Latitude, args.Longitude, "CenterCoordinateRequest");
+
+            var serializedData = JsonSerializer.Serialize(centerData);
+
+            ToWebView.Enqueue(new JsonData { Json = serializedData });
+        };
     }
+
 
     public bool BroadcastLatLongChange { get; set; } = true;
     public List<Guid> DisplayedContentGuids { get; set; } = [];

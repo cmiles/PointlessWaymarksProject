@@ -1,6 +1,6 @@
-﻿namespace PointlessWaymarks.SpatialTools.GeoNames;
+namespace PointlessWaymarks.SpatialTools.GeoNames;
 
-public class GeoNamesSimpleSearchEntry
+public class GeoNamesSimpleSearchResult
 {
     public required string Description { get; set; }
     public required double Latitude { get; set; }
