@@ -5,8 +5,8 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentMigrator" Version="5.1.0" />
-    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="5.1.0" />
+    <PackageReference Include="FluentMigrator" Version="5.2.0" />
+    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="5.2.0" />
     <PackageReference Include="GitInfo" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

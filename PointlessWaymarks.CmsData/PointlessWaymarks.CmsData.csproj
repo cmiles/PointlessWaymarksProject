@@ -82,8 +82,8 @@
     <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="CompareNETObjects" Version="4.83.0" />
-    <PackageReference Include="FluentMigrator" Version="5.1.0" />
-    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="5.1.0" />
+    <PackageReference Include="FluentMigrator" Version="5.2.0" />
+    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="5.2.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GitInfo" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
