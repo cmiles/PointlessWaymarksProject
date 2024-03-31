@@ -7,15 +7,15 @@ public static class LineTools
 {
     public static List<CoordinateZ> CoordinateListFromGeoJsonFeatureCollectionWithLinestring(string geoJson)
     {
-        if (string.IsNullOrWhiteSpace(geoJson)) return new List<CoordinateZ>();
+        if (string.IsNullOrWhiteSpace(geoJson)) return [];
 
         var featureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(geoJson);
 
-        if (featureCollection.Count < 1) return new List<CoordinateZ>();
+        if (featureCollection.Count < 1) return [];
 
         var possibleLine = featureCollection.FirstOrDefault(x => x.Geometry is LineString);
 
-        if (possibleLine == null) return new List<CoordinateZ>();
+        if (possibleLine == null) return [];
 
         var geoLine = (LineString)possibleLine.Geometry;
 

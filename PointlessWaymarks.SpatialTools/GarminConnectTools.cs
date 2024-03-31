@@ -108,7 +108,7 @@ public static partial class GarminConnectTools
     public static List<(long activityId, FileInfo file)> GpxActivityFilesFromDirectory(string directoryName)
     {
         if (string.IsNullOrWhiteSpace(directoryName) || !Directory.Exists(directoryName))
-            return new List<(long activityId, FileInfo file)>();
+            return [];
 
         var archiveDirectory = new DirectoryInfo(directoryName);
         var archiveJsonFiles = archiveDirectory.EnumerateFiles("*-gc*.gpx", SearchOption.TopDirectoryOnly).ToList();
@@ -119,7 +119,7 @@ public static partial class GarminConnectTools
     public static List<(long activityId, FileInfo file)> JsonActivityFilesFromDirectory(string directoryName)
     {
         if (string.IsNullOrWhiteSpace(directoryName) || !Directory.Exists(directoryName))
-            return new List<(long activityId, FileInfo file)>();
+            return [];
 
         var archiveDirectory = new DirectoryInfo(directoryName);
         var archiveJsonFiles = archiveDirectory.EnumerateFiles("*-gc*.json", SearchOption.TopDirectoryOnly).ToList();

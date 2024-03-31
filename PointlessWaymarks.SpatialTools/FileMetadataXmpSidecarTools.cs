@@ -1,4 +1,4 @@
-﻿using XmpCore;
+using XmpCore;
 
 namespace PointlessWaymarks.SpatialTools;
 
@@ -121,7 +121,7 @@ public static class FileMetadataXmpSidecarTools
 
     public static List<string> KeywordsFromXmpSidecar(IXmpMeta? sidecarXmpMeta, bool splitOnCommaAndSemiColon)
     {
-        if (sidecarXmpMeta == null) return new List<string>();
+        if (sidecarXmpMeta == null) return [];
 
         var extractedKeywords = new List<string>();
 

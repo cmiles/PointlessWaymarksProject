@@ -40,7 +40,7 @@ public static class GeoJsonTools
 
     public static FeatureCollection DeserializeStringToFeatureCollection(string geoJsonString)
     {
-        if (string.IsNullOrEmpty(geoJsonString)) return new FeatureCollection();
+        if (string.IsNullOrEmpty(geoJsonString)) return [];
 
         var serializer = GeoJsonSerializer.Create(new JsonSerializerSettings { Formatting = Formatting.Indented },
             Wgs84GeometryFactory(), 3);
@@ -104,7 +104,7 @@ public static class GeoJsonTools
 
     public static List<Geometry> LineStringToGeometries(string lineString)
     {
-        if (string.IsNullOrWhiteSpace(lineString)) return new List<Geometry>();
+        if (string.IsNullOrWhiteSpace(lineString)) return [];
 
         var featureCollection = DeserializeStringToFeatureCollection(lineString);
 
