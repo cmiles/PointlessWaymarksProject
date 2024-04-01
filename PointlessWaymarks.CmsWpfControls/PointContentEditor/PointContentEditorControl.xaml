@@ -17,17 +17,15 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
     xmlns:dropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.DropdownDataEntry"
     xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
-    d:DesignHeight="300"
-    d:DesignWidth="300"
+    d:DesignHeight="800"
+    d:DesignWidth="800"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -72,7 +70,8 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource ActionPanelBorderStyle}">
+                    <Border Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+                            Style="{StaticResource ActionPanelBorderStyle}">
                         <ScrollViewer
                             HorizontalContentAlignment="Left"
                             HorizontalScrollBarVisibility="Disabled"
@@ -85,15 +84,15 @@
                                 <StackPanel.Resources>
                                     <Style TargetType="conversionDataEntry:ConversionDataEntryControl">
                                         <Setter Property="Width" Value="210" />
-                                        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                                        <Setter Property="HorizontalAlignment" Value="Left" />
                                     </Style>
                                     <Style TargetType="stringDataEntry:StringDataEntryControl">
                                         <Setter Property="Width" Value="210" />
-                                        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                                        <Setter Property="HorizontalAlignment" Value="Left" />
                                     </Style>
                                     <Style TargetType="stringWithDropdownDataEntry:StringWithDropdownDataEntryControl">
                                         <Setter Property="Width" Value="210" />
-                                        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                                        <Setter Property="HorizontalAlignment" Value="Left" />
                                     </Style>
                                 </StackPanel.Resources>
                                 <conversionDataEntry:ConversionDataEntryControl
@@ -139,8 +138,9 @@
                                 DeferNavigationTo="{Binding MapPreviewNavigationManager}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
-                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource ActionPanelBorderStyle}" Visibility="{Binding LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
-                        <geoSearch:GeoSearchControl DataContext="{Binding LocationSearchContext}"></geoSearch:GeoSearchControl>
+                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource ActionPanelBorderStyle}"
+                            Visibility="{Binding LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
+                        <geoSearch:GeoSearchControl DataContext="{Binding LocationSearchContext}" />
                     </Border>
                     <Border Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0"
                             Style="{StaticResource ActionPanelBorderStyle}">
@@ -222,6 +222,6 @@
             Grid.Column="0"
             HorizontalContentAlignment="Right"
             VerticalContentAlignment="Bottom"
-            d:IsHidden="true"/>
+            d:IsHidden="true" />
     </Grid>
 </UserControl>

@@ -96,6 +96,33 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         ToWebView.Enqueue(JsonData.CreateRequest(serializedData));
     }
 
+    [NonBlockingCommand]
+    public async Task ClearSearchInBounds()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapBounds == null)
+        {
+            StatusContext.ToastError("No Map Bounds?");
+            return;
+        }
+
+        var searchResultIds = (await (await Db.Context()).ContentFromBoundingBox(MapBounds)).Select(x => x.ContentId)
+            .Cast<Guid>().ToList();
+
+        if (!searchResultIds.Any())
+        {
+            StatusContext.ToastWarning("No Items Found in Bounds?");
+            return;
+        }
+
+        DisplayedContentGuids = DisplayedContentGuids.Where(x => !searchResultIds.Contains(x)).ToList();
+
+        ToWebView.Enqueue(
+            JsonData.CreateRequest(
+                JsonSerializer.Serialize(new MapJsonFeatureListDto(searchResultIds, "RemoveFeatures"))));
+    }
+
     public static async Task<LocationChooserContext> CreateInstance(StatusControlContext windowStatusContext,
         double? initialLatitude, double? initialLongitude, double? initialElevation)
     {
@@ -182,21 +209,21 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
 
         LatitudeLongitudeChangeBroadcast();
 
-        var db = await Db.Context();
-        var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
+        //var db = await Db.Context();
+        //var searchBounds = SpatialBounds.FromCoordinates(LatitudeEntry.UserValue, LongitudeEntry.UserValue, 5000);
 
-        var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds)).ToList();
-        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
-        DisplayedContentGuids =
-            DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
+        //var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds)).ToList();
+        //var mapInformation = await MapCmsJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
+        //DisplayedContentGuids =
+        //    DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        ToWebView.Enqueue(
-            FileBuilder.CreateRequest(mapInformation.fileCopyList.Select(x => new FileBuilderCopy(x, false)).ToList(),
-                []));
+        //ToWebView.Enqueue(
+        //    FileBuilder.CreateRequest(mapInformation.fileCopyList.Select(x => new FileBuilderCopy(x, false)).ToList(),
+        //        []));
 
-        ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
-            mapInformation.featureList,
-            mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
+        //ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
+        //    mapInformation.featureList,
+        //    mapInformation.bounds.ExpandToMinimumMeters(1000), "NewFeatureCollection")));
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
@@ -253,7 +280,12 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
     }
 
     [NonBlockingCommand]
-    public async Task SearchInBounds()
+    public async Task SearchGeoJsonInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForGeoJson]);
+    }
+
+    public async Task SearchInBounds(List<string> searchContentTypes)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -263,7 +295,8 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
             return;
         }
 
-        var searchResult = (await (await Db.Context()).ContentFromBoundingBox(MapBounds)).ToList();
+        var searchResult = (await (await Db.Context()).ContentFromBoundingBox(MapBounds, searchContentTypes))
+            .Where(x => !DisplayedContentGuids.Contains(x.ContentId)).ToList();
 
         if (!searchResult.Any())
         {
@@ -277,12 +310,29 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
-        ToWebView.Enqueue(FileBuilder.CreateRequest(
-            mapInformation.fileCopyList.Select(x => new FileBuilderCopy(x, false)).ToList(),
-            []));
-
+        ToWebView.Enqueue(
+            FileBuilder.CreateRequest(mapInformation.fileCopyList.Select(x => new FileBuilderCopy(x, false)).ToList(),
+                []));
         ToWebView.Enqueue(JsonData.CreateRequest(await MapCmsJson.NewMapFeatureCollectionDtoSerialized(
             mapInformation.featureList,
             mapInformation.bounds.ExpandToMinimumMeters(1000), "AddFeatureCollection")));
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchLinesInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForLine]);
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchPhotosInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForPhoto]);
+    }
+
+    [NonBlockingCommand]
+    public async Task SearchPointsInBounds()
+    {
+        await SearchInBounds([Db.ContentTypeDisplayStringForPoint]);
     }
 }

@@ -4,17 +4,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.PhotoContentEditor"
-        xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
         xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
         xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}" Height="650" Width="800" d:DataContext="{d:DesignInstance local:LocationChooserWindow}">
+        Title="{Binding WindowTitle}" Height="800" Width="800"
+        d:DataContext="{d:DesignInstance local:LocationChooserWindow}">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -24,10 +23,10 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <GroupBox
             Margin="4,0,4,4"
@@ -58,20 +57,39 @@
             </WrapPanel>
         </GroupBox>
         <wpf:WebView2
-            Grid.Row="1" 
+            Grid.Row="1"
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
-                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding LocationChooser}"   DeferNavigationTo="{Binding LocationChooser.MapPreviewNavigationManager}"/>
+                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
+                    WebViewMessenger="{Binding LocationChooser}"
+                    DeferNavigationTo="{Binding LocationChooser.MapPreviewNavigationManager}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
-        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource ActionPanelBorderStyle}" Visibility="{Binding LocationChooser.LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
-            <geoSearch:GeoSearchControl DataContext="{Binding LocationChooser.LocationSearchContext}"></geoSearch:GeoSearchControl>
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource ActionPanelBorderStyle}"
+                Visibility="{Binding LocationChooser.LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
+            <geoSearch:GeoSearchControl DataContext="{Binding LocationChooser.LocationSearchContext}" />
         </Border>
         <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
-                    Command="{Binding LocationChooser.SearchInBoundsCommand}"
-                    Content="Search"
+                    Command="{Binding LocationChooser.SearchPhotosInBoundsCommand}"
+                    Content="Search Photos"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding LocationChooser.SearchPointsInBoundsCommand}"
+                    Content="Search Points"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding LocationChooser.SearchLinesInBoundsCommand}"
+                    Content="Search Lines"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding LocationChooser.SearchGeoJsonInBoundsCommand}"
+                    Content="Search GeoJson"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding LocationChooser.ClearSearchInBoundsCommand}"
+                    Content="Clear Search"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Content="Center on Location"

@@ -179,7 +179,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (!searchResultIds.Any())
         {
-            StatusContext.ToastWarning("No New Items Found");
+            StatusContext.ToastWarning("No Items Found in Bounds?");
             return;
         }
 
