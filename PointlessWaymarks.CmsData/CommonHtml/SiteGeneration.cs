@@ -167,7 +167,8 @@ public static class SiteGeneration
             SiteGenerationChangedContent.GenerateChangeFilteredLineHtml(generationVersion, progress),
             SiteGenerationChangedContent.GenerateChangeFilteredMapData(generationVersion, progress),
             SiteGenerationChangedContent.GenerateChangeFilteredNoteHtml(generationVersion, progress),
-            SiteGenerationChangedContent.GenerateChangeFilteredPostHtml(generationVersion, progress)
+            SiteGenerationChangedContent.GenerateChangeFilteredPostHtml(generationVersion, progress),
+            SiteGenerationChangedContent.GenerateChangeFilteredPointHtml(generationVersion, progress),
         };
 
         await Task.WhenAll(changedPartsList).ConfigureAwait(false);
@@ -201,7 +202,7 @@ public static class SiteGeneration
             SiteGenerationAllContent.GenerateAllUtilityJson(progress),
             GenerateIndex(generationVersion, progress),
             GenerateLatestContentGalleryHtml(generationVersion, progress),
-            GenerateErrorPage(generationVersion, progress)
+            GenerateChangedErrorPage(generationVersion, progress)
         };
 
         await Task.WhenAll(tagAndListTasks).ConfigureAwait(false);
@@ -343,6 +344,12 @@ public static class SiteGeneration
     {
         var error = new ErrorPage { GenerationVersion = generationVersion };
         await error.WriteLocalHtml().ConfigureAwait(false);
+    }
+
+    public static async Task GenerateChangedErrorPage(DateTime? generationVersion, IProgress<string>? progress = null)
+    {
+        var error = new ErrorPage { GenerationVersion = generationVersion };
+        await error.WriteLocalHtml(true).ConfigureAwait(false);
     }
 
     public static async Task GenerateIndex(DateTime? generationVersion, IProgress<string>? progress = null)

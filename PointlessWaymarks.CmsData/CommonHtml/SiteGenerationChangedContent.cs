@@ -390,10 +390,22 @@ public static class SiteGenerationChangedContent
                 .ConfigureAwait(false);
         else progress?.Report("Skipping Note List Generation - no image changes found");
 
-        var linkListPage = new LinkListPage { GenerationVersion = generationVersion };
-        await linkListPage.WriteLocalHtmlRssAndJson().ConfigureAwait(false);
-        progress?.Report("Creating Link List Json");
-        await Export.WriteLinkListJson(progress).ConfigureAwait(false);
+        var linksChanged = db.LinkContents
+            .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+        var linksDeleted =
+            (await Db.DeletedLinkContent().ConfigureAwait(false)).Any(
+                x => x.ContentVersion > lastGenerationDateTime);
+        if (linksChanged || linksDeleted)
+        {
+            var linkListPage = new LinkListPage { GenerationVersion = generationVersion };
+            await linkListPage.WriteLocalHtmlRssAndJson().ConfigureAwait(false);
+            progress?.Report("Creating Link List Json");
+            await Export.WriteLinkListJson(progress).ConfigureAwait(false);
+        }
+        else
+        {
+            progress?.Report("Skipping Link List Generation - no image changes found");
+        }
     }
 
     public static async Task GenerateChangedMainFeedContent(DateTime generationVersion,

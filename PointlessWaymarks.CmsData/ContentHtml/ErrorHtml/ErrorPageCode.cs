@@ -1,4 +1,6 @@
-﻿namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
+using System.Text.RegularExpressions;
+
+namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
 
 public partial class ErrorPage
 {
@@ -16,9 +18,7 @@ public partial class ErrorPage
     }
 
     public string DirAttribute { get; set; }
-
     public DateTime? GenerationVersion { get; set; }
-
     public string LangAttribute { get; set; }
     public string PageUrl { get; }
     public string SiteAuthors { get; }
@@ -27,7 +27,7 @@ public partial class ErrorPage
     public string SiteSummary { get; }
     public string SiteUrl { get; }
 
-    public async Task WriteLocalHtml()
+    public async Task WriteLocalHtml(bool writeOnlyIfChanged = false)
     {
         var htmlString = TransformText();
 
@@ -37,6 +37,17 @@ public partial class ErrorPage
 
         if (htmlFileInfo.Exists)
         {
+            if (writeOnlyIfChanged)
+            {
+                var currentFileString = await htmlFileInfo.OpenText().ReadToEndAsync();
+                var pattern = "data-generationversion=\"[^\"\"]*\"";
+
+                var currentTextString = Regex.Replace(currentFileString, pattern, string.Empty);
+                var newTextString = Regex.Replace(htmlString, pattern, string.Empty);
+
+                if (currentTextString.Equals(newTextString)) return;
+            }
+
             htmlFileInfo.Delete();
             htmlFileInfo.Refresh();
         }
