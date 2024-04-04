@@ -116,21 +116,28 @@ public static class SiteGenerationAllContent
 
     public static async Task GenerateAllListHtml(DateTime? generationVersion, IProgress<string>? progress = null)
     {
+        //!!Content Type List!!
         var taskSet = new List<Func<Task>>
         {
             async () => await SearchListPageGenerators
                 .WriteAllContentCommonSearchListHtml(generationVersion, progress).ConfigureAwait(false),
             async () => await SearchListPageGenerators.WriteFileContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false),
+            async () => await SearchListPageGenerators.WriteGeoJsonContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false),
             async () => await SearchListPageGenerators.WriteImageContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false),
+            async () => await SearchListPageGenerators.WriteLineContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false),
+            async () => await SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false),
             async () => await SearchListPageGenerators.WritePhotoContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false),
-            async () => await SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false),
             async () => await SearchListPageGenerators.WritePointContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false),
-            async () => await SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress)
+            async () => await SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false),
+            async () => await SearchListPageGenerators.WriteVideoContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false),
             async () =>
             {

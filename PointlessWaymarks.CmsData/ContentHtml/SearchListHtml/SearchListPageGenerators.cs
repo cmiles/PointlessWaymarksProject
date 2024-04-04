@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.ContentHtml.TagListHtml;
+using PointlessWaymarks.CmsData.ContentHtml.TagListHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Rss;
@@ -61,6 +61,25 @@ public static class SearchListPageGenerators
                 .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteFileRssFile(), "Files", progress);
     }
 
+    public static async Task WriteGeoJsonContentListHtml(DateTime? generationVersion,
+        IProgress<string>? progress = null)
+    {
+        static List<object> ContentList()
+        {
+            var db = Db.Context().Result;
+            return db.GeoJsonContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+        }
+
+        var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonListFile();
+
+        await WriteSearchListHtml(ContentList, fileInfo, "GeoJson",
+                UserSettingsSingleton.CurrentSettings().GeoJsonRssUrl(), generationVersion, progress)
+            .ConfigureAwait(false);
+        RssBuilder.WriteContentCommonListRss(
+            ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
+                .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonRssFile(), "GeoJson", progress);
+    }
+
 
     public static async Task WriteImageContentListHtml(DateTime? generationVersion,
         IProgress<string>? progress = null)
@@ -80,6 +99,25 @@ public static class SearchListPageGenerators
         RssBuilder.WriteContentCommonListRss(
             ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                 .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteImageRssFile(), "Images", progress);
+    }
+
+    public static async Task WriteLineContentListHtml(DateTime? generationVersion,
+        IProgress<string>? progress = null)
+    {
+        static List<object> ContentList()
+        {
+            var db = Db.Context().Result;
+            return db.LineContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+        }
+
+        var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteLineListFile();
+
+        await WriteSearchListHtml(ContentList, fileInfo, "Lines",
+                UserSettingsSingleton.CurrentSettings().LinesRssUrl(), generationVersion, progress)
+            .ConfigureAwait(false);
+        RssBuilder.WriteContentCommonListRss(
+            ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
+                .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteLineRssFile(), "Lines", progress);
     }
 
     public static async Task WriteNoteContentListHtml(DateTime? generationVersion,
@@ -239,5 +277,25 @@ public static class SearchListPageGenerators
         await WriteSearchListHtml(() => content,
             UserSettingsSingleton.CurrentSettings().LocalSiteTagListFileInfo(tag), $"Tag - {tag}", string.Empty,
             generationVersion, progress).ConfigureAwait(false);
+    }
+
+
+    public static async Task WriteVideoContentListHtml(DateTime? generationVersion,
+        IProgress<string>? progress = null)
+    {
+        static List<object> ContentList()
+        {
+            var db = Db.Context().Result;
+            return db.VideoContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+        }
+
+        var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteVideoListFile();
+
+        await WriteSearchListHtml(ContentList, fileInfo, "Videos",
+                UserSettingsSingleton.CurrentSettings().VideosRssUrl(), generationVersion, progress)
+            .ConfigureAwait(false);
+        RssBuilder.WriteContentCommonListRss(
+            ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
+                .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteVideoRssFile(), "Videos", progress);
     }
 }

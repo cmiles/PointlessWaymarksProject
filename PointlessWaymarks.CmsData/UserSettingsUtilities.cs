@@ -278,11 +278,6 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Files/{content.Folder}/{content.Slug}/{content.OriginalFileName}";
     }
 
-    public static string FileListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Files/FileList.html";
-    }
-
     public static string FilePageUrl(this UserSettings settings, FileContent content)
     {
         return $"{settings.SiteUrl()}/Files/{content.Folder}/{content.Slug}/{content.Slug}.html";
@@ -303,11 +298,6 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/GeoJson/Data/GeoJson-{content.ContentId}.json";
     }
 
-    public static string GeoJsonListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/GeoJson/GeoJsonList.html";
-    }
-
     public static string GeoJsonPageUrl(this UserSettings settings, GeoJsonContent content)
     {
         return $"{settings.SiteUrl()}/GeoJson/{content.Folder}/{content.Slug}/{content.Slug}.html";
@@ -316,11 +306,6 @@ public static class UserSettingsUtilities
     public static string GeoJsonRssUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/GeoJson/GeoJsonRss.xml";
-    }
-
-    public static string ImageListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Images/ImageList.html";
     }
 
     public static string ImagePageUrl(this UserSettings settings, ImageContent content)
@@ -356,11 +341,6 @@ public static class UserSettingsUtilities
     public static string LinePageUrl(this UserSettings settings, LineContent content)
     {
         return $"{settings.SiteUrl()}/Lines/{content.Folder}/{content.Slug}/{content.Slug}.html";
-    }
-
-    public static string LinesListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Lines/LineList.html";
     }
 
     public static string LinesRssUrl(this UserSettings settings)
@@ -520,7 +500,6 @@ public static class UserSettingsUtilities
         var directory = settings.LocalSitePhotoGalleryDirectory();
         return new FileInfo($"{Path.Combine(directory.FullName, "CameraRoll")}.html");
     }
-
 
 
     public static DirectoryInfo LocalSiteContentDataDirectory(this UserSettings settings)
@@ -789,6 +768,16 @@ public static class UserSettingsUtilities
         return directory;
     }
 
+    public static DirectoryInfo LocalSiteLineDirectory(this UserSettings settings)
+    {
+        var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Lines"));
+        if (!directory.Exists) directory.Create();
+
+        directory.Refresh();
+
+        return directory;
+    }
+
     public static DirectoryInfo LocalSiteLineGpxDirectory(this UserSettings settings)
     {
         var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteLineDirectory().FullName, "GpxData"));
@@ -803,16 +792,6 @@ public static class UserSettingsUtilities
     {
         var directory = settings.LocalSiteLineGpxDirectory();
         return new FileInfo($"{Path.Combine(directory.FullName, content.ContentId.ToString())}.gpx");
-    }
-
-    public static DirectoryInfo LocalSiteLineDirectory(this UserSettings settings)
-    {
-        var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Lines"));
-        if (!directory.Exists) directory.Create();
-
-        directory.Refresh();
-
-        return directory;
     }
 
     public static FileInfo? LocalSiteLineHtmlFile(this UserSettings settings, LineContent? content)
@@ -1274,10 +1253,22 @@ public static class UserSettingsUtilities
         return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
     }
 
+    public static FileInfo LocalSiteVideoListFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteVideoDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "VideoList")}.html");
+    }
+
     public static FileInfo LocalSiteVideoListVideo(this UserSettings settings)
     {
         var directory = settings.LocalSiteVideoDirectory();
         return new FileInfo($"{Path.Combine(directory.FullName, "VideoList")}.html");
+    }
+
+    public static FileInfo LocalSiteVideoRssFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSitePostDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "VideoRss")}.xml");
     }
 
     public static FileInfo LocalSiteVideoRssVideo(this UserSettings settings)
@@ -1289,11 +1280,6 @@ public static class UserSettingsUtilities
     public static string MapIconDataUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/Points/Data/pwmapicons.json";
-    }
-
-    public static string NoteListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Notes/NoteList.html";
     }
 
     public static string NotePageUrl(this UserSettings settings, NoteContent content)
@@ -1328,11 +1314,6 @@ public static class UserSettingsUtilities
             VideoContent c => settings.VideoPageUrl(c),
             _ => throw new DataException("Content not Found")
         };
-    }
-
-    public static string PhotoListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Photos/PhotoList.html";
     }
 
     public static string PhotoPageUrl(this UserSettings settings, PhotoContent content)
@@ -1378,11 +1359,6 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Points/{content.Folder}/{content.Slug}/{content.Slug}.html";
     }
 
-    public static string PointsListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Points/PointList.html";
-    }
-
     public static string PointsRssUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/Points/PointRss.xml";
@@ -1391,11 +1367,6 @@ public static class UserSettingsUtilities
     public static string PostPageUrl(this UserSettings settings, PostContent content)
     {
         return $"{settings.SiteUrl()}/Posts/{content.Folder}/{content.Slug}/{content.Slug}.html";
-    }
-
-    public static string PostsListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Posts/PostList.html";
     }
 
     public static string PostsRssUrl(this UserSettings settings)
@@ -1763,11 +1734,6 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Videos/{content.Folder}/{content.Slug}/{content.OriginalFileName}";
     }
 
-    public static string VideoListUrl(this UserSettings settings)
-    {
-        return $"{settings.SiteUrl()}/Videos/VideoList.html";
-    }
-
     public static string VideoPageUrl(this UserSettings settings, VideoContent content)
     {
         return $"{settings.SiteUrl()}/Videos/{content.Folder}/{content.Slug}/{content.Slug}.html";
@@ -1776,6 +1742,11 @@ public static class UserSettingsUtilities
     public static string VideoRssUrl(this UserSettings settings)
     {
         return $"{settings.SiteUrl()}/Videos/VideoRss.xml";
+    }
+
+    public static string VideosRssUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/Posts/VideoRss.xml";
     }
 
     public static Task WriteSettings(this UserSettings toWrite)

@@ -317,6 +317,7 @@ public static class SiteGenerationChangedContent
         await SearchListPageGenerators.WriteAllContentCommonSearchListHtml(generationVersion, progress)
             .ConfigureAwait(false);
 
+        //!!Content Type List!!
         var db = await Db.Context().ConfigureAwait(false);
         var filesChanged =
             db.FileContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
@@ -336,6 +337,20 @@ public static class SiteGenerationChangedContent
             progress?.Report("Skipping File List Generation - no file or file main picture changes found");
         }
 
+
+        var geojsonChanged =
+            db.GeoJsonContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
+                .Any() || db.GeoJsonContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
+                o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+        var geojsonDeleted =
+            (await Db.DeletedGeoJsonContent().ConfigureAwait(false)).Any(
+                x => x.ContentVersion > lastGenerationDateTime);
+        if (geojsonChanged || geojsonDeleted)
+            await SearchListPageGenerators.WriteGeoJsonContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false);
+        else progress?.Report("Skipping GeoJson List Generation - no file or file main picture changes found");
+
+
         var imagesChanged = db.ImageContents
             .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
         var imagesDeleted =
@@ -346,49 +361,19 @@ public static class SiteGenerationChangedContent
                 .ConfigureAwait(false);
         else progress?.Report("Skipping Image List Generation - no image changes found");
 
-        var photosChanged = db.PhotoContents
-            .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-        var photosDeleted =
-            (await Db.DeletedPhotoContent().ConfigureAwait(false)).Any(x =>
-                x.ContentVersion > lastGenerationDateTime);
-        if (photosChanged || photosDeleted)
-            await SearchListPageGenerators.WritePhotoContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false);
-        else progress?.Report("Skipping Photo List Generation - no image changes found");
 
-        var postChanged =
-            db.PostContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
-                .Any() || db.PostContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
+        var lineChanged =
+            db.LineContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
+                .Any() || db.LineContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
                 o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-        var postsDeleted =
-            (await Db.DeletedPostContent().ConfigureAwait(false)).Any(
+        var linesDeleted =
+            (await Db.DeletedLineContent().ConfigureAwait(false)).Any(
                 x => x.ContentVersion > lastGenerationDateTime);
-        if (postChanged || postsDeleted)
-            await SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress)
+        if (lineChanged || linesDeleted)
+            await SearchListPageGenerators.WriteLineContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false);
-        else progress?.Report("Skipping Post List Generation - no file or file main picture changes found");
+        else progress?.Report("Skipping Line List Generation - no file or file main picture changes found");
 
-        var pointChanged =
-            db.PointContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
-                .Any() || db.PointContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
-                o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-        var pointsDeleted =
-            (await Db.DeletedPointContent().ConfigureAwait(false)).Any(x =>
-                x.ContentVersion > lastGenerationDateTime);
-        if (pointChanged || pointsDeleted)
-            await SearchListPageGenerators.WritePointContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false);
-        else progress?.Report("Skipping Point List Generation - no file or file main picture changes found");
-
-        var notesChanged = db.NoteContents
-            .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
-        var notesDeleted =
-            (await Db.DeletedNoteContent().ConfigureAwait(false)).Any(
-                x => x.ContentVersion > lastGenerationDateTime);
-        if (notesChanged || notesDeleted)
-            await SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress)
-                .ConfigureAwait(false);
-        else progress?.Report("Skipping Note List Generation - no image changes found");
 
         var linksChanged = db.LinkContents
             .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
@@ -406,6 +391,66 @@ public static class SiteGenerationChangedContent
         {
             progress?.Report("Skipping Link List Generation - no image changes found");
         }
+
+
+        var notesChanged = db.NoteContents
+            .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+        var notesDeleted =
+            (await Db.DeletedNoteContent().ConfigureAwait(false)).Any(
+                x => x.ContentVersion > lastGenerationDateTime);
+        if (notesChanged || notesDeleted)
+            await SearchListPageGenerators.WriteNoteContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false);
+        else progress?.Report("Skipping Note List Generation - no image changes found");
+
+
+        var photosChanged = db.PhotoContents
+            .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+        var photosDeleted =
+            (await Db.DeletedPhotoContent().ConfigureAwait(false)).Any(x =>
+                x.ContentVersion > lastGenerationDateTime);
+        if (photosChanged || photosDeleted)
+            await SearchListPageGenerators.WritePhotoContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false);
+        else progress?.Report("Skipping Photo List Generation - no image changes found");
+
+
+        var pointChanged =
+            db.PointContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
+                .Any() || db.PointContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
+                o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+        var pointsDeleted =
+            (await Db.DeletedPointContent().ConfigureAwait(false)).Any(x =>
+                x.ContentVersion > lastGenerationDateTime);
+        if (pointChanged || pointsDeleted)
+            await SearchListPageGenerators.WritePointContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false);
+        else progress?.Report("Skipping Point List Generation - no file or file main picture changes found");
+
+
+        var postChanged =
+            db.PostContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
+                .Any() || db.PostContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
+                o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+        var postsDeleted =
+            (await Db.DeletedPostContent().ConfigureAwait(false)).Any(
+                x => x.ContentVersion > lastGenerationDateTime);
+        if (postChanged || postsDeleted)
+            await SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false);
+        else progress?.Report("Skipping Post List Generation - no file or file main picture changes found");
+
+        var videoChanged =
+            db.VideoContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
+                .Any() || db.VideoContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
+                o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+        var videosDeleted =
+            (await Db.DeletedVideoContent().ConfigureAwait(false)).Any(
+                x => x.ContentVersion > lastGenerationDateTime);
+        if (videoChanged || videosDeleted)
+            await SearchListPageGenerators.WriteVideoContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false);
+        else progress?.Report("Skipping Video List Generation - no file or file main picture changes found");
     }
 
     public static async Task GenerateChangedMainFeedContent(DateTime generationVersion,
