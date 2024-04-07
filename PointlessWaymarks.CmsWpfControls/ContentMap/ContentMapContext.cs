@@ -7,7 +7,11 @@ using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.GeoSearch;
+using PointlessWaymarks.CmsWpfControls.LineList;
+using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -336,6 +340,51 @@ public partial class ContentMapContext : IWebViewMessenger
         var bounds = MapCmsJson.GetBounds(ListContext.SelectedListItems());
 
         await RequestMapCenterOnEnvelope(bounds);
+    }
+
+    [NonBlockingCommand]
+    public async Task ClearInsideMapBounds()
+    {
+        await ClearBasedOnBounds(true);
+    }
+
+    [NonBlockingCommand]
+    public async Task ClearOutsideMapBounds()
+    {
+        await ClearBasedOnBounds(false);
+    }
+
+    public async Task ClearBasedOnBounds(bool clearInside)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapBounds == null)
+        {
+            StatusContext.ToastError("No Map Bounds?");
+            return;
+        }
+
+        var currentItems = ListContext.Items.ToList();
+
+        var itemsToRemove = new List<IContentListItem>();
+
+        foreach (var loopItem in currentItems)
+        {
+            var isInside = loopItem switch
+            {
+                LineListListItem line => Db.LineContentBoundingBoxOverlaps(line.DbEntry, MapBounds),
+                GeoJsonListListItem geo => Db.GeoJsonBoundingBoxOverlaps(geo.DbEntry, MapBounds),
+                PhotoListListItem photo => Db.PhotoContentIsInBoundingBox(photo.DbEntry, MapBounds),
+                PointListListItem point => Db.PointContentIsInBoundingBox(point.DbEntry, MapBounds),
+                _ => false
+            };
+
+            if ((clearInside && isInside) || (!clearInside && !isInside)) itemsToRemove.Add(loopItem);
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        itemsToRemove.ForEach(x => ListContext.Items.Remove(x));
     }
 
     [NonBlockingCommand]

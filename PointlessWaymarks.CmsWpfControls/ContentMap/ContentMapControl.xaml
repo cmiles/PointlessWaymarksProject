@@ -77,6 +77,8 @@
                     Close All Popups
                 </Button>
                 <Button Command="{Binding SearchInBoundsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Search Here</Button>
+                <Button Command="{Binding ClearInsideMapBoundsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Clear Inside</Button>
+                <Button Command="{Binding ClearOutsideMapBoundsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Clear Outside</Button>
                 <Button Command="{Binding RefreshMapCommand}" Style="{StaticResource ActionPanelButtonStyle}">Refresh Map</Button>
             </WrapPanel>
         </Border>
