@@ -286,7 +286,12 @@ function createPoints(useCircleMarkers) {
             let labelMarker = L.circleMarker(latlng,
                 { radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5 });
 
-            labelMarker.addTo(map);
+            let labelMarkerLayer = labelMarker.addTo(map);
+
+            //Because we aren't returning this layer add it to the mapLayer here 
+            //and give it an identifier.
+            labelMarkerLayer.displayId = feature.properties?.displayId;
+            mapLayers.push(labelMarkerLayer);
 
             return L.marker(latlng,
                 {
@@ -336,8 +341,9 @@ function removeGeoJsonDataHandler(e) {
 
         let toRemove = [];
         map.eachLayer(function (l) {
-            if (!l.feature?.properties?.displayId) return;
-            if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)) {
+            if (!l.feature?.properties?.displayId && 'displayId' in l === false) return;
+            if (e.data.IdentifierList.includes(l.feature?.properties?.displayId)
+                || ('displayId' in l && e.data.IdentifierList.includes(l.displayId))) {
                 console.log(`removing l.feature ${l.feature}`);
                 map.removeLayer(l);
 
