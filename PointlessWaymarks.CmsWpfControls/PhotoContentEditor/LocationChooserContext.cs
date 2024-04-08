@@ -151,7 +151,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         var possibleElevation =
             await ElevationGuiHelper.GetElevation(LatitudeEntry.UserValue, LongitudeEntry.UserValue, StatusContext);
 
-        if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.ToString("F2");
+        if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.MetersToFeet().ToString("N0");
     }
 
     private void LatitudeLongitudeChangeBroadcast()
@@ -174,10 +174,10 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
                 ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => (o == null && u == null) || o.IsApproximatelyEqualTo(u, .001);
-        ElevationEntry.Title = "Elevation (m)";
-        ElevationEntry.HelpText = "Elevation in Meters";
+        ElevationEntry.Title = "Elevation (feet)";
+        ElevationEntry.HelpText = "Elevation in Feet";
         ElevationEntry.ReferenceValue = InitialElevation;
-        ElevationEntry.UserText = InitialElevation?.ToString("F2") ?? string.Empty;
+        ElevationEntry.UserText = InitialElevation?.ToString("N0") ?? string.Empty;
 
         LatitudeEntry =
             await ConversionDataEntryContext<double>.CreateInstance(ConversionDataEntryHelpers.DoubleConversion);

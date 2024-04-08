@@ -211,11 +211,11 @@ public static class CommonContentValidation
     {
         if (elevation == null) return Task.FromResult(new IsValid(true, "Null Elevation is Valid"));
 
-        if (elevation > 8850)
+        if (elevation > 29500)
             return Task.FromResult(new IsValid(false,
                 $"Elevations are limited to the elevation of Mount Everest - 29,092' above sea level - {elevation} was input..."));
 
-        if (elevation < -15240)
+        if (elevation < -50000)
             return Task.FromResult(new IsValid(false,
                 $"This is very unlikely to be a valid elevation, this exceeds the depth of the Mariana Trench and known Extended-Reach Drilling (as of 2020) - elevations under -50,000' are not considered valid - {elevation} was input..."));
 

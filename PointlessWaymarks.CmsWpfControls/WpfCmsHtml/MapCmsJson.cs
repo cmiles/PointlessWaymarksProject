@@ -360,7 +360,7 @@ public static class MapCmsJson
 
                 featureCollection.Add(new Feature(
                     PointTools.Wgs84Point(loopElements.Longitude.Value, loopElements.Latitude.Value,
-                        loopElements.Elevation ?? 0),
+                        loopElements.Elevation?.FeetToMeters() ?? 0),
                     new AttributesTable(new Dictionary<string, object>
                     {
                         {

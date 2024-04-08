@@ -205,18 +205,11 @@
                                     <StackPanel Orientation="Vertical">
                                         <conversionDataEntry:ConversionDataEntryControl Width="120"
                                             DataContext="{Binding ElevationEntry}" />
-                                        <TextBox
-                                            Margin="0,2,0,0"
-                                            VerticalAlignment="Bottom"
-                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                            Text="{Binding ElevationEntry.UserText, Converter={StaticResource MetersToFeet}, StringFormat='{}({0:N0} feet)'}"
-                                            TextAlignment="Right"
-                                            Visibility="{Binding ElevationEntry.UserText, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}" />
                                     </StackPanel>
                                     <Button
                                         Width="90"
-                                        Margin="2,8,0,1"
-                                        VerticalAlignment="Center"
+                                        Margin="10,10,0,0"
+                                        VerticalAlignment="Bottom"
                                         Command="{Binding GetElevationCommand}">
                                         Get Elevation
                                     </Button>

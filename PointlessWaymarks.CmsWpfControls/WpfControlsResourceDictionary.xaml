@@ -502,7 +502,7 @@
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <WrapPanel Orientation="Horizontal">
                             <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0" Text="{Binding DbEntry.Elevation, Converter={StaticResource MetersToFeet}, StringFormat='Elevation {0:N0}\''}" Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}"></TextBlock>
+                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0" Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}" Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}"></TextBlock>
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
                     </StackPanel>
@@ -821,7 +821,7 @@
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <WrapPanel Orientation="Horizontal">
                             <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0" Text="{Binding DbEntry.Elevation, Converter={StaticResource MetersToFeet}, StringFormat='Elevation {0:N0}\''}" Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}"></TextBlock>
+                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0" Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}" Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}"></TextBlock>
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListOriginalFileNameAndSlugDisplay}" />
                         <WrapPanel Margin="0,4,0,0" Orientation="Horizontal">

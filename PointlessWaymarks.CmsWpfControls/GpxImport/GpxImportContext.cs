@@ -353,7 +353,7 @@ public partial class GpxImportContext : IWebViewMessenger
             var newElevation =
                 elevationLookupCache.FirstOrDefault(x =>
                     x.Equals2D(new Coordinate(newPoint.Longitude, newPoint.Latitude)));
-            if (newElevation != null) newPoint.Elevation = newElevation.Z;
+            if (newElevation != null) newPoint.Elevation = newElevation.Z.MetersToFeet();
             else StatusContext.Progress($"Elevation NOT FOUND for replacement for {newPoint.Title}...");
         }
 

@@ -230,13 +230,13 @@ public static class ContentListSearch
 
         if (toFilter is PhotoListListItem { DbEntry.Elevation: not null } photoItem)
             return new ContentListSearchReturn(
-                ContentListSearchFunctions.FilterNumber((decimal)photoItem.DbEntry.Elevation.MetersToFeet(),
+                ContentListSearchFunctions.FilterNumber((decimal)photoItem.DbEntry.Elevation,
                     searchString,
                     "Elevation"), searchResultModifier);
 
         if (toFilter is PointListListItem { DbEntry.Elevation: not null } pointItem)
             return new ContentListSearchReturn(
-                ContentListSearchFunctions.FilterNumber((decimal)pointItem.DbEntry.Elevation.MetersToFeet(),
+                ContentListSearchFunctions.FilterNumber((decimal)pointItem.DbEntry.Elevation,
                     searchString,
                     "Elevation"), searchResultModifier);
 

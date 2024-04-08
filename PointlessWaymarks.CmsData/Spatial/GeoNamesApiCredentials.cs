@@ -34,7 +34,7 @@ public static class GeoNamesApiCredentials
     /// <summary>
     ///     Saves any existing GeoNames Credentials Associated with this settings file and Saves new Credentials
     /// </summary>
-    /// <param name="usename"></param>
+    /// <param name="username"></param>
     public static void SaveGeoNamesSiteCredential(string username)
     {
         PasswordVaultTools.SaveCredentials(GeoNamesSiteCredentialResourceString(), "GeoNamesApiUserName", username);

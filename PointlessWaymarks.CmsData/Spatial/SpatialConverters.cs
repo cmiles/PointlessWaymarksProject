@@ -1,5 +1,6 @@
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 
 namespace PointlessWaymarks.CmsData.Spatial;
@@ -55,7 +56,7 @@ public static class SpatialConverters
     public static Envelope PhotoBoundingBox(List<PhotoContent> content, Envelope? envelope = null)
     {
         var photoPointList = content.Where(x => x.HasLocation()).Select(x => GeoJsonTools.Wgs84GeometryFactory()
-            .CreatePoint(new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.Elevation ?? 0))).ToList();
+            .CreatePoint(new CoordinateZ(x.Longitude.Value, x.Latitude.Value, x.Elevation?.FeetToMeters() ?? 0))).ToList();
 
         return PointBoundingBox(photoPointList, envelope);
     }
@@ -71,7 +72,7 @@ public static class SpatialConverters
     public static Point PointContentToPoint(PointContent content)
     {
         return GeoJsonTools.Wgs84GeometryFactory()
-            .CreatePoint(new CoordinateZ(content.Longitude, content.Latitude, content.Elevation ?? 0));
+            .CreatePoint(new CoordinateZ(content.Longitude, content.Latitude, content.Elevation?.FeetToMeters() ?? 0));
     }
 
 }

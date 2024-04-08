@@ -354,7 +354,7 @@ Photo Content Notes:
         var possibleElevation = await ElevationGuiHelper.GetElevation(LatitudeEntry.UserValue.Value,
             LongitudeEntry.UserValue.Value, StatusContext);
 
-        if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.ToString("F2");
+        if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.MetersToFeet().ToString("N0");
     }
 
     [BlockingCommand]
@@ -563,10 +563,10 @@ Photo Content Notes:
                 ConversionDataEntryHelpers.DoubleNullableConversion);
         ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
         ElevationEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .001);
-        ElevationEntry.Title = "Elevation (m)";
-        ElevationEntry.HelpText = "Elevation in Meters";
+        ElevationEntry.Title = "Elevation (feet)";
+        ElevationEntry.HelpText = "Elevation in Feet";
         ElevationEntry.ReferenceValue = DbEntry.Elevation;
-        ElevationEntry.UserText = DbEntry.Elevation?.ToString("F2") ?? string.Empty;
+        ElevationEntry.UserText = DbEntry.Elevation?.ToString("N0") ?? string.Empty;
 
         HelpContext = new HelpDisplayContext([
             PhotoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
@@ -605,7 +605,7 @@ Photo Content Notes:
         IsoEntry!.UserText = metadata.Iso?.ToString("F0") ?? string.Empty;
         LatitudeEntry!.UserText = metadata.Latitude?.ToString("F6") ?? string.Empty;
         LongitudeEntry!.UserText = metadata.Longitude?.ToString("F6") ?? string.Empty;
-        ElevationEntry!.UserText = metadata.Elevation?.ToString("F2") ?? string.Empty;
+        ElevationEntry!.UserText = metadata.Elevation?.ToString("N0") ?? string.Empty;
         LensEntry!.UserValue = metadata.Lens ?? string.Empty;
         LicenseEntry!.UserValue = metadata.License ?? string.Empty;
         PhotoCreatedByEntry!.UserValue = metadata.PhotoCreatedBy ?? string.Empty;

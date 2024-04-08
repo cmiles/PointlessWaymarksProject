@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
@@ -302,7 +303,7 @@ public partial class PointListWithActionsContext
         {
             var toAdd = new GpxWaypoint(new GpxLongitude(loopItems.DbEntry.Longitude),
                 new GpxLatitude(loopItems.DbEntry.Latitude),
-                loopItems.DbEntry.Elevation,
+                loopItems.DbEntry.Elevation?.FeetToMeters(),
                 loopItems.DbEntry.LastUpdatedOn?.ToUniversalTime() ?? loopItems.DbEntry.CreatedOn.ToUniversalTime(),
                 null, null,
                 loopItems.DbEntry.Title, null, loopItems.DbEntry.Summary, null, [], null,

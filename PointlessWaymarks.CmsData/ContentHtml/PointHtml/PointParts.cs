@@ -270,7 +270,7 @@ public static class PointParts
         var container = new DivTag().AddClass("point-text-info-container");
         var pTag = new HtmlTag("p")
             .Text(
-                $"Lat: {Math.Round(point.Latitude, 5)}, Long: {Math.Round(point.Longitude, 5)}{(point.Elevation == null ? string.Empty : $", Elevation: {Math.Round(point.Elevation.MetersToFeet(), 0)}', {point.Elevation:F0}m")}, {CalTopoMapsLatLongLink(point)}, {GoogleMapsLatLongLink(point)}, {OsmCycleMapLatLongLink(point)}")
+                $"Lat: {Math.Round(point.Latitude, 5)}, Long: {Math.Round(point.Longitude, 5)}{(point.Elevation == null ? string.Empty : $", Elevation: {point.Elevation:N0}', {point.Elevation.FeetToMeters():F2}m'")}, {CalTopoMapsLatLongLink(point)}, {GoogleMapsLatLongLink(point)}, {OsmCycleMapLatLongLink(point)}")
             .AddClass("point-location-text").Encoded(false);
 
         container.Children.Add(pTag);

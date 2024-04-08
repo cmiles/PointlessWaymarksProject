@@ -73,7 +73,7 @@ public static class PhotoGenerator
 
         toReturn.Latitude = locationInformation.Latitude;
         toReturn.Longitude = locationInformation.Longitude;
-        toReturn.Elevation = locationInformation.Elevation;
+        toReturn.Elevation = locationInformation.Elevation?.MetersToFeet();
 
         var tags = new List<string>();
 

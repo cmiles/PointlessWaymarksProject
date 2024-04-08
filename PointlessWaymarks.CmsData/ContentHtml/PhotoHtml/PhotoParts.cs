@@ -38,8 +38,8 @@ public static class PhotoParts
                 "lat-long-decimal-degrees",
                 $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}"));
         if (dbEntry is { Elevation: { }, ShowPhotoPosition: true })
-            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.Elevation.Value.MetersToFeet():N0}'",
-                "photo-detail", "elevation-in-feet", dbEntry.Elevation.Value.MetersToFeet().ToString("F2")));
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.Elevation.Value:N0}'",
+                "photo-detail", "elevation-in-feet", dbEntry.Elevation.Value.ToString("F0")));
 
         //Return empty if there are no details
         return outerContainer.Children.Count(x => !x.IsEmpty()) > 1 ? outerContainer : HtmlTag.Empty();

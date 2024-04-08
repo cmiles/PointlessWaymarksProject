@@ -1,5 +1,6 @@
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
@@ -52,7 +53,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     public Point PointFromLatitudeLongitude()
     {
         if (Elevation is null) return new Point(Longitude, Latitude);
-        return new Point(Longitude, Latitude, Elevation.Value);
+        return new Point(Longitude, Latitude, Elevation.FeetToMeters());
     }
 
     public PointContent ToDbObject()
