@@ -5,7 +5,6 @@ using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.ExcelImport;
@@ -193,7 +192,7 @@ public class TestSeries02GrandCanyonPoints
         var track = (await GpxTools.TracksFromGpxFile(testFile, DebugTrackers.DebugProgressTracker()))
             .First();
 
-        var lineTest = await LineGenerator.NewFromGpxTrack(track, false, true, false,null);
+        var lineTest = await LineGenerator.NewFromGpxTrack(track, false, true, false, null);
 
         var stats = DistanceTools.LineStatsInMetricFromCoordinateList(track.Track);
 

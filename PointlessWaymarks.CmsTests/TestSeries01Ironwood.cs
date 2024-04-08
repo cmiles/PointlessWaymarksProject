@@ -8,7 +8,6 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.ExcelImport;
@@ -322,8 +321,8 @@ public class TestSeries01Ironwood
         Assert.Multiple(() =>
         {
             Assert.That(postDeleteTreePhotoHistoricEntryCount, Is.EqualTo(preDeleteTreePhotoHistoricEntryCount + 1),
-                    "After deleting the historic entry count should have increased by one but " +
-                    $"found {preDeleteTreePhotoHistoricEntryCount} entries before and {postDeleteTreePhotoHistoricEntryCount} entries after?");
+                "After deleting the historic entry count should have increased by one but " +
+                $"found {preDeleteTreePhotoHistoricEntryCount} entries before and {postDeleteTreePhotoHistoricEntryCount} entries after?");
 
             Assert.That(db.PhotoContents.Where(x => x.ContentId == treePhoto.ContentId).ToList(), Is.Empty,
                 $"Photo Content Id {treePhoto.ContentId} still" + "found in DB after delete.");
@@ -489,7 +488,8 @@ public class TestSeries01Ironwood
         var cameraRollGenerationVersionAttributeString = cameraRollDocument.Head.Attributes
             .Single(x => x.Name == "data-generationversion").Value;
 
-        Assert.That(cameraRollGenerationVersionAttributeString, Is.EqualTo(currentGeneration.GenerationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")),
+        Assert.That(cameraRollGenerationVersionAttributeString,
+            Is.EqualTo(currentGeneration.GenerationVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")),
             "Generation Version of Camera Roll Does not match expected Log");
 
         //Note Check
@@ -602,9 +602,13 @@ public class TestSeries01Ironwood
         });
         Assert.That(allPhotos.Count + 1, Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Count()));
         Assert.That(
-1, Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count()));
+            1,
+            Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId))
+                .Count()));
         Assert.That(
-0, Is.EqualTo(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count()));
+            0,
+            Is.EqualTo(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo))
+                .Count()));
 
         var photoContent = UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory()
             .GetFiles("*.html", SearchOption.AllDirectories).ToList().Where(x =>
@@ -648,9 +652,13 @@ public class TestSeries01Ironwood
         });
         Assert.That(allPhotos.Count - 1 + 1, Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Count()));
         Assert.That(
-1, Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count()));
+            1,
+            Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId))
+                .Count()));
         Assert.That(
-1, Is.EqualTo(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count()));
+            1,
+            Is.EqualTo(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo))
+                .Count()));
 
         photoContent = UserSettingsSingleton.CurrentSettings().LocalSitePhotoDirectory()
             .GetFiles("*.html", SearchOption.AllDirectories).ToList().Where(x =>
@@ -696,9 +704,13 @@ public class TestSeries01Ironwood
         });
         Assert.That(allPhotos.Count - 1 + 1, Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Count()));
         Assert.That(
-1, Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId)).Count()));
+            1,
+            Is.EqualTo(relatedContentEntries.Select(x => x.ContentTwo).Except(allPhotos.Select(x => x.ContentId))
+                .Count()));
         Assert.That(
-1, Is.EqualTo(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo)).Count()));
+            1,
+            Is.EqualTo(allPhotos.Select(x => x.ContentId).Except(relatedContentEntries.Select(x => x.ContentTwo))
+                .Count()));
 
         //Todo: Check that the excluded photo is not regenerated
     }
