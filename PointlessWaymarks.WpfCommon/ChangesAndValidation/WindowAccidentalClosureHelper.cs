@@ -9,6 +9,7 @@ public class WindowAccidentalClosureHelper
     private readonly IHasChanges _hasChangesToCheck;
     private readonly Window _toClose;
     private bool _closeConfirmed;
+    private bool _windowCloseDialogRunning;
 
     public WindowAccidentalClosureHelper(Window toClose, StatusControlContext context, IHasChanges toCheck)
     {
@@ -28,6 +29,13 @@ public class WindowAccidentalClosureHelper
 
         e.Cancel = true;
 
+        //2024/4/8 - this naive guard is to cover the user clicking the close
+        //button while the Unsaved Changes dialog is running - if WindowClosing
+        //is allowed to run twice it won't work correctly an answer that returns
+        //to the editor ('No') will result in the control covered by the Status
+        //Control without any interaction possible.
+        if (_windowCloseDialogRunning) return;
+
         StatusContext.RunFireAndForgetBlockingTask(WindowClosing);
     }
 
@@ -43,8 +51,10 @@ public class WindowAccidentalClosureHelper
             _toClose.Close();
         }
 
+        _windowCloseDialogRunning = true;
+
         if (await StatusContext.ShowMessage("Unsaved Changes...",
-                "There are unsaved changes - do you want to discard your changes?",
+                "p=. There are unsaved changes - do you want to discard your changes?",
                 ["Yes - Close Window", "No"]) == "Yes - Close Window")
         {
             _closeConfirmed = true;
@@ -52,5 +62,7 @@ public class WindowAccidentalClosureHelper
             await ThreadSwitcher.ResumeForegroundAsync();
             _toClose.Close();
         }
+
+        _windowCloseDialogRunning = false;
     }
 }
