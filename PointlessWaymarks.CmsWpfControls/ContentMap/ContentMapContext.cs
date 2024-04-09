@@ -375,7 +375,7 @@ public partial class ContentMapContext : IWebViewMessenger
                 LineListListItem line => Db.LineContentBoundingBoxOverlaps(line.DbEntry, MapBounds),
                 GeoJsonListListItem geo => Db.GeoJsonBoundingBoxOverlaps(geo.DbEntry, MapBounds),
                 PhotoListListItem photo => Db.PhotoContentIsInBoundingBox(photo.DbEntry, MapBounds),
-                PointListListItem point => Db.PointContentIsInBoundingBox(point.DbEntry, MapBounds),
+                PointListListItem point => Db.PointContentIsInBoundingBox(point.DbEntry.ToDbObject(), MapBounds),
                 _ => false
             };
 

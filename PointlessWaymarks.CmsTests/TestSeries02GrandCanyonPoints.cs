@@ -92,7 +92,7 @@ public class TestSeries02GrandCanyonPoints
         currentYumaPoint.InjectFromSkippingIds(GrandCanyonPointInfo.YumaPointContent02);
         currentDetails[0].InjectFromSkippingIds(GrandCanyonPointInfo.YumaPointContent02.PointDetails[0]);
 
-        var updatedPoint = Db.PointContentDtoFromPointContentAndDetails(currentYumaPoint, currentDetails);
+        var updatedPoint = Db.PointContentDtoFromPointContentAndDetails(currentYumaPoint, currentDetails, null);
 
         await GrandCanyonPointInfo.PointTest(updatedPoint);
     }

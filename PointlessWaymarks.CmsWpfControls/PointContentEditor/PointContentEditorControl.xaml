@@ -116,9 +116,9 @@
                                     Add Feature Intersect Tags
                                 </Button>
                                 <stringDataEntry:StringDataEntryControl DataContext="{Binding MapLabelContentEntry}" />
-                                <dropdownDataEntry:DropdownDataEntryControl
+                                <dropdownDataEntry:ContentMapIconDataEntryControl
                                     DataContext="{Binding MapIconEntry}" />
-                                <dropdownDataEntry:DropdownDataEntryControl
+                                <dropdownDataEntry:ContentMapMarkerColorDataEntryControl
                                     DataContext="{Binding MapMarkerColorEntry}" />
                             </StackPanel>
                         </ScrollViewer>

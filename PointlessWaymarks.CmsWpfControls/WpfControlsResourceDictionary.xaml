@@ -22,7 +22,8 @@
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
     xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers"
-    xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry">
+    xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -32,6 +33,7 @@
     <lineList:LineHasRecordedOnVisibilityConverter x:Key="LineListHasRecordedOnVisibility" />
     <lineList:LineRecordedOnSearchLabelConverter x:Key="LineRecordedOnSearchLabel" />
     <lineList:LineRecordedOnToStringConverter x:Key="LineRecordedOnToString" />
+    <pointList:MapMarkerColorConverter x:Key="MapMarkerColor" />
     <wpfHelpers:DbEntryHasLocationToCollapsedVisibilityConverter x:Key="DbEntryHasLocationToCollapsedVisibility" />
     <wpfConverter:MetersToFeetValueConverter x:Key="MetersToFeet"></wpfConverter:MetersToFeetValueConverter>
 
@@ -490,6 +492,10 @@
                         <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
                             preview
                         </Button>
+                        <Grid Margin="0,6,0,0" Width="24" Height="24" VerticalAlignment="Top"
+                              Background="{Binding DbEntry.MapMarkerColor, Converter={StaticResource MapMarkerColor}}">
+                            <svgc:SvgViewbox Width="18" Height="18" SvgSource="{Binding DbEntry.MapIconSvg}" />
+                        </Grid>
                     </WrapPanel>
                 </Grid>
                 <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
@@ -497,12 +503,15 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Left" Orientation="Vertical">
                         <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <WrapPanel Orientation="Horizontal">
                             <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0" Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}" Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}"></TextBlock>
+                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0"
+                                       Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}"
+                                       Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}">
+                            </TextBlock>
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
                     </StackPanel>
@@ -821,7 +830,10 @@
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <WrapPanel Orientation="Horizontal">
                             <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0" Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}" Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}"></TextBlock>
+                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0"
+                                       Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}"
+                                       Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}">
+                            </TextBlock>
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListOriginalFileNameAndSlugDisplay}" />
                         <WrapPanel Margin="0,4,0,0" Orientation="Horizontal">

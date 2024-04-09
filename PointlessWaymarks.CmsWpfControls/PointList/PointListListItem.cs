@@ -1,3 +1,4 @@
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.LlamaAspects;
@@ -8,13 +9,13 @@ namespace PointlessWaymarks.CmsWpfControls.PointList;
 [NotifyPropertyChanged]
 public partial class PointListListItem : IContentListItem, IContentListImage
 {
-    private protected PointListListItem(PointContentActions itemActions, PointContent dbEntry)
+    private protected PointListListItem(PointContentActions itemActions, PointContentDto dbEntry)
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;
     }
 
-    public PointContent DbEntry { get; set; }
+    public PointContentDto DbEntry { get; set; }
     public PointContentActions ItemActions { get; set; }
     public bool ShowType { get; set; }
     public string? DisplayImageUrl { get; set; }
@@ -74,6 +75,9 @@ public partial class PointListListItem : IContentListItem, IContentListImage
 
     public static Task<PointListListItem> CreateInstance(PointContentActions itemActions)
     {
-        return Task.FromResult(new PointListListItem(itemActions, PointContent.CreateInstance()));
+        var newPoint = PointContent.CreateInstance();
+        var newPointDto = Db.PointContentDtoFromPointContentAndDetails(newPoint, new List<PointDetail>(), null);
+
+        return Task.FromResult(new PointListListItem(itemActions, newPointDto));
     }
 }

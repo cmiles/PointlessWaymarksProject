@@ -1689,6 +1689,15 @@ public static class Db
         return "".AsList().Concat(await db.MapIcons.Select(x => x.IconName).OrderBy(x => x).ToListAsync()).ToList();
     }
 
+    public static async Task<string?> MapIconSvgFromMapIconName(string? mapIconName)
+    {
+        if (string.IsNullOrWhiteSpace(mapIconName)) return null;
+
+        var db = await Context().ConfigureAwait(false);
+
+        return (await db.MapIcons.SingleOrDefaultAsync(x => x.IconName == mapIconName).ConfigureAwait(false))?.IconSvg;
+    }
+
     public static bool MapInitialBoundingBoxOverlaps(MapComponent content, SpatialBounds bounds)
     {
         return (
@@ -1850,18 +1859,22 @@ public static class Db
         toReturn.InjectFrom(content);
 
         toReturn.PointDetails = await PointDetailsForPoint(content.ContentId, context);
+        if (!string.IsNullOrWhiteSpace(content.MapIconName))
+            toReturn.MapIconSvg = (await context.MapIcons.SingleOrDefaultAsync(x => x.IconName == content.MapIconName)
+                .ConfigureAwait(false))?.IconSvg;
 
         return toReturn;
     }
 
     public static PointContentDto PointContentDtoFromPointContentAndDetails(PointContent content,
-        List<PointDetail> details)
+        List<PointDetail> details, string? mapIconSvg)
     {
         var toReturn = new PointContentDto();
 
         toReturn.InjectFrom(content);
 
         toReturn.PointDetails = details;
+        toReturn.MapIconSvg = mapIconSvg;
 
         return toReturn;
     }
@@ -2949,6 +2962,15 @@ public static class Db
         progress?.Report("Finished Parsing Tag Content");
 
         return grouped;
+    }
+
+    public static async Task<List<PointContentDto>> ToPointContentDto(this List<PointContent> pointContents, PointlessWaymarksContext context)
+    {
+        var returnList = new List<PointContentDto>();
+
+        foreach (var loopContent in pointContents) returnList.Add(await PointContentDtoFromPoint(loopContent, context));
+
+        return returnList;
     }
 
     public record TagSlugAndIsExcluded(string TagSlug, bool IsExcluded);

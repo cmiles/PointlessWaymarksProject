@@ -255,7 +255,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         var newPointContent = await MapElementListPointItem.CreateInstance(new PointContentActions(StatusContext));
 
-        newPointContent.DbEntry = possiblePoint.ToDbObject();
+        newPointContent.DbEntry = possiblePoint;
         var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possiblePoint);
         newPointContent.SmallImageUrl = smallImageUrl;
         newPointContent.DisplayImageUrl = displayImageUrl;
@@ -577,7 +577,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         switch (toEdit)
         {
             case MapElementListPointItem p:
-                await Edit(p.DbEntry);
+                await Edit(p.DbEntry.ToDbObject());
                 break;
             case MapElementListLineItem l:
                 await Edit(l.DbEntry);

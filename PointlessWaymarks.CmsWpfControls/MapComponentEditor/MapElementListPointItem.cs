@@ -1,3 +1,4 @@
+using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.LlamaAspects;
@@ -7,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 [NotifyPropertyChanged]
 public partial class MapElementListPointItem : PointListListItem, IMapElementListItem
 {
-    private protected MapElementListPointItem(PointContentActions itemActions, PointContent dbEntry) : base(itemActions,
+    private protected MapElementListPointItem(PointContentActions itemActions, PointContentDto dbEntry) : base(itemActions,
         dbEntry)
     {
     }
@@ -20,6 +21,9 @@ public partial class MapElementListPointItem : PointListListItem, IMapElementLis
 
     public new static Task<MapElementListPointItem> CreateInstance(PointContentActions itemActions)
     {
-        return Task.FromResult(new MapElementListPointItem(itemActions, PointContent.CreateInstance()));
+        var newPoint = PointContent.CreateInstance();
+        var newPointDto = Db.PointContentDtoFromPointContentAndDetails(newPoint, new List<PointDetail>(), null);
+
+        return Task.FromResult(new MapElementListPointItem(itemActions, newPointDto));
     }
 }

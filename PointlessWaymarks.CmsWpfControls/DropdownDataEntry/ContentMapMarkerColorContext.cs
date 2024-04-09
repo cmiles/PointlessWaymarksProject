@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -12,7 +11,9 @@ namespace PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
 [NotifyPropertyChanged]
 public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
 {
-    private ContentMapMarkerColorContext(StatusControlContext statusContext, Func<Task<List<string>>> loader, PointContent dbEntry)
+    private ContentMapMarkerColorContext(StatusControlContext statusContext,
+        Func<Task<List<DropDownDataChoice>>> loader,
+        PointContent dbEntry)
     {
         StatusContext = statusContext;
 
@@ -22,7 +23,7 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
 
         GetCurrentMapMarkerColors = loader;
 
-        ExistingChoices = new ObservableCollection<string>(PointContent.MapMarkerColorChoices().OrderBy(x =>x));
+        ExistingChoices = new ObservableCollection<DropDownDataChoice>(ColorChoices());
         ReferenceValue = dbEntry.MapMarkerColor ?? string.Empty;
         UserValue = dbEntry.MapMarkerColor ?? string.Empty;
 
@@ -31,17 +32,17 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
         PropertyChanged += OnPropertyChanged;
     }
 
-    public ObservableCollection<string> ExistingChoices { get; set; }
-    public Func<Task<List<string>>> GetCurrentMapMarkerColors { get; set; }
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
+    public Func<Task<List<DropDownDataChoice>>> GetCurrentMapMarkerColors { get; set; }
+    public List<Func<string?, IsValid>> ValidationFunctions { get; set; }
+    public ObservableCollection<DropDownDataChoice> ExistingChoices { get; set; }
     public string HelpText { get; set; }
     public string? ReferenceValue { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string Title { get; set; }
     public string? UserValue { get; set; }
-    public List<Func<string?, IsValid>> ValidationFunctions { get; set; }
     public string ValidationMessage { get; set; } = string.Empty;
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     private void CheckForChangesAndValidate()
     {
@@ -63,13 +64,27 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
         ValidationMessage = string.Empty;
     }
 
+    private static List<DropDownDataChoice> ColorChoices()
+    {
+        return PointContent.MapMarkerColorChoicesDictionary()
+            .Select(x => new DropDownDataChoice { DisplayString = x.Key, DataString = x.Value })
+            .OrderBy(x => x.DisplayString).ToList();
+    }
+
+    private static Task<List<DropDownDataChoice>> ColorChoicesAsync()
+    {
+        return Task.FromResult(PointContent.MapMarkerColorChoicesDictionary()
+            .Select(x => new DropDownDataChoice { DisplayString = x.Key, DataString = x.Value })
+            .OrderBy(x => x.DisplayString).ToList());
+    }
+
     public static async Task<ContentMapMarkerColorContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
-        var loader = () => Task.FromResult(PointContent.MapMarkerColorChoices());
+        var loader = ColorChoicesAsync;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

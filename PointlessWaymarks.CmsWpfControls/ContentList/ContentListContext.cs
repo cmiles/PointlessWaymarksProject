@@ -333,8 +333,9 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     .ToListAsync()).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Point:
-                dbItems = (await context.PointContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
-                    .ToListAsync()).Cast<IContentId>().ToList();
+                dbItems = (await (await context.PointContents
+                    .Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).ToPointContentDto(context)).Cast<IContentId>().ToList();
                 break;
             case DataNotificationContentType.Post:
                 dbItems = (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
@@ -793,7 +794,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 GeoJsonListListItem g => BracketCodeGeoJsonImageLink.Create(g.DbEntry),
                 LineListListItem l => BracketCodeLineImageLink.Create(l.DbEntry),
                 PhotoListListItem p => BracketCodePhotos.Create(p.DbEntry),
-                PointListListItem pt => BracketCodePointImageLink.Create(pt.DbEntry),
+                PointListListItem pt => BracketCodePointImageLink.Create(pt.DbEntry.ToDbObject()),
                 PostListListItem po => BracketCodePostImageLink.Create(po.DbEntry),
                 VideoListListItem v => BracketCodeVideoImageLink.Create(v.DbEntry),
                 _ => string.Empty

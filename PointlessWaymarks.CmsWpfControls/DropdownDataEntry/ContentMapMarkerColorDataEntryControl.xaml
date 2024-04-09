@@ -1,0 +1,57 @@
+<UserControl x:Class="PointlessWaymarks.CmsWpfControls.DropdownDataEntry.ContentMapMarkerColorDataEntryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.DropdownDataEntry"
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ContentMapMarkerColorContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <StackPanel Margin="0,4,0,0" Orientation="Vertical" HorizontalAlignment="Stretch">
+        <StackPanel Orientation="Horizontal">
+            <Label
+            Content="{Binding Title}"
+            Style="{StaticResource DataEntryLabelStyle}"
+            Target="{Binding ElementName=DropdownEntryComboBox}"
+            ToolTip="{Binding HelpText}" />
+            <Image
+            Margin="0,0,4,0"
+            Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+            Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
+            Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                <Image.ToolTip>
+                    <ToolTip
+                    Content="{Binding ReferenceValue, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                    ContentStringFormat="Original Value: {0}" />
+                </Image.ToolTip>
+            </Image>
+            <Image ToolTip="{Binding ValidationMessage}"
+               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+               Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
+        </StackPanel>
+        <ComboBox
+        Name="DropdownEntryComboBox"
+        IsEditable="False"
+        ItemsSource="{Binding ExistingChoices}"
+        Style="{StaticResource DataEntryComboBoxStyle}"
+        SelectedValuePath="DisplayString"
+        SelectedValue="{Binding UserValue, UpdateSourceTrigger=PropertyChanged}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:DropDownDataChoice}">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Fill="{Binding DataString}" Width="16" Height="16" Margin="0,2,2,2" />
+                        <TextBlock Text="{Binding DisplayString}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </StackPanel>
+</UserControl>

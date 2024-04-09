@@ -4,7 +4,6 @@ using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -24,7 +23,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class PointContentActions : IContentActions<PointContent>
+public partial class PointContentActions : IContentActions<PointContentDto>
 {
     public PointContentActions(StatusControlContext statusContext)
     {
@@ -32,16 +31,14 @@ public partial class PointContentActions : IContentActions<PointContent>
         BuildCommands();
     }
 
-    public StatusControlContext StatusContext { get; set; }
-
-    public string DefaultBracketCode(PointContent? content)
+    public string DefaultBracketCode(PointContentDto? content)
     {
         if (content?.ContentId == null) return string.Empty;
-        return $"{BracketCodePoints.Create(content)}";
+        return $"{BracketCodePoints.Create(content.ToDbObject())}";
     }
 
     [BlockingCommand]
-    public async Task DefaultBracketCodeToClipboard(PointContent? content)
+    public async Task DefaultBracketCodeToClipboard(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -51,7 +48,7 @@ public partial class PointContentActions : IContentActions<PointContent>
             return;
         }
 
-        var finalString = $"{BracketCodePoints.Create(content)}{Environment.NewLine}";
+        var finalString = $"{BracketCodePoints.Create(content.ToDbObject())}{Environment.NewLine}";
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -61,7 +58,7 @@ public partial class PointContentActions : IContentActions<PointContent>
     }
 
     [BlockingCommand]
-    public async Task Delete(PointContent? content)
+    public async Task Delete(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -90,7 +87,7 @@ public partial class PointContentActions : IContentActions<PointContent>
     }
 
     [NonBlockingCommand]
-    public async Task Edit(PointContent? content)
+    public async Task Edit(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -110,7 +107,7 @@ public partial class PointContentActions : IContentActions<PointContent>
     }
 
     [BlockingCommand]
-    public async Task ExtractNewLinks(PointContent? content)
+    public async Task ExtractNewLinks(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -131,7 +128,7 @@ public partial class PointContentActions : IContentActions<PointContent>
     }
 
     [BlockingCommand]
-    public async Task GenerateHtml(PointContent? content)
+    public async Task GenerateHtml(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -158,10 +155,10 @@ public partial class PointContentActions : IContentActions<PointContent>
         StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public StatusControlContext StatusContext { get; set; }
 
     [NonBlockingCommand]
-    public async Task ViewHistory(PointContent? content)
+    public async Task ViewHistory(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -194,7 +191,7 @@ public partial class PointContentActions : IContentActions<PointContent>
     }
 
     [BlockingCommand]
-    public async Task ViewOnSite(PointContent? content)
+    public async Task ViewOnSite(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -214,7 +211,7 @@ public partial class PointContentActions : IContentActions<PointContent>
 
 
     [BlockingCommand]
-    public async Task ViewSitePreview(PointContent? content)
+    public async Task ViewSitePreview(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -235,12 +232,15 @@ public partial class PointContentActions : IContentActions<PointContent>
         await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
 
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public static async Task<PointListListItem> ListItemFromDbItem(PointContent content,
         PointContentActions itemActions,
         bool showType)
     {
         var item = await PointListListItem.CreateInstance(itemActions);
-        item.DbEntry = content;
+        var dto = await Db.PointContentDtoFromPoint(content, await Db.Context());
+        item.DbEntry = dto;
         var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(content);
         item.SmallImageUrl = smallImageUrl;
         item.DisplayImageUrl = displayImageUrl;
@@ -253,7 +253,7 @@ public partial class PointContentActions : IContentActions<PointContent>
         bool showType)
     {
         var item = await PointListListItem.CreateInstance(itemActions);
-        item.DbEntry = content.ToDbObject();
+        item.DbEntry = content;
         var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(content);
         item.SmallImageUrl = smallImageUrl;
         item.DisplayImageUrl = displayImageUrl;
@@ -262,7 +262,7 @@ public partial class PointContentActions : IContentActions<PointContent>
     }
 
     [NonBlockingCommand]
-    public async Task ShowOnMap(PointContent? content)
+    public async Task ShowOnMap(PointContentDto? content)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 

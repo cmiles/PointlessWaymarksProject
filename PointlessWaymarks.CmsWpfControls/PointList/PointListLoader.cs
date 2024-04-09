@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 
 namespace PointlessWaymarks.CmsWpfControls.PointList;
@@ -19,12 +20,15 @@ public class PointListLoader : ContentListLoaderBase
         if (PartialLoadQuantity != null)
         {
             progress?.Report($"Loading Point Content from DB - Max {PartialLoadQuantity} Items");
-            var returnItems = (await db.PointContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
-                .Take(PartialLoadQuantity.Value).ToListAsync()).Cast<object>().ToList();
+            var dbPoints = await db.PointContents.Take(PartialLoadQuantity.Value).ToListAsync();
 
-            AllItemsLoaded = await db.PointContents.CountAsync() <= returnItems.Count;
+            var returnPointDtos = new List<PointContentDto>();
 
-            return returnItems;
+            foreach (var loopPoint in dbPoints) returnPointDtos.Add(await Db.PointContentDtoFromPoint(loopPoint, db));
+
+            AllItemsLoaded = await db.PointContents.CountAsync() <= dbPoints.Count;
+
+            return returnPointDtos.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn).Cast<object>().ToList();
         }
 
         progress?.Report("Loading All Point Content from DB");

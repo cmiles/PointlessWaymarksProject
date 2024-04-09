@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -16,8 +16,8 @@ namespace PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
 [NotifyPropertyChanged]
 public partial class ContentMapIconContext : IDropdownDataEntryContext
 {
-    private ContentMapIconContext(StatusControlContext statusContext, Func<Task<List<string>>> loader,
-        PointContent dbEntry, List<string> initialIconNameList)
+    private ContentMapIconContext(StatusControlContext statusContext, Func<Task<List<DropDownDataChoice>>> loader,
+        PointContent dbEntry, List<DropDownDataChoice> initialIconNameList)
     {
         StatusContext = statusContext;
 
@@ -29,7 +29,7 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
 
         GetCurrentIconNames = loader;
 
-        ExistingChoices = new ObservableCollection<string>(initialIconNameList);
+        ExistingChoices = new ObservableCollection<DropDownDataChoice>(initialIconNameList);
         ReferenceValue = dbEntry.MapIconName ?? string.Empty;
         UserValue = dbEntry.MapIconName ?? string.Empty;
 
@@ -41,9 +41,9 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
     }
 
     public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
-    public Func<Task<List<string>>> GetCurrentIconNames { get; set; }
+    public Func<Task<List<DropDownDataChoice>>> GetCurrentIconNames { get; set; }
     public List<Func<string?, IsValid>> ValidationFunctions { get; set; }
-    public ObservableCollection<string> ExistingChoices { get; set; }
+    public ObservableCollection<DropDownDataChoice> ExistingChoices { get; set; }
     public string HelpText { get; set; }
     public string? ReferenceValue { get; set; }
     public StatusControlContext StatusContext { get; set; }
@@ -79,8 +79,8 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryContext = statusContext ?? new StatusControlContext();
-        var loader = Db.MapIconNames;
-        var initialMapIconList = await Db.MapIconNames();
+        var loader = DbIconChoices;
+        var initialMapIconList = await DbIconChoices();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -109,10 +109,10 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
 
         var currentDbIcons = await GetCurrentIconNames();
 
-        var tempUserValue = currentDbIcons.Any(x => x.Equals(UserValue)) ? UserValue : string.Empty;
+        var tempUserValue = currentDbIcons.Any(x => x.DisplayString.Equals(UserValue)) ? UserValue : string.Empty;
 
         var toAdd = currentDbIcons.Where(x => !ExistingChoices.Contains(x)).ToList();
-        var toRemove = new List<string>();
+        var toRemove = new List<DropDownDataChoice>();
 
         foreach (var loopExisting in ExistingChoices)
             if (!currentDbIcons.Any(x => x.Equals(loopExisting)))
@@ -125,6 +125,17 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
         UserValue = tempUserValue;
 
         CheckForChangesAndValidate();
+    }
+
+    private static async Task<List<DropDownDataChoice>> DbIconChoices()
+    {
+        var db = await Db.Context();
+
+        var dbIcons = (await db.MapIcons.OrderBy(x => x).ToListAsync()).Select(x => new DropDownDataChoice
+            { DataString = x.IconSvg ?? string.Empty, DisplayString = x.IconName ?? string.Empty });
+
+        return new List<DropDownDataChoice>
+            { new() { DataString = string.Empty, DisplayString = "None" } }.Concat(dbIcons).ToList();
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)

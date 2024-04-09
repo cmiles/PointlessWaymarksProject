@@ -97,6 +97,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public SpatialBounds? MapBounds { get; set; } = null;
     public ContentMapIconContext MapIconEntry { get; set; }
+    public string? MapIconSvg { get; set; }
     public StringDataEntryContext? MapLabelContentEntry { get; set; }
     public ContentMapMarkerColorContext MapMarkerColorEntry { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
@@ -347,6 +348,15 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         MapIconEntry = await ContentMapIconContext.CreateInstance(StatusContext, DbEntry);
         MapIconEntry.ReferenceValue = DbEntry.MapIconName ?? string.Empty;
         MapIconEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry.MapIconName);
+        MapIconEntry.PropertyChanged += (_, _) =>
+        {
+            if (MapIconEntry.HasValidationIssues || string.IsNullOrWhiteSpace(MapIconEntry.UserValue))
+                MapIconSvg = string.Empty;
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            {
+                MapIconSvg = await Db.MapIconSvgFromMapIconName(MapIconEntry.UserValue);
+            });
+        };
 
         MapMarkerColorEntry = await ContentMapMarkerColorContext.CreateInstance(StatusContext, DbEntry);
         MapMarkerColorEntry.ReferenceValue = DbEntry.MapMarkerColor ?? string.Empty;

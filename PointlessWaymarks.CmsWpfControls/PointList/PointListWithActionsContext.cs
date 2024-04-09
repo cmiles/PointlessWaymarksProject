@@ -253,7 +253,7 @@ public partial class PointListWithActionsContext
     {
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
-                current + $"{BracketCodePointLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+                current + $"{BracketCodePointLinks.Create(loopSelected.DbEntry.ToDbObject())}{Environment.NewLine}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

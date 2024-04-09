@@ -73,7 +73,7 @@ public static class ContentListSearch
                     new ContentListSearchFunctionReturn(includePhoto,
                         $"Line Bounding Box Overlaps Search Bounding Box - {includePhoto}"), searchResultModifier);
             case PointListListItem pointItem:
-                var includePoint = Db.PointContentIsInBoundingBox(pointItem.DbEntry, bounds);
+                var includePoint = Db.PointContentIsInBoundingBox(pointItem.DbEntry.ToDbObject(), bounds);
                 return new ContentListSearchReturn(
                     new ContentListSearchFunctionReturn(includePoint,
                         $"Line Bounding Box Overlaps Search Bounding Box - {includePoint}"), searchResultModifier);
