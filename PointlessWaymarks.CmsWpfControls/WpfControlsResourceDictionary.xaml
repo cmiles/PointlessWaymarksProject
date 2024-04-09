@@ -494,7 +494,28 @@
                         </Button>
                         <Grid Margin="0,6,0,0" Width="24" Height="24" VerticalAlignment="Top"
                               Background="{Binding DbEntry.MapMarkerColor, Converter={StaticResource MapMarkerColor}}">
-                            <svgc:SvgViewbox Width="18" Height="18" SvgSource="{Binding DbEntry.MapIconSvg}" />
+                            <Grid.ToolTip>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} - {1}">
+                                            <Binding Path="DbEntry.MapMarkerColor" />
+                                            <Binding Path="DbEntry.MapIconName" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </Grid.ToolTip>
+                            <svgc:SvgViewbox Width="18" Height="18" SvgSource="{Binding DbEntry.MapIconSvg}">
+                                <svgc:SvgViewbox.ToolTip>
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0} - {1}">
+                                                <Binding Path="DbEntry.MapMarkerColor" />
+                                                <Binding Path="DbEntry.MapIconName" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </svgc:SvgViewbox.ToolTip>
+                            </svgc:SvgViewbox>
                         </Grid>
                     </WrapPanel>
                 </Grid>
