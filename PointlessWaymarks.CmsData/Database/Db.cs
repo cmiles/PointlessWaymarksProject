@@ -237,7 +237,7 @@ public static class Db
 
         var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
             .ConfigureAwait(false);
-        if (possiblePoint != null) return await PointAndPointDetails(contentId, db).ConfigureAwait(false);
+        if (possiblePoint != null) return await PointContentDto(contentId, db).ConfigureAwait(false);
 
         var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
             .ConfigureAwait(false);
@@ -503,7 +503,7 @@ public static class Db
             PhotoContent => ContentTypeDisplayStringForPhoto,
             PostContent => ContentTypeDisplayStringForPost,
             PointContent => ContentTypeDisplayStringForPoint,
-            PointContentDto => ContentTypeDisplayStringForPoint,
+            Models.PointContentDto => ContentTypeDisplayStringForPoint,
             VideoContent => ContentTypeDisplayStringForVideo,
             _ => string.Empty
         };
@@ -1271,7 +1271,7 @@ public static class Db
             PointContent => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
                 .Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
-            PointContentDto => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
+            Models.PointContentDto => await db.PointContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder))
                 .Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             PostContent => await db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
@@ -1815,27 +1815,21 @@ public static class Db
                && photo.Longitude <= bounds.MaxLongitude;
     }
 
-    public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId)
+    public static async Task<PointContentDto?> PointContentDto(Guid pointContentId)
     {
         var db = await Context().ConfigureAwait(false);
 
-        return await PointAndPointDetails(pointContentId, db).ConfigureAwait(false);
+        return await PointContentDto(pointContentId, db).ConfigureAwait(false);
     }
 
-    public static async Task<PointContentDto?> PointAndPointDetails(Guid pointContentId, PointlessWaymarksContext db)
+    public static async Task<PointContentDto?> PointContentDto(Guid pointContentId, PointlessWaymarksContext db)
     {
         var point = await db.PointContents.SingleAsync(x => x.ContentId == pointContentId).ConfigureAwait(false);
-        var details = await db.PointDetails.Where(x => x.PointContentId == pointContentId).ToListAsync()
-            .ConfigureAwait(false);
 
-        var toReturn = new PointContentDto();
-        toReturn.InjectFrom(point);
-        toReturn.PointDetails = details;
-
-        return toReturn;
+        return await PointContentDtoFromPoint(point, db).ConfigureAwait(false);
     }
 
-    public static async Task<List<PointContentDto>> PointAndPointDetails(List<Guid>? pointContentIdList,
+    public static async Task<List<PointContentDto>> PointContentDto(List<Guid>? pointContentIdList,
         PointlessWaymarksContext db)
     {
         if (pointContentIdList == null) return [];
@@ -1844,7 +1838,7 @@ public static class Db
 
         foreach (var loopId in pointContentIdList)
         {
-            var toAdd = await PointAndPointDetails(loopId, db).ConfigureAwait(false);
+            var toAdd = await PointContentDto(loopId, db).ConfigureAwait(false);
             if (toAdd != null) returnList.Add(toAdd);
         }
 
@@ -2492,7 +2486,7 @@ public static class Db
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New, toSave.ContentId.AsList());
 
-        return await PointAndPointDetails(toSaveDto.ContentId).ConfigureAwait(false);
+        return await PointContentDto(toSaveDto.ContentId).ConfigureAwait(false);
     }
 
     public static async Task SavePointDetailContent(List<PointDetail> toSave)
@@ -2964,7 +2958,8 @@ public static class Db
         return grouped;
     }
 
-    public static async Task<List<PointContentDto>> ToPointContentDto(this List<PointContent> pointContents, PointlessWaymarksContext context)
+    public static async Task<List<PointContentDto>> ToPointContentDto(this List<PointContent> pointContents,
+        PointlessWaymarksContext context)
     {
         var returnList = new List<PointContentDto>();
 

@@ -850,7 +850,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
 
         if (db.PointContents.Any(x => x.ContentId == toAdd))
         {
-            await AddPoint((await Db.PointAndPointDetails(toAdd))!)
+            await AddPoint((await Db.PointContentDto(toAdd))!)
                 .ConfigureAwait(false);
             return;
         }
@@ -920,7 +920,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             var possiblePoint = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
             if (possiblePoint != null)
             {
-                var pointDto = (await Db.PointAndPointDetails(possiblePoint.ContentId, db))!;
+                var pointDto = (await Db.PointContentDto(possiblePoint.ContentId, db))!;
                 await AddPoint(pointDto);
                 continue;
             }

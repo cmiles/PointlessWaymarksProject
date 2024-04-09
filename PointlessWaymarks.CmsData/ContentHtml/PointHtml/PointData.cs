@@ -13,7 +13,7 @@ public static class PointData
         var db = await Db.Context().ConfigureAwait(false);
         var allPointIds = await db.PointContents.Where(x => !x.IsDraft).Select(x => x.ContentId).ToListAsync()
             .ConfigureAwait(false);
-        var extendedPointInformation = await Db.PointAndPointDetails(allPointIds, db).ConfigureAwait(false);
+        var extendedPointInformation = await Db.PointContentDto(allPointIds, db).ConfigureAwait(false);
         var settings = UserSettingsSingleton.CurrentSettings();
 
         return JsonSerializer.Serialize(extendedPointInformation.Select(x => new

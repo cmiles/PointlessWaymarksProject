@@ -223,7 +223,7 @@ public static class SiteGenerationAllContent
         {
             progress?.Report($"Writing HTML for Point {loopItem.Title}");
 
-            var dto = await Db.PointAndPointDetails(loopItem.ContentId, await Db.Context().ConfigureAwait(false))
+            var dto = await Db.PointContentDto(loopItem.ContentId, await Db.Context().ConfigureAwait(false))
                 .ConfigureAwait(false);
 
             if (dto == null)

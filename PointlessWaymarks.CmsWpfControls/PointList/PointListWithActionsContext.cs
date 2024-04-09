@@ -119,7 +119,7 @@ public partial class PointListWithActionsContext
         cancellationToken.ThrowIfCancellationRequested();
 
         var pointDtos =
-            await Db.PointAndPointDetails(frozenSelect.Select(x => x.DbEntry.ContentId).ToList(), await Db.Context());
+            await Db.PointContentDto(frozenSelect.Select(x => x.DbEntry.ContentId).ToList(), await Db.Context());
 
         var toProcess = new List<PointContentDto>();
         var intersectResults = new List<IntersectResult>();

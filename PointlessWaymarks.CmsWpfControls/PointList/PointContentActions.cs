@@ -140,7 +140,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         StatusContext.Progress($"Generating Html for {content.Title}");
 
-        var fullItem = await Db.PointAndPointDetails(content.ContentId);
+        var fullItem = await Db.PointContentDto(content.ContentId);
 
         if (fullItem == null)
         {

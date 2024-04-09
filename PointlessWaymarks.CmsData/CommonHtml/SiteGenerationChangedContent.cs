@@ -843,7 +843,7 @@ public static class SiteGenerationChangedContent
         {
             progress?.Report($"Writing HTML for Changed Point{loopItem.Title}");
 
-            var loopItemAndDetails = await Db.PointAndPointDetails(loopItem.ContentId).ConfigureAwait(false);
+            var loopItemAndDetails = await Db.PointContentDto(loopItem.ContentId).ConfigureAwait(false);
 
             if (loopItemAndDetails == null) return;
 
@@ -930,7 +930,7 @@ public static class SiteGenerationChangedContent
                 await PhotoGenerator.GenerateHtml(photo, generationVersion, progress).ConfigureAwait(false);
                 break;
             case PointContent point:
-                var dto = await Db.PointAndPointDetails(point.ContentId).ConfigureAwait(false);
+                var dto = await Db.PointContentDto(point.ContentId).ConfigureAwait(false);
                 await PointGenerator.GenerateHtml(dto!, generationVersion, progress).ConfigureAwait(false);
                 break;
             case PointContentDto pointDto:
