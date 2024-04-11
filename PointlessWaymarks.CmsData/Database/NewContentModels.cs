@@ -148,7 +148,7 @@ public static class NewContentModels
             ContentVersion = Db.ContentVersionDateTime(),
             PhotoCreatedOn = created,
             ShowPhotoSizes = UserSettingsSingleton.CurrentSettings().PhotoPagesHaveLinksToPhotoSizesByDefault,
-            ShowPhotoPosition = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault
+            ShowLocation = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault
         };
 
         return returnEntry;

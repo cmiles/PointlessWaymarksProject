@@ -21,6 +21,7 @@
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -30,7 +31,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <photoContentEditor:PhotoHasLatLongVisibilityConverter x:Key="PhotoHasLatLong" />
+            <optionalLocationEntry:HasValidLatLongVisibilityConverter x:Key="HasLatLong" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -194,57 +195,33 @@
                                     HorizontalAlignment="Left"
                                     DataContext="{Binding IsoEntry}" />
                             </WrapPanel>
-                            <boolDataEntry:BoolDataEntryControl Margin="4,18,0,0"
-                                                                DataContext="{Binding ShowPositionEntry}" />
-                            <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
-                                <conversionDataEntry:ConversionDataEntryControl Width="120"
-                                    DataContext="{Binding LatitudeEntry}" />
-                                <conversionDataEntry:ConversionDataEntryControl Width="120"
-                                    DataContext="{Binding LongitudeEntry}" />
-                                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                                    <StackPanel Orientation="Vertical">
-                                        <conversionDataEntry:ConversionDataEntryControl Width="120"
-                                            DataContext="{Binding ElevationEntry}" />
-                                    </StackPanel>
-                                    <Button
-                                        Width="90"
-                                        Margin="10,10,0,0"
-                                        VerticalAlignment="Bottom"
-                                        Command="{Binding GetElevationCommand}">
-                                        Get Elevation
-                                    </Button>
-                                </StackPanel>
-                                <Button
-                                    Width="326"
-                                    Margin="6,16,0,0"
-                                    Command="{Binding GetLocationOnMapCommand}">
-                                    Choose Location on Map
-                                </Button>
-                                <Button
-                                    Width="326"
-                                    Margin="6,16,0,0"
-                                    Command="{Binding AddFeatureIntersectTagsCommand}">
-                                    <Button.Visibility>
-                                        <MultiBinding Converter="{StaticResource PhotoHasLatLong}">
-                                            <Binding Path="LatitudeEntry.UserValue" />
-                                            <Binding Path="LongitudeEntry.UserValue" />
-                                        </MultiBinding>
-                                    </Button.Visibility>
-                                    Add Feature Intersect Tags
-                                </Button>
-                                <Button
-                                    Width="326"
-                                    Margin="6,16,0,0"
-                                    Command="{Binding PointFromPhotoLocationCommand}">
-                                    <Button.Visibility>
-                                        <MultiBinding Converter="{StaticResource PhotoHasLatLong}">
-                                            <Binding Path="LatitudeEntry.UserValue" />
-                                            <Binding Path="LongitudeEntry.UserValue" />
-                                        </MultiBinding>
-                                    </Button.Visibility>
-                                    Point From Photo Location
-                                </Button>
-                            </WrapPanel>
+                            <optionalLocationEntry:OptionalLocationEntryControl
+                                DataContext="{Binding OptionalLocationEntry}">
+                            </optionalLocationEntry:OptionalLocationEntryControl>
+                            <Button
+                                Width="326"
+                                Margin="6,16,0,0"
+                                Command="{Binding AddFeatureIntersectTagsCommand}">
+                                <Button.Visibility>
+                                    <MultiBinding Converter="{StaticResource HasLatLong}">
+                                        <Binding Path="LatitudeEntry.UserValue" />
+                                        <Binding Path="LongitudeEntry.UserValue" />
+                                    </MultiBinding>
+                                </Button.Visibility>
+                                Add Feature Intersect Tags
+                            </Button>
+                            <Button
+                                Width="326"
+                                Margin="6,16,0,0"
+                                Command="{Binding PointFromPhotoLocationCommand}">
+                                <Button.Visibility>
+                                    <MultiBinding Converter="{StaticResource HasLatLong}">
+                                        <Binding Path="LatitudeEntry.UserValue" />
+                                        <Binding Path="LongitudeEntry.UserValue" />
+                                    </MultiBinding>
+                                </Button.Visibility>
+                                Point From Photo Location
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>

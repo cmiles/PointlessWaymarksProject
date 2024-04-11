@@ -5,7 +5,7 @@ using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
-public class PhotoContent : IUpdateNotes, IContentCommon
+public class PhotoContent : IUpdateNotes, IContentCommon, IOptionalLocation
 {
     public string? AltText { get; set; }
     public string? Aperture { get; set; }
@@ -22,7 +22,7 @@ public class PhotoContent : IUpdateNotes, IContentCommon
     public string? PhotoCreatedBy { get; set; }
     public required DateTime PhotoCreatedOn { get; set; }
     public DateTime? PhotoCreatedOnUtc { get; set; }
-    public bool ShowPhotoPosition { get; set; }
+    public bool ShowLocation { get; set; }
     public bool ShowPhotoSizes { get; set; }
     public string? ShutterSpeed { get; set; }
     public string? BodyContent { get; set; }

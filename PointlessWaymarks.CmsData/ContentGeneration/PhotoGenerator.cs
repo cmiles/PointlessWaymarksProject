@@ -252,7 +252,7 @@ public static class PhotoGenerator
         toReturn.Slug = SlugTools.CreateSlug(true, toReturn.Title);
         toReturn.BodyContentFormat = ContentFormatDefaults.Content.ToString();
         toReturn.UpdateNotesFormat = ContentFormatDefaults.Content.ToString();
-        toReturn.ShowPhotoPosition = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault;
+        toReturn.ShowLocation = UserSettingsSingleton.CurrentSettings().PhotoPagesShowPositionByDefault;
         toReturn.ShowPhotoSizes = UserSettingsSingleton.CurrentSettings().PhotoPagesHaveLinksToPhotoSizesByDefault;
 
         var possibleTitleYear = Regex.Match(toReturn.Title ?? string.Empty,

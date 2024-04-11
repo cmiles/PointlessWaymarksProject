@@ -31,13 +31,13 @@ public static class PhotoParts
         outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.CameraModel, "photo-detail", "camera-model",
             dbEntry.CameraModel));
         outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.License, "photo-detail", "license", dbEntry.License));
-        if (dbEntry.Latitude != null && dbEntry is { Longitude: { }, ShowPhotoPosition: true })
+        if (dbEntry.Latitude != null && dbEntry is { Longitude: { }, ShowLocation: true })
             outerContainer.Children.Add(Tags.InfoLinkDivTag(
                 PointParts.CalTopoMapsLatLongUrl(dbEntry.Latitude.Value, dbEntry.Longitude.Value),
                 $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}", "photo-detail",
                 "lat-long-decimal-degrees",
                 $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}"));
-        if (dbEntry is { Elevation: { }, ShowPhotoPosition: true })
+        if (dbEntry is { Elevation: { }, ShowLocation: true })
             outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.Elevation.Value:N0}'",
                 "photo-detail", "elevation-in-feet", dbEntry.Elevation.Value.ToString("F0")));
 

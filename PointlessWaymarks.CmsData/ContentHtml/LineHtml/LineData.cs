@@ -182,9 +182,9 @@ public static class LineData
             return (new SpatialBounds(0, 0, 0, 0), []);
 
         var photos = (await BracketCodePhotos.DbContentFromBracketCodes(lineContent.BodyContent))
-            .Where(x => x.ShowPhotoPosition).Cast<object>();
+            .Where(x => x.ShowLocation).Cast<object>();
         var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(lineContent.BodyContent))
-            .Where(x => x.ShowPhotoPosition)
+            .Where(x => x.ShowLocation)
             .Cast<object>();
         var points = (await BracketCodePoints.DbContentFromBracketCodes(lineContent.BodyContent)).Cast<object>();
         var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(lineContent.BodyContent))

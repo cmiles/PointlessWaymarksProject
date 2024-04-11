@@ -23,7 +23,8 @@
     xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
     xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers"
     xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
-    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/">
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -36,6 +37,7 @@
     <pointList:MapMarkerColorConverter x:Key="MapMarkerColor" />
     <wpfHelpers:DbEntryHasLocationToCollapsedVisibilityConverter x:Key="DbEntryHasLocationToCollapsedVisibility" />
     <wpfConverter:MetersToFeetValueConverter x:Key="MetersToFeet"></wpfConverter:MetersToFeetValueConverter>
+    <optionalLocationEntry:HasValidLatLongVisibilityConverter x:Key="HasLatLong" />
 
     <Style x:Key="DataEntryComboBoxStyle" TargetType="ComboBox">
         <Setter Property="Margin" Value="6,0,0,0" />

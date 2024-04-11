@@ -8,17 +8,16 @@ using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.ImageHelpers;
-using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
+using PointlessWaymarks.CmsWpfControls.OptionalLocationEntry;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -46,18 +45,18 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     ICheckForChangesAndValidation
 {
     public EventHandler? RequestContentEditorWindowClose;
-
+    
     private PhotoContentEditorContext(StatusControlContext statusContext, PhotoContent dbEntry)
     {
         StatusContext = statusContext;
-
+        
         BuildCommands();
-
+        
         DbEntry = dbEntry;
-
+        
         PropertyChanged += OnPropertyChanged;
     }
-
+    
     public StringDataEntryContext? AltTextEntry { get; set; }
     public StringDataEntryContext? ApertureEntry { get; set; }
     public BodyContentEditorContext? BodyContent { get; set; }
@@ -66,24 +65,19 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public PhotoContent DbEntry { get; set; }
-    public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
     public StringDataEntryContext? FocalLengthEntry { get; set; }
-
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public FileInfo? InitialPhoto { get; set; }
     public ConversionDataEntryContext<int?>? IsoEntry { get; set; }
-    public ConversionDataEntryContext<double?>? LatitudeEntry { get; set; }
     public StringDataEntryContext? LensEntry { get; set; }
     public StringDataEntryContext? LicenseEntry { get; set; }
     public FileInfo? LoadedFile { get; set; }
-    public ConversionDataEntryContext<double?>? LongitudeEntry { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public OptionalLocationEntryContext? OptionalLocationEntry { get; set; }
     public StringDataEntryContext? PhotoCreatedByEntry { get; set; }
     public ConversionDataEntryContext<DateTime>? PhotoCreatedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? PhotoCreatedOnUtcEntry { get; set; }
-
+    
     public string PhotoEditorHelpText =>
         @"
 ### Photo Content
@@ -94,7 +88,7 @@ Photo Content Notes:
  - New Photos created from files have good support for importing metadata - importing a file is generally the best way to create new Photo Content.
  - Photo and Image Content both work with jpg files - main differences include the photo specific data that is stored (aperture, shutter speed, ISO, etc.), Photos are organized into generated Daily Photos pages and Photos
 ";
-
+    
     public bool ResizeSelectedFile { get; set; }
     public FileInfo? SelectedFile { get; set; }
     public BitmapSource? SelectedFileBitmapSource { get; set; }
@@ -102,166 +96,168 @@ Photo Content Notes:
     public bool SelectedFileHasValidationIssues { get; set; }
     public bool SelectedFileNameHasInvalidCharacters { get; set; }
     public string SelectedFileValidationMessage { get; set; } = string.Empty;
-    public BoolDataEntryContext? ShowPositionEntry { get; set; }
     public BoolDataEntryContext? ShowSizesEntry { get; set; }
     public StringDataEntryContext? ShutterSpeedEntry { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
-
+    
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || SelectedFileHasPathOrNameChanges;
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this) ||
                               SelectedFileHasValidationIssues;
     }
-
+    
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+    
     [BlockingCommand]
     private async Task AddFeatureIntersectTags()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var featureToCheck = await FeatureFromPoint();
         if (featureToCheck == null)
         {
             StatusContext.ToastError("No valid Lat/Long to check?");
             return;
         }
-
+        
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
             StatusContext.ToastError(
                 "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
             return;
         }
-
+        
         var possibleTags = featureToCheck.IntersectionTags(
             UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
             CancellationToken.None, StatusContext.ProgressTracker());
-
+        
         if (!possibleTags.Any())
         {
             StatusContext.ToastWarning("No tags found...");
             return;
         }
-
+        
         TagEdit!.Tags =
             $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
-
+    
     [BlockingCommand]
     public async Task AutoCleanRenameSelectedFile()
     {
         await FileHelpers.TryAutoCleanRenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x);
     }
-
+    
     [BlockingCommand]
     public async Task AutoRenameSelectedFileBasedOnTitle()
     {
         await FileHelpers.TryAutoRenameSelectedFile(SelectedFile, TitleSummarySlugFolder!.TitleEntry.UserValue,
             StatusContext, x => SelectedFile = x);
     }
-
+    
     public async Task ChooseFile(bool loadMetadata)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         StatusContext.Progress("Starting photo load.");
-
+        
         var dialog = new VistaOpenFileDialog { Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" };
-
+        
         if (!(dialog.ShowDialog() ?? false)) return;
-
+        
         var newFile = new FileInfo(dialog.FileName);
-
+        
         if (!newFile.Exists)
         {
             StatusContext.ToastError("File doesn't exist?");
             return;
         }
-
+        
         if (!PhotoGenerator.PhotoFileTypeIsSupported(newFile))
         {
             StatusContext.ToastError("Only JPEGs are supported...");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         SelectedFile = newFile;
         ResizeSelectedFile = true;
-
+        
         StatusContext.Progress($"Photo load - {SelectedFile.FullName} ");
-
+        
         if (!loadMetadata) return;
-
+        
         var (generationReturn, metadata) =
             await PhotoGenerator.PhotoMetadataFromFile(SelectedFile, false, StatusContext.ProgressTracker());
-
+        
         if (generationReturn.HasError || metadata == null)
         {
             await StatusContext.ShowMessageWithOkButton("Photo Metadata Load Issue", generationReturn.GenerationNote);
             return;
         }
-
+        
         await PhotoMetadataToCurrentContent(metadata);
     }
-
+    
     [BlockingCommand]
     public async Task ChooseFileAndFillMetadata()
     {
         await ChooseFile(true);
     }
-
+    
     [BlockingCommand]
     public async Task ChooseFileWithoutMetadataLoad()
     {
         await ChooseFile(false);
     }
-
+    
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var newContext =
             new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
         await newContext.LoadData(null);
         return newContext;
     }
-
+    
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         FileInfo initialPhoto)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var newContext =
             new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance())
                 { StatusContext = { BlockUi = true } };
-
+        
         if (initialPhoto is { Exists: true }) newContext.InitialPhoto = initialPhoto;
         await newContext.LoadData(null);
-
+        
         newContext.StatusContext.BlockUi = false;
-
+        
         return newContext;
     }
-
+    
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PhotoContent? toLoad)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var newContext =
             new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
         await newContext.LoadData(toLoad);
         return newContext;
     }
-
+    
     private PhotoContent CurrentStateToPhotoContent()
     {
         var newEntry = PhotoContent.CreateInstance();
-
+        
         if (DbEntry.Id > 0)
         {
             newEntry.ContentId = DbEntry.ContentId;
@@ -269,7 +265,7 @@ Photo Content Notes:
             newEntry.LastUpdatedOn = DateTime.Now;
             newEntry.LastUpdatedBy = CreatedUpdatedDisplay!.UpdatedByEntry.UserValue.TrimNullToEmpty();
         }
-
+        
         newEntry.MainPicture = newEntry.ContentId;
         newEntry.Aperture = ApertureEntry!.UserValue.TrimNullToEmpty();
         newEntry.Folder = TitleSummarySlugFolder!.FolderEntry.UserValue.TrimNullToEmpty();
@@ -298,21 +294,21 @@ Photo Content Notes:
         newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.ShowPhotoSizes = ShowSizesEntry!.UserValue;
-        newEntry.Latitude = LatitudeEntry!.UserValue;
-        newEntry.Longitude = LongitudeEntry!.UserValue;
-        newEntry.Elevation = ElevationEntry!.UserValue;
-        newEntry.ShowPhotoPosition = ShowPositionEntry!.UserValue;
-
+        newEntry.Latitude = OptionalLocationEntry!.LatitudeEntry!.UserValue;
+        newEntry.Longitude = OptionalLocationEntry.LongitudeEntry!.UserValue;
+        newEntry.Elevation = OptionalLocationEntry.ElevationEntry!.UserValue;
+        newEntry.ShowLocation = OptionalLocationEntry.ShowLocationEntry!.UserValue;
+        
         return newEntry;
     }
-
+    
     [BlockingCommand]
     public async Task ExtractNewLinks()
     {
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.UserValue,
             StatusContext.ProgressTracker());
     }
-
+    
     /// <summary>
     ///     Returns a NTS Feature based on the current Lat/Long - if values are null or invalid
     ///     null is returned.
@@ -320,86 +316,54 @@ Photo Content Notes:
     /// <returns></returns>
     public async Task<IFeature?> FeatureFromPoint()
     {
-        if (LatitudeEntry!.UserValue == null || LongitudeEntry!.UserValue == null) return null;
-
-        var latitudeValidation = await CommonContentValidation.LatitudeValidation(LatitudeEntry.UserValue.Value);
-        var longitudeValidation = await CommonContentValidation.LongitudeValidation(LongitudeEntry.UserValue.Value);
-
+        if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
+            OptionalLocationEntry.LongitudeEntry!.UserValue == null) return null;
+        
+        var latitudeValidation =
+            await CommonContentValidation.LatitudeValidation(OptionalLocationEntry.LatitudeEntry.UserValue.Value);
+        var longitudeValidation =
+            await CommonContentValidation.LongitudeValidation(OptionalLocationEntry.LongitudeEntry.UserValue.Value);
+        
         if (!latitudeValidation.Valid || !longitudeValidation.Valid) return null;
-
-        if (ElevationEntry!.UserValue is null)
+        
+        if (OptionalLocationEntry.ElevationEntry!.UserValue is null)
             return new Feature(
-                new Point(LongitudeEntry.UserValue.Value, LatitudeEntry.UserValue.Value),
+                new Point(OptionalLocationEntry.LongitudeEntry.UserValue.Value,
+                    OptionalLocationEntry.LatitudeEntry.UserValue.Value),
                 new AttributesTable());
         return new Feature(
-            new Point(LongitudeEntry.UserValue.Value, LatitudeEntry.UserValue.Value, ElevationEntry.UserValue.Value),
+            new Point(OptionalLocationEntry.LongitudeEntry.UserValue.Value,
+                OptionalLocationEntry.LatitudeEntry.UserValue.Value,
+                OptionalLocationEntry.ElevationEntry.UserValue.Value),
             new AttributesTable());
     }
-
-    [BlockingCommand]
-    public async Task GetElevation()
-    {
-        if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues)
-        {
-            StatusContext.ToastError("Lat Long is not valid");
-            return;
-        }
-
-        if (LatitudeEntry.UserValue == null || LongitudeEntry.UserValue == null)
-        {
-            StatusContext.ToastError("Lat Long is not set");
-            return;
-        }
-
-        var possibleElevation = await ElevationGuiHelper.GetElevation(LatitudeEntry.UserValue.Value,
-            LongitudeEntry.UserValue.Value, StatusContext);
-
-        if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.MetersToFeet().ToString("N0");
-    }
-
-    [BlockingCommand]
-    public async Task GetLocationOnMap()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var window = await LocationChooserWindow.CreateInstance(LatitudeEntry!.UserValue, LongitudeEntry!.UserValue,
-            ElevationEntry!.UserValue, TitleSummarySlugFolder.TitleEntry.UserValue);
-
-        var result = await window.PositionWindowAndShowDialogOnUiThread();
-
-        if (!result ?? true) return;
-
-        LatitudeEntry.UserText = window.LocationChooser.LatitudeEntry.UserText;
-        LongitudeEntry.UserText = window.LocationChooser.LongitudeEntry.UserText;
-        ElevationEntry.UserText = window.LocationChooser.ElevationEntry.UserText;
-    }
-
+    
     [BlockingCommand]
     private async Task LinkToClipboard()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
-
+        
         var linkString = BracketCodePhotos.Create(DbEntry);
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         Clipboard.SetText(linkString);
-
+        
         StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
-
+    
     public async Task LoadData(PhotoContent? toLoad, bool skipMediaDirectoryCheck = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         DbEntry = NewContentModels.InitializePhotoContent(toLoad);
-
+        
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry,
             "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
@@ -411,39 +375,33 @@ Photo Content Notes:
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
-
-        ShowPositionEntry = await BoolDataEntryContext.CreateInstance();
-        ShowPositionEntry.Title = "Show Photo Position";
-        ShowPositionEntry.HelpText = "If enabled the page users be shown a list of all available sizes";
-        ShowPositionEntry.ReferenceValue = DbEntry.ShowPhotoPosition;
-        ShowPositionEntry.UserValue = DbEntry.ShowPhotoPosition;
-
+        
         ShowSizesEntry = await BoolDataEntryContext.CreateInstance();
         ShowSizesEntry.Title = "Show Photo Sizes";
         ShowSizesEntry.HelpText = "If enabled the page users are shown will have a list of all available sizes";
         ShowSizesEntry.ReferenceValue = DbEntry.ShowPhotoSizes;
         ShowSizesEntry.UserValue = DbEntry.ShowPhotoSizes;
-
+        
         LinkToClipboardCommand = StatusContext.RunBlockingTaskCommand(LinkToClipboard);
-
+        
         if (!skipMediaDirectoryCheck && !string.IsNullOrWhiteSpace(DbEntry.OriginalFileName) && DbEntry.Id > 0)
         {
             await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(DbEntry);
-
+            
             var archiveFile = new FileInfo(Path.Combine(
                 UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().FullName,
                 DbEntry.OriginalFileName));
-
+            
             var fileContentDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(DbEntry);
-
+            
             var contentFile = new FileInfo(Path.Combine(fileContentDirectory.FullName, DbEntry.OriginalFileName));
-
+            
             if (!archiveFile.Exists && contentFile.Exists)
             {
                 await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(contentFile);
                 archiveFile.Refresh();
             }
-
+            
             if (archiveFile.Exists)
             {
                 LoadedFile = archiveFile;
@@ -459,76 +417,76 @@ Photo Content Notes:
                     "and restore it (or change it in settings) before continuing?");
             }
         }
-
+        
         ApertureEntry = StringDataEntryContext.CreateInstance();
         ApertureEntry.Title = "Aperture";
         ApertureEntry.HelpText =
             "Ratio of the lens focal length to the diameter of the entrance pupil - usually entered in a format like f/8.0";
         ApertureEntry.ReferenceValue = DbEntry.Aperture ?? string.Empty;
         ApertureEntry.UserValue = DbEntry.Aperture.TrimNullToEmpty();
-
+        
         LensEntry = StringDataEntryContext.CreateInstance();
         LensEntry.Title = "Lens";
         LensEntry.HelpText = "Description and/or identifier for the lens the photograph was taken with.";
         LensEntry.ReferenceValue = DbEntry.Lens ?? string.Empty;
         LensEntry.UserValue = DbEntry.Lens.TrimNullToEmpty();
-
+        
         LicenseEntry = StringDataEntryContext.CreateInstance();
         LicenseEntry.Title = "License";
         LicenseEntry.HelpText = "The Photo's License";
         LicenseEntry.ReferenceValue = DbEntry.License ?? string.Empty;
         LicenseEntry.UserValue = DbEntry.License.TrimNullToEmpty();
-
+        
         AltTextEntry = StringDataEntryContext.CreateInstance();
         AltTextEntry.Title = "Alt Text";
         AltTextEntry.HelpText = "A description for the photo, sometimes just the summary will be sufficient...";
         AltTextEntry.ReferenceValue = DbEntry.AltText ?? string.Empty;
         AltTextEntry.UserValue = DbEntry.AltText.TrimNullToEmpty();
-
+        
         CameraMakeEntry = StringDataEntryContext.CreateInstance();
         CameraMakeEntry.Title = "Camera Make";
         CameraMakeEntry.HelpText = "The Make, or Brand, of the Camera";
         CameraMakeEntry.ReferenceValue = DbEntry.CameraMake ?? string.Empty;
         CameraMakeEntry.UserValue = DbEntry.CameraMake.TrimNullToEmpty();
-
+        
         CameraModelEntry = StringDataEntryContext.CreateInstance();
         CameraModelEntry.Title = "Camera Model";
         CameraModelEntry.HelpText = "The Camera Model";
         CameraModelEntry.ReferenceValue = DbEntry.CameraModel ?? string.Empty;
         CameraModelEntry.UserValue = DbEntry.CameraModel.TrimNullToEmpty();
-
+        
         FocalLengthEntry = StringDataEntryContext.CreateInstance();
         FocalLengthEntry.Title = "Focal Length";
         FocalLengthEntry.HelpText = "Usually entered as 50 mm or 110 mm";
         FocalLengthEntry.ReferenceValue = DbEntry.FocalLength ?? string.Empty;
         FocalLengthEntry.UserValue = DbEntry.FocalLength.TrimNullToEmpty();
-
+        
         ShutterSpeedEntry = StringDataEntryContext.CreateInstance();
         ShutterSpeedEntry.Title = "Shutter Speed";
         ShutterSpeedEntry.HelpText = "Usually entered as 1/250 or 3\"";
         ShutterSpeedEntry.ReferenceValue = DbEntry.ShutterSpeed ?? string.Empty;
         ShutterSpeedEntry.UserValue = DbEntry.ShutterSpeed.TrimNullToEmpty();
-
+        
         PhotoCreatedByEntry = StringDataEntryContext.CreateInstance();
         PhotoCreatedByEntry.Title = "Photo Created By";
         PhotoCreatedByEntry.HelpText = "Who created the photo";
         PhotoCreatedByEntry.ReferenceValue = DbEntry.PhotoCreatedBy ?? string.Empty;
         PhotoCreatedByEntry.UserValue = DbEntry.PhotoCreatedBy.TrimNullToEmpty();
-
+        
         IsoEntry = await ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers
             .IntNullableConversion);
         IsoEntry.Title = "ISO";
         IsoEntry.HelpText = "A measure of a sensor films sensitivity to light, 100 is a typical value";
         IsoEntry.ReferenceValue = DbEntry.Iso;
         IsoEntry.UserText = DbEntry.Iso?.ToString("F0") ?? string.Empty;
-
+        
         PhotoCreatedOnEntry =
             await ConversionDataEntryContext<DateTime>.CreateInstance(ConversionDataEntryHelpers.DateTimeConversion);
         PhotoCreatedOnEntry.Title = "Photo Created On";
         PhotoCreatedOnEntry.HelpText = "Date and, optionally, Time the Photo was Created";
         PhotoCreatedOnEntry.ReferenceValue = DbEntry.PhotoCreatedOn;
         PhotoCreatedOnEntry.UserText = DbEntry.PhotoCreatedOn.ToString("MM/dd/yyyy h:mm:ss tt");
-
+        
         PhotoCreatedOnUtcEntry =
             await ConversionDataEntryContext<DateTime?>.CreateInstance(ConversionDataEntryHelpers
                 .DateTimeNullableConversion);
@@ -537,41 +495,13 @@ Photo Content Notes:
             "UTC Date and Time the Photo was Created - the UTC Date Time is not displayed but is used to compare the Photo's Date Time to data like GPX Files/Lines.";
         PhotoCreatedOnUtcEntry.ReferenceValue = DbEntry.PhotoCreatedOnUtc;
         PhotoCreatedOnUtcEntry.UserText = DbEntry.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
-
-        LatitudeEntry =
-            await ConversionDataEntryContext<double?>.CreateInstance(
-                ConversionDataEntryHelpers.DoubleNullableConversion);
-        LatitudeEntry.ValidationFunctions = [CommonContentValidation.LatitudeValidationWithNullOk];
-        LatitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .0000001);
-        LatitudeEntry.Title = "Latitude";
-        LatitudeEntry.HelpText = "In DDD.DDDDDD°";
-        LatitudeEntry.ReferenceValue = DbEntry.Latitude;
-        LatitudeEntry.UserText = DbEntry.Latitude?.ToString("F6") ?? string.Empty;
-
-        LongitudeEntry =
-            await ConversionDataEntryContext<double?>.CreateInstance(
-                ConversionDataEntryHelpers.DoubleNullableConversion);
-        LongitudeEntry.ValidationFunctions = [CommonContentValidation.LongitudeValidationWithNullOk];
-        LongitudeEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .0000001);
-        LongitudeEntry.Title = "Longitude";
-        LongitudeEntry.HelpText = "In DDD.DDDDDD°";
-        LongitudeEntry.ReferenceValue = DbEntry.Longitude;
-        LongitudeEntry.UserText = DbEntry.Longitude?.ToString("F6") ?? string.Empty;
-
-        ElevationEntry =
-            await ConversionDataEntryContext<double?>.CreateInstance(
-                ConversionDataEntryHelpers.DoubleNullableConversion);
-        ElevationEntry.ValidationFunctions = [CommonContentValidation.ElevationValidation];
-        ElevationEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .001);
-        ElevationEntry.Title = "Elevation (feet)";
-        ElevationEntry.HelpText = "Elevation in Feet";
-        ElevationEntry.ReferenceValue = DbEntry.Elevation;
-        ElevationEntry.UserText = DbEntry.Elevation?.ToString("N0") ?? string.Empty;
-
+        
+        OptionalLocationEntry = await OptionalLocationEntryContext.CreateInstance(StatusContext, DbEntry);
+        
         HelpContext = new HelpDisplayContext([
             PhotoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         ]);
-
+        
         if (DbEntry.Id < 1 && InitialPhoto is { Exists: true } && PhotoGenerator.PhotoFileTypeIsSupported(InitialPhoto))
         {
             SelectedFile = InitialPhoto;
@@ -582,20 +512,20 @@ Photo Content Notes:
             if (!generationReturn.HasError && metadataReturn != null)
                 await PhotoMetadataToCurrentContent(metadataReturn);
         }
-
+        
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }
-
+    
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-
+        
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
-
+        
         if (e.PropertyName == nameof(SelectedFile)) StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
     }
-
+    
     public async Task PhotoMetadataToCurrentContent(PhotoMetadata metadata)
     {
         ApertureEntry!.UserValue = metadata.Aperture ?? string.Empty;
@@ -603,9 +533,9 @@ Photo Content Notes:
         CameraModelEntry!.UserValue = metadata.CameraModel ?? string.Empty;
         FocalLengthEntry!.UserValue = metadata.FocalLength ?? string.Empty;
         IsoEntry!.UserText = metadata.Iso?.ToString("F0") ?? string.Empty;
-        LatitudeEntry!.UserText = metadata.Latitude?.ToString("F6") ?? string.Empty;
-        LongitudeEntry!.UserText = metadata.Longitude?.ToString("F6") ?? string.Empty;
-        ElevationEntry!.UserText = metadata.Elevation?.ToString("N0") ?? string.Empty;
+        OptionalLocationEntry!.LatitudeEntry!.UserText = metadata.Latitude?.ToString("F6") ?? string.Empty;
+        OptionalLocationEntry.LongitudeEntry!.UserText = metadata.Longitude?.ToString("F6") ?? string.Empty;
+        OptionalLocationEntry.ElevationEntry!.UserText = metadata.Elevation?.ToString("N0") ?? string.Empty;
         LensEntry!.UserValue = metadata.Lens ?? string.Empty;
         LicenseEntry!.UserValue = metadata.License ?? string.Empty;
         PhotoCreatedByEntry!.UserValue = metadata.PhotoCreatedBy ?? string.Empty;
@@ -619,215 +549,218 @@ Photo Content Notes:
         await TitleSummarySlugFolder.TitleToSlug();
         TitleSummarySlugFolder.FolderEntry.UserValue = metadata.PhotoCreatedOn.Year.ToString("F0");
     }
-
+    
     [BlockingCommand]
     private async Task PointFromPhotoLocation()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("The Photo must be saved before creating a Point.");
             return;
         }
-
-        if (LatitudeEntry!.UserValue == null || LongitudeEntry!.UserValue == null)
+        
+        if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
+            OptionalLocationEntry.LongitudeEntry!.UserValue == null)
         {
             StatusContext.ToastError("Latitude or Longitude is missing?");
             return;
         }
-
-        var latitudeValidation = await CommonContentValidation.LatitudeValidation(LatitudeEntry.UserValue.Value);
-        var longitudeValidation = await CommonContentValidation.LongitudeValidation(LongitudeEntry.UserValue.Value);
-
+        
+        var latitudeValidation =
+            await CommonContentValidation.LatitudeValidation(OptionalLocationEntry.LatitudeEntry.UserValue.Value);
+        var longitudeValidation =
+            await CommonContentValidation.LongitudeValidation(OptionalLocationEntry.LongitudeEntry.UserValue.Value);
+        
         if (!latitudeValidation.Valid || !longitudeValidation.Valid)
         {
             StatusContext.ToastError("Latitude/Longitude is not valid?");
             return;
         }
-
+        
         var frozenNow = DateTime.Now;
-
+        
         var newPartialPoint = PointContent.CreateInstance();
-
+        
         newPartialPoint.CreatedOn = frozenNow;
         newPartialPoint.FeedOn = frozenNow;
         newPartialPoint.BodyContent = BracketCodePhotos.Create(DbEntry);
         newPartialPoint.Title = $"Point From {TitleSummarySlugFolder!.TitleEntry.UserValue}";
         newPartialPoint.Tags = TagEdit!.TagListString();
         newPartialPoint.Slug = SlugTools.CreateSlug(true, newPartialPoint.Title);
-        newPartialPoint.Latitude = LatitudeEntry.UserValue.Value;
-        newPartialPoint.Longitude = LongitudeEntry.UserValue.Value;
-        newPartialPoint.Elevation = ElevationEntry!.UserValue;
-
+        newPartialPoint.Latitude = OptionalLocationEntry.LatitudeEntry.UserValue.Value;
+        newPartialPoint.Longitude = OptionalLocationEntry.LongitudeEntry.UserValue.Value;
+        newPartialPoint.Elevation = OptionalLocationEntry.ElevationEntry!.UserValue;
+        
         var pointWindow = await PointContentEditorWindow.CreateInstance(newPartialPoint);
-
+        
         await pointWindow.PositionWindowAndShowOnUiThread();
     }
-
+    
     [BlockingCommand]
     public async Task RenameSelectedFile()
     {
         await FileHelpers.RenameSelectedFile(SelectedFile, StatusContext, x => SelectedFile = x);
     }
-
+    
     private async Task RotateImage(Orientation rotationType)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (SelectedFile == null)
         {
             StatusContext.ToastError("No File Selected?");
             return;
         }
-
+        
         SelectedFile.Refresh();
-
+        
         if (!SelectedFile.Exists)
         {
             StatusContext.ToastError("File doesn't appear to exist?");
             return;
         }
-
+        
         await MagicScalerImageResizer.Rotate(SelectedFile, rotationType);
         ResizeSelectedFile = true;
-
+        
         StatusContext.RunFireAndForgetNonBlockingTask(SelectedFileChanged);
     }
-
+    
     [BlockingCommand]
     public async Task RotatePhotoLeft()
     {
         await RotateImage(Orientation.Rotate270);
     }
-
+    
     [BlockingCommand]
     public async Task RotatePhotoRight()
     {
         await RotateImage(Orientation.Rotate90);
     }
-
+    
     [BlockingCommand]
     public async Task Save()
     {
         await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges);
     }
-
+    
     [BlockingCommand]
     public async Task SaveAndClose()
     {
         await SaveAndGenerateHtml(ResizeSelectedFile || SelectedFileHasPathOrNameChanges, true);
     }
-
+    
     public async Task SaveAndGenerateHtml(bool overwriteExistingFiles, bool closeAfterSave = false)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (SelectedFile == null)
         {
             StatusContext.ToastError("No File Selected? There must be a photograph to Save...");
             return;
         }
-
+        
         var (generationReturn, newContent) = await PhotoGenerator.SaveAndGenerateHtml(CurrentStateToPhotoContent(),
             SelectedFile, overwriteExistingFiles, null, StatusContext.ProgressTracker());
-
+        
         if (generationReturn.HasError || newContent == null)
         {
             await StatusContext.ShowMessageWithOkButton("Problem Saving and Generating Html",
                 generationReturn.GenerationNote);
             return;
         }
-
+        
         await LoadData(newContent);
-
+        
         if (closeAfterSave)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
         }
     }
-
+    
     [BlockingCommand]
     public async Task SaveAndReprocessPhoto()
     {
         await SaveAndGenerateHtml(true);
     }
-
+    
     private async Task SelectedFileChanged()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         SelectedFileHasPathOrNameChanges =
             (SelectedFile?.FullName ?? string.Empty) != (LoadedFile?.FullName ?? string.Empty);
-
+        
         var (isValid, explanation) =
             await CommonContentValidation.PhotoFileValidation(SelectedFile, DbEntry.ContentId);
-
+        
         SelectedFileHasValidationIssues = !isValid;
-
+        
         SelectedFileValidationMessage = explanation;
-
+        
         SelectedFileNameHasInvalidCharacters =
             await CommonContentValidation.FileContentFileFileNameHasInvalidCharacters(SelectedFile, DbEntry.ContentId);
-
+        
         if (SelectedFile == null)
         {
             SelectedFileBitmapSource = ImageHelpers.BlankImage;
             return;
         }
-
+        
         SelectedFile.Refresh();
-
+        
         if (!SelectedFile.Exists)
         {
             SelectedFileBitmapSource = ImageHelpers.BlankImage;
             return;
         }
-
+        
         SelectedFileBitmapSource = await ImageHelpers.InMemoryThumbnailFromFile(SelectedFile, 450, 72);
-
+        
         TitleSummarySlugFolder?.CheckForChangesToTitleToFunctionStates();
     }
-
+    
     [BlockingCommand]
     private async Task ViewOnSite()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (DbEntry.Id < 1)
         {
             StatusContext.ToastError("Please save the content first...");
             return;
         }
-
+        
         var settings = UserSettingsSingleton.CurrentSettings();
-
+        
         var url = $"{settings.PhotoPageUrl(DbEntry)}";
-
+        
         var ps = new ProcessStartInfo(url) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }
-
+    
     [BlockingCommand]
     public async Task ViewPhotoMetadata()
     {
         await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext);
     }
-
+    
     [BlockingCommand]
     private async Task ViewSelectedFile()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
             StatusContext.ToastError("No Selected Photo or Selected Photo no longer exists?");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var ps = new ProcessStartInfo(SelectedFile.FullName) { UseShellExecute = true, Verb = "open" };
         Process.Start(ps);
     }

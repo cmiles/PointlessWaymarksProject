@@ -549,7 +549,7 @@ public static class ContentListSearch
                     "Show Photo Position on Item that is not a Photo - Excluding"), searchResultModifier);
 
         return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterBoolean(photoItem.DbEntry.ShowPhotoPosition, searchString,
+            ContentListSearchFunctions.FilterBoolean(photoItem.DbEntry.ShowLocation, searchString,
                 "Show Photo Position"), searchResultModifier);
     }
 
