@@ -62,35 +62,56 @@ public static class ContentListSearch
 
         switch (toFilter)
         {
+            case FileListListItem fileItem:
+                var includeFile = Db.OptionalLocationContentIsInBoundingBox(fileItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includeFile,
+                        $"File is in Search Bounding Box - {includeFile}"), searchResultModifier);
+            case GeoJsonListListItem geoJsonItem:
+                var includeGeoJson = Db.GeoJsonBoundingBoxOverlaps(geoJsonItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includeGeoJson,
+                        $"Geo Json Bounding Box Overlaps Search Bounding Box - {includeGeoJson}"), searchResultModifier);
+            case ImageListListItem imageItem:
+                var includeImage = Db.OptionalLocationContentIsInBoundingBox(imageItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includeImage,
+                        $"Image is in Search Bounding Box - {includeImage}"), searchResultModifier);
             case LineListListItem lineItem:
                 var includeLine = Db.LineContentBoundingBoxOverlaps(lineItem.DbEntry, bounds);
                 return new ContentListSearchReturn(
                     new ContentListSearchFunctionReturn(includeLine,
                         $"Line Bounding Box Overlaps Search Bounding Box - {includeLine}"), searchResultModifier);
-            case PhotoListListItem photoItem:
-                var includePhoto = Db.PhotoContentIsInBoundingBox(photoItem.DbEntry, bounds);
-                return new ContentListSearchReturn(
-                    new ContentListSearchFunctionReturn(includePhoto,
-                        $"Line Bounding Box Overlaps Search Bounding Box - {includePhoto}"), searchResultModifier);
-            case PointListListItem pointItem:
-                var includePoint = Db.PointContentIsInBoundingBox(pointItem.DbEntry.ToDbObject(), bounds);
-                return new ContentListSearchReturn(
-                    new ContentListSearchFunctionReturn(includePoint,
-                        $"Line Bounding Box Overlaps Search Bounding Box - {includePoint}"), searchResultModifier);
-            case GeoJsonListListItem geoJsonItem:
-                var includeGeoJson = Db.GeoJsonBoundingBoxOverlaps(geoJsonItem.DbEntry, bounds);
-                return new ContentListSearchReturn(
-                    new ContentListSearchFunctionReturn(includeGeoJson,
-                        $"Line Bounding Box Overlaps Search Bounding Box - {includeGeoJson}"), searchResultModifier);
             case MapComponentListListItem mapItem:
                 var includeMap = Db.MapInitialBoundingBoxOverlaps(mapItem.DbEntry, bounds);
                 return new ContentListSearchReturn(
                     new ContentListSearchFunctionReturn(includeMap,
-                        $"Line Bounding Box Overlaps Search Bounding Box - {includeMap}"), searchResultModifier);
+                        $"Map Initial View Bounding Box Overlaps Search Bounding Box - {includeMap}"), searchResultModifier);
+            case PhotoListListItem photoItem:
+                var includePhoto = Db.OptionalLocationContentIsInBoundingBox(photoItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includePhoto,
+                        $"Photo is in Search Bounding Box - {includePhoto}"), searchResultModifier);
+            case PostListListItem postItem:
+                var includePost = Db.OptionalLocationContentIsInBoundingBox(postItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includePost,
+                        $"Post is in Search Bounding Box - {includePost}"), searchResultModifier);
+            case PointListListItem pointItem:
+                var includePoint = Db.PointContentIsInBoundingBox(pointItem.DbEntry.ToDbObject(), bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includePoint,
+                        $"Point is in Search Bounding Box - {includePoint}"), searchResultModifier);
+            case VideoListListItem videoItem:
+                var includeVideo = Db.OptionalLocationContentIsInBoundingBox(videoItem.DbEntry, bounds);
+                return new ContentListSearchReturn(
+                    new ContentListSearchFunctionReturn(includeVideo,
+                        $"Video is in Search Bounding Box - {includeVideo}"), searchResultModifier);
+
             default:
                 return new ContentListSearchReturn(
                     new ContentListSearchFunctionReturn(false,
-                        "Bounds Search on Item that is not a Line, Photo, or Point - Excluding"), searchResultModifier);
+                        "Bounds Search on Item that can not have Location - Excluding"), searchResultModifier);
         }
     }
 

@@ -73,6 +73,10 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
                 { ItemName = "Generate Html", ItemCommand = ListContext.GenerateHtmlSelectedCommand },
             new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
             new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData
+            {
+                ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
+            },
             new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 

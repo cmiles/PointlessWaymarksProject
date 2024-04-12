@@ -31,7 +31,7 @@ public static class PhotoParts
         outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.CameraModel, "photo-detail", "camera-model",
             dbEntry.CameraModel));
         outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.License, "photo-detail", "license", dbEntry.License));
-        if (dbEntry.Latitude != null && dbEntry is { Longitude: { }, ShowLocation: true })
+        if (dbEntry is { Latitude: {}, Longitude: { }, ShowLocation: true })
             outerContainer.Children.Add(Tags.InfoLinkDivTag(
                 PointParts.CalTopoMapsLatLongUrl(dbEntry.Latitude.Value, dbEntry.Longitude.Value),
                 $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}", "photo-detail",

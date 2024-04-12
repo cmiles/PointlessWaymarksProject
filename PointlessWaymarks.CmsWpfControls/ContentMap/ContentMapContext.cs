@@ -7,11 +7,15 @@ using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.GeoSearch;
+using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
+using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -372,10 +376,14 @@ public partial class ContentMapContext : IWebViewMessenger
         {
             var isInside = loopItem switch
             {
-                LineListListItem line => Db.LineContentBoundingBoxOverlaps(line.DbEntry, MapBounds),
+                FileListListItem file => Db.OptionalLocationContentIsInBoundingBox(file.DbEntry, MapBounds),
                 GeoJsonListListItem geo => Db.GeoJsonBoundingBoxOverlaps(geo.DbEntry, MapBounds),
-                PhotoListListItem photo => Db.PhotoContentIsInBoundingBox(photo.DbEntry, MapBounds),
+                ImageListListItem image => Db.OptionalLocationContentIsInBoundingBox(image.DbEntry, MapBounds),
+                LineListListItem line => Db.LineContentBoundingBoxOverlaps(line.DbEntry, MapBounds),
+                PhotoListListItem photo => Db.OptionalLocationContentIsInBoundingBox(photo.DbEntry, MapBounds),
+                PostListListItem post => Db.OptionalLocationContentIsInBoundingBox(post.DbEntry, MapBounds),
                 PointListListItem point => Db.PointContentIsInBoundingBox(point.DbEntry.ToDbObject(), MapBounds),
+                VideoListListItem video => Db.OptionalLocationContentIsInBoundingBox(video.DbEntry, MapBounds),
                 _ => false
             };
 

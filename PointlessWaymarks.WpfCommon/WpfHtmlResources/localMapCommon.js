@@ -17,8 +17,14 @@ let pointCircleMarkerOrangeOptions = {
     fillOpacity: 0.8
 };
 
+/*Source folder-file-outline - Colton Wiscombe - https://pictogrammers.com/library/mdi/icon/folder-file-outline/ */
+const pointlessWaymarksFileIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 18H11V20H4C2.9 20 2 19.11 2 18V6C2 4.89 2.89 4 4 4H10L12 6H20C21.1 6 22 6.89 22 8V10.17L20.41 8.59L20 8.17V8H4V18M23 14V21C23 22.11 22.11 23 21 23H15C13.9 23 13 22.11 13 21V12C13 10.9 13.9 10 15 10H19L23 14M21 15H18V12H15V21H21V15Z" /></svg>';
+
+/*Source image-outline - GreenTurtwig - https://pictogrammers.com/library/mdi/icon/image-outline/ */
+const pointlessWaymarksImageIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z" /></svg>';
+
 /*Source: https://raw.githubusercontent.com/nationalparkservice/symbol-library/gh-pages/src/standalone/photography-black-30.svg8*/
-const pointlessWaymarksCameraIcon = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" 
+const pointlessWaymarksPhotoIcon = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" 
     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 30 30" enable-background="new 0 0 30 30" xml:space="preserve">
         <rect x="4" y="4" width="6" height="2"/>
@@ -26,6 +32,12 @@ const pointlessWaymarksCameraIcon = `<svg version="1.1" id="Layer_1" xmlns="http
         <path d="M27,7H3c-1.7,0-3,1.3-3,3v13c0,1.6,1.3,3,3,3h24c1.7,0,3-1.4,3-3V10C30,8.3,28.7,7,27,7z M10.5,23.5c-3.9,0-7-3.1-7-7
 	        c0-3.9,3.1-7,7-7s7,3.1,7,7C17.5,20.4,14.4,23.5,10.5,23.5z M26,12h-3c-0.5,0-1-0.5-1-1s0.5-1,1-1h3c0.5,0,1,0.5,1,1S26.5,12,26,12z"/>
 </svg>`;
+
+/*Source file-code-outline - Terren - https://pictogrammers.com/library/mdi/icon/file-code-outline/ */
+const pointlessWaymarksPostIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="M14 2H6C4.89 2 4 2.9 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14 2M18 20H6V4H13V9H18V20M9.54 15.65L11.63 17.74L10.35 19L7 15.65L10.35 12.3L11.63 13.56L9.54 15.65M17 15.65L13.65 19L12.38 17.74L14.47 15.65L12.38 13.56L13.65 12.3L17 15.65Z" /></svg>';
+
+/*Source video-outline - Google - https://pictogrammers.com/library/mdi/icon/video-outline/ */
+const pointlessWaymarksVideoIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15,8V16H5V8H15M16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5V7A1,1 0 0,0 16,6Z" /></svg>';
 
 /*Source: https://raw.githubusercontent.com/nationalparkservice/symbol-library/gh-pages/src/standalone/dot-black-30.svg*/
 const pointlessWaymarksDotIcon = `<svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
@@ -324,7 +336,11 @@ function getMapMarkerColor(iconName) {
 
 function getMapIconSvg(iconName) {
     if (!iconName) return pointlessWaymarksDotIcon;
-    if(iconName === 'camera') return pointlessWaymarksCameraIcon;
+    if (iconName === 'file') return pointlessWaymarksFileIcon;
+    if (iconName === 'image') return pointlessWaymarksImageIcon;
+    if (iconName === 'photo') return pointlessWaymarksPhotoIcon;
+    if (iconName === 'post') return pointlessWaymarksPostIcon;
+    if (iconName === 'video') return pointlessWaymarksVideoIcon;
     if (iconName === 'dot') return pointlessWaymarksDotIcon;
     if(!mapIcons) return pointlessWaymarksDotIcon;
     var possibleMapJsonIcons = mapIcons.filter(x => x.IconName === iconName);

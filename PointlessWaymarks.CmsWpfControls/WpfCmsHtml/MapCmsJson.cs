@@ -9,15 +9,19 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
+using PointlessWaymarks.CmsWpfControls.ImageList;
 using PointlessWaymarks.CmsWpfControls.LineContentEditor;
 using PointlessWaymarks.CmsWpfControls.LineList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PointList;
+using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
+using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
@@ -231,8 +235,20 @@ public static class MapCmsJson
                 case PointListListItem point:
                     dbEntries.Add(point.DbEntry);
                     break;
+                case FileListListItem { DbEntry.Latitude: not null, DbEntry.Longitude: not null } file:
+                    dbEntries.Add(file.DbEntry);
+                    break;
+                case ImageListListItem { DbEntry.Latitude: not null, DbEntry.Longitude: not null } image:
+                    dbEntries.Add(image.DbEntry);
+                    break;
                 case PhotoListListItem { DbEntry.Latitude: not null, DbEntry.Longitude: not null } photo:
                     dbEntries.Add(photo.DbEntry);
+                    break;
+                case PostListListItem { DbEntry.Latitude: not null, DbEntry.Longitude: not null } post:
+                    dbEntries.Add(post.DbEntry);
+                    break;
+                case VideoListListItem { DbEntry.Latitude: not null, DbEntry.Longitude: not null } video:
+                    dbEntries.Add(video.DbEntry);
                     break;
             }
 
@@ -344,17 +360,35 @@ public static class MapCmsJson
         }
 
 
-        var photos = dbEntries.Where(x => x is PhotoContent).Cast<PhotoContent>()
-            .Where(x => x.Latitude is not null && x.Longitude is not null).OrderBy(x => x.Title).ToList();
+        var optionalContent = dbEntries.Where(x => x is IOptionalLocation).Cast<IOptionalLocation>()
+            .Where(x => x.Latitude is not null && x.Longitude is not null).ToList();
 
-        if (photos.Count != 0)
+        if (optionalContent.Count != 0)
         {
             var featureCollection = new FeatureCollection();
 
-            foreach (var loopElements in photos)
+            foreach (var loopElements in optionalContent)
             {
+                var contentInformation = optionalContent switch
+                {
+                    not null when loopElements is FileContent fileContent => (UserSettingsSingleton.CurrentSettings()
+                        .FilePageUrl(fileContent), "file"),
+                    not null when loopElements is ImageContent imageContent => (UserSettingsSingleton.CurrentSettings()
+                        .ImagePageUrl(imageContent), "image"),
+                    not null when loopElements is PhotoContent photoContent => (UserSettingsSingleton.CurrentSettings()
+                        .PhotoPageUrl(photoContent), "photo"),
+                    not null when loopElements is PostContent postContent => (UserSettingsSingleton.CurrentSettings()
+                        .PostPageUrl(postContent), "post"),
+                    not null when loopElements is VideoContent videoContent => (UserSettingsSingleton.CurrentSettings()
+                        .VideoPageUrl(videoContent), "video"),
+                    _ => (string.Empty, string.Empty)
+                };
+
+                var contentAsContentCommon = loopElements as IContentCommon;
+                if (contentAsContentCommon is null) continue;
+
                 var descriptionAndImage =
-                    GenerateDescription(loopElements.MainPicture, loopElements.Title, loopElements.Summary);
+                    GenerateDescription(contentAsContentCommon.MainPicture, contentAsContentCommon.Title, contentAsContentCommon.Summary);
                 if (!string.IsNullOrWhiteSpace(descriptionAndImage.imageFileToCopy))
                     filesToCopy.Add(descriptionAndImage.imageFileToCopy);
 
@@ -365,11 +399,11 @@ public static class MapCmsJson
                     {
                         {
                             "title",
-                            $"""<a href="http://[[VirtualDomain]]/LocalPreview?{WebUtility.UrlEncode(UserSettingsSingleton.CurrentSettings().PhotoPageUrl(loopElements))}">{(string.IsNullOrWhiteSpace(loopElements.Title) ? "Preview" : loopElements.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(loopElements.ContentId.ToString())}">Edit</a>"""
+                            $"""<a href="http://[[VirtualDomain]]/LocalPreview?{WebUtility.UrlEncode(contentInformation.Item1)}">{(string.IsNullOrWhiteSpace(contentAsContentCommon.Title) ? "Preview" : contentAsContentCommon.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(contentAsContentCommon.ContentId.ToString())}">Edit</a>"""
                         },
                         { "description", descriptionAndImage.description },
-                        { "displayId", loopElements.ContentId },
-                        { "mapIcon", "camera" },
+                        { "displayId", contentAsContentCommon.ContentId },
+                        { "mapIcon", contentInformation.Item2 },
                         { "mapMarkerColor", "blue" }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude.Value, loopElements.Latitude.Value));

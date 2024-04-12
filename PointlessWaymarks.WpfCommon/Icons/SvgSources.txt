@@ -1,17 +1,23 @@
-﻿Restart - Google - https://pictogrammers.com/library/mdi/icon/restart
-Play - Google - https://pictogrammers.com/library/mdi/icon/play
-Stop - Google - https://pictogrammers.com/library/mdi/icon/stop
-Pause - Google - https://pictogrammers.com/library/mdi/icon/pause
-InfoIconData - Google - https://pictogrammers.com/library/mdi/icon/information-outline
-UpArrowThickData - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-up-thick
-DownArrowThick - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-down-thick
-RotateRight - Google - https://pictogrammers.com/library/mdi/icon/rotate-right
-RotateLeft - Google - https://pictogrammers.com/library/mdi/icon/rotate-left
-CameraOutline - Google - https://pictogrammers.com/library/mdi/icon/camera-outline
-DownArrow - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-down
-UpArrow - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-up
-ArrowLeftCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-left-circle
-ArrowRightCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-right-circle
-HomeCircle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/home-circle
-RefreshCircle - François Risoud - https://pictogrammers.com/library/mdi/icon/refresh-circle
-PlusCircle - Google - https://pictogrammers.com/library/mdi/icon/plus-circle/
+alert - Google - https://pictogrammers.com/library/mdi/icon/alert/
+alert-octagon - Google - https://pictogrammers.com/library/mdi/icon/alert-octagon/
+arrow-down - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-down
+arrow-down-thick - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-down-thick
+arrow-left-circle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-left-circle
+arrow-right-circle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-right-circle
+arrow-up - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-up
+arrow-up-thick - Austin Andrews - https://pictogrammers.com/library/mdi/icon/arrow-up-thick
+camera-outline - Google - https://pictogrammers.com/library/mdi/icon/camera-outline
+file-code-outline - Terren - https://pictogrammers.com/library/mdi/icon/file-code-outline/
+folder-file-outline - Colton Wiscombe - https://pictogrammers.com/library/mdi/icon/folder-file-outline/
+home-circle - Austin Andrews - https://pictogrammers.com/library/mdi/icon/home-circle
+image-outline - GreenTurtwig - https://pictogrammers.com/library/mdi/icon/image-outline/
+information-outline - Google - https://pictogrammers.com/library/mdi/icon/information-outline
+pause - Google - https://pictogrammers.com/library/mdi/icon/pause
+play - Google - https://pictogrammers.com/library/mdi/icon/play
+plus-circle - Google - https://pictogrammers.com/library/mdi/icon/plus-circle/
+refresh-circle - François Risoud - https://pictogrammers.com/library/mdi/icon/refresh-circle
+restart - Google - https://pictogrammers.com/library/mdi/icon/restart
+rotate-left - Google - https://pictogrammers.com/library/mdi/icon/rotate-left
+rotate-right - Google - https://pictogrammers.com/library/mdi/icon/rotate-right
+stop - Google - https://pictogrammers.com/library/mdi/icon/stop
+video-outline - Google - https://pictogrammers.com/library/mdi/icon/video-outline/
