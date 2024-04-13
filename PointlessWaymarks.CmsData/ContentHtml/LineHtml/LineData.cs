@@ -213,10 +213,44 @@ public static class LineData
     {
         if (!lineContent.ShowContentReferencesOnMap)
             return new SpatialContentIdReferences([], [], [],
-                []);
+                [], [], [], [], []);
 
-        var lineLinks = (await BracketCodeLineLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+        var files = new List<List<FileContent>>{
+
+            (await BracketCodeFiles.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation()).ToList(),
+            (await BracketCodeFileDownloads.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation())
+            .OrderBy(x => x.Title).ToList(),
+            (await BracketCodeFileEmbed.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation())
+            .OrderBy(x => x.Title).ToList(),
+            (await BracketCodeFileImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation())
+            .OrderBy(x => x.Title).ToList(),
+        };
+        var filesAllReferences = files.SelectMany(x => x).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+            .ToList();
+
+        var geojson = (await BracketCodeGeoJson.DbContentFromBracketCodes(lineContent.BodyContent)).ToList();
+        var geojsonImageLinks = (await BracketCodeGeoJsonImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
+            .OrderBy(x => x.Title).ToList();
+        var geojsonLinks = (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+            .OrderBy(x => x.Title).ToList();
+        var geojsonAllReferences = geojson.Concat(geojsonImageLinks).Concat(geojsonLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+            .ToList();
+
+        var images = (await BracketCodeImages.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation()).ToList();
+        var imageLinks = (await BracketCodeImageLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation())
+            .OrderBy(x => x.Title).ToList();
+        var imageAllReferences = images.Concat(imageLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+            .ToList();
+
+        var lineAllReferences = (await BracketCodeLineLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .OrderBy(x => x.Title).Select(x => x.ContentId).Distinct().ToList();
+
         var photos = (await BracketCodePhotos.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.HasLocation()).ToList();
         var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(lineContent.BodyContent))
@@ -224,14 +258,35 @@ public static class LineData
             .OrderBy(x => x.Title).ToList();
         var photoAllReferences = photos.Concat(photoLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
             .ToList();
+        
+        var posts = (await BracketCodePosts.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation()).ToList();
+        var postLinks = (await BracketCodePostImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation())
+            .OrderBy(x => x.Title).ToList();
+        var postAllReferences = posts.Concat(postLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+            .ToList();
+        
+        var points = (await BracketCodePoints.DbContentFromBracketCodes(lineContent.BodyContent)).ToList();
+        var pointImageLinks = (await BracketCodePointImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
+            .OrderBy(x => x.Title).ToList();
         var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(lineContent.BodyContent))
-            .OrderBy(x => x.Title).Select(x => x.ContentId).Distinct().ToList();
-        var geoJsonLinks =
-            (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(lineContent.BodyContent)).OrderBy(x => x.Title)
-            .Select(x => x.ContentId).Distinct().ToList();
+            .OrderBy(x => x.Title).ToList();
+        var pointAllReferences = points.Concat(pointImageLinks).Concat(pointLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+            .ToList();
 
+        var videos = (await BracketCodeVideoEmbed.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation()).ToList();
+        var videoLinks = (await BracketCodeVideoLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation())
+            .OrderBy(x => x.Title).ToList();
+        var videoImageLinks = (await BracketCodeVideoImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation())
+            .OrderBy(x => x.Title).ToList();
+        var videoAllReferences = videos.Concat(videoLinks).Concat(videoImageLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+            .ToList();
 
-        return new SpatialContentIdReferences(pointLinks, lineLinks, geoJsonLinks, photoAllReferences);
+        return new SpatialContentIdReferences(filesAllReferences, geojsonAllReferences, imageAllReferences, lineAllReferences, photoAllReferences, pointAllReferences, postAllReferences, videoAllReferences);
     }
 
     public static async Task WriteGpxData(LineContent lineContent)
