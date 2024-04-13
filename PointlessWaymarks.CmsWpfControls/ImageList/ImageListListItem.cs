@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList;
 [NotifyPropertyChanged]
 public partial class ImageListListItem : IContentListItem, IContentListImage
 {
-    private ImageListListItem(ImageContentActions itemActions, ImageContent dbEntry)
+    protected ImageListListItem(ImageContentActions itemActions, ImageContent dbEntry)
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;

@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.VideoList;
 [NotifyPropertyChanged]
 public partial class VideoListListItem : IContentListItem, IContentListImage
 {
-    private VideoListListItem(VideoContentActions itemActions, VideoContent dbEntry)
+    protected VideoListListItem(VideoContentActions itemActions, VideoContent dbEntry)
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;

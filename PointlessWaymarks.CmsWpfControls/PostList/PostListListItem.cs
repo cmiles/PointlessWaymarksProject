@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.PostList;
 [NotifyPropertyChanged]
 public partial class PostListListItem : IContentListItem, IContentListImage
 {
-    private PostListListItem(PostContentActions itemActions, PostContent dbEntry)
+    protected PostListListItem(PostContentActions itemActions, PostContent dbEntry)
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;

@@ -29,6 +29,41 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
+            <DataTemplate x:Key="MapElementFileTemplate"
+                          DataType="{x:Type mapComponentEditor:MapElementListFileItem}">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
+                                <Button Margin="0,4,0,0"
+                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                        CommandParameter="{Binding .}">
+                                    Edit
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource FileListItemTemplate}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
             <DataTemplate x:Key="MapElementGeoJsonTemplate" DataType="mapComponentEditor:MapElementListGeoJsonItem">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
@@ -60,6 +95,41 @@
                             Grid.Column="1"
                             Content="{Binding .}"
                             ContentTemplate="{StaticResource GeoJsonListItemTemplate}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="MapElementImageTemplate"
+                          DataType="{x:Type mapComponentEditor:MapElementListImageItem}">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
+                                <Button Margin="0,4,0,0"
+                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                        CommandParameter="{Binding .}">
+                                    Edit
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource ImageListItemTemplate}" />
                     </Grid>
                 </Border>
             </DataTemplate>
@@ -166,12 +236,86 @@
                     </Grid>
                 </Border>
             </DataTemplate>
+            <DataTemplate x:Key="MapElementPostTemplate"
+                          DataType="{x:Type mapComponentEditor:MapElementListPostItem}">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
+                                <Button Margin="0,4,0,0"
+                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                        CommandParameter="{Binding .}">
+                                    Edit
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource PostListItemTemplate}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="MapElementVideoTemplate"
+                          DataType="{x:Type mapComponentEditor:MapElementListVideoItem}">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                            <StackPanel
+                                Margin="4"
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
+                                <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
+                                <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
+                                <Button
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}">
+                                    Remove
+                                </Button>
+                                <Button Margin="0,4,0,0"
+                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                        CommandParameter="{Binding .}">
+                                    Edit
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                        <ContentControl
+                            Grid.Column="1"
+                            Content="{Binding .}"
+                            ContentTemplate="{StaticResource VideoListItemTemplate}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
             <mapComponentEditor:MapElementDataTemplateSelector
                 x:Key="MapElementSelector"
+                FileTemplate="{StaticResource MapElementFileTemplate}"
                 GeoJsonTemplate="{StaticResource MapElementGeoJsonTemplate}"
+                ImageTemplate="{StaticResource MapElementImageTemplate}"
                 LineTemplate="{StaticResource MapElementLineTemplate}"
                 PhotoTemplate="{StaticResource MapElementPhotoTemplate}"
-                PointTemplate="{StaticResource MapElementPointTemplate}" />
+                PostTemplate="{StaticResource MapElementPostTemplate}"
+                PointTemplate="{StaticResource MapElementPointTemplate}"
+                VideoTemplate="{StaticResource MapElementVideoTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">

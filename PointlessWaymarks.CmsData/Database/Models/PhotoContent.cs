@@ -53,40 +53,4 @@ public class PhotoContent : IUpdateNotes, IContentCommon, IOptionalLocation
         return NewContentModels.InitializePhotoContent(null);
     }
 
-    /// <summary>
-    ///     Returns a NTS Feature based on the Content data.
-    /// </summary>
-    /// <returns></returns>
-    public IFeature? FeatureFromPoint()
-    {
-        if (Longitude is null || Latitude is null) return null;
-        return new Feature(PointFromLatitudeLongitude(), new AttributesTable());
-    }
-
-    public bool HasLocation()
-    {
-        return Longitude is not null && Latitude is not null;
-    }
-
-    public async Task<bool> HasValidLocation()
-    {
-        if (Longitude is null || Latitude is null) return false;
-
-        if (!(await CommonContentValidation.LatitudeValidation(Latitude.Value)).Valid) return false;
-        if (!(await CommonContentValidation.LongitudeValidation(Latitude.Value)).Valid) return false;
-
-        return true;
-    }
-
-    /// <summary>
-    ///     Returns either a Point or a PointZ from the Contents Values
-    /// </summary>
-    /// <returns></returns>
-    public Point? PointFromLatitudeLongitude()
-    {
-        if (Longitude is null || Latitude is null) return null;
-        return Elevation is null
-            ? new Point(Longitude.Value, Latitude.Value)
-            : new Point(Longitude.Value, Latitude.Value, Elevation.Value.FeetToMeters());
-    }
 }

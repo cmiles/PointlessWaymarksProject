@@ -8,7 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.FileList;
 [NotifyPropertyChanged]
 public partial class FileListListItem : IContentListItem, IContentListImage
 {
-    private FileListListItem(FileContentActions itemActions, FileContent dbEntry)
+    protected FileListListItem(FileContentActions itemActions, FileContent dbEntry)
     {
         DbEntry = dbEntry;
         ItemActions = itemActions;
