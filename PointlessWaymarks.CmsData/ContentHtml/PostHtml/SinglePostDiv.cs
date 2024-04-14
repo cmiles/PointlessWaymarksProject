@@ -16,7 +16,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
+    #line 1 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
     public partial class SinglePostDiv : SinglePostDivBase
     {
@@ -28,42 +28,49 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PostHtml
         {
             this.Write("\r\n<div class=\"content-container\" data-contentversion=\"");
             
-            #line 4 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
+            #line 4 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff")));
             
             #line default
             #line hidden
             this.Write("\" data-contentid=\"");
             
-            #line 4 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
+            #line 4 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbEntry.ContentId.ToString()));
             
             #line default
             #line hidden
             this.Write("\">\r\n    ");
             
-            #line 5 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
+            #line 5 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.TitleLinkDiv(DbEntry, DbEntry)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 6 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
+            #line 6 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 7 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
+            #line 7 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 8 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
+            #line 8 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(PostParts.PostLocationDiv(DbEntry)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n    ");
+            
+            #line 9 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\PostHtml\SinglePostDiv.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result));
             
             #line default

@@ -64,6 +64,7 @@
     <#= FileParts.DownloadLinkTag(DbEntry) #>
 
     <div class="information-section">
+        <#= FileParts.FileLocationDiv(DbEntry) #>
         <#= Tags.TagList(DbEntry).ToString() #>
         <#=
                 BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>

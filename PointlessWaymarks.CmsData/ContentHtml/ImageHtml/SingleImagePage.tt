@@ -61,6 +61,7 @@
     <#=
                     Tags.PostBodyDiv(DbEntry).Result.ToString() #>
     <div class="information-section">
+        <#= ImageParts.ImageLocationDiv(DbEntry) #>
         <#= Tags.TagList(DbEntry).ToString() #>
         <#= Tags.PictureSizeList(DbEntry.ShowImageSizes, PictureInformation).ToString() #>
         <#=

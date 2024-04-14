@@ -2,7 +2,6 @@ using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.Database.Models;
-using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 
@@ -11,10 +10,10 @@ public static class PhotoParts
     public static HtmlTag PhotoDetailsDiv(PhotoContent dbEntry)
     {
         var outerContainer = new DivTag().AddClasses("photo-details-container", "info-list-container");
-
+        
         outerContainer.Children.Add(new DivTag().AddClasses("photo-detail-label-tag", "info-list-label")
             .Text("Details:"));
-
+        
         outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.Aperture, "photo-detail", "aperture",
             dbEntry.Aperture));
         outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.ShutterSpeed, "photo-detail", "shutter-speed",
@@ -31,16 +30,16 @@ public static class PhotoParts
         outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.CameraModel, "photo-detail", "camera-model",
             dbEntry.CameraModel));
         outerContainer.Children.Add(Tags.InfoTextDivTag(dbEntry.License, "photo-detail", "license", dbEntry.License));
-        if (dbEntry is { Latitude: {}, Longitude: { }, ShowLocation: true })
+        if (dbEntry is { Latitude: not null, Longitude: not null, ShowLocation: true })
             outerContainer.Children.Add(Tags.InfoLinkDivTag(
-                PointParts.CalTopoMapsLatLongUrl(dbEntry.Latitude.Value, dbEntry.Longitude.Value),
+                PointParts.OsmCycleMapsLatLongUrl(dbEntry.Latitude.Value, dbEntry.Longitude.Value),
                 $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}", "photo-detail",
                 "lat-long-decimal-degrees",
                 $"{dbEntry.Latitude.Value:F5}, {dbEntry.Longitude.Value:F5}"));
-        if (dbEntry is { Elevation: { }, ShowLocation: true })
+        if (dbEntry is { Elevation: not null, ShowLocation: true })
             outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.Elevation.Value:N0}'",
                 "photo-detail", "elevation-in-feet", dbEntry.Elevation.Value.ToString("F0")));
-
+        
         //Return empty if there are no details
         return outerContainer.Children.Count(x => !x.IsEmpty()) > 1 ? outerContainer : HtmlTag.Empty();
     }

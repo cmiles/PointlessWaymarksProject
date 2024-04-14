@@ -5,6 +5,7 @@
     <#=
                 PictureInformation.PictureFigureWithCaptionAndLinkToPicturePageTag("100vw") #>
     <#= Tags.PostBodyDiv(DbEntry).Result.ToString() #>
+    <#= ImageParts.ImageLocationDiv(DbEntry) #>
     <#=
                 BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
 </div>
