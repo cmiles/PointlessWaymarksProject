@@ -20,6 +20,7 @@ using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.OptionalLocationEntry;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -120,6 +121,18 @@ Notes:
     
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
+    
+    [BlockingCommand]
+    private async Task AddFeatureIntersectTags()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        var possibleTags = await OptionalLocationEntry!.GetFeatureIntersectTagsWithUiAlerts();
+        
+        if (possibleTags.Any())
+            TagEdit!.Tags =
+                $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
+    }
     
     [BlockingCommand]
     public async Task AutoCleanRenameSelectedFile()
@@ -268,7 +281,7 @@ Notes:
         newEntry.Longitude = OptionalLocationEntry.LongitudeEntry!.UserValue;
         newEntry.Elevation = OptionalLocationEntry.ElevationEntry!.UserValue;
         newEntry.ShowLocation = OptionalLocationEntry.ShowLocationEntry!.UserValue;
-
+        
         return newEntry;
     }
     
@@ -528,6 +541,54 @@ Notes:
         }
         
         await ProcessHelpers.OpenExplorerWindowForFile(SelectedFile.FullName);
+    }
+    
+    [BlockingCommand]
+    private async Task PointFromLocation()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        if (DbEntry.Id < 1)
+        {
+            StatusContext.ToastError("The Photo must be saved before creating a Point.");
+            return;
+        }
+        
+        if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
+            OptionalLocationEntry.LongitudeEntry!.UserValue == null)
+        {
+            StatusContext.ToastError("Latitude or Longitude is missing?");
+            return;
+        }
+        
+        var latitudeValidation =
+            await CommonContentValidation.LatitudeValidation(OptionalLocationEntry.LatitudeEntry.UserValue.Value);
+        var longitudeValidation =
+            await CommonContentValidation.LongitudeValidation(OptionalLocationEntry.LongitudeEntry.UserValue.Value);
+        
+        if (!latitudeValidation.Valid || !longitudeValidation.Valid)
+        {
+            StatusContext.ToastError("Latitude/Longitude is not valid?");
+            return;
+        }
+        
+        var frozenNow = DateTime.Now;
+        
+        var newPartialPoint = PointContent.CreateInstance();
+        
+        newPartialPoint.CreatedOn = frozenNow;
+        newPartialPoint.FeedOn = frozenNow;
+        newPartialPoint.BodyContent = BracketCodeVideoEmbed.Create(DbEntry);
+        newPartialPoint.Title = $"Point From {TitleSummarySlugFolder!.TitleEntry.UserValue}";
+        newPartialPoint.Tags = TagEdit!.TagListString();
+        newPartialPoint.Slug = SlugTools.CreateSlug(true, newPartialPoint.Title);
+        newPartialPoint.Latitude = OptionalLocationEntry.LatitudeEntry.UserValue.Value;
+        newPartialPoint.Longitude = OptionalLocationEntry.LongitudeEntry.UserValue.Value;
+        newPartialPoint.Elevation = OptionalLocationEntry.ElevationEntry!.UserValue;
+        
+        var pointWindow = await PointContentEditorWindow.CreateInstance(newPartialPoint);
+        
+        await pointWindow.PositionWindowAndShowOnUiThread();
     }
     
     [BlockingCommand]

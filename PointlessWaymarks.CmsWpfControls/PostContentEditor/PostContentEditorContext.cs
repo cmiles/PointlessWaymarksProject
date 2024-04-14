@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.OptionalLocationEntry;
+using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
@@ -22,6 +23,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
 
@@ -74,6 +76,18 @@ Notes:
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
     
+    [BlockingCommand]
+    private async Task AddFeatureIntersectTags()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        var possibleTags = await OptionalLocationEntry!.GetFeatureIntersectTagsWithUiAlerts();
+        
+        if (possibleTags.Any())
+            TagEdit!.Tags =
+                $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
+    }
+    
     public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PostContent? toLoad = null)
     {
@@ -114,7 +128,7 @@ Notes:
         newEntry.Longitude = OptionalLocationEntry.LongitudeEntry!.UserValue;
         newEntry.Elevation = OptionalLocationEntry.ElevationEntry!.UserValue;
         newEntry.ShowLocation = OptionalLocationEntry.ShowLocationEntry!.UserValue;
-
+        
         return newEntry;
     }
     
@@ -163,7 +177,7 @@ Notes:
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         
         OptionalLocationEntry = await OptionalLocationEntryContext.CreateInstance(StatusContext, DbEntry);
-
+        
         HelpContext = new HelpDisplayContext([
             PostEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         ]);
@@ -177,6 +191,54 @@ Notes:
         
         if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
             CheckForChangesAndValidationIssues();
+    }
+    
+    [BlockingCommand]
+    private async Task PointFromLocation()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        if (DbEntry.Id < 1)
+        {
+            StatusContext.ToastError("The Photo must be saved before creating a Point.");
+            return;
+        }
+        
+        if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
+            OptionalLocationEntry.LongitudeEntry!.UserValue == null)
+        {
+            StatusContext.ToastError("Latitude or Longitude is missing?");
+            return;
+        }
+        
+        var latitudeValidation =
+            await CommonContentValidation.LatitudeValidation(OptionalLocationEntry.LatitudeEntry.UserValue.Value);
+        var longitudeValidation =
+            await CommonContentValidation.LongitudeValidation(OptionalLocationEntry.LongitudeEntry.UserValue.Value);
+        
+        if (!latitudeValidation.Valid || !longitudeValidation.Valid)
+        {
+            StatusContext.ToastError("Latitude/Longitude is not valid?");
+            return;
+        }
+        
+        var frozenNow = DateTime.Now;
+        
+        var newPartialPoint = PointContent.CreateInstance();
+        
+        newPartialPoint.CreatedOn = frozenNow;
+        newPartialPoint.FeedOn = frozenNow;
+        newPartialPoint.BodyContent = BracketCodePosts.Create(DbEntry);
+        newPartialPoint.Title = $"Point From {TitleSummarySlugFolder!.TitleEntry.UserValue}";
+        newPartialPoint.Tags = TagEdit!.TagListString();
+        newPartialPoint.Slug = SlugTools.CreateSlug(true, newPartialPoint.Title);
+        newPartialPoint.Latitude = OptionalLocationEntry.LatitudeEntry.UserValue.Value;
+        newPartialPoint.Longitude = OptionalLocationEntry.LongitudeEntry.UserValue.Value;
+        newPartialPoint.Elevation = OptionalLocationEntry.ElevationEntry!.UserValue;
+        
+        var pointWindow = await PointContentEditorWindow.CreateInstance(newPartialPoint);
+        
+        await pointWindow.PositionWindowAndShowOnUiThread();
     }
     
     [BlockingCommand]

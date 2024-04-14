@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using NetTopologySuite.Features;
 using Ookii.Dialogs.Wpf;
 using PhotoSauce.MagicScaler;
 using PointlessWaymarks.CmsData;
@@ -25,7 +24,6 @@ using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
 using PointlessWaymarks.CmsWpfControls.UpdateNotesEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
-using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
@@ -35,7 +33,6 @@ using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.Utility;
-using Point = NetTopologySuite.Geometries.Point;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
@@ -118,32 +115,11 @@ Photo Content Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        var featureToCheck = await FeatureFromPoint();
-        if (featureToCheck == null)
-        {
-            StatusContext.ToastError("No valid Lat/Long to check?");
-            return;
-        }
+        var possibleTags = await OptionalLocationEntry!.GetFeatureIntersectTagsWithUiAlerts();
         
-        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
-        {
-            StatusContext.ToastError(
-                "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
-            return;
-        }
-        
-        var possibleTags = featureToCheck.IntersectionTags(
-            UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
-            CancellationToken.None, StatusContext.ProgressTracker());
-        
-        if (!possibleTags.Any())
-        {
-            StatusContext.ToastWarning("No tags found...");
-            return;
-        }
-        
-        TagEdit!.Tags =
-            $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
+        if (possibleTags.Any())
+            TagEdit!.Tags =
+                $"{TagEdit.Tags}{(string.IsNullOrWhiteSpace(TagEdit.Tags) ? "" : ",")}{string.Join(",", possibleTags)}";
     }
     
     [BlockingCommand]
@@ -307,35 +283,6 @@ Photo Content Notes:
     {
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(BodyContent!.UserValue,
             StatusContext.ProgressTracker());
-    }
-    
-    /// <summary>
-    ///     Returns a NTS Feature based on the current Lat/Long - if values are null or invalid
-    ///     null is returned.
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IFeature?> FeatureFromPoint()
-    {
-        if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
-            OptionalLocationEntry.LongitudeEntry!.UserValue == null) return null;
-        
-        var latitudeValidation =
-            await CommonContentValidation.LatitudeValidation(OptionalLocationEntry.LatitudeEntry.UserValue.Value);
-        var longitudeValidation =
-            await CommonContentValidation.LongitudeValidation(OptionalLocationEntry.LongitudeEntry.UserValue.Value);
-        
-        if (!latitudeValidation.Valid || !longitudeValidation.Valid) return null;
-        
-        if (OptionalLocationEntry.ElevationEntry!.UserValue is null)
-            return new Feature(
-                new Point(OptionalLocationEntry.LongitudeEntry.UserValue.Value,
-                    OptionalLocationEntry.LatitudeEntry.UserValue.Value),
-                new AttributesTable());
-        return new Feature(
-            new Point(OptionalLocationEntry.LongitudeEntry.UserValue.Value,
-                OptionalLocationEntry.LatitudeEntry.UserValue.Value,
-                OptionalLocationEntry.ElevationEntry.UserValue.Value),
-            new AttributesTable());
     }
     
     [BlockingCommand]
@@ -551,7 +498,7 @@ Photo Content Notes:
     }
     
     [BlockingCommand]
-    private async Task PointFromPhotoLocation()
+    private async Task PointFromLocation()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         

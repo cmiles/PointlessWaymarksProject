@@ -1,9 +1,12 @@
 using System.ComponentModel;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
@@ -53,6 +56,34 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
         return newContext;
     }
     
+    /// <summary>
+    ///     Returns a NTS Feature based on the current Lat/Long - if values are null or invalid
+    ///     null is returned.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IFeature?> FeatureFromPoint()
+    {
+        if (LatitudeEntry!.UserValue == null || LongitudeEntry!.UserValue == null) return null;
+        
+        var latitudeValidation =
+            await CommonContentValidation.LatitudeValidation(LatitudeEntry.UserValue.Value);
+        var longitudeValidation =
+            await CommonContentValidation.LongitudeValidation(LongitudeEntry.UserValue.Value);
+        
+        if (!latitudeValidation.Valid || !longitudeValidation.Valid) return null;
+        
+        if (ElevationEntry!.UserValue is null)
+            return new Feature(
+                new Point(LongitudeEntry.UserValue.Value,
+                    LatitudeEntry.UserValue.Value),
+                new AttributesTable());
+        return new Feature(
+            new Point(LongitudeEntry.UserValue.Value,
+                LatitudeEntry.UserValue.Value,
+                ElevationEntry.UserValue.Value),
+            new AttributesTable());
+    }
+    
     [BlockingCommand]
     public async Task GetElevation()
     {
@@ -72,6 +103,33 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
             LongitudeEntry.UserValue.Value, StatusContext);
         
         if (possibleElevation != null) ElevationEntry!.UserText = possibleElevation.Value.MetersToFeet().ToString("N0");
+    }
+    
+    public async Task<List<string>> GetFeatureIntersectTagsWithUiAlerts()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        var featureToCheck = await FeatureFromPoint();
+        if (featureToCheck == null)
+        {
+            StatusContext.ToastError("No valid Lat/Long to check?");
+            return new List<string>();
+        }
+        
+        if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
+        {
+            StatusContext.ToastError(
+                "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
+            return new List<string>();
+        }
+        
+        var possibleTags = featureToCheck.IntersectionTags(
+            UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
+            CancellationToken.None, StatusContext.ProgressTracker());
+        
+        if (!possibleTags.Any()) StatusContext.ToastWarning("No tags found...");
+        
+        return new List<string>();
     }
     
     [BlockingCommand]

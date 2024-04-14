@@ -1,0 +1,41 @@
+<UserControl x:Class="PointlessWaymarks.CmsWpfControls.OptionalLocationEntry.OptionalLocationActionsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <WrapPanel Orientation="Horizontal">
+        <Button
+            Width="236"
+            Margin="6,16,0,0"
+            Command="{Binding AddFeatureIntersectTagsCommand}">
+            <Button.Visibility>
+                <MultiBinding Converter="{StaticResource HasLatLong}">
+                    <Binding Path="OptionalLocationEntry.LatitudeEntry.UserValue" />
+                    <Binding Path="OptionalLocationEntry.LongitudeEntry.UserValue" />
+                </MultiBinding>
+            </Button.Visibility>
+            Add Feature Intersect Tags
+        </Button>
+        <Button
+            Width="236"
+            Margin="6,16,0,0"
+            Command="{Binding PointFromLocationCommand}">
+            <Button.Visibility>
+                <MultiBinding Converter="{StaticResource HasLatLong}">
+                    <Binding Path="OptionalLocationEntry.LatitudeEntry.UserValue" />
+                    <Binding Path="OptionalLocationEntry.LongitudeEntry.UserValue" />
+                </MultiBinding>
+            </Button.Visibility>
+            Point From Photo Location
+        </Button>
+    </WrapPanel>
+</UserControl>

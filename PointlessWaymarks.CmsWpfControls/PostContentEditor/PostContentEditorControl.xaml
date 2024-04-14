@@ -44,6 +44,7 @@
                                                           Style="{StaticResource TagsEditorInPanelStyle}" />
                             <optionalLocationEntry:OptionalLocationEntryControl
                                 DataContext="{Binding OptionalLocationEntry}" />
+                            <optionalLocationEntry:OptionalLocationActionsControl></optionalLocationEntry:OptionalLocationActionsControl>
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
                                 DataContext="{Binding CreatedUpdatedDisplay}"
                                 Style="{StaticResource CreatedUpdatedInPanelStyle}" />

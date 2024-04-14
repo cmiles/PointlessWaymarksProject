@@ -195,30 +195,7 @@
                             </WrapPanel>
                             <optionalLocationEntry:OptionalLocationEntryControl
                                 DataContext="{Binding OptionalLocationEntry}" />
-                            <Button
-                                Width="236"
-                                Margin="6,16,0,0"
-                                Command="{Binding AddFeatureIntersectTagsCommand}">
-                                <Button.Visibility>
-                                    <MultiBinding Converter="{StaticResource HasLatLong}">
-                                        <Binding Path="LatitudeEntry.UserValue" />
-                                        <Binding Path="LongitudeEntry.UserValue" />
-                                    </MultiBinding>
-                                </Button.Visibility>
-                                Add Feature Intersect Tags
-                            </Button>
-                            <Button
-                                Width="236"
-                                Margin="6,16,0,0"
-                                Command="{Binding PointFromPhotoLocationCommand}">
-                                <Button.Visibility>
-                                    <MultiBinding Converter="{StaticResource HasLatLong}">
-                                        <Binding Path="LatitudeEntry.UserValue" />
-                                        <Binding Path="LongitudeEntry.UserValue" />
-                                    </MultiBinding>
-                                </Button.Visibility>
-                                Point From Photo Location
-                            </Button>
+                            <optionalLocationEntry:OptionalLocationActionsControl></optionalLocationEntry:OptionalLocationActionsControl>
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>
