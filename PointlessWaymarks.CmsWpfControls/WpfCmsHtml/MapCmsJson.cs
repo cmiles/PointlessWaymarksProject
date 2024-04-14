@@ -350,8 +350,8 @@ public static class MapCmsJson
                         { "description", descriptionAndImage.description },
                         { "mapLabel", loopElements.MapLabel },
                         { "displayId", loopElements.ContentId },
-                        { "mapIcon", loopElements.MapIconName ?? "dot" },
-                        { "mapMarkerColor", loopElements.MapMarkerColor ?? "blue" }
+                        { "mapIcon", loopElements.MapIconName ?? "default" },
+                        { "mapMarkerColor", loopElements.MapMarkerColor ?? "default" }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude, loopElements.Latitude));
             }

@@ -14,7 +14,7 @@ let pointCircleMarkerOrangeOptions = {
     color: "#000",
     weight: 1,
     opacity: 1,
-    fillOpacity: 0.8
+    fillOpacity: 0.7
 };
 
 /*Source folder-file-outline - Colton Wiscombe - https://pictogrammers.com/library/mdi/icon/folder-file-outline/ */
@@ -295,13 +295,28 @@ function createPoints(useCircleMarkers) {
 
         if (feature.properties?.mapLabel) {
 
+            if (feature.properties?.mapIcon || feature.properties?.mapMarkerColor) {
+                if (feature.properties?.mapIcon !== 'default' || feature.properties?.mapMarkerColor !== 'default') {
+                    let textMarker = L.marker(latlng,
+                        {
+                            icon: L.divIcon({
+                                className: 'point-map-label',
+                                html: `<p style="font-size: 20px;font-weight: bold; height: auto !important;width: max-content !important;">${feature.properties.mapLabel}</p>`,
+                                iconAnchor: [-4, 26]
+                            })
+                        });
+
+                    let textMarkerLayer = textMarker.addTo(map);
+                    textMarkerLayer.displayId = feature.properties?.displayId;
+                    mapLayers.push(textMarkerLayer);
+
+                    return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(feature.properties?.mapIcon)}`, markerColor: getMapMarkerColor(feature.properties?.mapMarkerColor), iconColor: '#000000' }) });
+                }
+            }
+
             let labelMarker = L.circleMarker(latlng,
                 { radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5 });
-
             let labelMarkerLayer = labelMarker.addTo(map);
-
-            //Because we aren't returning this layer add it to the mapLayer here 
-            //and give it an identifier.
             labelMarkerLayer.displayId = feature.properties?.displayId;
             mapLayers.push(labelMarkerLayer);
 
@@ -309,18 +324,27 @@ function createPoints(useCircleMarkers) {
                 {
                     icon: L.divIcon({
                         className: 'point-map-label',
-                        html: `<p style="font-size: 24px;font-weight: bold; height: auto !important;width: max-content !important;">${feature.properties.mapLabel}</p>`,
-                        iconAnchor: [-6, 48]
+                        html: `<p style="font-size: 20px;font-weight: bold; height: auto !important;width: max-content !important;">${feature.properties.mapLabel}</p>`,
+                        iconAnchor: [-4, 26]
                     })
                 });
         }
 
-        if (feature.properties?.mapIconName || feature.properties?.mapMarkerColor) {
+        if ((feature.properties?.mapIcon || feature.properties?.mapMarkerColor) && (feature.properties?.mapIcon !== 'default' || feature.properties?.mapMarkerColor !== 'default')) {
             return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(feature.properties?.mapIcon)}`, markerColor: getMapMarkerColor(feature.properties?.mapMarkerColor), iconColor: '#000000' }) });
         }
 
         if (useCircleMarkers) {
-            return L.circleMarker(latlng, pointCircleMarkerOrangeOptions)
+            let circleMarker = L.circleMarker(latlng, pointCircleMarkerOrangeOptions);
+
+            circleMarker.on('click', (e) => {
+                if (e.target._popup.isOpen()) {
+                    map.closePopup(e.target._popup.closePopup());
+                    e.stopPropagation();
+                }
+            })
+
+            return circleMarker;
         }
 
         return L.marker(latlng);
@@ -330,12 +354,14 @@ function createPoints(useCircleMarkers) {
 
 function getMapMarkerColor(iconName) {
     if (!iconName) return 'blue';
+    if (iconName === 'default') return 'blue';
     if (mapIconColors.includes(iconName)) return iconName;
     return 'blue';
 }
 
 function getMapIconSvg(iconName) {
     if (!iconName) return pointlessWaymarksDotIcon;
+    if (iconName === 'default') return pointlessWaymarksDotIcon;
     if (iconName === 'file') return pointlessWaymarksFileIcon;
     if (iconName === 'image') return pointlessWaymarksImageIcon;
     if (iconName === 'photo') return pointlessWaymarksPhotoIcon;
