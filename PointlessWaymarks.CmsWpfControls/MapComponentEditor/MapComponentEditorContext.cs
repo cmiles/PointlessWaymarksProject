@@ -41,6 +41,8 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using PointlessWaymarks.WpfCommon.WpfHtml;
+using Serilog;
+using TinyIpc.Messaging;
 using ColumnSortControlContext = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlContext;
 using ColumnSortControlSortItem = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlSortItem;
 
@@ -87,6 +89,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements = factoryMapList;
         
+        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
+        
         MapElements.CollectionChanged += MapElementsOnCollectionChanged;
         
         PropertyChanged += OnPropertyChanged;
@@ -95,6 +99,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public Envelope? ContentBounds { get; set; }
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
+    
+    public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
     public List<MapElement> DbElements { get; set; } = [];
     public MapComponent DbEntry { get; set; }
     public HelpDisplayContext HelpContext { get; set; }
@@ -171,15 +177,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newFileContent = await MapElementListFileItem.CreateInstance(new FileContentActions(StatusContext));
-        
-        newFileContent.DbEntry = possibleFile;
-        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possibleFile);
-        newFileContent.SmallImageUrl = smallImageUrl;
-        newFileContent.DisplayImageUrl = displayImageUrl;
-        newFileContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
-        newFileContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
-        newFileContent.Title = possibleFile.Title ?? string.Empty;
+        var newFileContent = await MapElementListFileItem.CreateInstance(new FileContentActions(StatusContext),
+            possibleFile, MapElementSettings.CreateInstance(loopContent));
         
         MapElements.Add(newFileContent);
         
@@ -199,16 +198,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newGeoJsonItem = await MapElementListGeoJsonItem.CreateInstance(new GeoJsonContentActions(StatusContext));
-        
-        newGeoJsonItem.DbEntry = possibleGeoJson;
-        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possibleGeoJson);
-        newGeoJsonItem.SmallImageUrl = smallImageUrl;
-        newGeoJsonItem.DisplayImageUrl = displayImageUrl;
-        newGeoJsonItem.ShowType = true;
-        newGeoJsonItem.InInitialView = loopContent?.IncludeInDefaultView ?? true;
-        newGeoJsonItem.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
-        newGeoJsonItem.Title = possibleGeoJson.Title ?? string.Empty;
+        var newGeoJsonItem = await MapElementListGeoJsonItem.CreateInstance(new GeoJsonContentActions(StatusContext),
+            possibleGeoJson, MapElementSettings.CreateInstance(loopContent));
         
         MapElements.Add(newGeoJsonItem);
         
@@ -234,15 +225,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newImageContent = await MapElementListImageItem.CreateInstance(new ImageContentActions(StatusContext));
-        
-        newImageContent.DbEntry = possibleImage;
-        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possibleImage);
-        newImageContent.SmallImageUrl = smallImageUrl;
-        newImageContent.DisplayImageUrl = displayImageUrl;
-        newImageContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
-        newImageContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
-        newImageContent.Title = possibleImage.Title ?? string.Empty;
+        var newImageContent = await MapElementListImageItem.CreateInstance(new ImageContentActions(StatusContext),
+            possibleImage, MapElementSettings.CreateInstance(loopContent));
         
         MapElements.Add(newImageContent);
         
@@ -262,16 +246,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newLineItem = await MapElementListLineItem.CreateInstance(new LineContentActions(StatusContext));
-        
-        newLineItem.DbEntry = possibleLine;
-        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possibleLine);
-        newLineItem.SmallImageUrl = smallImageUrl;
-        newLineItem.DisplayImageUrl = displayImageUrl;
-        newLineItem.ShowType = true;
-        newLineItem.InInitialView = loopContent?.IncludeInDefaultView ?? true;
-        newLineItem.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
-        newLineItem.Title = possibleLine.Title ?? string.Empty;
+        var newLineItem = await MapElementListLineItem.CreateInstance(new LineContentActions(StatusContext),
+            possibleLine, MapElementSettings.CreateInstance(loopContent));
         
         MapElements.Add(newLineItem);
         
@@ -297,15 +273,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newPhotoContent = await MapElementListPhotoItem.CreateInstance(new PhotoContentActions(StatusContext));
-        
-        newPhotoContent.DbEntry = possiblePhoto;
-        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possiblePhoto);
-        newPhotoContent.SmallImageUrl = smallImageUrl;
-        newPhotoContent.DisplayImageUrl = displayImageUrl;
-        newPhotoContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
-        newPhotoContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
-        newPhotoContent.Title = possiblePhoto.Title ?? string.Empty;
+        var newPhotoContent = await MapElementListPhotoItem.CreateInstance(new PhotoContentActions(StatusContext),
+            possiblePhoto, MapElementSettings.CreateInstance(loopContent));
         
         MapElements.Add(newPhotoContent);
         
@@ -326,15 +295,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newPointContent = await MapElementListPointItem.CreateInstance(new PointContentActions(StatusContext));
-        
-        newPointContent.DbEntry = possiblePoint;
-        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possiblePoint);
-        newPointContent.SmallImageUrl = smallImageUrl;
-        newPointContent.DisplayImageUrl = displayImageUrl;
-        newPointContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
-        newPointContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
-        newPointContent.Title = possiblePoint.Title ?? string.Empty;
+        var newPointContent = await MapElementListPointItem.CreateInstance(new PointContentActions(StatusContext),
+            possiblePoint, MapElementSettings.CreateInstance(loopContent));
         
         MapElements.Add(newPointContent);
         
@@ -360,15 +322,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newPostContent = await MapElementListPostItem.CreateInstance(new PostContentActions(StatusContext));
-        
-        newPostContent.DbEntry = possiblePost;
-        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possiblePost);
-        newPostContent.SmallImageUrl = smallImageUrl;
-        newPostContent.DisplayImageUrl = displayImageUrl;
-        newPostContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
-        newPostContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
-        newPostContent.Title = possiblePost.Title ?? string.Empty;
+        var newPostContent = await MapElementListPostItem.CreateInstance(new PostContentActions(StatusContext),
+            possiblePost, MapElementSettings.CreateInstance(loopContent));
         
         MapElements.Add(newPostContent);
         
@@ -394,15 +349,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newVideoContent = await MapElementListVideoItem.CreateInstance(new VideoContentActions(StatusContext));
-        
-        newVideoContent.DbEntry = possibleVideo;
-        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(possibleVideo);
-        newVideoContent.SmallImageUrl = smallImageUrl;
-        newVideoContent.DisplayImageUrl = displayImageUrl;
-        newVideoContent.InInitialView = loopContent?.IncludeInDefaultView ?? true;
-        newVideoContent.ShowInitialDetails = loopContent?.ShowDetailsDefault ?? false;
-        newVideoContent.Title = possibleVideo.Title ?? string.Empty;
+        var newVideoContent = await MapElementListVideoItem.CreateInstance(new VideoContentActions(StatusContext),
+            possibleVideo, MapElementSettings.CreateInstance(loopContent));
         
         MapElements.Add(newVideoContent);
         
@@ -460,12 +408,198 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         {
             MapComponentContentId = newEntry.ContentId,
             ElementContentId = x.ContentId() ?? Guid.Empty,
-            IsFeaturedElement = x.IsFeaturedElement,
-            IncludeInDefaultView = x.InInitialView,
-            ShowDetailsDefault = x.ShowInitialDetails
+            IsFeaturedElement = x.ElementSettings.IsFeaturedElement,
+            IncludeInDefaultView = x.ElementSettings.InInitialView,
+            ShowDetailsDefault = x.ElementSettings.ShowInitialDetails
         }).ToList();
         
         return new MapComponentDto(newEntry, finalElementList);
+    }
+    
+    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
+    {
+        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+        
+        if (translatedMessage.HasError)
+        {
+            Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
+            return;
+        }
+        
+        if (!translatedMessage.ContentIds.Any()) return;
+        
+        var existingListItemsMatchingNotification = new List<IMapElementListItem>();
+        
+        foreach (var loopItem in MapElements)
+        {
+            var id = loopItem.ContentId();
+            if (id == null) continue;
+            if (translatedMessage.ContentIds.Contains(id.Value))
+                existingListItemsMatchingNotification.Add(loopItem);
+        }
+        
+        if (!existingListItemsMatchingNotification.Any()) return;
+        
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        if (translatedMessage.UpdateType == DataNotificationUpdateType.Delete)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            
+            existingListItemsMatchingNotification.ForEach(x => MapElements.Remove(x));
+            
+            return;
+        }
+        
+        var context = await Db.Context();
+        var dbItems = new List<IContentId>();
+        var toDelete = new List<IMapElementListItem>();
+        
+        foreach (var loopElements in existingListItemsMatchingNotification)
+        {
+            await ThreadSwitcher.ResumeBackgroundAsync();
+            
+            switch (loopElements)
+            {
+                case MapElementListFileItem li:
+                    var newFileDbItem = context.FileContents.SingleOrDefault(x => x.ContentId == li.ContentId());
+                    if (newFileDbItem == null || !await newFileDbItem.HasValidLocation())
+                    {
+                        toDelete.Add(loopElements);
+                    }
+                    else
+                    {
+                        var newListItem =
+                            await MapElementListFileItem.CreateInstance(new FileContentActions(StatusContext),
+                                newFileDbItem, li.ElementSettings);
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        MapElements[MapElements.IndexOf(li)] = newListItem;
+                    }
+                    
+                    break;
+                case MapElementListGeoJsonItem li:
+                    var newGeoJsonDbItem = context.GeoJsonContents.SingleOrDefault(x => x.ContentId == li.ContentId());
+                    if (newGeoJsonDbItem == null)
+                    {
+                        toDelete.Add(loopElements);
+                    }
+                    else
+                    {
+                        var newListItem =
+                            await MapElementListGeoJsonItem.CreateInstance(new GeoJsonContentActions(StatusContext),
+                                newGeoJsonDbItem, li.ElementSettings);
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        MapElements[MapElements.IndexOf(li)] = newListItem;
+                    }
+                    
+                    break;
+                case MapElementListImageItem li:
+                    var newImageDbItem = context.ImageContents.SingleOrDefault(x => x.ContentId == li.ContentId());
+                    if (newImageDbItem == null || !await newImageDbItem.HasValidLocation())
+                    {
+                        toDelete.Add(loopElements);
+                    }
+                    else
+                    {
+                        var newListItem =
+                            await MapElementListImageItem.CreateInstance(new ImageContentActions(StatusContext),
+                                newImageDbItem, li.ElementSettings);
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        MapElements[MapElements.IndexOf(li)] = newListItem;
+                    }
+                    
+                    break;
+                case MapElementListLineItem li:
+                    var newLineDbItem = context.LineContents.SingleOrDefault(x => x.ContentId == li.ContentId());
+                    if (newLineDbItem == null)
+                    {
+                        toDelete.Add(loopElements);
+                    }
+                    else
+                    {
+                        var newListItem =
+                            await MapElementListLineItem.CreateInstance(new LineContentActions(StatusContext),
+                                newLineDbItem, li.ElementSettings);
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        MapElements[MapElements.IndexOf(li)] = newListItem;
+                    }
+                    
+                    break;
+                case MapElementListPhotoItem li:
+                    var newPhotoDbItem = context.PhotoContents.SingleOrDefault(x => x.ContentId == li.ContentId());
+                    if (newPhotoDbItem == null || !await newPhotoDbItem.HasValidLocation())
+                    {
+                        toDelete.Add(loopElements);
+                    }
+                    else
+                    {
+                        var newListItem =
+                            await MapElementListPhotoItem.CreateInstance(new PhotoContentActions(StatusContext),
+                                newPhotoDbItem, li.ElementSettings);
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        MapElements[MapElements.IndexOf(li)] = newListItem;
+                    }
+                    
+                    break;
+                case MapElementListPointItem li:
+                    var newPointDbItem = context.PointContents.SingleOrDefault(x => x.ContentId == li.ContentId());
+                    if (newPointDbItem == null)
+                    {
+                        toDelete.Add(loopElements);
+                    }
+                    else
+                    {
+                        var newListItem =
+                            await MapElementListPointItem.CreateInstance(new PointContentActions(StatusContext),
+                                await Db.PointContentDtoFromPoint(newPointDbItem, context), li.ElementSettings);
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        MapElements[MapElements.IndexOf(li)] = newListItem;
+                    }
+                    
+                    break;
+                case MapElementListPostItem li:
+                    var newPostDbItem = context.PostContents.SingleOrDefault(x => x.ContentId == li.ContentId());
+                    if (newPostDbItem == null || !await newPostDbItem.HasValidLocation())
+                    {
+                        toDelete.Add(loopElements);
+                    }
+                    else
+                    {
+                        var newListItem =
+                            await MapElementListPostItem.CreateInstance(new PostContentActions(StatusContext),
+                                newPostDbItem, li.ElementSettings);
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        MapElements[MapElements.IndexOf(li)] = newListItem;
+                    }
+                    
+                    break;
+                case MapElementListVideoItem li:
+                    var newVideoDbItem = context.VideoContents.SingleOrDefault(x => x.ContentId == li.ContentId());
+                    if (newVideoDbItem == null || !await newVideoDbItem.HasValidLocation())
+                    {
+                        toDelete.Add(loopElements);
+                    }
+                    else
+                    {
+                        var newListItem =
+                            await MapElementListVideoItem.CreateInstance(new VideoContentActions(StatusContext),
+                                newVideoDbItem, li.ElementSettings);
+                        await ThreadSwitcher.ResumeForegroundAsync();
+                        MapElements[MapElements.IndexOf(li)] = newListItem;
+                    }
+                    
+                    break;
+            }
+        }
+        
+        foreach (var loopToDelete in toDelete)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            MapElements.Remove(loopToDelete);
+        }
+        
+        StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
     
     public async Task Edit(PointContent? content)
@@ -588,6 +722,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         
+        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
+        
         DbEntry = NewContentModels.InitializeMapComponent(toLoad);
         
         if (DbEntry.Id > 0)
@@ -668,6 +804,8 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), MapElements);
         await FilterList();
+        
+        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
     
     private void MapElementsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -703,6 +841,11 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             {
                 Console.WriteLine(e);
             }
+    }
+    
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
+    {
+        DataNotificationsProcessor.Enqueue(e);
     }
     
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -988,7 +1131,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 .ConfigureAwait(false);
             return;
         }
-
+        
         if (db.GeoJsonContents.Any(x => x.ContentId == toAdd))
         {
             await AddGeoJson(await db.GeoJsonContents.SingleAsync(x => x.ContentId == toAdd)).ConfigureAwait(false);
@@ -1001,7 +1144,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 .ConfigureAwait(false);
             return;
         }
-
+        
         if (db.LineContents.Any(x => x.ContentId == toAdd))
         {
             await AddLine(await db.LineContents.SingleAsync(x => x.ContentId == toAdd)).ConfigureAwait(false);
@@ -1035,7 +1178,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 .ConfigureAwait(false);
             return;
         }
-
+        
         StatusContext.ToastError("Item isn't a spatial type or isn't in the db?");
     }
     
@@ -1083,7 +1226,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 await AddFile(possibleFile);
                 continue;
             }
-
+            
             var possibleGeoJson = await db.GeoJsonContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
             if (possibleGeoJson != null)
             {
@@ -1097,7 +1240,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 await AddImage(possibleImage);
                 continue;
             }
-
+            
             var possibleLine = await db.LineContents.SingleOrDefaultAsync(x => x.ContentId == loopCode);
             if (possibleLine != null)
             {
@@ -1133,7 +1276,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 await AddVideo(possibleVideo);
                 continue;
             }
-
+            
             StatusContext.ToastWarning(
                 $"ContentId {loopCode} doesn't appear to be a valid GeoJson, Line, Photo or Point content for the map?");
         }

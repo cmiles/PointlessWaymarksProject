@@ -1,4 +1,5 @@
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.LlamaAspects;
 
@@ -11,15 +12,24 @@ public partial class MapElementListPhotoItem : PhotoListListItem, IMapElementLis
         dbEntry)
     {
     }
-
+    
+    public MapElementSettings ElementSettings { get; set; } = new();
     public string ElementType { get; set; } = "photo";
-    public bool InInitialView { get; set; }
-    public bool IsFeaturedElement { get; set; }
-    public bool ShowInitialDetails { get; set; }
     public string Title { get; set; } = string.Empty;
 
-    public new static Task<MapElementListPhotoItem> CreateInstance(PhotoContentActions itemActions)
+    public new static Task<MapElementListPhotoItem> CreateInstance(PhotoContentActions itemActions, PhotoContent dbEntry, MapElementSettings elementSettings)
     {
-        return Task.FromResult(new MapElementListPhotoItem(itemActions, PhotoContent.CreateInstance()));
+        var newContent = new MapElementListPhotoItem(itemActions, dbEntry)
+        {
+            DbEntry = dbEntry,
+            ElementSettings = elementSettings,
+            Title = dbEntry.Title ?? string.Empty
+        };
+        
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(dbEntry);
+        newContent.SmallImageUrl = smallImageUrl;
+        newContent.DisplayImageUrl = displayImageUrl;
+        
+        return Task.FromResult(newContent);
     }
 }

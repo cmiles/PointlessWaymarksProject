@@ -1,5 +1,6 @@
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.LlamaAspects;
 
@@ -12,18 +13,25 @@ public partial class MapElementListPointItem : PointListListItem, IMapElementLis
         dbEntry)
     {
     }
-
+    
+    public MapElementSettings ElementSettings { get; set; } = new();
     public string ElementType { get; set; } = "point";
-    public bool InInitialView { get; set; }
-    public bool IsFeaturedElement { get; set; }
-    public bool ShowInitialDetails { get; set; }
     public string Title { get; set; } = string.Empty;
 
-    public new static Task<MapElementListPointItem> CreateInstance(PointContentActions itemActions)
+    public new static Task<MapElementListPointItem> CreateInstance(PointContentActions itemActions, PointContentDto dbEntry, MapElementSettings elementSettings)
     {
-        var newPoint = PointContent.CreateInstance();
-        var newPointDto = Db.PointContentDtoFromPointContentAndDetails(newPoint, new List<PointDetail>(), null);
-
-        return Task.FromResult(new MapElementListPointItem(itemActions, newPointDto));
+        var newContent = new MapElementListPointItem(itemActions, dbEntry)
+        {
+            DbEntry = dbEntry,
+            ElementSettings = elementSettings,
+            Title = dbEntry.Title ?? string.Empty
+        };
+        
+        var (smallImageUrl, displayImageUrl) = ContentListContext.GetContentItemImageUrls(dbEntry);
+        newContent.SmallImageUrl = smallImageUrl;
+        newContent.DisplayImageUrl = displayImageUrl;
+        
+        return Task.FromResult(newContent);
     }
+
 }

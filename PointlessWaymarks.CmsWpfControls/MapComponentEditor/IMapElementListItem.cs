@@ -1,13 +1,11 @@
-﻿using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
 public interface IMapElementListItem : ISelectedTextTracker
 {
+    MapElementSettings ElementSettings { get; set; }
     string ElementType { get; set; }
-    bool InInitialView { get; set; }
-    bool IsFeaturedElement { get; set; }
-    bool ShowInitialDetails { get; set; }
     string Title { get; set; }
     Guid? ContentId();
 }
