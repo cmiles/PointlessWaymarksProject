@@ -38,8 +38,9 @@
                 </Button>
             </StackPanel>
             <Button
-                                    Width="326"
+                                    Width="236"
                                     Margin="6,16,0,0"
+                                    VerticalAlignment="Bottom"
                                     Command="{Binding GetLocationOnMapCommand}">
                 Choose Location on Map
             </Button>

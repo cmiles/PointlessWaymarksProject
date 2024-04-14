@@ -16,7 +16,6 @@
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
@@ -63,8 +62,7 @@
                     <Image ToolTip="{Binding SelectedFileValidationMessage}"
                            Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
                            Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                           Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                    </Image>
+                           Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
                 </StackPanel>
             </GroupBox.Header>
             <Grid>
@@ -196,10 +194,9 @@
                                     DataContext="{Binding IsoEntry}" />
                             </WrapPanel>
                             <optionalLocationEntry:OptionalLocationEntryControl
-                                DataContext="{Binding OptionalLocationEntry}">
-                            </optionalLocationEntry:OptionalLocationEntryControl>
+                                DataContext="{Binding OptionalLocationEntry}" />
                             <Button
-                                Width="326"
+                                Width="236"
                                 Margin="6,16,0,0"
                                 Command="{Binding AddFeatureIntersectTagsCommand}">
                                 <Button.Visibility>
@@ -211,7 +208,7 @@
                                 Add Feature Intersect Tags
                             </Button>
                             <Button
-                                Width="326"
+                                Width="236"
                                 Margin="6,16,0,0"
                                 Command="{Binding PointFromPhotoLocationCommand}">
                                 <Button.Visibility>
