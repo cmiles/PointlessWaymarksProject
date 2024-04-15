@@ -1,4 +1,7 @@
+using System.Text.Json.Nodes;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Presentation;
+using Jint.Parser;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.Office.Interop.Excel;
@@ -164,7 +167,7 @@ public static class ContentImport
 
             var toAdd = new ContentImportValueParse<PointDetail?> { StringValue = stringValue };
             returnList.Add(toAdd);
-
+            
             var splitList = stringValue.RemoveNewLines().TrimNullToEmpty().Split("||")
                 .Select(x => x.TrimNullToEmpty()).ToList();
 
@@ -574,6 +577,7 @@ public static class ContentImport
             "PHOTO" => PhotoContent.CreateInstance(),
             "POINT" => new PointContentDto(),
             "POST" => PostContent.CreateInstance(),
+            "VIDEO" => VideoContent.CreateInstance(),
             _ => null
         };
     }

@@ -2,7 +2,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.Excel;
 
-public class LineContentForExcel : IUpdateNotes, IContentCommon
+public class LineContentForExcel
 {
     public string? ActivityType { get; set; }
     public string? BodyContent { get; set; }
@@ -24,7 +24,6 @@ public class LineContentForExcel : IUpdateNotes, IContentCommon
     public bool IsDraft { get; set; }
     public string? LastUpdatedBy { get; set; }
     public DateTime? LastUpdatedOn { get; set; }
-    public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
     public double LineDistance { get; set; }
     public Guid? MainPicture { get; set; }
     public double MaximumElevation { get; set; }

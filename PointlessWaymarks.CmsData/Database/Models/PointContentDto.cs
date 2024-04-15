@@ -11,10 +11,10 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     public double? Elevation { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
-    public string? MapIconName { get; set; }
-    public string? MapIconSvg { get; set; }
+    public string? MapIconName { get; set; } = string.Empty;
+    public string? MapIconSvg { get; set; } = string.Empty;
     public string? MapLabel { get; set; }
-    public string? MapMarkerColor { get; set; }
+    public string? MapMarkerColor { get; set; } = string.Empty;
     public List<PointDetail> PointDetails { get; set; } = [];
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
