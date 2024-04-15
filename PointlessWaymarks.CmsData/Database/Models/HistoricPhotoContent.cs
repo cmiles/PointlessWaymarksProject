@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
@@ -34,7 +34,7 @@ public class HistoricPhotoContent : IUpdateNotes, IContentCommon
     public DateTime PhotoCreatedOn { get; set; }
     public DateTime? PhotoCreatedOnUtc { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
-    public bool ShowPhotoPosition { get; set; }
+    public bool ShowLocation { get; set; }
     public bool ShowPhotoSizes { get; set; }
     public string? ShutterSpeed { get; set; }
     public string? Slug { get; set; }
