@@ -54,7 +54,7 @@ public class WindowAccidentalClosureHelper
         _windowCloseDialogRunning = true;
 
         if (await StatusContext.ShowMessage("Unsaved Changes...",
-                "p=. There are unsaved changes - do you want to discard your changes?",
+                "There are unsaved changes - do you want to discard your changes?",
                 ["Yes - Close Window", "No"]) == "Yes - Close Window")
         {
             _closeConfirmed = true;

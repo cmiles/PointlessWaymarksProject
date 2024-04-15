@@ -10,7 +10,6 @@
     xmlns:toastControl="clr-namespace:PointlessWaymarks.WpfCommon.ToastControl"
     xmlns:waitingSpinner="clr-namespace:PointlessWaymarks.WpfCommon.WaitingSpinner"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
-    xmlns:mdXaml="https://github.com/whistyun/MdXaml"
     Name="StatusControlXaml"
     d:DataContext="{d:DesignInstance status:StatusControlContext}"
     d:DesignHeight="450"
@@ -172,10 +171,10 @@
                         FontSize="24"
                         Text="{Binding MessageBoxTitle}"
                         TextWrapping="Wrap" />
-                    <mdXaml:MarkdownScrollViewer
+                    <wpf:MarkdownViewer
                         Grid.Row="1"
                         MaxWidth="1200"
-                        Margin="24,12,24,12"
+                        Margin="0,12,0,12"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         BorderThickness="0"
@@ -197,6 +196,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
+
                                 </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
