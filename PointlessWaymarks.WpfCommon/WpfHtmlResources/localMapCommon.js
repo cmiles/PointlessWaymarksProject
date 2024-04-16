@@ -8,7 +8,7 @@ let pointContentMarker;
 let useCircleMarkerStyle = false;
 let mapIcons;
 
-let pointCircleMarkerOrangeOptions = {
+let pointCircleMarkerOptions = {
     radius: 8,
     fillColor: "#00b6ff",
     color: "#000",
@@ -16,6 +16,29 @@ let pointCircleMarkerOrangeOptions = {
     opacity: 1,
     fillOpacity: 0.7
 };
+
+let mapMarkerColorHexLookup = {
+     "red": "#d63e2a" ,
+     "darkred": "#a13336" ,
+     "lightred": "#ff8e7f" ,
+     "orange": "#f69730" ,
+     "beige": "#ffcb92" ,
+     "green": "#72b026" ,
+     "darkgreen": "#728224" ,
+     "lightgreen": "#bbf970" ,
+     "blue": "#38aadd" ,
+     "darkblue": "#00649f" ,
+     "lightblue": "#8adaff" ,
+     "purple": "#d152b8" ,
+     "darkpurple": "#5b396b" ,
+     "pink": "#ff91ea" ,
+     "cadetblue": "#436978" ,
+     "white": "#fbfbfb" ,
+     "gray": "#575757" ,
+     "lightgray": "#a3a3a3" ,
+     "black": "#303030" ,
+     "default": "#00649f" 
+    };
 
 /*Source folder-file-outline - Colton Wiscombe - https://pictogrammers.com/library/mdi/icon/folder-file-outline/ */
 const pointlessWaymarksFileIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 18H11V20H4C2.9 20 2 19.11 2 18V6C2 4.89 2.89 4 4 4H10L12 6H20C21.1 6 22 6.89 22 8V10.17L20.41 8.59L20 8.17V8H4V18M23 14V21C23 22.11 22.11 23 21 23H15C13.9 23 13 22.11 13 21V12C13 10.9 13.9 10 15 10H19L23 14M21 15H18V12H15V21H21V15Z" /></svg>';
@@ -293,29 +316,31 @@ function createPoints(useCircleMarkers) {
             popupHtml += `<p style="text-align: center;">${feature.properties.description}</p>`;
         }
 
-        if (feature.properties?.mapLabel) {
+        let mapIconName = feature.properties?.mapIcon ?? "default";
+        let mapMarkerColor = feature.properties?.mapMarkerColor ?? "default";
+        let mapLabel = feature.properties?.mapLabel ?? "";
 
-            if (feature.properties?.mapIcon || feature.properties?.mapMarkerColor) {
-                if (feature.properties?.mapIcon !== 'default' || feature.properties?.mapMarkerColor !== 'default') {
-                    let textMarker = L.marker(latlng,
-                        {
-                            icon: L.divIcon({
-                                className: 'point-map-label',
-                                html: `<p style="font-size: 20px;font-weight: bold; height: auto !important;width: max-content !important;">${feature.properties.mapLabel}</p>`,
-                                iconAnchor: [-4, 26]
-                            })
-                        });
+        if (mapLabel !== "") {
 
-                    let textMarkerLayer = textMarker.addTo(map);
-                    textMarkerLayer.displayId = feature.properties?.displayId;
-                    mapLayers.push(textMarkerLayer);
+            if (mapIconName !== 'default') {
+                let textMarker = L.marker(latlng,
+                    {
+                        icon: L.divIcon({
+                            className: 'point-map-label',
+                            html: `<p style="font-size: 20px;font-weight: bold; height: auto !important;width: max-content !important;">${mapLabel}</p>`,
+                            iconAnchor: [-4, 26]
+                        })
+                    });
 
-                    return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(feature.properties?.mapIcon)}`, markerColor: getMapMarkerColor(feature.properties?.mapMarkerColor), iconColor: '#000000' }) });
-                }
+                let textMarkerLayer = textMarker.addTo(map);
+                textMarkerLayer.displayId = feature.properties?.displayId;
+                mapLayers.push(textMarkerLayer);
+
+                return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(mapIconName)}`, markerColor: getMapMarkerColor(mapMarkerColor), iconColor: '#000000' }) });
             }
 
             let labelMarker = L.circleMarker(latlng,
-                { radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5 });
+                { radius: 2, color: mapMarkerColorHexLookup[mapMarkerColor], fillColor: mapMarkerColorHexLookup[mapMarkerColor], fillOpacity: .5 });
             let labelMarkerLayer = labelMarker.addTo(map);
             labelMarkerLayer.displayId = feature.properties?.displayId;
             mapLayers.push(labelMarkerLayer);
@@ -330,19 +355,19 @@ function createPoints(useCircleMarkers) {
                 });
         }
 
-        if ((feature.properties?.mapIcon || feature.properties?.mapMarkerColor) && (feature.properties?.mapIcon !== 'default' || feature.properties?.mapMarkerColor !== 'default')) {
-            return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(feature.properties?.mapIcon)}`, markerColor: getMapMarkerColor(feature.properties?.mapMarkerColor), iconColor: '#000000' }) });
+        if (mapIconName !== 'default' || mapMarkerColor !== 'default') {
+            return L.marker(latlng, { icon: L.AwesomeSVGMarkers.icon({ svgIcon: `data:image/svg+xml;utf8,${getMapIconSvg(mapIconName)}`, markerColor: getMapMarkerColor(mapMarkerColor), iconColor: '#000000' }) });
         }
 
         if (useCircleMarkers) {
-            let circleMarker = L.circleMarker(latlng, pointCircleMarkerOrangeOptions);
+            let circleMarker = L.circleMarker(latlng, pointCircleMarkerOptions);
 
             circleMarker.on('click', (e) => {
                 if (e.target._popup.isOpen()) {
                     map.closePopup(e.target._popup.closePopup());
                     e.stopPropagation();
                 }
-            })
+            });
 
             return circleMarker;
         }

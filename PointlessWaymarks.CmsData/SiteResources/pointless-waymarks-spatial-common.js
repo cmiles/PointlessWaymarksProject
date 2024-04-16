@@ -74,6 +74,29 @@ const pointlessWaymarksDotIcon = `<svg version="1.1" id="Layer_1" xmlns:sketch="
     </circle>
 </svg>`;
 
+let mapMarkerColorHexLookup = {
+    "red": "#d63e2a",
+    "darkred": "#a13336",
+    "lightred": "#ff8e7f",
+    "orange": "#f69730",
+    "beige": "#ffcb92",
+    "green": "#72b026",
+    "darkgreen": "#728224",
+    "lightgreen": "#bbf970",
+    "blue": "#38aadd",
+    "darkblue": "#00649f",
+    "lightblue": "#8adaff",
+    "purple": "#d152b8",
+    "darkpurple": "#5b396b",
+    "pink": "#ff91ea",
+    "cadetblue": "#436978",
+    "white": "#fbfbfb",
+    "gray": "#575757",
+    "lightgray": "#a3a3a3",
+    "black": "#303030",
+    "default": "#000"
+};
+
 const mapIconColors = ['red', 'darkred', 'lightred', 'orange', 'beige', 'green', 'darkgreen', 'lightgreen', 'blue', 'darkblue', 'lightblue', 'purple', 'darkpurple', 'pink', 'cadetblue', 'white', 'gray', 'lightgray', 'black'];
 
 function geoJsonLayerStyle(feature) {
@@ -618,29 +641,32 @@ async function AddMarkerToMap(map, pointToAdd) {
     }
     if (pointToAdd.Content.Summary) popupContent += `<p>${pointToAdd.Content.Summary}</p>`;
 
+    const markerPopup = L.popup({ autoClose: false, autoPan: false })
+        .setContent(popupContent);
+
     if (pointToAdd.Content.MapLabel) {
 
-        let labelMarker = L.circleMarker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
-            { radius: 1, color: "blue", fillColor: "blue", fillOpacity: .5 });
+        if (!pointToAdd.Content.MapIconName) {
+            let labelMarker = L.circleMarker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
+                { radius: 2, color: getMapMarkerHexColor(pointToAdd.Content.MapMarkerColor), fillColor: getMapMarkerHexColor(pointToAdd.Content.MapMarkerColor), fillOpacity: .5 });
 
-        labelMarker.addTo(map);
+            labelMarker.addTo(map);
+        }
 
         let labelText = L.marker([pointToAdd.Content.Latitude, pointToAdd.Content.Longitude],
             {
                 icon: L.divIcon({
                     className: 'point-map-label',
-                    html: `<p style="font-size: 24px;font-weight: bold; height: auto !important;width: max-content !important;">${pointToAdd.Content.MapLabel}</p>`,
-                    iconAnchor: [-6, 48]
+                    html: `<p style="font-size: 20px;font-weight: bold; height: auto !important;width: max-content !important;">${pointToAdd.Content.MapLabel}</p>`,
+                    iconAnchor: [-4, 26]
                 })
             });
 
-        const labelMarkerPopup = L.popup({ autoClose: false, autoPan: false })
-            .setContent(popupContent);
-        const boundLabelMarkerPopup = labelText.bindPopup(labelMarkerPopup);
+        const boundLabelMarkerPopup = labelText.bindPopup(markerPopup);
         labelText.addTo(map);
     }
 
-    if (!pointToAdd.Content.MapLabel || (pointToAdd.Content.MapIconName || pointToAdd.Content.MapMarkerColor)) {
+    if (pointToAdd.Content.MapIconName) {
         let standardMarkerSvg = `data:image/svg+xml;utf8,${getMapIconSvg(pointToAdd.Content.MapIconName)}`;
         let standardMarkerColor = getMapMarkerColor(pointToAdd.Content.MapMarkerColor);
 
@@ -653,9 +679,7 @@ async function AddMarkerToMap(map, pointToAdd) {
                 })
             });
 
-        const standardMarkerPopup = L.popup({ autoClose: false, autoPan: false })
-            .setContent(popupContent);
-        const standardLabelMarkerPopup = standardMarkerToAdd.bindPopup(standardMarkerPopup);
+        const standardLabelMarkerPopup = standardMarkerToAdd.bindPopup(markerPopup);
         standardMarkerToAdd.addTo(map);
     }
 }
@@ -708,4 +732,11 @@ function getMapIconSvg(iconName) {
     var possibleMapJsonIcons = mapIcons.filter(x => x.IconName === iconName);
     if (possibleMapJsonIcons.length === 0) return pointlessWaymarksDotIcon;
     return possibleMapJsonIcons[0].IconSvg;
+}
+
+function getMapMarkerHexColor(colorName) {
+    if (!colorName) return mapMarkerColorHexLookup["default"];
+    var possibleColor = mapMarkerColorHexLookup[colorName];
+    if (!possibleColor) return mapMarkerColorHexLookup["default"];
+    return possibleColor;
 }
