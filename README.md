@@ -19,7 +19,7 @@ If you have questions or comments please contact me at pointless@pointlesswaymar
 
 ## Pointless Waymarks CMS
 
-Pointless Waymarks CMS is a .NET Core 7 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose' CMS or static site generation solution - instead it focuses on:
+Pointless Waymarks CMS is a .NET Core 8 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose' solution - instead it focuses on:
  - Locally Generated Static Sites - low cost, low maintenance, high durability, easy backup, doesn't have to be on the web to be useful.
  - Database Driven CMS - flexibility in creating and updating content with the potential to generate multiple output formats.
  - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
@@ -34,9 +34,11 @@ Options to launch recent projects or create a new project.
 
 ### Content Lists
 
+![All Content List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
+
 The first tab in the application is an All Content list. Like all of the lists you can sort and filter to find content and use commands from the menu bar, context menu and quick action buttons to edit, update and create content. The default sorting puts the most recently updated/created items at the top which often means this list is all you need to work efficiently. All lists update automatically in the background to reflect the latest changes.
 
-![All Content List](PointlessWaymarks.CmsScreenShots/AllContentList.jpg "All Content List")
+![List Search Builder](PointlessWaymarks.CmsScreenShots/ListSearchBuilder.jpg "List Search Builder")
 
 Each Content Type has a dedicated list that allows access to content-specific commands not available in the All Content list. Content lists start by loading a limited number of recent entries - this allows even very large lists to load quickly with the content that you are most likely to be actively working on. Loading the full list is a single button click.
 
@@ -50,6 +52,10 @@ The Photo List supports searching for field like focal length and iso in additio
 
 ![Photos List](PointlessWaymarks.CmsScreenShots/PhotoList.jpg "Photos List")
 
+A list view of content that has spatial information alonside a map is also available.
+
+![Content Map List](PointlessWaymarks.CmsScreenShots/PhotoList.jpg "Content Map List")
+
 ### Content Editors
 
 The content editors are intended to be simple, helpful and functional. Change and validation indicators, previews and help with common editing actions are provided. Spatial types - Points, Lines and GeoJson have [Leaflet](https://leafletjs.com/) based previews.
@@ -57,7 +63,7 @@ The content editors are intended to be simple, helpful and functional. Change an
 ![Post Content Editor](PointlessWaymarks.CmsScreenShots/PostEditorWithPreview.jpg "Post Content Editor")
 ![Photo Content Editor](PointlessWaymarks.CmsScreenShots/PhotoEditor-ShowingFileAndPhotoMetadata.jpg "Photo Content Editor")
 ![Point Content Editor](PointlessWaymarks.CmsScreenShots/PointEditor.jpg "Point Content Editor")
-![GeoJson Content Editor](PointlessWaymarks.CmsScreenShots/GeoJsonContentEditor.jpg "GeoJson Content Editor")
+![Line Content Editor](PointlessWaymarks.CmsScreenShots/LineEditorMapTab.jpg "Line Content Editor")
 
 ### Tags
 
