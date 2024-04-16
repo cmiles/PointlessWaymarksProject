@@ -135,7 +135,7 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
             { DataString = x.IconSvg ?? string.Empty, DisplayString = x.IconName ?? string.Empty });
 
         return new List<DropDownDataChoice>
-            { new() { DataString = string.Empty, DisplayString = "None" } }.Concat(dbIcons).ToList();
+            { new() { DataString = string.Empty, DisplayString = "" } }.Concat(dbIcons).ToList();
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
