@@ -20,7 +20,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }
     public DateTime ContentVersion { get; set; }
-    public int Id { get; set; }
+    public int Id { get; set; } = -1;
     public string? CreatedBy { get; set; }
     public DateTime CreatedOn { get; set; }
     public string? LastUpdatedBy { get; set; }
@@ -71,6 +71,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
             Elevation = Elevation,
             FeedOn = FeedOn,
             Folder = Folder,
+            Id = Id,
             IsDraft = IsDraft,
             LastUpdatedBy = LastUpdatedBy,
             LastUpdatedOn = LastUpdatedOn,
