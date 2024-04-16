@@ -212,17 +212,17 @@ public partial class ListFilterBuilderContext
         [
             new ListFilterBuilderFilterAdd
             {
-                Description = "Icon", AddFilterCommand = AddLineMilesFilterCommand,
+                Description = "Icon", AddFilterCommand = AddPointMapIconFilterCommand,
                 AppliesTo = [Db.ContentTypeDisplayStringForPoint]
             },
             new ListFilterBuilderFilterAdd
             {
-                Description = "Marker Color", AddFilterCommand = AddLineMilesFilterCommand,
+                Description = "Marker Color", AddFilterCommand = AddPointMapMarkerColorFilterCommand,
                 AppliesTo = [Db.ContentTypeDisplayStringForPoint]
             },
             new ListFilterBuilderFilterAdd
             {
-                Description = "Map Label", AddFilterCommand = AddLineMilesFilterCommand,
+                Description = "Map Label", AddFilterCommand = AddPointMapLabelFilterCommand,
                 AppliesTo = [Db.ContentTypeDisplayStringForPoint]
             }
         ];
