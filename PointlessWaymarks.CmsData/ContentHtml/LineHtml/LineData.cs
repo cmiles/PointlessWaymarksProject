@@ -189,11 +189,13 @@ public static class LineData
         var points = (await BracketCodePoints.DbContentFromBracketCodes(lineContent.BodyContent)).Cast<object>();
         var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .Cast<object>();
+        var pointExternalDirectionsLinks = (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Cast<object>();
         var geoJson = (await BracketCodeGeoJson.DbContentFromBracketCodes(lineContent.BodyContent)).Cast<object>();
         var geoJsonLinks =
             (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(lineContent.BodyContent)).Cast<object>();
 
-        var mapInformation = await GenerateGeoJsonDataFromContent(photos.Concat(photoLinks).Concat(points)
+        var mapInformation = await GenerateGeoJsonDataFromContent(photos.Concat(photoLinks).Concat(points).Concat(pointExternalDirectionsLinks)
             .Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList());
 
         var toSerialize = new FeatureCollection
@@ -268,11 +270,12 @@ public static class LineData
             .ToList();
         
         var points = (await BracketCodePoints.DbContentFromBracketCodes(lineContent.BodyContent)).ToList();
+        var pointExternalDirections = (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(lineContent.BodyContent)).ToList();
         var pointImageLinks = (await BracketCodePointImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
             .OrderBy(x => x.Title).ToList();
         var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .OrderBy(x => x.Title).ToList();
-        var pointAllReferences = points.Concat(pointImageLinks).Concat(pointLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+        var pointAllReferences = points.Concat(pointImageLinks).Concat(pointLinks).Concat(pointExternalDirections).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
             .ToList();
 
         var videos = (await BracketCodeVideoEmbed.DbContentFromBracketCodes(lineContent.BodyContent))

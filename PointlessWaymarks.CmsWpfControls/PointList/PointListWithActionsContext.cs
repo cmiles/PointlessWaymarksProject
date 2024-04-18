@@ -52,6 +52,12 @@ public partial class PointListWithActionsContext
                 ItemName = "Text Code to Clipboard",
                 ItemCommand = PointLinkBracketCodesToClipboardForSelectedCommand
             },
+            
+            new ContextMenuItemData
+            {
+                ItemName = "External Directions Code to Clipboard",
+                ItemCommand = PointLinkExternalDirectionsBracketCodesToClipboardForSelectedCommand
+            },
 
             new ContextMenuItemData
             {
@@ -259,6 +265,21 @@ public partial class PointListWithActionsContext
 
         Clipboard.SetText(finalString);
 
+        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+    
+    [NonBlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    private async Task PointLinkExternalDirectionsBracketCodesToClipboardForSelected()
+    {
+        var finalString = SelectedListItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + $"{BracketCodePointExternalDirectionLinks.Create(loopSelected.DbEntry.ToDbObject())}{Environment.NewLine}");
+        
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        Clipboard.SetText(finalString);
+        
         StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 

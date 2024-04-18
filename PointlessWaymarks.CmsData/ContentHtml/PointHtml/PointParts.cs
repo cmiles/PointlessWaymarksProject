@@ -10,6 +10,16 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 
 public static class PointParts
 {
+    public static string GoogleMapsDirectionsToLatLongUrl(PointContent point)
+    {
+        return $"https://www.google.com/maps/dir/?api=1&destination={point.Latitude},{point.Longitude}";
+    }
+    
+    public static string GoogleMapsDirectionsToLatLongUrl(PointContentDto point)
+    {
+        return $"https://www.google.com/maps/dir/?api=1&destination={point.Latitude},{point.Longitude}";
+    }
+    
     public static HtmlTag GoogleMapsLatLongLink(PointContentDto point)
     {
         return new LinkTag("Google Maps", GoogleMapsLatLongUrl(point), "point-map-external-link");
