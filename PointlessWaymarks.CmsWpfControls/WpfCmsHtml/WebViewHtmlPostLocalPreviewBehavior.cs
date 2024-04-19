@@ -3,9 +3,13 @@ using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Server;
+using PointlessWaymarks.CmsWpfControls.SitePreview;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.Utility;
+using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
 using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
@@ -15,22 +19,32 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
     //<b:Interaction.Behaviors>
     //  <local:WebViewHtmlStringBindingBehavior HtmlString = "{Binding PreviewHtml}" />
     //</b:Interaction.Behaviors>
-
+    
     public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register(nameof(HtmlString),
         typeof(string), typeof(WebViewHtmlPostLocalPreviewBehavior),
         new PropertyMetadata(default(string), OnHtmlChanged));
-
+    
+    public static readonly DependencyProperty RedirectExternalLinksToBrowserProperty = DependencyProperty.Register(
+        nameof(RedirectExternalLinksToBrowser),
+        typeof(bool), typeof(WebViewGeneratedVirtualDomainBehavior),
+        new PropertyMetadata(true));
+    
     private readonly Guid _behaviorId = Guid.NewGuid();
     private string _cachedHtml = string.Empty;
-
     private bool _loaded;
-
+    
     public string HtmlString
     {
         get => (string)GetValue(HtmlStringProperty);
         set => SetValue(HtmlStringProperty, value);
     }
-
+    
+    public bool RedirectExternalLinksToBrowser
+    {
+        get => (bool)GetValue(RedirectExternalLinksToBrowserProperty);
+        set => SetValue(RedirectExternalLinksToBrowserProperty, value);
+    }
+    
     public async Task LoadPreviewPage(string htmlPreviewJson)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -40,19 +54,19 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
             "POST", htmlStream, "Content-Type: application/json");
         AssociatedObject.CoreWebView2.NavigateWithWebResourceRequest(request);
     }
-
+    
     protected override void OnAttached()
     {
         AssociatedObject.Loaded += OnLoaded;
         AssociatedObject.CoreWebView2InitializationCompleted += OnReady;
     }
-
+    
     private static async void OnHtmlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is WebViewHtmlPostLocalPreviewBehavior bindingBehavior)
         {
             await ThreadSwitcher.ResumeForegroundAsync();
-
+            
             if (bindingBehavior.AssociatedObject.IsInitialized &&
                 bindingBehavior.AssociatedObject.CoreWebView2 != null)
             {
@@ -61,7 +75,7 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
                 {
                     var previewData = PartialContentPreviewServer.ServerLoadPreviewPage(bindingBehavior._behaviorId,
                         e.NewValue as string ?? string.Empty);
-
+                    
                     await bindingBehavior.LoadPreviewPage(previewData);
                 }
                 catch (Exception ex)
@@ -75,7 +89,7 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
             }
         }
     }
-
+    
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         if (!_loaded)
@@ -85,7 +99,7 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
             {
                 var env = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(Path.GetTempPath(),
                     "PointWaymarksCms_SitePreviewBrowserData"));
-
+                
                 await ThreadSwitcher.ResumeForegroundAsync();
                 await AssociatedObject.EnsureCoreWebView2Async(env);
             }
@@ -96,14 +110,58 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
             }
         }
     }
-
-    private async void OnReady(object? sender, EventArgs e)
+    
+    private async void OnReady(object? sender, CoreWebView2InitializationCompletedEventArgs e)
     {
         if (!string.IsNullOrWhiteSpace(_cachedHtml))
         {
             var previewData = PartialContentPreviewServer.ServerLoadPreviewPage(_behaviorId,
                 _cachedHtml);
             await LoadPreviewPage(previewData);
+            return;
+        }
+        
+        AssociatedObject.NavigationStarting += WebView_OnNavigationStarting;
+    }
+    
+    private async void WebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        //Not supporting this atm
+        if (e.NavigationKind is CoreWebView2NavigationKind.Reload or CoreWebView2NavigationKind.BackOrForward)
+        {
+            e.Cancel = true;
+            return;
+        }
+        
+        var navigationUri = new Uri(e.Uri);
+        
+        //Primary Navigation - always allow
+        if (navigationUri.AbsolutePath.EndsWith("loadpreviewpage", StringComparison.OrdinalIgnoreCase)
+            || navigationUri.AbsolutePath.Contains("showpreviewpage", StringComparison.OrdinalIgnoreCase))
+            return;
+        
+        //There is an element of guessing here that localhost means on-site in the Previews this behavior targets
+        if (navigationUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) &&
+            RedirectExternalLinksToBrowser)
+        {
+            //Careful with Threading - if you await the Foreground thread here there is a possibility that
+            //that your methods will run but that Navigation won't be correctly cancelled...
+            e.Cancel = true;
+            
+            var newPreview =
+                await SiteOnDiskPreviewWindow.CreateInstance(
+                    $"{UserSettingsSingleton.CurrentSettings().SiteUrl()}{navigationUri.AbsolutePath}");
+            await newPreview.PositionWindowAndShowOnUiThread();
+            return;
+        }
+        
+        if (RedirectExternalLinksToBrowser)
+        {
+            ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
+            e.Cancel = true;
+            return;
         }
     }
 }
