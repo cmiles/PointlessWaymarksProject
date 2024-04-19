@@ -16,33 +16,33 @@ namespace PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 
 public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
 {
-    //<b:Interaction.Behaviors>
-    //  <local:WebViewHtmlStringBindingBehavior HtmlString = "{Binding PreviewHtml}" />
-    //</b:Interaction.Behaviors>
-    
     public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register(nameof(HtmlString),
         typeof(string), typeof(WebViewHtmlPostLocalPreviewBehavior),
         new PropertyMetadata(default(string), OnHtmlChanged));
     
-    public static readonly DependencyProperty RedirectExternalLinksToBrowserProperty = DependencyProperty.Register(
-        nameof(RedirectExternalLinksToBrowser),
+    public static readonly DependencyProperty AllowNonPreviewNavigationProperty = DependencyProperty.Register(
+        nameof(AllowNonPreviewNavigation),
         typeof(bool), typeof(WebViewGeneratedVirtualDomainBehavior),
-        new PropertyMetadata(true));
+        new PropertyMetadata(false));
+    //<b:Interaction.Behaviors>
+    //  <local:WebViewHtmlStringBindingBehavior HtmlString = "{Binding PreviewHtml}" />
+    //</b:Interaction.Behaviors>
+    
     
     private readonly Guid _behaviorId = Guid.NewGuid();
     private string _cachedHtml = string.Empty;
     private bool _loaded;
     
+    public bool AllowNonPreviewNavigation
+    {
+        get => (bool)GetValue(AllowNonPreviewNavigationProperty);
+        set => SetValue(AllowNonPreviewNavigationProperty, value);
+    }
+    
     public string HtmlString
     {
         get => (string)GetValue(HtmlStringProperty);
         set => SetValue(HtmlStringProperty, value);
-    }
-    
-    public bool RedirectExternalLinksToBrowser
-    {
-        get => (bool)GetValue(RedirectExternalLinksToBrowserProperty);
-        set => SetValue(RedirectExternalLinksToBrowserProperty, value);
     }
     
     public async Task LoadPreviewPage(string htmlPreviewJson)
@@ -142,9 +142,10 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
             || navigationUri.AbsolutePath.Contains("showpreviewpage", StringComparison.OrdinalIgnoreCase))
             return;
         
+        if (AllowNonPreviewNavigation) return;
+
         //There is an element of guessing here that localhost means on-site in the Previews this behavior targets
-        if (navigationUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) &&
-            RedirectExternalLinksToBrowser)
+        if (navigationUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase))
         {
             //Careful with Threading - if you await the Foreground thread here there is a possibility that
             //that your methods will run but that Navigation won't be correctly cancelled...
@@ -157,11 +158,8 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
             return;
         }
         
-        if (RedirectExternalLinksToBrowser)
-        {
-            ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
-            e.Cancel = true;
-            return;
-        }
+        ProcessHelpers.OpenUrlInExternalBrowser(e.Uri);
+        e.Cancel = true;
+        return;
     }
 }
