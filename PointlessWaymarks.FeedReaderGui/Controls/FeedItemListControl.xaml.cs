@@ -1,4 +1,4 @@
-﻿using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.FeedReaderGui.Controls;
@@ -28,7 +28,7 @@ public partial class FeedItemListControl
 
         if (string.IsNullOrWhiteSpace(context?.DisplayUrl)) return;
 
-        if (e.Uri.Equals(context.DisplayUrl)) return;
+        if (e.Uri.Equals(context.DisplayUrl, StringComparison.OrdinalIgnoreCase)) return;
 
         e.Cancel = true;
 
