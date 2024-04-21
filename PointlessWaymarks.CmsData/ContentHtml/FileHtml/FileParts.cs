@@ -64,16 +64,14 @@ public static class FileParts
                 embedContainer.Children.Add(embedTag);
             }
         }
-        else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+        else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
+                 content.OriginalFileName.TrimNullToEmpty().EndsWith(".wav", StringComparison.OrdinalIgnoreCase) ||
+                 content.OriginalFileName.TrimNullToEmpty().EndsWith(".flac", StringComparison.OrdinalIgnoreCase)
+                )
         {
-            var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
-                .Attr("type", "audio/mpeg").Title(content.Title).AddClass("file-embed");
-            embedContainer.Children.Add(embedTag);
-        }
-        else if (content.OriginalFileName.TrimNullToEmpty().EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-        {
-            var embedTag = new HtmlTag("embed").Attr("src", settings.FileDownloadUrl(content))
-                .Attr("type", "audio/vnd.wav").Title(content.Title).AddClass("file-embed");
+            var embedTag = new HtmlTag("audio").Attr("src", settings.FileDownloadUrl(content))
+                .Attr("controls", "controls").Title(content.Title).AddClass("audio-file-embed");
+            
             embedContainer.Children.Add(embedTag);
         }
         

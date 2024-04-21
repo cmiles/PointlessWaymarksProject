@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 
 namespace PointlessWaymarks.CmsWpfControls.Server;
@@ -13,7 +14,7 @@ public class PreviewServer
 {
     private Dictionary<Guid, string> _previewPages = new();
     public int ServerPort { get; } = FreeTcpPort();
-
+    
     public static int FreeTcpPort()
     {
         //https://stackoverflow.com/questions/138043/find-the-next-tcp-port-in-net
@@ -23,21 +24,21 @@ public class PreviewServer
         listener.Stop();
         return port;
     }
-
+    
     public async Task StartServer(string siteDomainName, string previewFileRootDirectory)
     {
         var builder = WebApplication.CreateBuilder();
-
+        
         builder.WebHost.ConfigureKestrel(x => x.ListenLocalhost(ServerPort));
-
+        
         var app = builder.Build();
-
+        
         app.UseDeveloperExceptionPage();
-
+        
         app.Use(async (context, next) =>
         {
             var possiblePath = context.Request.Path;
-
+            
             if (string.IsNullOrWhiteSpace(possiblePath.Value) ||
                 possiblePath.Value == "/")
             {
@@ -53,7 +54,7 @@ public class PreviewServer
                      possiblePath.Value.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
                 var rawFile = new StringBuilder();
-
+                
                 using (var sr = File.OpenText(Path.Join(previewFileRootDirectory, possiblePath)))
                 {
                     while (await sr.ReadLineAsync() is { } streamLine)
@@ -62,7 +63,7 @@ public class PreviewServer
                             StringComparison.OrdinalIgnoreCase).Replace($"//{siteDomainName}",
                             $"//localhost:{ServerPort}", StringComparison.OrdinalIgnoreCase));
                 }
-
+                
                 await context.Response.WriteAsync(rawFile.ToString());
             }
             else
@@ -70,22 +71,32 @@ public class PreviewServer
                 await next.Invoke();
             }
         });
-
+        
+        var provider = new FileExtensionContentTypeProvider
+        {
+            Mappings =
+            {
+                // Add new mappings
+                [".flac"] = "audio/flac"
+            }
+        };
+        
         app.UseFileServer(new FileServerOptions
         {
             FileProvider = new PhysicalFileProvider(previewFileRootDirectory),
             RequestPath = "",
-            EnableDirectoryBrowsing = true
+            EnableDirectoryBrowsing = true,
+            StaticFileOptions = { ContentTypeProvider = provider }
         });
-
+        
         app.MapPost("/localapi/loadpreviewpage", (ServerLoadPreviewPage data) =>
         {
             _previewPages[data.RequesterId] = data.ToPreview;
-
+            
             // Redirect to another action
             return Task.FromResult(Results.Redirect($"/localapi/showpreviewpage/{data.RequesterId}"));
         });
-
+        
         app.MapGet("/localapi/showpreviewpage/{requester}", (Guid requester) =>
         {
             if (_previewPages.TryGetValue(requester, out var page))
@@ -96,10 +107,10 @@ public class PreviewServer
                     $"//localhost:{ServerPort}", StringComparison.OrdinalIgnoreCase);
                 return Results.Content(cleanedHtml, "text/html");
             }
-
+            
             return Results.NotFound();
         });
-
+        
         await app.RunAsync();
     }
 }
