@@ -161,15 +161,18 @@ public partial class ContentListContext : IDragSource, IDropTarget
             ".PDF",
             ".MPG",
             ".MPEG",
+            ".FLAC",
+            ".MP3",
             ".WAV",
             ".JPG",
             ".JPEG",
             ".GPX",
             ".TCX",
             ".FIT",
-            "MP4",
-            "OGG",
-            "WEBM"
+            ".MP4",
+            ".OGG",
+            ".WEBM",
+
         };
 
         if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
@@ -922,7 +925,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var fileContentExtensions = new List<string> { ".PDF", ".MPG", ".MPEG", ".WAV" };
+        var fileContentExtensions = new List<string> { ".PDF", ".MPG", ".MPEG", ".FLAC", ".MP3", ".WAV" };
         var pictureContentExtensions = new List<string> { ".JPG", ".JPEG" };
         var lineContentExtensions = new List<string> { ".GPX", ".TCX", ".FIT" };
         var videoContentExtensions = new List<string> { ".MP4", ".OGG", ".WEBM" };
