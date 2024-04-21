@@ -127,9 +127,13 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
             UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile,
             CancellationToken.None, StatusContext.ProgressTracker());
         
-        if (!possibleTags.Any()) StatusContext.ToastWarning("No tags found...");
+        if (!possibleTags.Any())
+        {
+            StatusContext.ToastWarning("No tags found...");
+            return new List<string>();
+        }
         
-        return new List<string>();
+        return possibleTags;
     }
     
     [BlockingCommand]
