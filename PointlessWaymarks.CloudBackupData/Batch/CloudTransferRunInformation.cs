@@ -1,7 +1,11 @@
 namespace PointlessWaymarks.CloudBackupData.Batch;
 
-public class CloudUploadAndDeleteRunInformation
+public class CloudTransferRunInformation
 {
+    public long CopiedSize { get; set; }
+    public int CopyCount { get; set; }
+    public int CopyErrorCount { get; set; }
+    public double CopySeconds { get; set; }
     public int DeleteCount { get; set; }
     public int DeleteErrorCount { get; set; }
     public DateTime Ended { get; set; }

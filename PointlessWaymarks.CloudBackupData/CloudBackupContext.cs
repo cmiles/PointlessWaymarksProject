@@ -11,9 +11,10 @@ namespace PointlessWaymarks.CloudBackupData;
 public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : DbContext(options)
 {
     public static string CurrentDatabaseFileName = string.Empty;
-
+    
     public DbSet<BackupJob> BackupJobs { get; set; } = null!;
     public DbSet<CloudCacheFile> CloudCacheFiles { get; set; } = null!;
+    public DbSet<CloudCopy> CloudCopies { get; set; } = null!;
     public DbSet<CloudDelete> CloudDeletions { get; set; } = null!;
     public DbSet<CloudFile> CloudFiles { get; set; } = null!;
     public DbSet<CloudTransferBatch> CloudTransferBatches { get; set; } = null!;
@@ -22,27 +23,27 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
     public DbSet<ExcludedDirectoryNamePattern> ExcludedDirectoryNamePatterns { get; set; } = null!;
     public DbSet<ExcludedFileNamePattern> ExcludedFileNamePatterns { get; set; } = null!;
     public DbSet<FileSystemFile> FileSystemFiles { get; set; } = null!;
-
+    
     public static async Task<CloudBackupContext> CreateInstance()
     {
         return await CreateInstance(CurrentDatabaseFileName);
     }
-
+    
     public static Task<CloudBackupContext> CreateInstance(string fileName, bool setFileNameAsCurrentDb = true)
     {
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         Batteries_V2.Init();
         raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
         var optionsBuilder = new DbContextOptionsBuilder<CloudBackupContext>();
-
+        
         optionsBuilder.LogTo(message => Debug.WriteLine(message));
-
+        
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
-
+        
         return Task.FromResult(new CloudBackupContext(optionsBuilder.UseLazyLoadingProxies()
             .UseSqlite($"Data Source={fileName}").Options));
     }
-
+    
     public static async Task<CloudBackupContext> CreateInstanceWithEnsureCreated(string fileName,
         bool setFileNameAsCurrentDb = true)
     {
@@ -54,20 +55,20 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
                             $"Data Source={fileName}")
                         .ScanIn(typeof(CloudBackupContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
-
+            
             // Instantiate the runner
             var runner = sc.GetRequiredService<IMigrationRunner>();
-
+            
             // Execute the migrations
             runner.MigrateUp();
         }
-
+        
         var context = await CreateInstance(fileName, setFileNameAsCurrentDb);
         await context.Database.EnsureCreatedAsync();
-
+        
         return context;
     }
-
+    
     /// <summary>
     ///     Use TryCreateInstance to test whether an input file is a valid db.
     /// </summary>
@@ -79,11 +80,11 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
         bool setFileNameAsCurrentDb = true)
     {
         var newFileInfo = new FileInfo(fileName);
-
+        
         if (!newFileInfo.Exists)
             return (false,
                 "File does not exist?", null);
-
+        
         try
         {
             await using var sc = new ServiceCollection().AddFluentMigratorCore().ConfigureRunner(rb =>
@@ -92,11 +93,11 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
                             $"Data Source={fileName}")
                         .ScanIn(typeof(CloudBackupContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
-
+            
             using var scope = sc.CreateScope();
             // Instantiate the runner
             var runner = sc.GetRequiredService<IMigrationRunner>();
-
+            
             // Execute the migrations
             runner.MigrateUp();
         }
@@ -104,14 +105,14 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
         {
             return (false, e.Message, null);
         }
-
+        
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         Batteries_V2.Init();
         raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
         var optionsBuilder = new DbContextOptionsBuilder<CloudBackupContext>();
-
+        
         CloudBackupContext? db;
-
+        
         try
         {
             db = new CloudBackupContext(optionsBuilder.UseLazyLoadingProxies().UseSqlite($"Data Source={fileName}")
@@ -121,9 +122,9 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
         {
             return (false, e.Message, null);
         }
-
+        
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
-
+        
         return (true, string.Empty, db);
     }
 }
