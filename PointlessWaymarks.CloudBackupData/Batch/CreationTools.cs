@@ -70,80 +70,21 @@ public static class CreationTools
             excludedDirectories, excludedDirectoryPatterns, progress)).ToList());
     }
     
-    public static async Task<FileListAndChangeData> GetChangesBasedOnCloudAndLocalScan(
+    public static async Task<FileListAndChangeData> GetChanges(
         IS3AccountInformation accountInformation,
-        int backupJobId,
+        int backupJobId, bool basedOnCloudCacheFiles,
         IProgress<string> progress)
     {
-        Log.Information("Cloud Backup - Getting Changes based on Cloud Scan and Local Scan");
+        Log.Information($"Cloud Backup - Getting Changes - Use Cache: {basedOnCloudCacheFiles}");
         
         var db = await CloudBackupContext.CreateInstance();
         
         var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
         
-        var returnData = new FileListAndChangeData
-        {
-            Job = job,
-            AccountInformation = accountInformation,
-            S3Files = await GetAllCloudFiles(backupJobId, job.CloudDirectory, accountInformation, progress),
-            ChangesBasedOnNewCloudFileScan = true
-        };
-        
-        var localFiles = await GetIncludedLocalFiles(job.Id, progress);
-        var localFilesSystemBaseDirectory = new DirectoryInfo(job.LocalDirectory);
-        
-        returnData.FileSystemFiles = localFiles.Select(x => new S3FileSystemFileAndMetadataWithCloudKey(x.LocalFile,
-                x.UploadMetadata, FileInfoToS3Key(job.CloudDirectory, localFilesSystemBaseDirectory, x.LocalFile)))
-            .ToList();
-        
-        progress.Report($"Change Check - {returnData.FileSystemFiles.Count} to process");
-        var counter = 0;
-        
-        foreach (var loopFiles in returnData.FileSystemFiles)
-        {
-            counter++;
-            
-            var matchingFiles = returnData.S3Files.Where(x => x.Key == loopFiles.CloudKey).ToList();
-            
-            if (matchingFiles.Count == 0)
-            {
-                returnData.FileSystemFilesToUpload.Add(loopFiles);
-                continue;
-            }
-            
-            if (matchingFiles.Any(x =>
-                    x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash)) continue;
-            
-            returnData.FileSystemFilesToUpload.Add(loopFiles);
-            
-            if (counter % 500 == 0)
-                progress.Report(
-                    $"Change Check - {counter} of {returnData.FileSystemFiles.Count} Files Checked - {returnData.FileSystemFilesToUpload} to Upload so far.");
-        }
-        
-        returnData.S3FilesToDelete = returnData.S3Files
-            .Where(x => returnData.FileSystemFiles.All(y => y.CloudKey != x.Key)).ToList();
-        
-        Log.Information(
-            "Cloud Backup - Found {uploadCount} Uploads and {deleteCount} Deletes based on Cloud Scan and Local Scan",
-            returnData.FileSystemFilesToUpload.Count, returnData.S3FilesToDelete.Count);
-        
-        return returnData;
-    }
-    
-    public static async Task<FileListAndChangeData> GetChangesBasedOnCloudCacheFilesAndLocalScan(
-        IS3AccountInformation accountInformation,
-        int backupJobId,
-        IProgress<string> progress)
-    {
-        Log.Information("Cloud Backup - Getting Changes based on Cloud Cache and Local Scan");
-        
-        var db = await CloudBackupContext.CreateInstance();
-        
-        var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
-        
-        var cloudFiles = job.CloudCacheFiles.Select(x => new S3RemoteFileAndMetadata(x.Bucket, x.CloudObjectKey,
-            new S3StandardMetadata(x.FileSystemDateTime, x.FileHash, x.FileSize))).ToList();
+        var cloudFiles = basedOnCloudCacheFiles
+            ? job.CloudCacheFiles.Select(x => new S3RemoteFileAndMetadata(x.Bucket, x.CloudObjectKey,
+                new S3StandardMetadata(x.FileSystemDateTime, x.FileHash, x.FileSize))).ToList()
+            : await GetAllCloudFiles(backupJobId, job.CloudDirectory, accountInformation, progress);
         
         var returnData = new FileListAndChangeData
         {
