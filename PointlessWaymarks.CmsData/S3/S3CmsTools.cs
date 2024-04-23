@@ -57,8 +57,10 @@ public static class S3CmsTools
             progress.Report($"Filtering by Date and Time {sinceDate:F}");
             searchQuery = searchQuery.Where(x => x.WrittenOnVersion >= sinceDate);
         }
+        
+        var rawDbItems = await searchQuery.ToListAsync();
 
-        var dbItems = await searchQuery.OrderByDescending(x => x.WrittenOnVersion).ToListAsync();
+        var dbItems = rawDbItems.GroupBy(x => x.FileName).Select(x => x.MaxBy(y => y.WrittenOnVersion)).Where(x => x is not null).OrderByDescending(x => x!.WrittenOnVersion).Select(x => x!).ToList();
 
         if (!dbItems.Any()) return (new IsValid(false, "No Files Found to Upload?"), []);
 
