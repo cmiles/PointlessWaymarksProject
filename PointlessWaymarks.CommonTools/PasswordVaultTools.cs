@@ -1,6 +1,6 @@
 using Windows.Security.Credentials;
 using Polly;
-using Polly.Retry;
+using Serilog;
 
 namespace PointlessWaymarks.CommonTools;
 
@@ -10,18 +10,23 @@ public static class PasswordVaultTools
     {
         var vault = new PasswordVault();
         
-        ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
+        var pipeline = new ResiliencePipelineBuilder()
             .AddTimeout(TimeSpan.FromSeconds(5))
             .Build();
         
         IReadOnlyList<PasswordCredential>? possibleCredentials;
-
+        
         try
         {
             possibleCredentials = pipeline.Execute(() => vault.FindAllByResource(resourceIdentifier));
         }
         catch (Exception e)
         {
+            //Log if apparently not just a not found error - but either way just return null since
+            //the credential can't currently be retrieved.
+            if (!e.Message.Contains("element not found", StringComparison.OrdinalIgnoreCase))
+                Log.ForContext(nameof(resourceIdentifier), resourceIdentifier)
+                    .Error(e, "Error in PasswordVaultTools - GetCredentials");
             possibleCredentials = null;
         }
         
@@ -42,16 +47,25 @@ public static class PasswordVaultTools
     {
         var vault = new PasswordVault();
         
+        var pipeline = new ResiliencePipelineBuilder()
+            .AddTimeout(TimeSpan.FromSeconds(5))
+            .Build();
+        
         IReadOnlyList<PasswordCredential> possibleCredentials;
         
         try
         {
-            possibleCredentials = vault.FindAllByResource(resourceIdentifier);
+            possibleCredentials = pipeline.Execute(() => vault.FindAllByResource(resourceIdentifier));
         }
-        catch (Exception)
+        catch (Exception e)
         {
             //Nothing to remove
-            return;
+            if (e.Message.Contains("element not found", StringComparison.OrdinalIgnoreCase)) return;
+            
+            //Error
+            Log.ForContext(nameof(resourceIdentifier), resourceIdentifier)
+                .Error(e, "Error in PasswordVaultTools - RemoveCredentials");
+            throw;
         }
         
         if (possibleCredentials == null || !possibleCredentials.Any()) return;
@@ -73,7 +87,13 @@ public static class PasswordVaultTools
         RemoveCredentials(resourceIdentifier);
         
         var vault = new PasswordVault();
+        
+        var pipeline = new ResiliencePipelineBuilder()
+            .AddTimeout(TimeSpan.FromSeconds(5))
+            .Build();
+        
+        //An error will throw on timeout
         var credential = new PasswordCredential(resourceIdentifier, userName, password);
-        vault.Add(credential);
+        pipeline.Execute(() => vault.Add(credential));
     }
 }
