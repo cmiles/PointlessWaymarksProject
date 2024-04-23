@@ -12,7 +12,7 @@ namespace PointlessWaymarks.CloudBackupData.Batch;
 
 public static class CloudTransfer
 {
-    public static async Task<CloudTransferRunInformation> CloudUploadAndDelete(
+    public static async Task<CloudTransferRunInformation> CloudCopyUploadAndDelete(
         IS3AccountInformation accountInformation, int cloudTransferBatchId, DateTime? startTime,
         IProgress<string>? progress)
     {

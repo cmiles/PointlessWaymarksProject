@@ -46,7 +46,7 @@ public static class Program
         {
             Console.WriteLine("""
                               The PointlessWaymarks CloudBackup Runner uses Backup Jobs created with the
-                              Pointless Waymarks Cloud Backup Editor to perform Uploads and Deletions on
+                              Pointless Waymarks Cloud Backup Editor to perform Copies, Uploads and Deletions on
                               Amazon S3 to create a backup of your local files. Backup Jobs are stored in
                               a Database File that is specified as the first argument to the program.
                               """);
@@ -63,7 +63,7 @@ public static class Program
             Console.WriteLine("""
                               By default when you run a Backup Job the program will scan every local and
                               S3 file for changes to create a 'Transfer Batch' in the database. The Transfer
-                              Batch holds a record of all the Uploads and Deletions needed to
+                              Batch holds a record of all the Copies, Uploads and Deletions needed to
                               make S3 match your local files. With larger numbers of files this can take
                               a long time... If you have a large number of files, or a backup of files that
                               only change infrequently, it may make sense to resume a previous Batch.
@@ -72,7 +72,7 @@ public static class Program
             Console.WriteLine("""
                               Resuming a previous Transfer Batch will mean that the backup will NOT account
                               for any file changes since the Batch was created!! It will also mean the program
-                              will spend more time uploading and deleting files and less time scanning for
+                              will spend more time copying, uploading and deleting files and less time scanning for
                               changes... Use with caution!
                               """);
             Console.WriteLine();
@@ -93,7 +93,7 @@ public static class Program
             Console.WriteLine("""
                                 auto - To have the program guess whether there is a batch worth resuming specify
                                 'auto'. This will look for a recent batch that has a low error rate and still
-                                needs a large number of uploads to complete. If a 'best guess' Batch is not found
+                                needs a large number of actions to complete. If a 'best guess' Batch is not found
                                 a new batch will be created.
                               """);
 
@@ -139,7 +139,7 @@ public static class Program
 
                 foreach (var loopBatch in batches)
                     Console.WriteLine(
-                        $"  Batch Id {loopBatch.Id} - {loopBatch.CreatedOn} - Uploads {loopBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully)} of {loopBatch.CloudUploads.Count} Complete, Deletions {loopBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully)} of {loopBatch.CloudDeletions.Count} Complete, {loopBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))} Errors");
+                        $"  Batch Id {loopBatch.Id} - {loopBatch.CreatedOn} - Copies {loopBatch.CloudCopies.Count(x => x.CopyCompletedSuccessfully)} of {loopBatch.CloudCopies.Count}, Complete Uploads {loopBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully)} of {loopBatch.CloudUploads.Count} Complete, Deletions {loopBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully)} of {loopBatch.CloudDeletions.Count} Complete, {loopBatch.CloudCopies.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))} Errors");
             }
 
             Log.Information("Cloud Backup Runner - Finished Run");
@@ -223,11 +223,13 @@ public static class Program
                 backupJob.Batches.Any(x => x.CreatedOn > DateTime.Now.AddDays(-14)))
             {
                 var mostRecentBatch = backupJob.Batches.MaxBy(x => x.CreatedOn)!;
-                var totalActions = mostRecentBatch.CloudUploads.Count + mostRecentBatch.CloudDeletions.Count;
+                var totalActions = mostRecentBatch.CloudCopies.Count + mostRecentBatch.CloudUploads.Count + mostRecentBatch.CloudDeletions.Count;
 
-                var successfulActions = mostRecentBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully) +
+                var successfulActions = mostRecentBatch.CloudCopies.Count(x => x.CopyCompletedSuccessfully) +
+                    mostRecentBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully) +
                                         mostRecentBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully);
                 var errorActions =
+                    mostRecentBatch.CloudCopies.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) +
                     mostRecentBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) +
                     mostRecentBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage));
                 var percentSuccess = totalActions == 0 ? 1 : successfulActions / (decimal)totalActions;
@@ -309,12 +311,12 @@ public static class Program
         }
 
         Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables()).Information(
-            "Using Batch Id {batchId} with {uploadCount} Uploads and {deleteCount} Deletes", batch.Id,
-            batch.CloudUploads.Count, batch.CloudDeletions.Count);
+            "Using Batch Id {batchId} with {copyCount} Copies, {uploadCount} Uploads and {deleteCount} Deletes", batch.Id,
+             batch.CloudCopies.Count, batch.CloudUploads.Count, batch.CloudDeletions.Count);
 
-        if (batch.CloudUploads.Count < 1 && batch.CloudDeletions.Count < 1)
+        if (batch.CloudCopies.Count < 1 && batch.CloudUploads.Count < 1 && batch.CloudDeletions.Count < 1)
         {
-            Log.Information("Cloud Backup Ending - No Uploads or Deletions for Job Id {jobId} batch {batchId}",
+            Log.Information("Cloud Backup Ending - No Copies, Uploads or Deletions for Job Id {jobId} batch {batchId}",
                 backupJob.Id,
                 batch.Id);
             Log.Information("Cloud Backup Runner - Finished Run");
@@ -327,14 +329,14 @@ public static class Program
         try
         {
             var runInformation =
-                await CloudTransfer.CloudUploadAndDelete(amazonCredentials, batch.Id, startTime, progress);
+                await CloudTransfer.CloudCopyUploadAndDelete(amazonCredentials, batch.Id, startTime, progress);
             Log.ForContext(nameof(runInformation), runInformation, true).Information("Cloud Backup Ending");
 
             var batchReport = await BatchReportToExcel.Run(batch.Id, progress);
 
             (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
                 .SetAutomationLogoNotificationIconUrl().MessageWithFile(
-                    $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{(runInformation.DeleteErrorCount + runInformation.UploadErrorCount > 0 ? $" - {runInformation.DeleteErrorCount + runInformation.UploadErrorCount}  Errors" : string.Empty)} - Click for Report",
+                    $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{(runInformation.CopyErrorCount + runInformation.DeleteErrorCount + runInformation.UploadErrorCount > 0 ? $" - {runInformation.CopyErrorCount + runInformation.DeleteErrorCount + runInformation.UploadErrorCount}  Errors" : string.Empty)} - Click for Report",
                     batchReport);
         }
         catch (Exception e)
