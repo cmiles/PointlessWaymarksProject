@@ -41,7 +41,8 @@ public class LocalDirectoryIntegrationSeries
             CreatedOn = DateTime.Now,
             LocalDirectory = TestDirectory.FullName,
             CloudDirectory = "Test01",
-            Name = "Test01"
+            Name = "Test01",
+            MaximumRunTimeInHours = 1
         };
 
         db.BackupJobs.Add(testJob);

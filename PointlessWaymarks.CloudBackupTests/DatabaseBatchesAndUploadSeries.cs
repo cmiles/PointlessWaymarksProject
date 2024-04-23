@@ -70,6 +70,7 @@ public class DatabaseBatchesAndUploadSeries
             LocalDirectory = TestDirectory.FullName,
             CloudDirectory = $"Cloud-{testTime}",
             Name = $"Cloud-{testTime}",
+            MaximumRunTimeInHours = 1
         };
 
         db.BackupJobs.Add(testJob);

@@ -7,13 +7,13 @@ namespace PointlessWaymarks.CloudBackupTests;
 
 public class S3LocalAccountInformation : IS3AccountInformation
 {
-    public Func<string> AccessKey { get; init; }
+    public Func<string> AccessKey { get; init; } = () => string.Empty;
     public Func<string> BucketName => () => LocalS3Bucket;
-    public Func<string> BucketRegion { get; init; }
-    public Func<string> FullFileNameForJsonUploadInformation { get; init; }
-    public Func<string> FullFileNameForToExcel { get; init; }
+    public Func<string> BucketRegion { get; init; } = () => "us-west-1";
+    public Func<string> FullFileNameForJsonUploadInformation { get; init; } = () => "CloudTestUpload.json";
+    public Func<string> FullFileNameForToExcel { get; init; } = () => "CloudTestExcel.xlsx";
     public string LocalS3Bucket { get; set; }
-    public Func<string> Secret { get; init; }
+    public Func<string> Secret { get; init; } = () => string.Empty;
 
     public RegionEndpoint? BucketRegionEndpoint()
     {
