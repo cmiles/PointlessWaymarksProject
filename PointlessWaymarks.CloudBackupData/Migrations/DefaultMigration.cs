@@ -8,7 +8,7 @@ public class DefaultMigration : Migration
     public override void Down()
     {
     }
-
+    
     public override void Up()
     {
     }

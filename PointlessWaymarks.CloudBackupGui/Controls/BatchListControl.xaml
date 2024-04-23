@@ -77,6 +77,40 @@
                                         <WrapPanel Grid.Row="1" Margin="10,6,0,4"
                                                    Orientation="Vertical">
                                             <StackPanel Orientation="Vertical">
+                                                <Label FontWeight="DemiBold" Margin="4">Copies</Label>
+                                                <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding
+                                                            StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
+                                                            <Binding Path="Statistics.CopyCount" />
+                                                            <Binding Path="Statistics.CopiesCompleteCount" />
+                                                            <Binding Path="Statistics.CopiesNotCompletedCount" />
+                                                            <Binding Path="Statistics.CopiesWithErrorNoteCount" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                                <TextBlock Margin="14,4,4,4" TextWrapping="Wrap">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding
+                                                            StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                            <Binding Path="Statistics.CopiesSize"
+                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                            <Binding Path="Statistics.CopiesCompleteSize"
+                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                            <Binding Path="Statistics.CopiesNotCompletedSize"
+                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                            <Binding Path="Statistics.CopiesWithErrorNoteSize"
+                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                                <Button HorizontalAlignment="Left" Margin="24,8,8,8" Width="300"
+                                                        Command="{Binding Data.CopiesToExcelCommand, Source={StaticResource proxy}}"
+                                                        CommandParameter="{Binding Statistics.BatchId}">
+                                                    Copies Report
+                                                </Button>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Vertical">
                                                 <Label FontWeight="DemiBold" Margin="4">Uploads</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>

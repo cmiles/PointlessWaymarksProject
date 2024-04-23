@@ -15,6 +15,7 @@ public static class BatchReportToExcel
         var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
         var job = batch.Job!;
 
+        await BatchCopiesToExcel.AddWorksheet(newExcelFile, batchId, progress);
         await BatchUploadsToExcel.AddWorksheet(newExcelFile, batchId, progress);
         await BatchDeletesToExcel.AddWorksheet(newExcelFile, batchId, progress);
         await BatchLocalFilesToExcel.AddWorksheet(newExcelFile, batchId, progress);

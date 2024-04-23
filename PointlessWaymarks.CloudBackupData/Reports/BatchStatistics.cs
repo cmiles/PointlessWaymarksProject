@@ -12,6 +12,15 @@ public class BatchStatistics
     public int BatchId { get; set; }
     public int CloudFileCount { get; set; }
     public long CloudFileSize { get; set; }
+    public int CopiesCompleteCount { get; set; }
+    public long CopiesCompleteSize { get; set; }
+    public int CopiesNotCompletedCount { get; set; }
+    public long CopiesNotCompletedSize { get; set; }
+    public long CopiesSize { get; set; }
+    public decimal CopiesSizeCompletedPercentage { get; set; }
+    public int CopiesWithErrorNoteCount { get; set; }
+    public long CopiesWithErrorNoteSize { get; set; }
+    public int CopyCount { get; set; }
     public int DeletesCompleteCount { get; set; }
     public long DeletesCompleteSize { get; set; }
     public int DeletesCount { get; set; }
@@ -32,13 +41,13 @@ public class BatchStatistics
     public decimal UploadsSizeCompletedPercentage { get; set; }
     public int UploadsWithErrorNoteCount { get; set; }
     public long UploadsWithErrorNoteSize { get; set; }
-
+    
     public static async Task<BatchStatistics> CreateInstance(int batchId)
     {
         var context = await CloudBackupContext.CreateInstance();
-
+        
         var batch = context.CloudTransferBatches.Single(x => x.Id == batchId);
-
+        
         var toReturn = new BatchStatistics
         {
             BatchCreatedOn = batch.CreatedOn,
@@ -69,8 +78,26 @@ public class BatchStatistics
             UploadsWithErrorNoteSize = await context.CloudUploads
                 .Where(x => x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage))
                 .SumAsync(x => x.FileSize),
+            CopyCount = await context.CloudCopies.CountAsync(x => x.CloudTransferBatchId == batch.Id),
+            CopiesSize = await context.CloudCopies.Where(x => x.CloudTransferBatchId == batch.Id)
+                .SumAsync(x => x.FileSize),
+            CopiesCompleteCount = await context.CloudCopies.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && x.CopyCompletedSuccessfully),
+            CopiesCompleteSize = await context.CloudCopies
+                .Where(x => x.CloudTransferBatchId == batch.Id && x.CopyCompletedSuccessfully)
+                .SumAsync(x => x.FileSize),
+            CopiesNotCompletedCount = await context.CloudCopies.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && !x.CopyCompletedSuccessfully),
+            CopiesNotCompletedSize = await context.CloudCopies
+                .Where(x => x.CloudTransferBatchId == batch.Id && !x.CopyCompletedSuccessfully)
+                .SumAsync(x => x.FileSize),
+            CopiesWithErrorNoteCount = await context.CloudCopies.CountAsync(x =>
+                x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage)),
+            CopiesWithErrorNoteSize = await context.CloudCopies
+                .Where(x => x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage))
+                .SumAsync(x => x.FileSize),
             DeletesCount = await context.CloudDeletions.CountAsync(x => x.CloudTransferBatchId == batch.Id),
-            DeletesSize = await context.CloudDeletions.SumAsync(x => x.FileSize),
+            DeletesSize = await context.CloudDeletions.Where(x => x.CloudTransferBatchId == batch.Id).SumAsync(x => x.FileSize),
             DeletesCompleteCount = await context.CloudDeletions.CountAsync(x =>
                 x.CloudTransferBatchId == batch.Id && x.DeletionCompletedSuccessfully),
             DeletesCompleteSize = await context.CloudDeletions
@@ -87,14 +114,18 @@ public class BatchStatistics
                 .Where(x => x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage))
                 .SumAsync(x => x.FileSize)
         };
-
+        
+        toReturn.CopiesSizeCompletedPercentage = toReturn.CopiesSize == 0
+            ? 1M
+            : (decimal)toReturn.CopiesCompleteSize / toReturn.CopiesSize;
+        
         toReturn.UploadsSizeCompletedPercentage = toReturn.UploadSize == 0
             ? 1M
             : (decimal)toReturn.UploadsCompleteSize / toReturn.UploadSize;
-
+        
         return toReturn;
     }
-
+    
     public async Task Refresh()
     {
         var newStatistics = await CreateInstance(BatchId);

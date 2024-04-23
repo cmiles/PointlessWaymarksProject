@@ -79,6 +79,60 @@
                 </StackPanel>
             </ToolTip>
             <ToolTip
+                x:Key="BatchCopiesStatisticsTooltip"
+                d:DataContext="{d:DesignInstance controls:JobListListItem}"
+                DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel.Resources>
+                        <Style TargetType="Label">
+                            <Setter Property="Width" Value="180"></Setter>
+                        </Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Margin" Value="1"></Setter>
+                        </Style>
+                    </StackPanel.Resources>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Copies Completed</Label>
+                        <TextBlock Text="{Binding LatestBatch.CopiesSizeCompletedPercentage, StringFormat='{}{0:P0}'}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Total Copy Count</Label>
+                        <TextBlock Text="{Binding LatestBatch.CopyCount, StringFormat={}{0:N0}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Total Copy Size</Label>
+                        <TextBlock Text="{Binding LatestBatch.CopiesSize, Converter={StaticResource HumanFileSize}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Copies Complete Count</Label>
+                        <TextBlock Text="{Binding LatestBatch.CopiesCompleteCount, StringFormat={}{0:N0}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Copies Complete Size</Label>
+                        <TextBlock
+                            Text="{Binding LatestBatch.CopiesCompleteSize, Converter={StaticResource HumanFileSize}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Copies Not Complete Count</Label>
+                        <TextBlock Text="{Binding LatestBatch.CopiesNotCompletedCount, StringFormat={}{0:N0}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Copies Not Complete Size</Label>
+                        <TextBlock
+                            Text="{Binding LatestBatch.CopiesNotCompletedSize, Converter={StaticResource HumanFileSize}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Copies w/Error Note Count</Label>
+                        <TextBlock Text="{Binding LatestBatch.CopiesWithErrorNoteCount, StringFormat={}{0:N0}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Copies w/Error Note Size</Label>
+                        <TextBlock
+                            Text="{Binding LatestBatch.CopiesWithErrorNoteSize, Converter={StaticResource HumanFileSize}}" />
+                    </StackPanel>
+                </StackPanel>
+            </ToolTip>
+            <ToolTip
                 x:Key="BatchDeleteStatisticsTooltip"
                 d:DataContext="{d:DesignInstance controls:JobListListItem}"
                 DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
@@ -276,7 +330,17 @@
                                     </TextBlock>
 
                                     <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.UploadsSizeCompletedPercentage, StringFormat='Batch Uploads Completed {0:P0}'}"
+                                               Text="{Binding LatestBatch.CopiesSizeCompletedPercentage, StringFormat='Copies Completed {0:P0}'}"
+                                               ToolTip="{StaticResource BatchCopiesStatisticsTooltip}">
+                                    </TextBlock>
+
+                                    <TextBlock TextWrapping="Wrap"
+                                               Text="{Binding LatestBatch.CopiesNotCompletedSize, StringFormat='Remaining  {0}', Converter={StaticResource FileSizePresentation}}"
+                                               ToolTip="{StaticResource BatchCopiesStatisticsTooltip}">
+                                    </TextBlock>
+
+                                    <TextBlock TextWrapping="Wrap"
+                                               Text="{Binding LatestBatch.UploadsSizeCompletedPercentage, StringFormat='Uploads Completed {0:P0}'}"
                                                ToolTip="{StaticResource BatchUploadStatisticsTooltip}">
                                     </TextBlock>
 
