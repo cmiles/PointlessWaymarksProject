@@ -11,13 +11,19 @@ public static class PasswordVaultTools
         var vault = new PasswordVault();
         
         ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
-            .AddRetry(new RetryStrategyOptions { MaxRetryAttempts = 2 })
             .AddTimeout(TimeSpan.FromSeconds(5))
             .Build();
         
-        IReadOnlyList<PasswordCredential> possibleCredentials =
-            pipeline.Execute(() => vault.FindAllByResource(resourceIdentifier));
-        
+        IReadOnlyList<PasswordCredential>? possibleCredentials;
+
+        try
+        {
+            possibleCredentials = pipeline.Execute(() => vault.FindAllByResource(resourceIdentifier));
+        }
+        catch (Exception e)
+        {
+            possibleCredentials = null;
+        }
         
         if (possibleCredentials == null || !possibleCredentials.Any()) return (string.Empty, string.Empty);
         
