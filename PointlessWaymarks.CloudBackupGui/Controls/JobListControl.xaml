@@ -261,7 +261,10 @@
                                           Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
                                     <GroupBox.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="Kill Job" Command="{Binding Data.KillProgressProcessCommand, Source={StaticResource proxy}}" CommandParameter="{Binding .}"></MenuItem>
+                                            <MenuItem Header="Kill Job"
+                                                      Command="{Binding Data.KillProgressProcessCommand, Source={StaticResource proxy}}"
+                                                      CommandParameter="{Binding .}">
+                                            </MenuItem>
                                         </ContextMenu>
                                     </GroupBox.ContextMenu>
                                     <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"
@@ -352,6 +355,10 @@
                                     <TextBlock TextWrapping="Wrap"
                                                Text="{Binding LatestBatch.DeletesNotCompletedCount, StringFormat='Deletes Remaining  {0:N0}', Converter={StaticResource FileSizePresentation}}"
                                                ToolTip="{StaticResource BatchDeleteStatisticsTooltip}">
+                                    </TextBlock>
+
+                                    <TextBlock TextWrapping="Wrap"
+                                               Text="{Binding DbJob.MaximumRunTimeInHours, StringFormat='Max Runtime:  {0:N0} Hours'}">
                                     </TextBlock>
                                 </WrapPanel>
                             </Grid>
