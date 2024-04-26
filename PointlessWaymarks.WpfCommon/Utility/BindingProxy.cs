@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 
 namespace PointlessWaymarks.WpfCommon.Utility;
 
@@ -18,7 +18,7 @@ public class BindingProxy : Freezable
     //that as the Element= in the binding, but this doesn't appear to work in all cases.
     //
     //This class is an absolute classic and Thomas Levesque (of MVVM Light fame) is the person who I
-    //associate this concept with although I don't know the history of this code for WPF.
+    //associate this concept with, although I don't know the history of this code for WPF.
     //
     //This version of the code comes from:
     // https://thomaslevesque.com/2011/03/21/wpf-how-to-bind-to-data-when-the-datacontext-is-not-inherited/

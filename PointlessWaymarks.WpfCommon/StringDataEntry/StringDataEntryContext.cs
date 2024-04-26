@@ -20,7 +20,7 @@ public partial class StringDataEntryContext : IHasChanges, IHasValidationIssues
     public string ReferenceValue { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string UserValue { get; set; } = string.Empty;
-    public List<Func<string?, Task<IsValid>>> ValidationFunctions { get; set; } = new();
+    public List<Func<string?, Task<IsValid>>> ValidationFunctions { get; set; } = [];
     public string ValidationMessage { get; set; } = string.Empty;
 
     public async Task CheckForChangesAndValidationIssues()

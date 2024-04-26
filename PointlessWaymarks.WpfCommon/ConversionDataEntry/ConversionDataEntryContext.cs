@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using PointlessWaymarks.CommonTools;
@@ -21,7 +21,7 @@ public class ConversionDataEntryContext<T> : INotifyPropertyChanged, IHasChanges
     private string _userText = string.Empty;
     private T? _userValue;
 
-    private List<Func<T?, Task<IsValid>>> _validationFunctions = new();
+    private List<Func<T?, Task<IsValid>>> _validationFunctions = [];
 
     private string? _validationMessage;
 

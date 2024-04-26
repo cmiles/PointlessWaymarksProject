@@ -33,7 +33,7 @@ public partial class FileListContext : IDropTarget
     }
 
     public List<ContextMenuItemData> ContextMenuItems { get; set; }
-    public List<string> DroppedFileExtensionAllowList { get; set; } = new();
+    public List<string> DroppedFileExtensionAllowList { get; set; } = [];
     public string FileImportFilter { get; set; } = string.Empty;
     public ObservableCollection<FileInfo>? Files { get; set; }
     public bool ReplaceMode { get; set; } = true;
@@ -258,8 +258,8 @@ public partial class FileListContext : IDropTarget
 
         await ResumeForegroundAsync();
 
-        newInstance.Files = new ObservableCollection<FileInfo>();
-        newInstance.SelectedFiles = new ObservableCollection<FileInfo>();
+        newInstance.Files = [];
+        newInstance.SelectedFiles = [];
 
         return newInstance;
     }
@@ -269,7 +269,7 @@ public partial class FileListContext : IDropTarget
     {
         await ResumeForegroundAsync();
 
-        var toRemove = SelectedFiles?.ToList() ?? new List<FileInfo>();
+        var toRemove = SelectedFiles?.ToList() ?? [];
 
         if (toRemove.Count <= 0)
         {

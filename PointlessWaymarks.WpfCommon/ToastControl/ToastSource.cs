@@ -17,7 +17,7 @@ public partial class ToastSource(Dispatcher dispatcher)
     public bool IsOpen { get; set; }
     public int MaximumNotificationCount { get; set; } = 5;
     public TimeSpan NotificationLifeTime { get; set; } = TimeSpan.FromSeconds(6);
-    public ObservableCollection<ToastContext> NotificationMessages { get; } = new();
+    public ObservableCollection<ToastContext> NotificationMessages { get; } = [];
 
     public void Hide(Guid id)
     {

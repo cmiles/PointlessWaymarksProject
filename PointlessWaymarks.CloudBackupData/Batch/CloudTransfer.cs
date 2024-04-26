@@ -196,6 +196,11 @@ public static class CloudTransfer
             var transferRequest =
                 await S3Tools.S3TransferUploadRequest(localFile, upload.BucketName, upload.CloudObjectKey);
             
+            if (accountInformation.S3Provider() == S3Providers.Cloudflare)
+            {
+                transferRequest.DisablePayloadSigning = true;
+            }
+            
             try
             {
                 await pollyS3RetryPolicy.ExecuteAsync(() => transferUtility.UploadAsync(transferRequest));

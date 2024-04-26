@@ -26,7 +26,7 @@ public partial class BoolDataEntryContext : IHasChanges, IHasValidationIssues
     public bool UserValueIsNullable => false;
 
     public List<Func<bool, IsValid>> ValidationFunctions { get; set; } =
-        new();
+        [];
 
     public string ValidationMessage { get; set; } = string.Empty;
 

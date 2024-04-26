@@ -180,7 +180,7 @@ public static class Program
                 outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
             .CreateLogger();
 
-        var cloudCredentials = PasswordVaultTools.GetCredentials(backupJob.VaultIdentifier);
+        var cloudCredentials = PasswordVaultTools.GetCredentials(backupJob.VaultS3CredentialsIdentifier);
 
         if (string.IsNullOrWhiteSpace(cloudCredentials.username) ||
             string.IsNullOrWhiteSpace(cloudCredentials.password))
@@ -196,11 +196,14 @@ public static class Program
 
         var frozenNow = DateTime.Now;
 
+        if(!Enum.TryParse(backupJob.CloudProvider, out S3Providers provider)) provider = S3Providers.Amazon;
+        
         var amazonCredentials = new S3AccountInformation
         {
             AccessKey = () => cloudCredentials.username,
             Secret = () => cloudCredentials.password,
             BucketName = () => backupJob.CloudBucket,
+            S3Provider = () => provider,
             BucketRegion = () => backupJob.CloudRegion,
             FullFileNameForJsonUploadInformation = () =>
                 Path.Combine(FileLocationHelpers.DefaultStorageDirectory().FullName,

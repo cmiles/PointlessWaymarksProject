@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Windows;
 using Amazon.S3;
 using Amazon.S3.Model;
@@ -24,7 +24,7 @@ public partial class S3DeletionsContext
     }
 
     public ObservableCollection<S3DeletionsItem>? Items { get; set; }
-    public List<S3DeletionsItem> SelectedItems { get; set; } = new();
+    public List<S3DeletionsItem> SelectedItems { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
     public IS3AccountInformation UploadS3Information { get; set; }
 
@@ -116,7 +116,7 @@ public partial class S3DeletionsContext
     [BlockingCommand]
     public async Task DeleteAll(CancellationToken cancellationToken)
     {
-        await Delete(Items?.ToList() ?? new List<S3DeletionsItem>(), cancellationToken,
+        await Delete(Items?.ToList() ?? [], cancellationToken,
             StatusContext.ProgressTracker());
     }
 

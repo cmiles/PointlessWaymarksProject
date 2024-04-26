@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using PointlessWaymarks.CommonTools;
@@ -97,16 +97,21 @@ public partial class S3UploadsItem : ISelectedTextTracker
 
         try
         {
-            var s3Client = new AmazonS3Client(accessKey, secret, region);
+            var s3Client = UploadS3Information.S3Client();
 
             var uploadRequest = new TransferUtilityUploadRequest
             {
                 BucketName = UploadS3Information.BucketName(), FilePath = FileToUpload.FullName, Key = AmazonObjectKey
             };
+            
+            if (UploadS3Information.S3Provider() == S3Providers.Cloudflare)
+            {
+                uploadRequest.DisablePayloadSigning = true;
+            }
 
             uploadRequest.Metadata.Add("LastWriteTime", FileToUpload.LastWriteTimeUtc.ToString("O"));
             uploadRequest.Metadata.Add("FileSystemHash", FileToUpload.CalculateMD5());
-
+            
             uploadRequest.UploadProgressEvent += UploadRequestOnUploadProgressEvent;
 
             var fileTransferUtility = new TransferUtility(s3Client);
