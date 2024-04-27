@@ -17,7 +17,7 @@ public class S3AccountInformation : IS3AccountInformation
             x.SystemName == bucketRegion);
     }
     
-    public Func<string>? CloudflareAccountId { get; init; }
+    public required Func<string>? CloudflareAccountId { get; init; }
     public required Func<string> FullFileNameForJsonUploadInformation { get; init; }
     public required Func<string> FullFileNameForToExcel { get; init; }
     

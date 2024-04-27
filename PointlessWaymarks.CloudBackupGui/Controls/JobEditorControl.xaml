@@ -71,7 +71,6 @@
                                 <Label
                                     Content="Cloud Credentials"
                                     Style="{StaticResource DataEntryLabelStyle}"
-                                    Target="{Binding ElementName=ValueTextBox}"
                                     ToolTip="Enter the credentials to use to access S3" />
                                 <Image ToolTip="Please make sure all credentials are entered."
                                        Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
