@@ -2,11 +2,12 @@ using System.ComponentModel;
 using PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 
 namespace PointlessWaymarks.WpfCommon.StringDropdownDataEntry;
 
 [NotifyPropertyChanged]
-public partial class StringDropdownDataEntryContext
+public partial class StringDropdownDataEntryContext : IHasChanges, IHasValidationIssues
 {
     private StringDropdownDataEntryContext()
     {
