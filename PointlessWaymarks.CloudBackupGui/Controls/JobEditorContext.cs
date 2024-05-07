@@ -21,6 +21,7 @@ using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.StringDropdownDataEntry;
+using TypeSupport.Extensions;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
@@ -365,13 +366,23 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         regionsDataEntry.Choices = RegionEndpoint.EnumerableAllRegions.Select(x => new DropDownDataChoice()
             { DisplayString = x.SystemName, DataString = x.SystemName }).ToList();
         regionsDataEntry.TrySetUserValue(initialJob.CloudRegion);
+        if (initialJob.CloudProvider != S3Providers.Cloudflare.ToString())
+            regionsDataEntry.ValidationFunctions =
+            [
+                x =>
+                {
+                    if (string.IsNullOrWhiteSpace(x))
+                        return new IsValid(false, "A Cloud Region is required for the job");
+                    return new IsValid(true, string.Empty);
+                }
+            ];
         
         var cloudProviderDataEntry = StringDropdownDataEntryContext.CreateInstance();
         cloudProviderDataEntry.Title = "Cloud Provider";
         cloudProviderDataEntry.HelpText = "The cloud provider for the job.";
         cloudProviderDataEntry.ReferenceValue = initialJob.CloudProvider;
-        cloudProviderDataEntry.Choices = Enum.GetNames(typeof(S3Providers))
-            .Select(x => new DropDownDataChoice() { DisplayString = x, DataString = x }).ToList();
+        cloudProviderDataEntry.Choices = (new List<string> { string.Empty }).Concat(Enum.GetNames(typeof(S3Providers)))
+            .Select(x => new DropDownDataChoice { DisplayString = x, DataString = x }).ToList();
         cloudProviderDataEntry.TrySetUserValue(initialJob.CloudProvider);
         
         var dbExcludedDirectory = initialJob.ExcludedDirectories
@@ -768,6 +779,25 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     private void UserCloudProviderEntry_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(UserCloudProviderEntry.SelectedItem))
+        {
             CloudCredentialsCheckForValidationIssues();
+            
+            if (UserCloudProviderEntry.UserValue == S3Providers.Cloudflare.ToString())
+            {
+                UserAwsRegionEntry.ValidationFunctions = [];
+            }
+            else
+            {
+                UserAwsRegionEntry.ValidationFunctions =
+                [
+                    x =>
+                    {
+                        if (string.IsNullOrWhiteSpace(x))
+                            return new IsValid(false, "A Cloud Region is required for the job");
+                        return new IsValid(true, string.Empty);
+                    }
+                ];
+            }
+        }
     }
 }
