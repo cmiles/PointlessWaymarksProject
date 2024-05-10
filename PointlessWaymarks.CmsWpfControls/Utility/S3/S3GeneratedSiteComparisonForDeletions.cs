@@ -1,12 +1,12 @@
-﻿using System.IO;
+using System.IO;
 using Amazon.S3;
 using Amazon.S3.Model;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
 
-namespace PointlessWaymarks.CmsWpfControls.Utility.Aws;
+namespace PointlessWaymarks.CmsWpfControls.Utility.S3;
 
-public class AwsS3GeneratedSiteComparisonForDeletions
+public class S3GeneratedSiteComparisonForDeletions
 {
     public List<string> ErrorMessages { get; } = new();
     public List<string> S3KeysToDelete { get; } = new();
@@ -18,9 +18,9 @@ public class AwsS3GeneratedSiteComparisonForDeletions
             .Replace("\\", "/") + "/";
     }
 
-    public static async Task<AwsS3GeneratedSiteComparisonForDeletions> RunReport(IProgress<string> progress)
+    public static async Task<S3GeneratedSiteComparisonForDeletions> RunReport(IProgress<string> progress)
     {
-        var returnReport = new AwsS3GeneratedSiteComparisonForDeletions();
+        var returnReport = new S3GeneratedSiteComparisonForDeletions();
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().SiteS3Bucket))
         {
@@ -55,7 +55,7 @@ public class AwsS3GeneratedSiteComparisonForDeletions
 
         progress.Report("Getting Aws S3 Credentials");
 
-        var (accessKey, secret) = AwsCredentials.GetAwsSiteCredentials();
+        var (accessKey, secret) = CloudCredentials.GetAwsSiteCredentials();
 
         if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secret))
         {

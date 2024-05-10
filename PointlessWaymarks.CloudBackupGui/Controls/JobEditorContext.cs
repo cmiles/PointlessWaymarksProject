@@ -21,7 +21,6 @@ using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.StringDropdownDataEntry;
-using TypeSupport.Extensions;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
@@ -381,7 +380,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         cloudProviderDataEntry.Title = "Cloud Provider";
         cloudProviderDataEntry.HelpText = "The cloud provider for the job.";
         cloudProviderDataEntry.ReferenceValue = initialJob.CloudProvider;
-        cloudProviderDataEntry.Choices = (new List<string> { string.Empty }).Concat(Enum.GetNames(typeof(S3Providers)))
+        cloudProviderDataEntry.Choices = new List<string> { string.Empty }.Concat(Enum.GetNames(typeof(S3Providers)))
             .Select(x => new DropDownDataChoice { DisplayString = x, DataString = x }).ToList();
         cloudProviderDataEntry.TrySetUserValue(initialJob.CloudProvider);
         
@@ -425,14 +424,14 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     }
     
     [BlockingCommand]
-    public async Task EnterAwsKeyAndSecretEntry()
+    public async Task EnterCloudCredentials()
     {
-        var newKeyEntry = await StatusContext.ShowStringEntry("AWS Access Key",
-            "Enter the AWS Access Key", string.Empty);
+        var newKeyEntry = await StatusContext.ShowStringEntry("Cloud Access Key",
+            "Enter the Cloud Access Key", string.Empty);
         
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning("Amazon Credential Entry Cancelled");
+            StatusContext.ToastWarning("Cloud Credential Entry Cancelled");
             return;
         }
         
@@ -440,8 +439,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (string.IsNullOrWhiteSpace(cleanedKey)) return;
         
-        var newSecretEntry = await StatusContext.ShowStringEntry("AWS Secret Access Key",
-            "Enter the AWS Secret Access Key", string.Empty);
+        var newSecretEntry = await StatusContext.ShowStringEntry("Cloud Secret Key",
+            "Enter the Secret Key", string.Empty);
         
         if (!newSecretEntry.Item1) return;
         
@@ -449,7 +448,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {
-            StatusContext.ToastError("AWS Credential Entry Canceled - secret can not be blank");
+            StatusContext.ToastError("Cloud Credential Entry Canceled - secret can not be blank");
             return;
         }
         
@@ -468,7 +467,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             
             if (string.IsNullOrWhiteSpace(cleanedCloudFlareAccount))
             {
-                StatusContext.ToastError("AWS Credential Entry Canceled - Cloudflare Account Id can not be blank");
+                StatusContext.ToastError("Cloud Credential Entry Canceled - Cloudflare Account Id can not be blank");
                 return;
             }
         }
@@ -783,11 +782,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             CloudCredentialsCheckForValidationIssues();
             
             if (UserCloudProviderEntry.UserValue == S3Providers.Cloudflare.ToString())
-            {
                 UserAwsRegionEntry.ValidationFunctions = [];
-            }
             else
-            {
                 UserAwsRegionEntry.ValidationFunctions =
                 [
                     x =>
@@ -797,7 +793,6 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                         return new IsValid(true, string.Empty);
                     }
                 ];
-            }
         }
     }
 }

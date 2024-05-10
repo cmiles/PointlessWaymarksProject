@@ -39,6 +39,6 @@ public class S3AccountInformation : IS3AccountInformation
         return new AmazonS3Client(accessKey, secret, BucketRegionEndpoint());
     }
     
-    public Func<S3Providers> S3Provider { get; set; } = () => S3Providers.Amazon;
+    public required Func<S3Providers> S3Provider { get; set; }
     public required Func<string> Secret { get; init; }
 }

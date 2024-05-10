@@ -418,13 +418,25 @@
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
-                            Amazon S3
+                            Cloud S3 Storage
                         </Label>
                         <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownS3Information}">
                             <b:Interaction.Behaviors>
                                 <behaviors:IgnoreMouseWheelBehavior />
                             </b:Interaction.Behaviors>
                         </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3StorageProviderComboBox}">
+                            S3 Storage Provider
+                        </Label>
+                        <ComboBox
+                            Name="S3StorageProviderComboBox"
+                            Width="200"
+                            Margin="6,0,0,0"
+                            HorizontalAlignment="Left"
+                            ItemsSource="{Binding CloudProviderChoices}"
+                            SelectedValue="{Binding EditorSettings.SiteS3CloudProvider, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
@@ -446,6 +458,16 @@
                             HorizontalAlignment="Left"
                             ItemsSource="{Binding RegionChoices}"
                             SelectedValue="{Binding EditorSettings.SiteS3BucketRegion, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                        <Button Command="{Binding UserCloudflareAccountIdKeySecretEntryCommand}">Enter Cloudflare Site Account Id and Credentials</Button>
+                        <Button Command="{Binding DeleteCloudflareCredentialsCommand}">Delete Cloudflare Site Id and Credentials</Button>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <Grid>

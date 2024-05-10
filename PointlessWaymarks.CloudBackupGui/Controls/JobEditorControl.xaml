@@ -79,7 +79,7 @@
                                 </Image>
                             </StackPanel>
                             <Button Margin="8,0,4,0" HorizontalAlignment="Left" Width="240" Padding="2"
-                                    Command="{Binding EnterAwsKeyAndSecretEntryCommand}">
+                                    Command="{Binding EnterCloudCredentialsCommand}">
                                 Enter Cloud Credentials for Job
                             </Button>
                         </StackPanel>

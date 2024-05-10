@@ -26,6 +26,9 @@ public static class S3CmsTools
             IProgress<string> progress)
     {
         progress.Report("Checking Bucket Details in Settings");
+        
+        var isCloudflare = UserSettingsSingleton.CurrentSettings().SiteS3CloudProvider ==
+                           S3Providers.Cloudflare.ToString();
 
         var userBucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
         var userBucketRegion = UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion;
@@ -33,7 +36,7 @@ public static class S3CmsTools
         if (string.IsNullOrEmpty(userBucketName))
             return (new IsValid(false, "Bucket Name is Empty"), []);
 
-        if (string.IsNullOrEmpty(userBucketRegion))
+        if (!isCloudflare && string.IsNullOrEmpty(userBucketRegion))
             return (new IsValid(false, "Bucket Region is Empty"), []);
 
         progress.Report("Setting Up Db");
@@ -132,5 +135,32 @@ public static class S3CmsTools
 
         public DateTime WrittenOn { get; set; }
         // ReSharper restore UnusedAutoPropertyAccessor.Local
+    }
+    
+    public static IS3AccountInformation AmazonInformationFromSettings()
+    {
+        var useCloudflare = UserSettingsSingleton.CurrentSettings().SiteS3CloudProvider ==
+                            S3Providers.Cloudflare.ToString();
+        
+        return new S3AccountInformation
+        {
+            CloudflareAccountId = () => useCloudflare ? CloudCredentials.GetCloudflareAccountId().secret : string.Empty,
+            AccessKey = () =>
+                useCloudflare
+                    ? CloudCredentials.GetCloudflareSiteCredentials().accessKey
+                    : CloudCredentials.GetAwsSiteCredentials().accessKey,
+            Secret = () =>
+                useCloudflare
+                    ? CloudCredentials.GetCloudflareSiteCredentials().secret
+                    : CloudCredentials.GetAwsSiteCredentials().secret,
+            BucketName = () => UserSettingsSingleton.CurrentSettings().SiteS3Bucket,
+            BucketRegion = () => UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion,
+            FullFileNameForJsonUploadInformation = () =>
+                Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
+                    $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"),
+            FullFileNameForToExcel = () => Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
+                $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid("S3UploadItems")}.xlsx"),
+            S3Provider = () => useCloudflare ? S3Providers.Cloudflare : S3Providers.Amazon
+        };
     }
 }
