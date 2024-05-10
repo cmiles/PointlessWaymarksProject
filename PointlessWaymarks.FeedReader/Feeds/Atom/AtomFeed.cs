@@ -16,7 +16,7 @@ public class AtomFeed : BaseFeed
     /// <summary>
     /// All "category" elements
     /// </summary>
-    public List<string> Categories { get; set; } = new();
+    public List<string> Categories { get; set; } = [];
 
     /// <summary>
     /// The "contributor" element
@@ -66,7 +66,7 @@ public class AtomFeed : BaseFeed
     /// <summary>
     /// All "link" elements
     /// </summary>
-    public List<AtomLink> Links { get; set; } = new();
+    public List<AtomLink> Links { get; set; } = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AtomFeed"/> class.
@@ -93,7 +93,7 @@ public class AtomFeed : BaseFeed
         var categories = feed.GetElements("category");
         Categories =
             categories?.Select(x => x.GetValue()).Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ??
-            new List<string>();
+            [];
 
         Contributor = new AtomPerson(feed.GetElement("contributor"));
         Generator = feed.GetValue("generator");
@@ -103,7 +103,7 @@ public class AtomFeed : BaseFeed
         Rights = feed.GetValue("rights");
         Subtitle = feed.GetValue("subtitle");
 
-        Links = feed.GetElements("link")?.Where(x => x != null).Select(x => new AtomLink(x!)).ToList() ?? new List<AtomLink>();
+        Links = feed.GetElements("link")?.Where(x => x != null).Select(x => new AtomLink(x!)).ToList() ?? [];
 
         UpdatedDateString = feed.GetValue("updated");
         UpdatedDate = Helpers.TryParseDateTime(UpdatedDateString);

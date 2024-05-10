@@ -74,7 +74,7 @@ public class GarminConnectGpxService(string archiveDirectory, IRemoteGpxService 
         //Add the last/current range from the loop
         searchRangeList.Add((currentRangeStart, currentRangeEnd));
 
-        List<GarminActivity> activityList = new();
+        List<GarminActivity> activityList = [];
 
         foreach (var loopRanges in searchRangeList)
         {

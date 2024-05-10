@@ -51,7 +51,7 @@ public class Rss20FeedItem : BaseFeedItem
     /// <summary>
     /// All entries "category" entries
     /// </summary>
-    public List<string> Categories { get; set; } = new();
+    public List<string> Categories { get; set; } = [];
 
     /// <summary>
     /// The "content:encoded" field
@@ -91,7 +91,7 @@ public class Rss20FeedItem : BaseFeedItem
         var categories = item.GetElements("category");
         Categories =
             categories?.Select(x => x.GetValue()).Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ??
-            new List<string>();
+            [];
 
         Guid = item.GetValue("guid");
         Description = item.GetValue("description");

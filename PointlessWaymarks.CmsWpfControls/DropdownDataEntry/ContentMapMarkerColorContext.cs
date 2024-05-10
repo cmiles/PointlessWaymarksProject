@@ -27,7 +27,7 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
         ReferenceValue = dbEntry.MapMarkerColor ?? string.Empty;
         UserValue = dbEntry.MapMarkerColor ?? string.Empty;
 
-        ValidationFunctions = new List<Func<string?, IsValid>>();
+        ValidationFunctions = [];
 
         PropertyChanged += OnPropertyChanged;
     }

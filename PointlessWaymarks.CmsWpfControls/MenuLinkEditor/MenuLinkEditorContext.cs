@@ -144,7 +144,7 @@ public partial class MenuLinkEditorContext
 
         var context = await Db.Context();
         var existingEntries = await context.MenuLinks.ToListAsync();
-        List<MenuLinkListItem> listItems = new();
+        List<MenuLinkListItem> listItems = [];
 
         foreach (var loopExisting in existingEntries)
         {
@@ -275,6 +275,6 @@ public partial class MenuLinkEditorContext
 
     public List<MenuLinkListItem> SelectedListItems()
     {
-        return SelectedItems ?? new List<MenuLinkListItem>();
+        return SelectedItems ?? [];
     }
 }

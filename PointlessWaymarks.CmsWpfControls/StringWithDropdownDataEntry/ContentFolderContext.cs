@@ -29,11 +29,11 @@ public partial class ContentFolderContext : IStringWithDropdownDataEntryContext
         GetCurrentFolderNames = loader;
 
         ExistingChoices = new ObservableCollection<string>(initialFolderList);
-        OnlyIncludeDataNotificationsForTypes = new List<DataNotificationContentType>();
+        OnlyIncludeDataNotificationsForTypes = [];
         ReferenceValue = dbEntry?.Folder ?? string.Empty;
         UserValue = dbEntry?.Folder ?? string.Empty;
 
-        ValidationFunctions = new List<Func<string?, IsValid>> { CommonContentValidation.ValidateFolder };
+        ValidationFunctions = [CommonContentValidation.ValidateFolder];
 
         PropertyChanged += OnPropertyChanged;
 

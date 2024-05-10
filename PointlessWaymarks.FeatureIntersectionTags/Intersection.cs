@@ -186,7 +186,7 @@ public static class Intersection
         {
             progress?.Report("No Settings File Submitted - returning nothing...");
 
-            return new List<string>();
+            return [];
         }
 
         var intersectionResult = new IntersectResult(toCheck);
@@ -198,7 +198,7 @@ public static class Intersection
         {
             progress?.Report($"The settings file {intersectSettingsFile} did not deserialized to valid settings...");
 
-            return new List<string>();
+            return [];
         }
 
         return intersectionResult.AsList().IntersectionTags(settings, cancellationToken, progress)

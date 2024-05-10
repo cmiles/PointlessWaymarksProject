@@ -62,7 +62,7 @@ public class Feed
     /// <summary>
     /// List of items
     /// </summary>
-    public List<FeedItem> Items { get; set; } = new();
+    public List<FeedItem> Items { get; set; } = [];
 
     /// <summary>
     /// Gets the whole, original feed as string

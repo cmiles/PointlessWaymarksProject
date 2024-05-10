@@ -33,7 +33,7 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
         ReferenceValue = dbEntry.MapIconName ?? string.Empty;
         UserValue = dbEntry.MapIconName ?? string.Empty;
 
-        ValidationFunctions = new List<Func<string?, IsValid>>();
+        ValidationFunctions = [];
 
         PropertyChanged += OnPropertyChanged;
 

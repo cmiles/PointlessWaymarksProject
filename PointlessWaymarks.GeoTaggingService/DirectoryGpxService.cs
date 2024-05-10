@@ -10,7 +10,7 @@ namespace PointlessWaymarks.GeoTaggingService;
 /// </summary>
 public class DirectoryGpxService(string directoryWithGpxFiles, bool includeSubdirectories) : IGpxService
 {
-    private List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> _gpxFiles = new();
+    private List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> _gpxFiles = [];
 
     public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
         IProgress<string>? progress)
@@ -18,7 +18,7 @@ public class DirectoryGpxService(string directoryWithGpxFiles, bool includeSubdi
         await VerifyFilesAndRescanIfNeeded(progress);
 
         //This is a brute force approach since the expectation is local files.
-        List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> possibleFiles = new();
+        List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> possibleFiles = [];
 
         foreach (var loopPhotoDateTime in photoDateTimeUtcList)
             possibleFiles.AddRange(_gpxFiles.Where(x =>
@@ -58,7 +58,7 @@ public class DirectoryGpxService(string directoryWithGpxFiles, bool includeSubdi
         if (!gpxDirectory.Exists)
         {
             progress?.Report($"Directory Gpx Service - {directoryWithGpxFiles} not found - nothing returned...");
-            _gpxFiles = new List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)>();
+            _gpxFiles = [];
             return;
         }
 

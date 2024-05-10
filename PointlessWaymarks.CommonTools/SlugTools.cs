@@ -36,7 +36,7 @@ public static class SlugTools
         if (value == null)
             return "";
 
-        allowedBeyondAtoZ1To9 ??= new List<char>();
+        allowedBeyondAtoZ1To9 ??= [];
 
         var normalized = value.Normalize(NormalizationForm.FormKD);
 

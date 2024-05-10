@@ -12,7 +12,7 @@ public class FileListGpxService(List<FileInfo> listOfGpxFiles) : IGpxService
         if (_gpxFiles == null) await ScanFiles(progress);
 
         //This is a brute force approach since the expectation is local files.
-        List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> possibleFiles = new();
+        List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> possibleFiles = [];
 
         foreach (var loopPhotoDateTime in photoDateTimeUtcList)
             possibleFiles.AddRange(_gpxFiles!.Where(x =>
@@ -24,7 +24,7 @@ public class FileListGpxService(List<FileInfo> listOfGpxFiles) : IGpxService
         if (!possibleFiles.Any())
         {
             progress?.Report("No Gpx Files Found");
-            return new List<WaypointAndSource>();
+            return [];
         }
 
         var allPointsList = new List<WaypointAndSource>();
@@ -58,7 +58,7 @@ public class FileListGpxService(List<FileInfo> listOfGpxFiles) : IGpxService
         if (!listOfGpxFiles.Any())
         {
             progress?.Report("No GPX files?");
-            _gpxFiles = new List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)>();
+            _gpxFiles = [];
         }
 
         var filesNotPresent = listOfGpxFiles.Where(x =>

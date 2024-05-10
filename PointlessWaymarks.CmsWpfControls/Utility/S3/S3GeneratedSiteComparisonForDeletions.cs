@@ -8,8 +8,8 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.S3;
 
 public class S3GeneratedSiteComparisonForDeletions
 {
-    public List<string> ErrorMessages { get; } = new();
-    public List<string> S3KeysToDelete { get; } = new();
+    public List<string> ErrorMessages { get; } = [];
+    public List<string> S3KeysToDelete { get; } = [];
 
     public static string DirectoryInfoInGeneratedSiteToS3Key(DirectoryInfo directory)
     {

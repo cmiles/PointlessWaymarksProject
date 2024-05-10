@@ -32,7 +32,7 @@ public partial class ActivityLogMonthlySummaryWindow
 
     public ObservableCollection<ActivityLogMonthlyStatRow> Items { get; set; }
     public ActivityLogMonthlyStatRow? SelectedItem { get; set; }
-    public List<ActivityLogMonthlyStatRow> SelectedItems { get; set; } = new();
+    public List<ActivityLogMonthlyStatRow> SelectedItems { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
 
     [BlockingCommand]
@@ -122,6 +122,6 @@ public partial class ActivityLogMonthlySummaryWindow
         var viewmodel = (ActivityLogMonthlySummaryWindow)DataContext;
         SelectedItems =
             LineStatsDataGrid?.SelectedItems.Cast<ActivityLogMonthlyStatRow>().ToList() ??
-            new List<ActivityLogMonthlyStatRow>();
+            [];
     }
 }

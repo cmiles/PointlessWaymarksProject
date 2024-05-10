@@ -56,7 +56,7 @@ public partial class TagExclusionEditorContext
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         return new TagExclusionEditorContext(statusContext ?? new StatusControlContext(),
-            new ObservableCollection<TagExclusionEditorListItem>(), loadInBackground);
+            [], loadInBackground);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)

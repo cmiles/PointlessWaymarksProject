@@ -9,9 +9,9 @@ namespace PointlessWaymarks.CmsWpfControls.Utility.S3;
 
 public class S3GeneratedSiteComparisonForAdditionsAndChanges
 {
-    public List<string> ErrorMessages { get; } = new();
-    public List<S3UploadRequest> FileSizeMismatches { get; } = new();
-    public List<S3UploadRequest> MissingFiles { get; } = new();
+    public List<string> ErrorMessages { get; } = [];
+    public List<S3UploadRequest> FileSizeMismatches { get; } = [];
+    public List<S3UploadRequest> MissingFiles { get; } = [];
     
     
     public static async Task<S3GeneratedSiteComparisonForAdditionsAndChanges> RunReport(

@@ -17,7 +17,7 @@ public partial class ProgressTrackerContext
     public string JobName { get; init; } = string.Empty;
     public required Guid JobPersistentId { get; set; }
     public ProgressTrackerListItem? SelectedProgress { get; set; }
-    public List<ProgressTrackerListItem> SelectedProgresses { get; set; } = new();
+    public List<ProgressTrackerListItem> SelectedProgresses { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<ProgressTrackerContext> CreateInstance(StatusControlContext statusContext,

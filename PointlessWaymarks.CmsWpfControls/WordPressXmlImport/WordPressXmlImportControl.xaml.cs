@@ -18,6 +18,6 @@ public partial class WordPressXmlImportControl
         if (DataContext == null) return;
         var viewmodel = (WordPressXmlImportContext) DataContext;
         viewmodel.SelectedItems = ItemsListBox?.SelectedItems.Cast<WordPressXmlImportListItem>().ToList() ??
-                                  new List<WordPressXmlImportListItem>();
+                                  [];
     }
 }

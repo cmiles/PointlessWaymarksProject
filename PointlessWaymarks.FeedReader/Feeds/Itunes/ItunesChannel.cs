@@ -105,7 +105,7 @@ public class ItunesChannel
     private List<ItunesCategory> GetItunesCategories(XElement? element)
     {
         var categoryElements = element.GetElements(NAMESPACEPREFIX, "category");
-        if (categoryElements == null) return new List<ItunesCategory>();
+        if (categoryElements == null) return [];
 
         var query = from categoryElement in categoryElements
             let children = GetItunesCategories(categoryElement)

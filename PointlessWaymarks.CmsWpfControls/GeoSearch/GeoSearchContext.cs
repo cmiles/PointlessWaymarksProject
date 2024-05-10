@@ -14,7 +14,7 @@ public partial class GeoSearchContext
 {
     public GeoSearchContext(StatusControlContext statusContext)
     {
-        SearchResults = new ObservableCollection<GeoNamesSimpleSearchResult>();
+        SearchResults = [];
         StatusContext = statusContext;
         GeoNamesUserName = GeoNamesApiCredentials.GetGeoNamesSiteCredentials();
 

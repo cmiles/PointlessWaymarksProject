@@ -21,7 +21,7 @@ public class MediaGroup
     {
         Element = element;
         var media = element.GetElements("media", "content");
-        Media = media?.Where(x => x != null).Select(x => new Media(x!)).ToList() ?? new List<Media>();
+        Media = media?.Where(x => x != null).Select(x => new Media(x!)).ToList() ?? [];
     }
 
     /// <summary>

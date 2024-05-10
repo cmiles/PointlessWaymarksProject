@@ -29,15 +29,12 @@ public partial class ActivityTypeContext : IStringWithDropdownDataEntryContext
         GetCurrentActivityTypes = loader;
 
         ExistingChoices = new ObservableCollection<string>(initialFolderList);
-        OnlyIncludeDataNotificationsForTypes = new List<DataNotificationContentType>
-        {
-            DataNotificationContentType.Line
-        };
+        OnlyIncludeDataNotificationsForTypes = [DataNotificationContentType.Line];
 
         ReferenceValue = dbEntry?.ActivityType ?? string.Empty;
         UserValue = dbEntry?.ActivityType ?? string.Empty;
 
-        ValidationFunctions = new List<Func<string?, IsValid>>();
+        ValidationFunctions = [];
 
         PropertyChanged += OnPropertyChanged;
 

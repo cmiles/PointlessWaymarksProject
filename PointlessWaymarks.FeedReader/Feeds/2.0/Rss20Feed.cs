@@ -67,7 +67,7 @@ public class Rss20Feed : BaseFeed
     /// <summary>
     /// All "category" elements
     /// </summary>
-    public List<string> Categories { get; set; } = new();
+    public List<string> Categories { get; set; } = [];
 
     /// <summary>
     /// The "generator" element
@@ -87,12 +87,12 @@ public class Rss20Feed : BaseFeed
     /// <summary>
     /// All "day" elements in "skipDays"
     /// </summary>
-    public List<string> SkipDays { get; set; } = new();
+    public List<string> SkipDays { get; set; } = [];
 
     /// <summary>
     /// All "hour" elements in "skipHours"
     /// </summary>
-    public List<string> SkipHours { get; set; } = new();
+    public List<string> SkipHours { get; set; } = [];
 
     /// <summary>
     /// The "textInput" element
@@ -135,7 +135,7 @@ public class Rss20Feed : BaseFeed
         var categories = channel.GetElements("category");
         Categories =
             categories?.Select(x => x.GetValue()).Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ??
-            new List<string>();
+            [];
 
         Sy = new Syndication(channel);
         Generator = channel.GetValue("generator");
@@ -147,12 +147,12 @@ public class Rss20Feed : BaseFeed
         var skipHours = channel.GetElement("skipHours");
         if (skipHours != null)
             SkipHours = skipHours.GetElements("hour")?.Select(x => x.GetValue())
-                .Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ?? new List<string>();
+                .Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ?? [];
 
         var skipDays = channel.GetElement("skipDays");
         if (skipDays != null)
             SkipDays = skipDays.GetElements("day")?.Select(x => x.GetValue()).Where(x => !string.IsNullOrWhiteSpace(x))
-                .Cast<string>().ToList() ?? new List<string>();
+                .Cast<string>().ToList() ?? [];
 
         var items = channel.GetElements("item");
 

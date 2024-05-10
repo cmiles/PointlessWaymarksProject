@@ -6,7 +6,7 @@ namespace PointlessWaymarks.CmsWpfControls.TagList;
 public partial class TagListListItem
 {
     public int ContentCount { get; set; }
-    public List<TagItemContentInformation> ContentInformation { get; set; } = new();
+    public List<TagItemContentInformation> ContentInformation { get; set; } = [];
     public bool IsExcludedTag { get; set; }
     public string TagName { get; set; } = string.Empty;
 }

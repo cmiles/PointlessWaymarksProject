@@ -10,7 +10,7 @@ public partial class ContentViewHistoryPage
 {
     public ContentViewHistoryPage(string? pageTitle, string? siteName, string? contentTitle, List<string>? items)
     {
-        items ??= new List<string>();
+        items ??= [];
 
         PageTitle = pageTitle ?? string.Empty;
         SiteName = siteName ?? string.Empty;

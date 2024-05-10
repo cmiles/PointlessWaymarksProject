@@ -24,11 +24,11 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
 
         BuildCommands();
 
-        DeletedPointDetails = new List<IPointDetailEditor>();
+        DeletedPointDetails = [];
 
-        DbEntries = new List<PointDetail>();
-        DeletedPointDetails = new List<IPointDetailEditor>();
-        PointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
+        DbEntries = [];
+        DeletedPointDetails = [];
+        PointDetailTypeList = [];
         AdditionalPointDetailTypes = additionalPointDetailTypes;
         Items = items;
 
@@ -70,7 +70,7 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newControl = new PointDetailListContext(statusContext ?? new StatusControlContext(),
-            new ObservableCollection<IPointDetailEditor>(), new ObservableCollectionListSource<string>());
+            [], new ObservableCollectionListSource<string>());
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -137,13 +137,13 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
 
         if (clearState)
         {
-            DeletedPointDetails = new List<IPointDetailEditor>();
+            DeletedPointDetails = [];
 
             var pointDetailTypes = from type in typeof(Db).Assembly.GetTypes()
                 where typeof(IPointDetailData).IsAssignableFrom(type) && !type.IsInterface
                 select type;
 
-            PointDetailTypeList = new List<(string typeIdentifierAttribute, Type reflectedType)>();
+            PointDetailTypeList = [];
 
             foreach (var loopTypes in pointDetailTypes)
             {
@@ -159,7 +159,7 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items = new ObservableCollection<IPointDetailEditor>();
+        Items = [];
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

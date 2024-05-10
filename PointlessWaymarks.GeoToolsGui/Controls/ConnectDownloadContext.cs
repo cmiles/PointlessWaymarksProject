@@ -44,8 +44,8 @@ public partial class ConnectDownloadContext
     public bool FilterNoMatchingArchiveFile { get; set; }
     public Guid SearchAndFilterLatestRequestId { get; set; }
     public DateTime SearchEndDate { get; set; }
-    public List<GarminActivityAndLocalFiles> SearchResults { get; set; } = new();
-    public List<GarminActivityAndLocalFiles> SearchResultsFiltered { get; set; } = new();
+    public List<GarminActivityAndLocalFiles> SearchResults { get; set; } = [];
+    public List<GarminActivityAndLocalFiles> SearchResultsFiltered { get; set; } = [];
     public DateTime SearchStartDate { get; set; }
     public ConnectDownloadSettings Settings { get; set; }
     public StatusControlContext StatusContext { get; set; }
@@ -187,7 +187,7 @@ public partial class ConnectDownloadContext
 
         if (!SearchResults.Any())
         {
-            returnResult = new List<GarminActivityAndLocalFiles>();
+            returnResult = [];
             if (requestId == SearchAndFilterLatestRequestId) SearchResultsFiltered = returnResult;
             return;
         }
@@ -221,7 +221,7 @@ public partial class ConnectDownloadContext
 
     private async Task Load()
     {
-        SearchResults = new List<GarminActivityAndLocalFiles>();
+        SearchResults = [];
         SearchResultsFiltered = SearchResults;
 
         Settings = await ConnectDownloadSettingTools.ReadSettings();
