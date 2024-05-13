@@ -12,7 +12,11 @@ public static class MapParts
             $"<div id=\"MapComponent-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"  data-contentid=\"<#= DbEntry.ContentId.ToString() #>\"></div>";
 
         var script =
-            $"<script>lazyInit(document.querySelector(\"#MapComponent-{divScriptGuidConnector}\"), () => mapComponentInit(document.querySelector(\"#MapComponent-{divScriptGuidConnector}\"), \"{map.ContentId}\"));</script>";
+            $"""
+             <script>
+                lazyInit(document.querySelector(\"#MapComponent-{divScriptGuidConnector}\"), () => mapComponentInit(document.querySelector(\"#MapComponent-{divScriptGuidConnector}\"), \"{map.ContentId}\"));
+             </script>
+             """;
 
         return tag + script;
     }
