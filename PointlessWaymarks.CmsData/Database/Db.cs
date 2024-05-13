@@ -2482,7 +2482,7 @@ public static class Db
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
             DataNotificationUpdateType.Delete, deletedElements);
         
-        return toSaveDto;
+        return await MapComponentDtoFromContentId(dbMap.ContentId);
     }
     
     public static async Task SaveMapIcon(MapIcon toSave)
