@@ -32,7 +32,7 @@ public class Media
         Language = element.GetAttributeValue("lang");
 
         var thumbnails = element.GetElements("media", "thumbnail");
-        Thumbnails = thumbnails?.Where(x => x != null).Select(x => new Thumbnail(x!)).ToList() ?? new List<Thumbnail>();
+        Thumbnails = thumbnails?.Where(x => x != null).Select(x => new Thumbnail(x!)).ToList() ?? [];
     }
 
     /// <summary>

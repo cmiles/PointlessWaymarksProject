@@ -1,5 +1,6 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows.Data;
+using Amazon.S3.Model.Internal.MarshallTransformations;
 
 namespace PointlessWaymarks.WpfCommon.ValueConverters;
 

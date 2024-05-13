@@ -9,7 +9,9 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CloudBackupData;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CloudBackupData.Reports;
+using PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
@@ -18,6 +20,7 @@ using PointlessWaymarks.WpfCommon.ExistingDirectoryDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
+using PointlessWaymarks.WpfCommon.StringDropdownDataEntry;
 
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
@@ -28,9 +31,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
 {
     public readonly string HelpText = """
                                       ## Cloud Backup Editor
-
+                                      
                                       The Cloud Backup Editor is used to create and update Backup Jobs.
-
+                                      
                                       Fields:
                                        - Name: The program displays, but does not 'use' this value and this is intended for you to have an easy way to identify a job.
                                        - Initial Local Directory: A Backup Job must start with a single local directory. Unless excluded (see Exclusions below) all subdirectories are included.
@@ -42,21 +45,17 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                                        - Excluded Directories: This is a list of full directory paths that are excluded. Once a directory is excluded all of its content and subdirectories are excluded also! This list lets you exclude specific directories but will almost certainly require you to reset/rework this list if you Initial Local Directory changes...
                                        - Excluded Directory Patterns: In directories matching any of the given patterns are excluded - once a directory is excluded all contents and subdirectories are also excluded. Matching by patterns like temp* or *data can sometimes make temporary directories easier to excluded. * and ? are the accepted wildcards.
                                        - Excluded File Patterns: Files that match any of these patterns will be excluded from your backup. * and ? are the accepted wildcards.
-
+                                      
                                       Hover over field names for some additional help and look for indicators in the UI that will show you changes and problems.
-
+                                      
                                       Jobs in the Backup Job List have a 'Included/Excluded Files Report' - this report can take a long time to run, but it is suggested that before you run a backup you let that report run and examine the results in order not to be surprised about what is included and what is excluded.
-
+                                      
                                       ### Progress
-
+                                      
                                       Jobs in the list will have the last progress message from any backups running on your local machine. This can make it easy to quickly see which jobs are running especially if a Task Runner like Windows Scheduler is set to hide the console window the backup is running in. To see more progress use the 'Progress to Window' button. This progress display only tracks progress for processes on the local machine.
                                       """;
-
-    public List<string> AwsRegionChoices { get; set; } = [];
-    public bool AwsRegionHasChanges { get; set; }
-    public bool AwsRegionHasValidationIssues { get; set; }
-    public string AwsRegionOriginal { get; set; } = string.Empty;
-    public string AwsRegionSelected { get; set; } = string.Empty;
+    
+    
     public bool CloudCredentialsHaveValidationIssues { get; set; }
     public required string DatabaseFile { get; set; }
     public required ObservableCollection<DirectoryInfo> ExcludedDirectories { get; set; }
@@ -71,8 +70,6 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public bool ExcludedFilePatternsHasChanges { get; set; }
     public string ExcludedFilePatternsHasChangesMessage { get; set; } = string.Empty;
     public required List<string> ExcludedFilePatternsOriginal { get; set; } = [];
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public required BackupJob LoadedJob { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }
@@ -80,107 +77,107 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     public string? SelectedExcludedDirectoryPattern { get; set; }
     public string? SelectedExcludedFilePattern { get; set; }
     public required StatusControlContext StatusContext { get; set; }
+    public required StringDropdownDataEntryContext UserAwsRegionEntry { get; set; }
     public required StringDataEntryContext UserCloudBucketEntry { get; set; }
     public required StringDataEntryContext UserCloudDirectoryEntry { get; set; }
+    public required StringDropdownDataEntryContext UserCloudProviderEntry { get; set; }
     public required StringDataEntryContext UserDirectoryPatternEntry { get; set; }
     public required StringDataEntryContext UserFilePatternEntry { get; set; }
     public required ExistingDirectoryDataEntryContext UserInitialDirectoryEntry { get; set; }
     public required ConversionDataEntryContext<int> UserMaximumRuntimeHoursEntry { get; set; }
     public required StringDataEntryContext UserNameEntry { get; set; }
-
+    
+    
     public void CheckForChangesAndValidationIssues()
     {
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this) || ExcludedDirectoriesHasChanges ||
-                     ExcludedDirectoryPatternsHasChanges || ExcludedFilePatternsHasChanges || AwsRegionHasChanges;
+                     ExcludedDirectoryPatternsHasChanges || ExcludedFilePatternsHasChanges;
         HasValidationIssues =
-            PropertyScanners.ChildPropertiesHaveValidationIssues(this) || AwsRegionHasValidationIssues;
+            PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
-
+    
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+    
     [BlockingCommand]
     public async Task AddExcludedDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var selectedDirectory = await ChooseDirectory();
-
+        
         if (selectedDirectory == null) return;
-
+        
         if (ExcludedDirectories.Any(x =>
                 x.FullName.Equals(selectedDirectory.FullName, StringComparison.InvariantCultureIgnoreCase)))
         {
             StatusContext.ToastError("Directory already exists in the list.");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         ExcludedDirectories.Add(selectedDirectory);
     }
-
+    
     [BlockingCommand]
     public async Task AddExcludedDirectoryPattern()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (string.IsNullOrWhiteSpace(UserDirectoryPatternEntry.UserValue))
         {
             StatusContext.ToastError("A blank pattern, or a pattern with only white space is not valid");
             return;
         }
-
+        
         if (ExcludedDirectoryPatterns.Contains(UserDirectoryPatternEntry.UserValue.Trim(),
                 StringComparer.InvariantCultureIgnoreCase))
         {
             StatusContext.ToastError("Pattern already exists - patterns are case insensitive.");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         ExcludedDirectoryPatterns.Add(UserDirectoryPatternEntry.UserValue);
         UserDirectoryPatternEntry.UserValue = string.Empty;
     }
-
+    
     [BlockingCommand]
     public async Task AddExcludedFilePattern()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (string.IsNullOrWhiteSpace(UserFilePatternEntry.UserValue))
         {
             StatusContext.ToastError("A blank pattern, or a pattern with only white space is not valid");
             return;
         }
-
+        
         if (ExcludedFilePatterns.Contains(UserFilePatternEntry.UserValue.Trim(),
                 StringComparer.InvariantCultureIgnoreCase))
         {
             StatusContext.ToastError("Pattern already exists - patterns are case insensitive.");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         ExcludedFilePatterns.Add(UserFilePatternEntry.UserValue);
         UserFilePatternEntry.UserValue = string.Empty;
     }
-
-    private void AwsRegionCheckForChangesAndValidationIssues()
-    {
-        AwsRegionHasChanges = !AwsRegionOriginal.Equals(AwsRegionSelected);
-        AwsRegionHasValidationIssues = string.IsNullOrWhiteSpace(AwsRegionSelected);
-        CheckForChangesAndValidationIssues();
-    }
-
+    
+    
     [BlockingCommand]
     public async Task<DirectoryInfo?> ChooseDirectory()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var initialDirectoryString = CloudBackupGuiSettingTools.ReadSettings().LastDirectory;
-
+        
         DirectoryInfo? initialDirectory = null;
-
+        
         try
         {
             if (!string.IsNullOrWhiteSpace(initialDirectoryString))
@@ -190,43 +187,52 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         {
             Console.WriteLine(e);
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var folderPicker = new VistaFolderBrowserDialog
             { Description = "Initial Directory", Multiselect = false };
-
+        
         if (initialDirectory != null) folderPicker.SelectedPath = $"{initialDirectory.FullName}\\";
-
+        
         if (folderPicker.ShowDialog() != true) return null;
-
+        
         var selectedDirectory = new DirectoryInfo(folderPicker.SelectedPath);
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (!selectedDirectory.Exists) return null;
-
+        
         var currentSettings = CloudBackupGuiSettingTools.ReadSettings();
         currentSettings.LastDirectory = selectedDirectory.Parent?.FullName ?? selectedDirectory.FullName;
         await CloudBackupGuiSettingTools.WriteSettings(currentSettings);
-
+        
         return selectedDirectory;
     }
-
+    
     private void CloudCredentialsCheckForValidationIssues()
     {
-        var currentCredentials = PasswordVaultTools.GetCredentials(LoadedJob.VaultIdentifier);
+        var currentCredentials = PasswordVaultTools.GetCredentials(LoadedJob.VaultS3CredentialsIdentifier);
         CloudCredentialsHaveValidationIssues = string.IsNullOrWhiteSpace(currentCredentials.username) ||
                                                string.IsNullOrWhiteSpace(currentCredentials.password);
+        
+        if (UserCloudProviderEntry.UserValue == S3Providers.Cloudflare.ToString())
+        {
+            var currentCloudflareAccount =
+                PasswordVaultTools.GetCredentials(LoadedJob.VaultCloudflareAccountIdentifier);
+            CloudCredentialsHaveValidationIssues = CloudCredentialsHaveValidationIssues ||
+                                                   string.IsNullOrWhiteSpace(currentCloudflareAccount.username) ||
+                                                   string.IsNullOrWhiteSpace(currentCloudflareAccount.password);
+        }
     }
-
+    
     public static async Task<JobEditorContext> CreateInstance(StatusControlContext? context, BackupJob initialJob,
         string databaseFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var statusContext = context ?? new StatusControlContext();
-
+        
         var nameEntry = StringDataEntryContext.CreateInstance();
         nameEntry.Title = "Job Name";
         nameEntry.HelpText =
@@ -242,7 +248,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         ];
-
+        
         var cloudBucketEntry = StringDataEntryContext.CreateInstance();
         cloudBucketEntry.Title = "Cloud Bucket";
         cloudBucketEntry.HelpText =
@@ -260,7 +266,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         ];
-
+        
         var cloudDirectoryEntry = StringDataEntryContext.CreateInstance();
         cloudDirectoryEntry.Title = "Cloud Directory";
         cloudDirectoryEntry.HelpText =
@@ -285,7 +291,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         ];
-
+        
         var initialDirectoryEntry = ExistingDirectoryDataEntryContext.CreateInstance(statusContext);
         initialDirectoryEntry.Title = "Initial Local Directory";
         initialDirectoryEntry.HelpText = "Pick a single starting directory for the backup";
@@ -304,7 +310,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         ];
-
+        
         initialDirectoryEntry.GetInitialDirectory =
             () => Task.FromResult(CloudBackupGuiSettingTools.ReadSettings().LastDirectory ?? string.Empty);
         initialDirectoryEntry.AfterDirectoryChoice = async x =>
@@ -312,11 +318,11 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             var currentSettings = CloudBackupGuiSettingTools.ReadSettings();
             var newDirectory = new DirectoryInfo(x);
             if (!newDirectory.Exists) return;
-
+            
             currentSettings.LastDirectory = newDirectory.Parent?.FullName ?? newDirectory.FullName;
             await CloudBackupGuiSettingTools.WriteSettings(currentSettings);
         };
-
+        
         var filePatternEntry = StringDataEntryContext.CreateInstance();
         filePatternEntry.Title = "New File Pattern Exclusion";
         filePatternEntry.HelpText =
@@ -324,7 +330,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         filePatternEntry.ReferenceValue = string.Empty;
         filePatternEntry.UserValue = string.Empty;
         filePatternEntry.ValidationFunctions = [_ => Task.FromResult(new IsValid(true, string.Empty))];
-
+        
         var directoryPatternEntry = StringDataEntryContext.CreateInstance();
         directoryPatternEntry.Title = "New File Pattern Exclusion";
         directoryPatternEntry.HelpText =
@@ -332,7 +338,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         directoryPatternEntry.ReferenceValue = string.Empty;
         directoryPatternEntry.UserValue = string.Empty;
         directoryPatternEntry.ValidationFunctions = [_ => Task.FromResult(new IsValid(true, string.Empty))];
-
+        
         var maximumRuntimeHoursEntry =
             await ConversionDataEntryContext<int>.CreateInstance(ConversionDataEntryHelpers.IntConversion);
         maximumRuntimeHoursEntry.Title = "Maximum Runtime in Hours";
@@ -351,19 +357,45 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         ];
-
+        
+        var regionsDataEntry = StringDropdownDataEntryContext.CreateInstance();
+        regionsDataEntry.Title = "Cloud Region";
+        regionsDataEntry.HelpText = "The region of the S3 Bucket.";
+        regionsDataEntry.ReferenceValue = initialJob.CloudRegion;
+        regionsDataEntry.Choices = RegionEndpoint.EnumerableAllRegions.Select(x => new DropDownDataChoice()
+            { DisplayString = x.SystemName, DataString = x.SystemName }).ToList();
+        regionsDataEntry.TrySetUserValue(initialJob.CloudRegion);
+        if (initialJob.CloudProvider != S3Providers.Cloudflare.ToString())
+            regionsDataEntry.ValidationFunctions =
+            [
+                x =>
+                {
+                    if (string.IsNullOrWhiteSpace(x))
+                        return new IsValid(false, "A Cloud Region is required for the job");
+                    return new IsValid(true, string.Empty);
+                }
+            ];
+        
+        var cloudProviderDataEntry = StringDropdownDataEntryContext.CreateInstance();
+        cloudProviderDataEntry.Title = "Cloud Provider";
+        cloudProviderDataEntry.HelpText = "The cloud provider for the job.";
+        cloudProviderDataEntry.ReferenceValue = initialJob.CloudProvider;
+        cloudProviderDataEntry.Choices = new List<string> { string.Empty }.Concat(Enum.GetNames(typeof(S3Providers)))
+            .Select(x => new DropDownDataChoice { DisplayString = x, DataString = x }).ToList();
+        cloudProviderDataEntry.TrySetUserValue(initialJob.CloudProvider);
+        
         var dbExcludedDirectory = initialJob.ExcludedDirectories
             .Select(x => new DirectoryInfo(x.Directory)).ToList();
         var excludedDirectory = new ObservableCollection<DirectoryInfo>(dbExcludedDirectory);
-
+        
         var dbExcludedDirectoryPatterns = initialJob.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList();
         var excludedDirectoryPatterns =
             new ObservableCollection<string>(dbExcludedDirectoryPatterns);
-
+        
         var dbExcludedFilePatterns = initialJob.ExcludedFileNamePatterns.Select(x => x.Pattern).ToList();
         var excludedFilePatterns =
             new ObservableCollection<string>(dbExcludedFilePatterns);
-
+        
         var toReturn = new JobEditorContext
         {
             LoadedJob = initialJob,
@@ -374,10 +406,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             ExcludedFilePatterns = excludedFilePatterns,
             ExcludedFilePatternsOriginal = dbExcludedFilePatterns,
             StatusContext = statusContext,
-            AwsRegionOriginal = initialJob.CloudRegion,
-            AwsRegionChoices = RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName).ToList(),
-            AwsRegionSelected = initialJob.CloudRegion,
             UserInitialDirectoryEntry = initialDirectoryEntry,
+            UserAwsRegionEntry = regionsDataEntry,
+            UserCloudProviderEntry = cloudProviderDataEntry,
             UserCloudBucketEntry = cloudBucketEntry,
             UserCloudDirectoryEntry = cloudDirectoryEntry,
             UserDirectoryPatternEntry = directoryPatternEntry,
@@ -386,216 +417,230 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             UserNameEntry = nameEntry,
             DatabaseFile = databaseFile
         };
-
+        
         await toReturn.Setup();
-
+        
         return toReturn;
     }
-
+    
     [BlockingCommand]
-    public async Task EnterAwsKeyAndSecretEntry()
+    public async Task EnterCloudCredentials()
     {
-        var newKeyEntry = await StatusContext.ShowStringEntry("AWS Access Key",
-            "Enter the AWS Access Key", string.Empty);
-
+        var newKeyEntry = await StatusContext.ShowStringEntry("Cloud Access Key",
+            "Enter the Cloud Access Key", string.Empty);
+        
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning("Amazon Credential Entry Cancelled");
+            StatusContext.ToastWarning("Cloud Credential Entry Cancelled");
             return;
         }
-
+        
         var cleanedKey = newKeyEntry.Item2.TrimNullToEmpty();
-
+        
         if (string.IsNullOrWhiteSpace(cleanedKey)) return;
-
-        var newSecretEntry = await StatusContext.ShowStringEntry("AWS Secret Access Key",
-            "Enter the AWS Secret Access Key", string.Empty);
-
+        
+        var newSecretEntry = await StatusContext.ShowStringEntry("Cloud Secret Key",
+            "Enter the Secret Key", string.Empty);
+        
         if (!newSecretEntry.Item1) return;
-
+        
         var cleanedSecret = newSecretEntry.Item2.TrimNullToEmpty();
-
+        
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {
-            StatusContext.ToastError("AWS Credential Entry Canceled - secret can not be blank");
+            StatusContext.ToastError("Cloud Credential Entry Canceled - secret can not be blank");
             return;
         }
-
-        PasswordVaultTools.SaveCredentials(LoadedJob.VaultIdentifier, cleanedKey, cleanedSecret);
-
+        
+        var cleanedCloudFlareAccount = string.Empty;
+        
+        if (UserCloudProviderEntry.UserValue == S3Providers.Cloudflare.ToString())
+        {
+            PasswordVaultTools.SaveCredentials(LoadedJob.VaultS3CredentialsIdentifier, cleanedKey, cleanedSecret);
+            
+            var newCloudFlareAccountEntry = await StatusContext.ShowStringEntry("Cloudflare Account Id",
+                "Enter the Cloudflare Account Id", string.Empty);
+            
+            if (!newCloudFlareAccountEntry.Item1) return;
+            
+            cleanedCloudFlareAccount = newCloudFlareAccountEntry.Item2.TrimNullToEmpty();
+            
+            if (string.IsNullOrWhiteSpace(cleanedCloudFlareAccount))
+            {
+                StatusContext.ToastError("Cloud Credential Entry Canceled - Cloudflare Account Id can not be blank");
+                return;
+            }
+        }
+        
+        PasswordVaultTools.SaveCredentials(LoadedJob.VaultS3CredentialsIdentifier, cleanedKey, cleanedSecret);
+        PasswordVaultTools.SaveCredentials(LoadedJob.VaultCloudflareAccountIdentifier, cleanedKey,
+            cleanedCloudFlareAccount);
+        
         CloudCredentialsCheckForValidationIssues();
     }
-
+    
     private void ExcludedDirectoriesChangeCheck()
     {
         var frozenList = ExcludedDirectories.Select(x => x.FullName).ToList();
         var originalList = ExcludedDirectoriesOriginal.Select(x => x.FullName).ToList();
         var added = frozenList.Except(originalList).ToList();
         var removed = originalList.Except(frozenList).ToList();
-
+        
         ExcludedDirectoriesHasChanges = added.Any() || removed.Any();
-
+        
         ExcludedDirectoriesHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedDirectoriesHasChangesMessage += $"Added: {string.Join(",", added)}";
-
+        
         if (added.Any() && removed.Any()) ExcludedDirectoriesHasChangesMessage += Environment.NewLine;
-
+        
         if (removed.Any()) ExcludedDirectoriesHasChangesMessage += $"Removed: {string.Join(",", removed)}";
     }
-
+    
     private void ExcludedDirectoriesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         ExcludedDirectoriesChangeCheck();
         CheckForChangesAndValidationIssues();
     }
-
+    
     private void ExcludedDirectoryPatternsChangeCheck()
     {
         var frozenList = ExcludedDirectoryPatterns.ToList();
-
+        
         var added = frozenList.Except(ExcludedDirectoryPatternsOriginal).ToList();
         var removed = ExcludedDirectoryPatternsOriginal.Except(frozenList).ToList();
-
+        
         ExcludedDirectoryPatternsHasChanges = added.Any() || removed.Any();
-
+        
         ExcludedDirectoryPatternsHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedDirectoryPatternsHasChangesMessage += $"Added: {string.Join(",", added)}";
-
+        
         if (added.Any() && removed.Any()) ExcludedDirectoryPatternsHasChangesMessage += Environment.NewLine;
-
+        
         if (removed.Any()) ExcludedDirectoryPatternsHasChangesMessage += $"Removed: {string.Join(",", removed)}";
     }
-
+    
     private void ExcludedDirectoryPatternsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         ExcludedDirectoryPatternsChangeCheck();
         CheckForChangesAndValidationIssues();
     }
-
+    
     private void ExcludedFilePatternChangeCheck()
     {
         var frozenList = ExcludedFilePatterns.ToList();
-
+        
         var added = frozenList.Except(ExcludedFilePatternsOriginal).ToList();
         var removed = ExcludedFilePatternsOriginal.Except(frozenList).ToList();
-
+        
         ExcludedFilePatternsHasChanges = added.Any() || removed.Any();
-
+        
         ExcludedFilePatternsHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedFilePatternsHasChangesMessage += $"Added: {string.Join(",", added)}";
-
+        
         if (added.Any() && removed.Any()) ExcludedFilePatternsHasChangesMessage += Environment.NewLine;
-
+        
         if (removed.Any()) ExcludedFilePatternsHasChangesMessage += $"Removed: {string.Join(",", removed)}";
     }
-
+    
     private void ExcludedFilePatternsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         ExcludedFilePatternChangeCheck();
         CheckForChangesAndValidationIssues();
     }
-
+    
     [BlockingCommand]
     public async Task IncludedAndExcludedFilesReport()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (UserInitialDirectoryEntry.HasValidationIssues)
         {
             StatusContext.ToastError("The initial directory has validation issues - please correct before continuing.");
             return;
         }
-
+        
         var frozenInitialLocalDirectory = new DirectoryInfo(UserInitialDirectoryEntry.UserValue);
-
+        
         if (!frozenInitialLocalDirectory.Exists)
         {
             StatusContext.ToastError("The initial directory does not exist - please correct before continuing.");
             return;
         }
-
+        
         var frozenName = string.IsNullOrWhiteSpace(UserNameEntry.UserValue) ? "No Name" : UserNameEntry.UserValue;
         var frozenExcludedDirectories = ExcludedDirectories.Select(x => x.FullName).OrderBy(x => x).ToList();
         var frozenExcludedDirectoryPatterns = ExcludedDirectoryPatterns.OrderBy(x => x).ToList();
         var frozenExcludedFilePatterns = ExcludedFilePatterns.OrderBy(x => x).ToList();
-
+        
         await IncludedAndExcludedFilesToExcel.Run(frozenName, frozenInitialLocalDirectory.FullName,
             frozenExcludedDirectories, frozenExcludedDirectoryPatterns,
             frozenExcludedFilePatterns, StatusContext.ProgressTracker());
     }
-
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-
-        if (e.PropertyName.Equals(nameof(AwsRegionOriginal)) || e.PropertyName.Equals(nameof(AwsRegionSelected)))
-            AwsRegionCheckForChangesAndValidationIssues();
-    }
-
+    
     [BlockingCommand]
     public async Task RemoveSelectedExcludedDirectory()
     {
         var frozenSelection = SelectedExcludedDirectory;
-
+        
         if (frozenSelection == null)
         {
             StatusContext.ToastError("Nothing selected to Remove?");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         ExcludedDirectories.Remove(frozenSelection);
     }
-
+    
     [BlockingCommand]
     public async Task RemoveSelectedExcludedDirectoryPattern()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var frozenSelection = SelectedExcludedDirectoryPattern;
-
+        
         if (string.IsNullOrWhiteSpace(frozenSelection))
         {
             StatusContext.ToastError("Nothing selected to Remove?");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         ExcludedDirectoryPatterns.Remove(frozenSelection);
     }
-
+    
     [BlockingCommand]
     public async Task RemoveSelectedExcludedFilePattern()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var frozenSelection = SelectedExcludedFilePattern;
-
+        
         if (string.IsNullOrWhiteSpace(frozenSelection))
         {
             StatusContext.ToastError("Nothing selected to Remove?");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         ExcludedFilePatterns.Remove(frozenSelection);
     }
-
+    
     [BlockingCommand]
     public async Task SaveAndClose()
     {
         await SaveChanges(true);
     }
-
+    
     [BlockingCommand]
     public async Task SaveAndStayOpen()
     {
         await SaveChanges(false);
     }
-
+    
     public async Task SaveChanges(bool closeAfterSave)
     {
         if (HasValidationIssues)
@@ -603,28 +648,31 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             StatusContext.ToastError("Please correct all issues before saving.");
             return;
         }
-
+        
         if (!HasChanges)
         {
             StatusContext.ToastWarning("No Changes to Save?");
             return;
         }
-
+        
         var toSave = new BackupJob();
-
+        
         var frozenNow = DateTime.Now;
-
+        
         var db = await CloudBackupContext.CreateInstance(DatabaseFile, false);
-
+        
         if (LoadedJob.Id > 0)
         {
             var item = await db.BackupJobs.SingleOrDefaultAsync(x => x.Id == LoadedJob.Id);
             if (item != null) toSave = item;
         }
-
+        
         toSave.Name = UserNameEntry.UserValue;
         toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
-        toSave.CloudRegion = AwsRegionSelected;
+        toSave.CloudRegion = UserCloudProviderEntry.UserValue == S3Providers.Amazon.ToString()
+            ? UserAwsRegionEntry.UserValue ?? string.Empty
+            : string.Empty;
+        toSave.CloudProvider = UserCloudProviderEntry.UserValue!;
         toSave.CloudBucket = UserCloudBucketEntry.UserValue;
         if (!UserCloudDirectoryEntry.UserValue.EndsWith("/"))
             UserCloudDirectoryEntry.UserValue = $"{UserCloudDirectoryEntry.UserValue}/";
@@ -632,57 +680,59 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         toSave.PersistentId = LoadedJob.PersistentId;
         toSave.CreatedOn = LoadedJob.CreatedOn;
         toSave.MaximumRunTimeInHours = UserMaximumRuntimeHoursEntry.UserValue;
-
+        
         var directoriesToRemove = new List<ExcludedDirectory>();
         var directoriesToAdd = new List<string>();
         foreach (var loopDbExcluded in toSave.ExcludedDirectories)
             if (ExcludedDirectories.All(x => x.FullName != loopDbExcluded.Directory))
                 directoriesToRemove.Add(loopDbExcluded);
-
+        
         foreach (var loopGuiExcluded in ExcludedDirectories)
             if (toSave.ExcludedDirectories.All(x => x.Directory != loopGuiExcluded.FullName))
                 directoriesToAdd.Add(loopGuiExcluded.FullName);
-
+        
         directoriesToRemove.ForEach(x => toSave.ExcludedDirectories.Remove(x));
-
+        
         directoriesToAdd.ForEach(x => toSave.ExcludedDirectories.Add(new ExcludedDirectory
             { CreatedOn = frozenNow, Job = toSave, Directory = x }));
-
+        
         var directoryPatternsToRemove = toSave.ExcludedDirectoryNamePatterns
             .Where(x => !ExcludedDirectoryPatterns.Contains(x.Pattern)).ToList();
         var directoryPatternsToAdd = new List<string>();
-
+        
         foreach (var loopGuiExcluded in ExcludedDirectoryPatterns)
             if (toSave.ExcludedDirectoryNamePatterns.All(x => x.Pattern != loopGuiExcluded))
                 directoryPatternsToAdd.Add(loopGuiExcluded);
-
+        
         directoryPatternsToRemove.ForEach(x => toSave.ExcludedDirectoryNamePatterns.Remove(x));
-
+        
         directoryPatternsToAdd.ForEach(x =>
             toSave.ExcludedDirectoryNamePatterns.Add(new ExcludedDirectoryNamePattern
                 { CreatedOn = frozenNow, Job = toSave, Pattern = x }));
-
+        
         var filePatternsToRemove = toSave.ExcludedFileNamePatterns
             .Where(x => !ExcludedFilePatterns.Contains(x.Pattern)).ToList();
         var filePatternsToAdd = new List<string>();
-
+        
         foreach (var loopGuiFilePattern in ExcludedFilePatterns)
             if (toSave.ExcludedFileNamePatterns.All(x => x.Pattern != loopGuiFilePattern))
                 filePatternsToAdd.Add(loopGuiFilePattern);
-
+        
         filePatternsToRemove.ForEach(x => toSave.ExcludedFileNamePatterns.Remove(x));
-
+        
         filePatternsToAdd.ForEach(x => toSave.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
             { CreatedOn = frozenNow, Job = toSave, Pattern = x }));
-
+        
         if (toSave.Id < 1) db.BackupJobs.Add(toSave);
-
+        
         await db.SaveChangesAsync();
-
+        
         DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
             DataNotificationContentType.BackupJob, DataNotificationUpdateType.Update, toSave.PersistentId, null);
-
+        
         UserNameEntry.ReferenceValue = toSave.Name;
+        UserAwsRegionEntry.ReferenceValue = toSave.CloudRegion;
+        UserCloudProviderEntry.ReferenceValue = toSave.CloudProvider;
         UserCloudBucketEntry.ReferenceValue = toSave.CloudBucket;
         UserCloudDirectoryEntry.ReferenceValue = toSave.CloudDirectory;
         UserMaximumRuntimeHoursEntry.ReferenceValue = toSave.MaximumRunTimeInHours;
@@ -690,40 +740,59 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         ExcludedDirectoriesOriginal = toSave.ExcludedDirectories.Select(x => new DirectoryInfo(x.Directory)).ToList();
         ExcludedDirectoryPatternsOriginal = toSave.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList();
         ExcludedFilePatternsOriginal = toSave.ExcludedFileNamePatterns.Select(x => x.Pattern).ToList();
-        AwsRegionOriginal = toSave.CloudRegion;
-
+        
         LoadedJob = toSave;
-
+        
         ExcludedDirectoriesChangeCheck();
         ExcludedDirectoryPatternsChangeCheck();
         ExcludedFilePatternChangeCheck();
-        AwsRegionCheckForChangesAndValidationIssues();
         CloudCredentialsCheckForValidationIssues();
-
+        
         CheckForChangesAndValidationIssues();
-
+        
         if (closeAfterSave) RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
     }
-
+    
     public Task Setup()
     {
         BuildCommands();
-
-        PropertyChanged += OnPropertyChanged;
+        
         ExcludedDirectories.CollectionChanged += ExcludedDirectoriesOnCollectionChanged;
         ExcludedDirectoryPatterns.CollectionChanged += ExcludedDirectoryPatternsOnCollectionChanged;
         ExcludedFilePatterns.CollectionChanged += ExcludedFilePatternsOnCollectionChanged;
-
+        
         HelpContext = new HelpDisplayContext([HelpText]);
-
-        AwsRegionCheckForChangesAndValidationIssues();
+        
         CloudCredentialsCheckForValidationIssues();
-
+        
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this,
             CheckForChangesAndValidationIssues);
-
+        
         CheckForChangesAndValidationIssues();
-
+        
+        UserCloudProviderEntry.PropertyChanged += UserCloudProviderEntry_PropertyChanged;
+        
         return Task.CompletedTask;
+    }
+    
+    private void UserCloudProviderEntry_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(UserCloudProviderEntry.SelectedItem))
+        {
+            CloudCredentialsCheckForValidationIssues();
+            
+            if (UserCloudProviderEntry.UserValue == S3Providers.Cloudflare.ToString())
+                UserAwsRegionEntry.ValidationFunctions = [];
+            else
+                UserAwsRegionEntry.ValidationFunctions =
+                [
+                    x =>
+                    {
+                        if (string.IsNullOrWhiteSpace(x))
+                            return new IsValid(false, "A Cloud Region is required for the job");
+                        return new IsValid(true, string.Empty);
+                    }
+                ];
+        }
     }
 }

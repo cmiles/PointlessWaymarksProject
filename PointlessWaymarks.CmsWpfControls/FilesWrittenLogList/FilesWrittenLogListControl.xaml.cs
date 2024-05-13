@@ -18,6 +18,6 @@ public partial class FilesWrittenLogListControl
         var viewmodel = (FilesWrittenLogListContext) DataContext;
         viewmodel.SelectedItems =
             WrittenFilesDataGrid?.SelectedItems.Cast<FilesWrittenLogListListItem>().ToList() ??
-            new List<FilesWrittenLogListListItem>();
+            [];
     }
 }

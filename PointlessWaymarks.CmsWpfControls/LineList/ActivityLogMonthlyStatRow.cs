@@ -11,7 +11,7 @@ public partial class ActivityLogMonthlyStatRow
     public int Climb { get; set; }
     public int Descent { get; set; }
     public int Hours { get; set; }
-    public List<Guid> LineContentIds { get; set; } = new();
+    public List<Guid> LineContentIds { get; set; } = [];
     public int MaxElevation { get; set; }
     public int Miles { get; set; }
     public int MinElevation { get; set; }

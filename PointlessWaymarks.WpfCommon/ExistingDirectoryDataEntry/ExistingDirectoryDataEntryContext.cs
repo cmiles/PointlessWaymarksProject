@@ -28,7 +28,7 @@ public partial class ExistingDirectoryDataEntryContext : IHasChanges, IHasValida
     public StatusControlContext StatusContext { get; set; }
     public string Title { get; set; } = string.Empty;
     public string UserValue { get; set; } = string.Empty;
-    public List<Func<string?, Task<IsValid>>> ValidationFunctions { get; set; } = new();
+    public List<Func<string?, Task<IsValid>>> ValidationFunctions { get; set; } = [];
     public string ValidationMessage { get; set; } = string.Empty;
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }

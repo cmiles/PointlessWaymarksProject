@@ -11,6 +11,9 @@
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
              xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
+             xmlns:stringDropdownDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDropdownDataEntry;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="600" d:DataContext="{d:DesignInstance controls:JobEditorContext}">
     <UserControl.Resources>
@@ -18,6 +21,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+            <valueConverters:S3ProviderIsAmazonCollapsedConverter x:Key="S3ProviderIsAmazonCollapsed" />
         </ResourceDictionary>
     </UserControl.Resources>
     <TabControl>
@@ -57,12 +62,15 @@
                             DataContext="{Binding UserMaximumRuntimeHoursEntry}"
                             Style="{StaticResource EntryStyle}" Width="240"
                             HorizontalAlignment="Left" />
+                        <stringDropdownDataEntry:StringDropdownDataEntryControl
+                            DataContext="{Binding UserCloudProviderEntry}" Width="240" HorizontalAlignment="Left"
+                            Style="{StaticResource EntryStyle}">
+                        </stringDropdownDataEntry:StringDropdownDataEntryControl>
                         <StackPanel Orientation="Vertical" Margin="0,8,8,0">
                             <StackPanel Orientation="Horizontal">
                                 <Label
                                     Content="Cloud Credentials"
                                     Style="{StaticResource DataEntryLabelStyle}"
-                                    Target="{Binding ElementName=ValueTextBox}"
                                     ToolTip="Enter the credentials to use to access S3" />
                                 <Image ToolTip="Please make sure all credentials are entered."
                                        Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
@@ -71,38 +79,15 @@
                                 </Image>
                             </StackPanel>
                             <Button Margin="8,0,4,0" HorizontalAlignment="Left" Width="240" Padding="2"
-                                    Command="{Binding EnterAwsKeyAndSecretEntryCommand}">
+                                    Command="{Binding EnterCloudCredentialsCommand}">
                                 Enter Cloud Credentials for Job
                             </Button>
                         </StackPanel>
-                        <StackPanel Orientation="Vertical" Margin="0,8,8,0">
-                            <StackPanel Orientation="Horizontal">
-                                <Label
-                                    Content="Cloud Region"
-                                    Style="{StaticResource DataEntryLabelStyle}"
-                                    Target="{Binding ElementName=ValueTextBox}"
-                                    ToolTip="The Region of the Cloud Account" />
-                                <Image
-                                    Margin="0,0,4,0"
-                                    Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                    Visibility="{Binding AwsRegionHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                    <Image.ToolTip>
-                                        <ToolTip
-                                            Content="{Binding AwsRegionOriginal, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                                            ContentStringFormat="Original Value: {0}" />
-                                    </Image.ToolTip>
-                                </Image>
-                                <Image ToolTip="A Cloud Region must be Selected"
-                                       Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                       Visibility="{Binding AwsRegionHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                                       Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                                </Image>
-                            </StackPanel>
-                            <ComboBox ItemsSource="{Binding AwsRegionChoices}"
-                                      SelectedItem="{Binding AwsRegionSelected}"
-                                      Margin="8,0,0,0" Width="240" HorizontalAlignment="Left" />
-                        </StackPanel>
+                        <stringDropdownDataEntry:StringDropdownDataEntryControl
+                            DataContext="{Binding UserAwsRegionEntry}"
+                            Visibility="{Binding Data.UserCloudProviderEntry.SelectedItem.DataString, Converter={StaticResource S3ProviderIsAmazonCollapsed}, Source={StaticResource Proxy}}"
+                            Width="240" HorizontalAlignment="Left" Style="{StaticResource EntryStyle}">
+                        </stringDropdownDataEntry:StringDropdownDataEntryControl>
                         <GroupBox Style="{StaticResource EntryListStyle}">
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">

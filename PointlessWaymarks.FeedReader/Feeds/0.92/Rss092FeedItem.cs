@@ -12,7 +12,7 @@ public class Rss092FeedItem : Rss091FeedItem
     /// <summary>
     /// All entries "category" entries
     /// </summary>
-    public List<string> Categories { get; set; } = new();
+    public List<string> Categories { get; set; } = [];
 
     /// <summary>
     /// The "enclosure" field
@@ -47,6 +47,6 @@ public class Rss092FeedItem : Rss091FeedItem
         var categories = item.GetElements("category");
         Categories =
             categories?.Select(x => x.GetValue()).Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ??
-            new List<string>();
+            [];
     }
 }

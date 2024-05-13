@@ -83,7 +83,7 @@ public class FeedItem
     {
         Title = feedItem.Title;
         Link = feedItem.Link;
-        Categories = new List<string>();
+        Categories = [];
         SpecificItem = feedItem;
     }
 }

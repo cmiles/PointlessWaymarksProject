@@ -51,17 +51,17 @@ public class MediaRssFeedItem : BaseFeedItem
     /// <summary>
     /// All entries "category" entries
     /// </summary>
-    public List<string> Categories { get; set; } = new();
+    public List<string> Categories { get; set; } = [];
 
     /// <summary>
     /// All entries from the "media:content" elements.
     /// </summary>
-    public List<Media> Media { get; set; } = new();
+    public List<Media> Media { get; set; } = [];
 
     /// <summary>
     /// All entries from the "media:group" elements. 
     /// </summary>
-    public List<MediaGroup> MediaGroups { get; set; } = new();
+    public List<MediaGroup> MediaGroups { get; set; } = [];
 
     /// <summary>
     /// The "content:encoded" field
@@ -99,15 +99,15 @@ public class MediaRssFeedItem : BaseFeedItem
         Source = new FeedItemSource(item.GetElement("source"));
 
         var media = item.GetElements("media", "content");
-        Media = media?.Where(x => x != null).Select(x => new Media(x!)).ToList() ?? new List<Media>();
+        Media = media?.Where(x => x != null).Select(x => new Media(x!)).ToList() ?? [];
 
         var mediaGroups = item.GetElements("media", "group");
-        MediaGroups = mediaGroups?.Where(x => x != null).Select(x => new MediaGroup(x!)).ToList() ?? new List<MediaGroup>();
+        MediaGroups = mediaGroups?.Where(x => x != null).Select(x => new MediaGroup(x!)).ToList() ?? [];
 
         var categories = item.GetElements("category");
         Categories =
             categories?.Select(x => x.GetValue()).Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ??
-            new List<string>();
+            [];
 
         Guid = item.GetValue("guid");
         Description = item.GetValue("description");

@@ -16,7 +16,7 @@ public class AtomFeedItem : BaseFeedItem
     /// <summary>
     /// All "category" elements
     /// </summary>
-    public List<string> Categories { get; set; } = new();
+    public List<string> Categories { get; set; } = [];
 
     /// <summary>
     /// The "content" element
@@ -71,7 +71,7 @@ public class AtomFeedItem : BaseFeedItem
     /// <summary>
     /// All "link" elements
     /// </summary>
-    public List<AtomLink> Links { get; set; } = new();
+    public List<AtomLink> Links { get; set; } = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AtomFeedItem"/> class.
@@ -97,7 +97,7 @@ public class AtomFeedItem : BaseFeedItem
         var categories = item.GetElements("category");
         Categories =
             categories?.Select(x => x?.Attribute("term")?.Value ?? string.Empty)
-                .Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ?? new List<string>();
+                .Where(x => !string.IsNullOrWhiteSpace(x)).Cast<string>().ToList() ?? [];
 
         Content = item.GetValue("content").HtmlDecode();
         Contributor = new AtomPerson(item.GetElement("contributor"));
@@ -105,7 +105,7 @@ public class AtomFeedItem : BaseFeedItem
 
         PublishedDateString = item.GetValue("published");
         PublishedDate = Helpers.TryParseDateTime(PublishedDateString);
-        Links = item.GetElements("link")?.Where(x => x != null).Select(x => new AtomLink(x!)).ToList() ?? new List<AtomLink>();
+        Links = item.GetElements("link")?.Where(x => x != null).Select(x => new AtomLink(x!)).ToList() ?? [];
 
         Rights = item.GetValue("rights");
         Source = item.GetValue("source");

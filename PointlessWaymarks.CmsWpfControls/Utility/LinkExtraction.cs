@@ -16,7 +16,7 @@ public static class LinkExtraction
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        excludedUrls ??= new List<string>();
+        excludedUrls ??= [];
         excludedUrls = excludedUrls.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim().ToLower())
             .ToList();
 

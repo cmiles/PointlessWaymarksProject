@@ -1,4 +1,4 @@
-﻿using System.Windows.Controls;
+using System.Windows.Controls;
 
 namespace PointlessWaymarks.WpfCommon.S3Deletions;
 
@@ -17,6 +17,6 @@ public partial class S3DeletionsControl
         if (DataContext == null) return;
         var viewmodel = (S3DeletionsContext)DataContext;
         viewmodel.SelectedItems = ItemsListBox?.SelectedItems.Cast<S3DeletionsItem>().ToList() ??
-                                  new List<S3DeletionsItem>();
+                                  [];
     }
 }

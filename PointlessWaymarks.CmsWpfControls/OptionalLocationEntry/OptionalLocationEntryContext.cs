@@ -113,14 +113,14 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
         if (featureToCheck == null)
         {
             StatusContext.ToastError("No valid Lat/Long to check?");
-            return new List<string>();
+            return [];
         }
         
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
             StatusContext.ToastError(
                 "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
-            return new List<string>();
+            return [];
         }
         
         var possibleTags = featureToCheck.IntersectionTags(
@@ -130,7 +130,7 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
         if (!possibleTags.Any())
         {
             StatusContext.ToastWarning("No tags found...");
-            return new List<string>();
+            return [];
         }
         
         return possibleTags;

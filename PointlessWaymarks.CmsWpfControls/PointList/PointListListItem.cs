@@ -76,7 +76,7 @@ public partial class PointListListItem : IContentListItem, IContentListImage
     public static Task<PointListListItem> CreateInstance(PointContentActions itemActions)
     {
         var newPoint = PointContent.CreateInstance();
-        var newPointDto = Db.PointContentDtoFromPointContentAndDetails(newPoint, new List<PointDetail>(), null);
+        var newPointDto = Db.PointContentDtoFromPointContentAndDetails(newPoint, [], null);
 
         return Task.FromResult(new PointListListItem(itemActions, newPointDto));
     }

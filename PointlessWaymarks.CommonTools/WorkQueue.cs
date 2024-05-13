@@ -9,7 +9,7 @@ public class WorkQueue<T>
     //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
     private readonly BlockingCollection<(DateTime created, T job)> _jobs = new();
 
-    private readonly List<(DateTime created, T job)> _pausedQueue = new();
+    private readonly List<(DateTime created, T job)> _pausedQueue = [];
 
     private bool _suspended;
 

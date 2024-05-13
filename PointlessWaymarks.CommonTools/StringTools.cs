@@ -320,7 +320,7 @@ public static class StringTools
     /// <returns></returns>
     public static List<string> UrlsFromText(string text)
     {
-        if (string.IsNullOrWhiteSpace(text)) return new List<string>();
+        if (string.IsNullOrWhiteSpace(text)) return [];
 
         var matchList = new List<string>();
 

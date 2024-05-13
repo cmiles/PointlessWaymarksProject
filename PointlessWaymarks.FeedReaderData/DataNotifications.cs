@@ -89,7 +89,7 @@ public static class DataNotifications
 
 public record InterProcessDataNotification
 {
-    public List<Guid> ContentIds { get; init; } = new();
+    public List<Guid> ContentIds { get; init; } = [];
     public DataNotificationContentType ContentType { get; init; }
     public string? Sender { get; init; }
     public DataNotificationUpdateType UpdateType { get; init; }

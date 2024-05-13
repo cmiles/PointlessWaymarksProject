@@ -39,7 +39,7 @@ public static class GpxTools
         var trackSegment = new GpxTrackSegment(new ImmutableGpxWaypointTable(pointList), new object());
 
         return new GpxTrack(name, "Test", description, "Pointless Waymarks CMS",
-            ImmutableArray<GpxWebLink>.Empty, null, "Test", null, ImmutableArray.Create(trackSegment));
+            ImmutableArray<GpxWebLink>.Empty, null, "Test", null, [trackSegment]);
     }
 
     public static Feature LineFeatureFromGpxRoute(GpxRouteInformation routeInformation)

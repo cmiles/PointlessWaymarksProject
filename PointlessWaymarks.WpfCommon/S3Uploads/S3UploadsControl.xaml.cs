@@ -1,4 +1,4 @@
-﻿using System.Windows.Controls;
+using System.Windows.Controls;
 
 namespace PointlessWaymarks.WpfCommon.S3Uploads;
 
@@ -17,6 +17,6 @@ public partial class S3UploadsControl
         var viewmodel = (S3UploadsContext)DataContext;
         if (viewmodel?.ListSelection == null) return;
         viewmodel.ListSelection.SelectedItems = ItemsListBox?.SelectedItems.Cast<S3UploadsItem>().ToList() ??
-                                                new List<S3UploadsItem>();
+                                                [];
     }
 }

@@ -26,7 +26,7 @@ public abstract class BaseFeed
     /// <summary>
     /// The items that are in the feed
     /// </summary>
-    public List<BaseFeedItem> Items { get; set; } = new ();
+    public List<BaseFeedItem> Items { get; set; } = [];
 
     /// <summary>
     /// Gets the whole, original feed as string

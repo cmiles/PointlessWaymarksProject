@@ -62,7 +62,7 @@ public partial class TagsEditorContext : IHasChanges, IHasValidationIssues,
 
     private List<string> DbTagList()
     {
-        return string.IsNullOrWhiteSpace(DbEntry?.Tags) ? new List<string>() : Db.TagListParseToSlugs(DbEntry, false);
+        return string.IsNullOrWhiteSpace(DbEntry?.Tags) ? [] : Db.TagListParseToSlugs(DbEntry, false);
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -75,7 +75,7 @@ public partial class TagsEditorContext : IHasChanges, IHasValidationIssues,
 
     public List<string> TagList()
     {
-        return string.IsNullOrWhiteSpace(Tags) ? new List<string>() : Db.TagListParse(Tags);
+        return string.IsNullOrWhiteSpace(Tags) ? [] : Db.TagListParse(Tags);
     }
 
     public string TagListString()
@@ -85,6 +85,6 @@ public partial class TagsEditorContext : IHasChanges, IHasValidationIssues,
 
     public List<string> TagSlugList()
     {
-        return string.IsNullOrWhiteSpace(Tags) ? new List<string>() : Db.TagListParseToSlugs(Tags, false);
+        return string.IsNullOrWhiteSpace(Tags) ? [] : Db.TagListParseToSlugs(Tags, false);
     }
 }

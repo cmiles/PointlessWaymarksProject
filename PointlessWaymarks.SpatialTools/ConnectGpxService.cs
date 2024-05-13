@@ -33,7 +33,7 @@ public class ConnectGpxService : IRemoteGpxService
             BasicAuthParameters(ConnectUsername, ConnectPassword)));
         var activities = await Policy.Handle<Exception>().WaitAndRetryAsync(3, i => TimeSpan.FromMinutes(1 * i))
             .ExecuteAsync(async () => await client.GetActivitiesByDate(startUtc, endUtc, string.Empty) ??
-                                      Array.Empty<GarminActivity>());
+                                      []);
         return activities.ToList();
     }
 }

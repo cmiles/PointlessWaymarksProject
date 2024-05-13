@@ -38,7 +38,7 @@ public partial class S3UploadsContext
 
     public List<S3UploadsItem> SelectedListItems()
     {
-        return ListSelection?.SelectedItems ?? new List<S3UploadsItem>();
+        return ListSelection?.SelectedItems ?? [];
     }
 
     [NonBlockingCommand]

@@ -189,7 +189,7 @@ public partial class JobListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        PasswordVaultTools.RemoveCredentials(toDelete.VaultIdentifier);
+        PasswordVaultTools.RemoveCredentials(toDelete.VaultS3CredentialsIdentifier);
 
         var db = await CloudBackupContext.CreateInstance();
         var currentItem = await db.BackupJobs.SingleAsync(x => x.Id == toDelete.Id);

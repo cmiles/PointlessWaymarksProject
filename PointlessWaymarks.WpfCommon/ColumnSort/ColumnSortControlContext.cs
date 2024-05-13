@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PointlessWaymarks.LlamaAspects;
 
@@ -26,7 +26,7 @@ public partial class ColumnSortControlContext
 
     public RelayCommand<ColumnSortControlSortItem> ColumnSortAddCommand { get; set; }
     public RelayCommand<ColumnSortControlSortItem> ColumnSortToggleCommand { get; set; }
-    public List<ColumnSortControlSortItem> Items { get; set; } = new();
+    public List<ColumnSortControlSortItem> Items { get; set; } = [];
 
     public EventHandler<List<SortDescription>>? SortUpdated { get; set; }
 

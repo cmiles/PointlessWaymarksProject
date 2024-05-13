@@ -95,7 +95,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     }
 
     public IContentListLoader ContentListLoader { get; set; }
-    public List<ContextMenuItemData> ContextMenuItems { get; set; } = new();
+    public List<ContextMenuItemData> ContextMenuItems { get; set; } = [];
     public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
     public FileContentActions FileItemActions { get; set; }
     public bool FilterOnUiShown { get; set; }
@@ -228,7 +228,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (createdOn == null) return new List<object>();
+        if (createdOn == null) return [];
 
         return (await Db.ContentCreatedOnDay(createdOn.Value)).ToList();
     }

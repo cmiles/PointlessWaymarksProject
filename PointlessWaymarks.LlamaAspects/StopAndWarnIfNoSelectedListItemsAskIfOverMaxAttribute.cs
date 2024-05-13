@@ -37,7 +37,7 @@ public class StopAndWarnIfNoSelectedListItemsAskIfOverMaxAttribute : OverrideMet
             meta.Return();
         }
 
-        List<string> titleList = new();
+        List<string> titleList = [];
 
         dynamic frozenSelected = meta.This.SelectedListItems();
 

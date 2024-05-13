@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
@@ -23,7 +23,7 @@ public partial class BoolNullableDataEntryContext : IHasChanges, IHasValidationI
     public bool UserValueIsNullable => true;
 
     public List<Func<bool?, IsValid>> ValidationFunctions { get; set; } =
-        new();
+        [];
 
     public string ValidationMessage { get; set; } = string.Empty;
     public bool HasChanges { get; set; }

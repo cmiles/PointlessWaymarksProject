@@ -317,7 +317,7 @@ public static class CreationTools
     {
         var subDirectories = searchLocalDirectory.Directory.GetDirectories().ToList();
         
-        if (!subDirectories.Any()) return new List<CloudBackupLocalDirectory>();
+        if (!subDirectories.Any()) return [];
         
         var returnList = new List<CloudBackupLocalDirectory>();
         

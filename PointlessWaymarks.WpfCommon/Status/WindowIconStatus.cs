@@ -1,4 +1,4 @@
-﻿using System.Windows.Shell;
+using System.Windows.Shell;
 using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.WpfCommon.Status;
@@ -10,7 +10,7 @@ namespace PointlessWaymarks.WpfCommon.Status;
 [NotifyPropertyChanged]
 public partial class WindowIconStatus
 {
-    private readonly List<WindowIconStatusRequest> _statusList = new();
+    private readonly List<WindowIconStatusRequest> _statusList = [];
     public decimal WindowProgress { get; set; }
     public TaskbarItemProgressState WindowState { get; set; }
 

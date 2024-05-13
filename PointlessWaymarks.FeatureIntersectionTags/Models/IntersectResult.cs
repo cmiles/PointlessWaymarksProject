@@ -17,7 +17,7 @@ public class IntersectResult
 
     public Guid ContentId { get; init; } = Guid.Empty;
     public List<IFeature> Features { get; }
-    public List<IFeature> IntersectsWith { get; } = new();
-    public List<string> Sources { get; } = new();
-    public List<string> Tags { get; } = new();
+    public List<IFeature> IntersectsWith { get; } = [];
+    public List<string> Sources { get; } = [];
+    public List<string> Tags { get; } = [];
 }

@@ -18,8 +18,8 @@ public class Blog
 
     public Blog(XDocument doc)
     {
-        Authors = Enumerable.Empty<Author>();
-        Attachments = Enumerable.Empty<Attachment>();
+        Authors = [];
+        Attachments = [];
 
         InitializeChannelElement(doc);
 

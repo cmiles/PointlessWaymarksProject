@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Amazon.S3;
+using System.IO;
 using Amazon.S3.Transfer;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
@@ -19,7 +18,7 @@ public partial class S3UploadsItem : ISelectedTextTracker
         AmazonObjectKey = amazonObjectKey;
         Note = note;
     }
-
+    
     public string AmazonObjectKey { get; set; }
     public string BucketName { get; }
     public bool Completed { get; set; }
@@ -33,53 +32,67 @@ public partial class S3UploadsItem : ISelectedTextTracker
     public string Status { get; set; } = string.Empty;
     public IS3AccountInformation UploadS3Information { get; set; }
     public CurrentSelectedTextTracker SelectedTextTracker { get; set; } = new();
-
+    
     public async Task StartUpload()
     {
         if (IsUploading) return;
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         HasError = false;
         ErrorMessage = string.Empty;
         Completed = false;
-
+        
+        var isCloudflare = UploadS3Information.S3Provider() == S3Providers.Cloudflare;
+        
         var accessKey = UploadS3Information.AccessKey();
         var secret = UploadS3Information.Secret();
-
+        var cloudflareAccountId = UploadS3Information.CloudflareAccountId();
+        
         if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secret))
         {
             HasError = true;
-            ErrorMessage = "Aws Credentials are not entered or valid?";
+            ErrorMessage = "S3 Credentials are not entered or valid?";
             return;
         }
-
+        
         if (string.IsNullOrWhiteSpace(UploadS3Information.BucketName()))
         {
             HasError = true;
             ErrorMessage = "Bucket Name is blank?";
             return;
         }
-
-
-        if (string.IsNullOrWhiteSpace(UploadS3Information.BucketRegion()))
+        
+        if (isCloudflare)
         {
-            HasError = true;
-            ErrorMessage = "Amazon Region is blank?";
-            return;
+            if (string.IsNullOrWhiteSpace(cloudflareAccountId))
+            {
+                HasError = true;
+                ErrorMessage = "Cloudflare Account Id is blank?";
+                return;
+            }
         }
-
-        var region = UploadS3Information.BucketRegionEndpoint();
-
-        if (region == null)
+        else
         {
-            HasError = true;
-            ErrorMessage = "Amazon Region is null?";
-            return;
+            if (string.IsNullOrWhiteSpace(UploadS3Information.BucketRegion()))
+            {
+                HasError = true;
+                ErrorMessage = "Amazon Region is blank?";
+                return;
+            }
+            
+            var region = UploadS3Information.BucketRegionEndpoint();
+            
+            if (region == null)
+            {
+                HasError = true;
+                ErrorMessage = "Amazon Region is null?";
+                return;
+            }
         }
-
+        
         FileToUpload.Refresh();
-
+        
         if (!FileToUpload.Exists)
         {
             HasError = true;
@@ -87,31 +100,33 @@ public partial class S3UploadsItem : ISelectedTextTracker
             FileNoLongerExistsOnDisk = true;
             return;
         }
-
+        
         if (string.IsNullOrWhiteSpace(AmazonObjectKey))
         {
             HasError = true;
             ErrorMessage = "Amazon Key is blank?";
             return;
         }
-
+        
         try
         {
-            var s3Client = new AmazonS3Client(accessKey, secret, region);
-
+            var s3Client = UploadS3Information.S3Client();
+            
             var uploadRequest = new TransferUtilityUploadRequest
             {
                 BucketName = UploadS3Information.BucketName(), FilePath = FileToUpload.FullName, Key = AmazonObjectKey
             };
-
+            
+            if (UploadS3Information.S3Provider() == S3Providers.Cloudflare) uploadRequest.DisablePayloadSigning = true;
+            
             uploadRequest.Metadata.Add("LastWriteTime", FileToUpload.LastWriteTimeUtc.ToString("O"));
             uploadRequest.Metadata.Add("FileSystemHash", FileToUpload.CalculateMD5());
-
+            
             uploadRequest.UploadProgressEvent += UploadRequestOnUploadProgressEvent;
-
+            
             var fileTransferUtility = new TransferUtility(s3Client);
             await fileTransferUtility.UploadAsync(uploadRequest);
-
+            
             Completed = true;
             IsUploading = false;
         }
@@ -122,7 +137,7 @@ public partial class S3UploadsItem : ISelectedTextTracker
             IsUploading = false;
         }
     }
-
+    
     private void UploadRequestOnUploadProgressEvent(object? sender, UploadProgressArgs e)
     {
         Status = $"{e.PercentDone}% Done, {e.TransferredBytes:N0} Transferred of {e.TotalBytes:N0}";

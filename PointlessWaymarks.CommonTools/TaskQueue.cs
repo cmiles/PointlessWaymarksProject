@@ -9,7 +9,7 @@ public class TaskQueue
     //This is basically the BlockingCollection version from https://michaelscodingspot.com/c-job-queues/
     private readonly BlockingCollection<Func<Task>> _jobs = new();
 
-    private readonly List<Func<Task>> _pausedQueue = new();
+    private readonly List<Func<Task>> _pausedQueue = [];
 
     private bool _suspended;
 

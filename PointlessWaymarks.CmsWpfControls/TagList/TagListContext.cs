@@ -52,7 +52,7 @@ public partial class TagListContext
 
     public CmsCommonCommands CommonCommands { get; set; }
     public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
-    public List<TagItemContentInformation> DetailsList { get; set; } = new();
+    public List<TagItemContentInformation> DetailsList { get; set; } = [];
     public List<TagItemContentInformation>? DetailsSelectedItems { get; set; }
     public ObservableCollection<TagListListItem> Items { get; set; }
     public List<TagListListItem>? SelectedItems { get; set; }
@@ -87,7 +87,7 @@ public partial class TagListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        return new TagListContext(factoryContext, new ObservableCollection<TagListListItem>(), loadInBackground);
+        return new TagListContext(factoryContext, [], loadInBackground);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
@@ -512,7 +512,7 @@ public partial class TagListContext
     {
         if (SelectedItems == null || !SelectedItems.Any())
         {
-            DetailsList = new List<TagItemContentInformation>();
+            DetailsList = [];
             return;
         }
 

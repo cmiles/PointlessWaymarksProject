@@ -55,7 +55,7 @@ public partial class SettingsFileChooserControlContext
         string recentSettingFiles)
     {
         var context = new SettingsFileChooserControlContext(statusContext ?? new StatusControlContext(),
-            recentSettingFiles?.Split("|").ToList() ?? new List<string>());
+            recentSettingFiles?.Split("|").ToList() ?? []);
 
         await context.LoadData();
 
@@ -83,7 +83,7 @@ public partial class SettingsFileChooserControlContext
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items ??= new ObservableCollection<SettingsFileListItem>();
+        Items ??= [];
 
         Items.Clear();
 
