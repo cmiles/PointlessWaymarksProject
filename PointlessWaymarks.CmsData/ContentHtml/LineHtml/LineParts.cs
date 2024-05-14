@@ -51,7 +51,7 @@ public static class LineParts
              """;
 
         return $"""
-                <figure class=\"map-figure\">
+                <figure class="map-figure">
                 {LineDivAndScript(content)}
                 {titleCaption}
                 </figure>

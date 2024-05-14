@@ -256,12 +256,14 @@ public static class PointParts
         var divScriptGuidConnector = Guid.NewGuid();
         
         var tag =
-            $"<div id=\"Point-{divScriptGuidConnector}\" class=\"leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map\"></div>";
+            $"""
+             <div id="Point-{divScriptGuidConnector}" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map"></div>
+             """;
         
         var script =
             $"""
              <script>
-                lazyInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), () => singlePointMapInit(document.querySelector(\"#Point-{divScriptGuidConnector}\"), \"{pointContentId}\"))
+                lazyInit(document.querySelector("#Point-{divScriptGuidConnector}"), () => singlePointMapInit(document.querySelector("#Point-{divScriptGuidConnector}"), "{pointContentId}"))
              </script>
              """;
         
