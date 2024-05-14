@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
@@ -17,11 +17,11 @@ public class HeaderContentForCodeHighlighting : IHeaderContentBasedAdditions
     public string HeaderAdditions()
     {
         return
-            """
-            <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/styles/default.min.css">
-            <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/highlight.min.js"></script>
-            <script>hljs.highlightAll();</script>
-            """;
+            $"""
+             <link rel="stylesheet" href="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}default.min.css">
+             <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}highlight.min.js"></script>
+             <script>hljs.highlightAll();</script>
+             """;
     }
 
     public bool IsNeeded(params string?[] stringContent)
