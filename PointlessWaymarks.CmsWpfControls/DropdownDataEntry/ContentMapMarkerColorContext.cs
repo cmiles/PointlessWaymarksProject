@@ -98,8 +98,10 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-
-        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
-            CheckForChangesAndValidate();
+        
+        if (e.PropertyName.Equals(nameof(HasChanges)) || e.PropertyName.Equals(nameof(HasValidationIssues)) ||
+            e.PropertyName.Equals(nameof(ValidationMessage))) return;
+        
+        CheckForChangesAndValidate();
     }
 }

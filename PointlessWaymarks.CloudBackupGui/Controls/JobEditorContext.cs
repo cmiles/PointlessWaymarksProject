@@ -358,24 +358,6 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             }
         ];
         
-        var regionsDataEntry = StringDropdownDataEntryContext.CreateInstance();
-        regionsDataEntry.Title = "Cloud Region";
-        regionsDataEntry.HelpText = "The region of the S3 Bucket.";
-        regionsDataEntry.ReferenceValue = initialJob.CloudRegion;
-        regionsDataEntry.Choices = RegionEndpoint.EnumerableAllRegions.Select(x => new DropDownDataChoice()
-            { DisplayString = x.SystemName, DataString = x.SystemName }).ToList();
-        regionsDataEntry.TrySetUserValue(initialJob.CloudRegion);
-        if (initialJob.CloudProvider != S3Providers.Cloudflare.ToString())
-            regionsDataEntry.ValidationFunctions =
-            [
-                x =>
-                {
-                    if (string.IsNullOrWhiteSpace(x))
-                        return new IsValid(false, "A Cloud Region is required for the job");
-                    return new IsValid(true, string.Empty);
-                }
-            ];
-        
         var cloudProviderDataEntry = StringDropdownDataEntryContext.CreateInstance();
         cloudProviderDataEntry.Title = "Cloud Provider";
         cloudProviderDataEntry.HelpText = "The cloud provider for the job.";
@@ -383,6 +365,30 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         cloudProviderDataEntry.Choices = new List<string> { string.Empty }.Concat(Enum.GetNames(typeof(S3Providers)))
             .Select(x => new DropDownDataChoice { DisplayString = x, DataString = x }).ToList();
         cloudProviderDataEntry.TrySetUserValue(initialJob.CloudProvider);
+        
+        
+        var regionsDataEntry = StringDropdownDataEntryContext.CreateInstance();
+        regionsDataEntry.Title = "Cloud Region";
+        regionsDataEntry.HelpText = "The region of the S3 Bucket.";
+        regionsDataEntry.ReferenceValue = initialJob.CloudRegion;
+        regionsDataEntry.Choices = new DropDownDataChoice { DataString = "", DisplayString = "" }.AsList().Concat(
+            RegionEndpoint.EnumerableAllRegions.Select(x => new DropDownDataChoice()
+                { DisplayString = x.SystemName, DataString = x.SystemName })).ToList();
+        regionsDataEntry.TrySetUserValue(initialJob.CloudRegion);
+        regionsDataEntry.ValidationFunctions =
+        [
+            x =>
+            {
+                if (cloudProviderDataEntry.UserValue != S3Providers.Cloudflare.ToString())
+                {
+                    if (string.IsNullOrWhiteSpace(x))
+                        return new IsValid(false, "A Cloud Region is required for the job");
+                }
+                
+                return new IsValid(true, string.Empty);
+            }
+        ];
+        
         
         var dbExcludedDirectory = initialJob.ExcludedDirectories
             .Select(x => new DirectoryInfo(x.Directory)).ToList();
@@ -667,11 +673,13 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             if (item != null) toSave = item;
         }
         
-        toSave.Name = UserNameEntry.UserValue;
-        toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
-        toSave.CloudRegion = UserCloudProviderEntry.UserValue == S3Providers.Amazon.ToString()
+        var translatedCloudRegion = UserCloudProviderEntry.UserValue == S3Providers.Amazon.ToString()
             ? UserAwsRegionEntry.UserValue ?? string.Empty
             : string.Empty;
+        
+        toSave.Name = UserNameEntry.UserValue;
+        toSave.LocalDirectory = UserInitialDirectoryEntry.UserValue.Trim();
+        toSave.CloudRegion = translatedCloudRegion;
         toSave.CloudProvider = UserCloudProviderEntry.UserValue!;
         toSave.CloudBucket = UserCloudBucketEntry.UserValue;
         if (!UserCloudDirectoryEntry.UserValue.EndsWith("/"))
@@ -732,6 +740,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         UserNameEntry.ReferenceValue = toSave.Name;
         UserAwsRegionEntry.ReferenceValue = toSave.CloudRegion;
+        UserAwsRegionEntry.TrySetUserValue(toSave.CloudRegion);
         UserCloudProviderEntry.ReferenceValue = toSave.CloudProvider;
         UserCloudBucketEntry.ReferenceValue = toSave.CloudBucket;
         UserCloudDirectoryEntry.ReferenceValue = toSave.CloudDirectory;

@@ -54,9 +54,11 @@ public partial class StringDropdownDataEntryContext : IHasChanges, IHasValidatio
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
         
-        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
-            CheckForChangesAndValidate();
+        if (e.PropertyName.Equals(nameof(HasChanges)) || e.PropertyName.Equals(nameof(HasValidationIssues)) ||
+            e.PropertyName.Equals(nameof(ValidationMessage))) return;
         
+        CheckForChangesAndValidate();
+
         if (e.PropertyName.Equals(nameof(Choices)))
         {
             if (!Choices.Any())

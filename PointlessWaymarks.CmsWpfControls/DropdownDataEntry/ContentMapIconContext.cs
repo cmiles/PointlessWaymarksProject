@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
@@ -20,26 +21,26 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
         PointContent dbEntry, List<DropDownDataChoice> initialIconNameList)
     {
         StatusContext = statusContext;
-
+        
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
-
+        
         Title = "Map Icon";
         HelpText =
             "A small Map Icon that will appear inside the map marker - no value is required. Map Icons can be added in the Map Icon Editor under the View menu.";
-
+        
         GetCurrentIconNames = loader;
-
+        
         ExistingChoices = new ObservableCollection<DropDownDataChoice>(initialIconNameList);
         ReferenceValue = dbEntry.MapIconName ?? string.Empty;
         UserValue = dbEntry.MapIconName ?? string.Empty;
-
+        
         ValidationFunctions = [];
-
+        
         PropertyChanged += OnPropertyChanged;
-
+        
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
-
+    
     public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
     public Func<Task<List<DropDownDataChoice>>> GetCurrentIconNames { get; set; }
     public List<Func<string?, IsValid>> ValidationFunctions { get; set; }
@@ -52,11 +53,11 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
     public string ValidationMessage { get; set; } = string.Empty;
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
-
+    
     private void CheckForChangesAndValidate()
     {
         HasChanges = UserValue.TrimNullToEmpty() != ReferenceValue.TrimNullToEmpty();
-
+        
         if (ValidationFunctions.Any())
             foreach (var loopValidations in ValidationFunctions)
             {
@@ -68,86 +69,88 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
                     return;
                 }
             }
-
+        
         HasValidationIssues = false;
         ValidationMessage = string.Empty;
     }
-
+    
     public static async Task<ContentMapIconContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var factoryContext = statusContext ?? new StatusControlContext();
         var loader = DbIconChoices;
         var initialMapIconList = await DbIconChoices();
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var newControl = new ContentMapIconContext(factoryContext, loader, dbEntry, initialMapIconList);
-
+        
         newControl.CheckForChangesAndValidate();
-
+        
         return newControl;
     }
-
+    
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
     {
         var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
-
+        
         if (translatedMessage.HasError)
         {
             Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
                 translatedMessage.ErrorNote, StatusContext.StatusControlContextId);
-
+            
             return;
         }
-
+        
         if (translatedMessage.ContentType != DataNotificationContentType.MapIcon) return;
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var currentDbIcons = await GetCurrentIconNames();
-
+        
         var tempUserValue = currentDbIcons.Any(x => x.DisplayString.Equals(UserValue)) ? UserValue : string.Empty;
-
+        
         var toAdd = currentDbIcons.Where(x => !ExistingChoices.Contains(x)).ToList();
         var toRemove = new List<DropDownDataChoice>();
-
+        
         foreach (var loopExisting in ExistingChoices)
             if (!currentDbIcons.Any(x => x.Equals(loopExisting)))
                 toRemove.Add(loopExisting);
-
+        
         toRemove.ForEach(x => ExistingChoices.Remove(x));
         toAdd.ForEach(x => ExistingChoices.Add(x));
         ExistingChoices.SortBy(x => x);
-
+        
         UserValue = tempUserValue;
-
+        
         CheckForChangesAndValidate();
     }
-
+    
     private static async Task<List<DropDownDataChoice>> DbIconChoices()
     {
         var db = await Db.Context();
-
+        
         var dbIcons = (await db.MapIcons.OrderBy(x => x).ToListAsync()).Select(x => new DropDownDataChoice
             { DataString = x.IconSvg ?? string.Empty, DisplayString = x.IconName ?? string.Empty });
-
+        
         return new List<DropDownDataChoice>
             { new() { DataString = string.Empty, DisplayString = "" } }.Concat(dbIcons).ToList();
     }
-
+    
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor.Enqueue(e);
     }
-
+    
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-
-        if (!e.PropertyName.Contains("HasChanges") && !e.PropertyName.Contains("Validation"))
-            CheckForChangesAndValidate();
+        
+        if (e.PropertyName.Equals(nameof(HasChanges)) || e.PropertyName.Equals(nameof(HasValidationIssues)) ||
+            e.PropertyName.Equals(nameof(ValidationMessage))) return;
+        
+        CheckForChangesAndValidate();
     }
 }
