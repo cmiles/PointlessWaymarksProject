@@ -9,6 +9,7 @@
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UserSettingsEditor"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance userSettingsEditor:UserSettingsEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -18,6 +19,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <valueConverters:S3ProviderIsAmazonCollapsedConverter x:Key="S3ProviderIsAmazonCollapsed" />
             <Style TargetType="StackPanel">
                 <Setter Property="Margin" Value="0,4,0,0" />
             </Style>
@@ -46,13 +48,14 @@
             <StaticResource ResourceKey="SiteMenu" />
         </Menu>
         <GroupBox Grid.Row="1"
-            Margin="4,0,4,0"
-            Header="Settings"
-            Style="{StaticResource UiComponentGroupBoxStyle}">
+                  Margin="4,0,4,0"
+                  Header="Settings"
+                  Style="{StaticResource UiComponentGroupBoxStyle}">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalSiteRootDirectoryTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=LocalSiteRootDirectoryTextBox}">
                             Local Site Root Directory
                         </Label>
                         <TextBox
@@ -66,7 +69,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LocalMediaArchiveTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=LocalMediaArchiveTextBox}">
                             Local Media Archive Directory
                         </Label>
                         <TextBox
@@ -80,7 +84,10 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteUrlTextBox}">Domain</Label>
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=SiteUrlTextBox}">
+                            Domain
+                        </Label>
                         <TextBox
                             Name="SiteUrlTextBox"
                             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
@@ -92,7 +99,10 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteNameTextBox}">Site Name</Label>
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=SiteNameTextBox}">
+                            Site Name
+                        </Label>
                         <TextBox
                             Name="SiteNameTextBox"
                             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
@@ -104,7 +114,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteAuthorsTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=SiteAuthorsTextBox}">
                             Site Authors
                         </Label>
                         <TextBox
@@ -118,7 +129,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteKeywordsTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=SiteKeywordsTextBox}">
                             Site Keywords
                         </Label>
                         <TextBox
@@ -132,7 +144,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=NumberOfItemsOnMainPageTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=NumberOfItemsOnMainPageTextBox}">
                             Maximum Number of Items To Show on Main Page
                         </Label>
                         <TextBox
@@ -146,7 +159,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteSummaryTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=SiteSummaryTextBox}">
                             Site Sub-title/Summary
                         </Label>
                         <TextBox
@@ -160,7 +174,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteEmailToTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=SiteEmailToTextBox}">
                             Site Email To
                         </Label>
                         <TextBox
@@ -174,7 +189,10 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteLangTextBox}">Site Lang Attribute</Label>
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=SiteLangTextBox}">
+                            Site Lang Attribute
+                        </Label>
                         <TextBox
                             Name="SiteLangTextBox"
                             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
@@ -186,7 +204,10 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteDirTextBox}">Site Dir Attribute</Label>
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=SiteDirTextBox}">
+                            Site Dir Attribute
+                        </Label>
                         <TextBox
                             Name="SiteDirTextBox"
                             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
@@ -198,7 +219,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultCreatedByTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=DefaultCreatedByTextBox}">
                             Default Created By Name
                         </Label>
                         <TextBox
@@ -212,7 +234,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultPhotoShowPositionCheckBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=DefaultPhotoShowPositionCheckBox}">
                             Photo 'Show Position' Default Value
                         </Label>
                         <CheckBox
@@ -228,7 +251,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultImageShowSizesCheckBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=DefaultImageShowSizesCheckBox}">
                             Images 'Show Sizes' Default Value
                         </Label>
                         <CheckBox
@@ -244,7 +268,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultFilePublicDownloadDefaultCheckBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=DefaultFilePublicDownloadDefaultCheckBox}">
                             Public Download Link Default - Files
                         </Label>
                         <CheckBox
@@ -260,7 +285,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultLinePublicDownloadDefaultCheckBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=DefaultLinePublicDownloadDefaultCheckBox}">
                             Public Download Link Default - Lines
                         </Label>
                         <CheckBox
@@ -276,7 +302,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultFilePublicDownloadDefaultCheckBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=DefaultFilePublicDownloadDefaultCheckBox}">
                             Public Download Link Default - GeoJson
                         </Label>
                         <CheckBox
@@ -292,7 +319,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=FeatureIntersectionTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=FeatureIntersectionTextBox}">
                             Feature Intersection Settings File
                         </Label>
                         <TextBox
@@ -306,7 +334,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=FeatureIntersectionTagOnImportCheckBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=FeatureIntersectionTagOnImportCheckBox}">
                             Feature Intersection - Tag on Import
                         </Label>
                         <CheckBox
@@ -322,7 +351,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LinesShowContentReferencesOnMapByDefaultCheckBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=LinesShowContentReferencesOnMapByDefaultCheckBox}">
                             Line Body Content References on Map
                         </Label>
                         <CheckBox
@@ -338,7 +368,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LatitudeTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=LatitudeTextBox}">
                             Default Latitude
                         </Label>
                         <TextBox
@@ -347,7 +378,8 @@
                             Text="{Binding EditorSettings.LatitudeDefault, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=LongitudeTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=LongitudeTextBox}">
                             Default Longitude
                         </Label>
                         <TextBox
@@ -361,7 +393,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=BingApiKeyTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=BingApiKeyTextBox}">
                             Bing Maps Api Key
                         </Label>
                         <TextBox
@@ -375,7 +408,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=CalTopoApiKeyTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=CalTopoApiKeyTextBox}">
                             CalTopo Maps Api Key
                         </Label>
                         <TextBox
@@ -389,7 +423,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=PinboardApiTokenTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=PinboardApiTokenTextBox}">
                             Pinboard Api Key
                         </Label>
                         <TextBox
@@ -403,7 +438,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=ProgramUpdateLocationTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=ProgramUpdateLocationTextBox}">
                             Program Update Location
                         </Label>
                         <TextBox
@@ -417,7 +453,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=S3BucketTextBox}">
                             Cloud S3 Storage
                         </Label>
                         <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownS3Information}">
@@ -427,7 +464,8 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3StorageProviderComboBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=S3StorageProviderComboBox}">
                             S3 Storage Provider
                         </Label>
                         <ComboBox
@@ -439,7 +477,8 @@
                             SelectedValue="{Binding EditorSettings.SiteS3CloudProvider, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketTextBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=S3BucketTextBox}">
                             S3 Bucket Name
                         </Label>
                         <TextBox
@@ -448,7 +487,9 @@
                             Text="{Binding EditorSettings.SiteS3Bucket, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=S3BucketRegionComboBox}">
+                        <Label Style="{StaticResource DataEntryLabelStyle}"
+                               Target="{Binding ElementName=S3BucketRegionComboBox}"
+                               Visibility="{Binding EditorSettings.SiteS3CloudProvider, Converter={StaticResource S3ProviderIsAmazonCollapsed}}">
                             S3 Bucket Region
                         </Label>
                         <ComboBox
@@ -456,6 +497,7 @@
                             Width="200"
                             Margin="6,0,0,0"
                             HorizontalAlignment="Left"
+                            Visibility="{Binding EditorSettings.SiteS3CloudProvider, Converter={StaticResource S3ProviderIsAmazonCollapsed}}"
                             ItemsSource="{Binding RegionChoices}"
                             SelectedValue="{Binding EditorSettings.SiteS3BucketRegion, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
@@ -495,7 +537,10 @@
             </ScrollViewer>
         </GroupBox>
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
-            <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource ActionPanelUnlimitedWidthButtonStyle}">Save</Button>
+            <Button Command="{Binding SaveSettingsCommand}"
+                    Style="{StaticResource ActionPanelUnlimitedWidthButtonStyle}">
+                Save
+            </Button>
         </Border>
         <status:StatusControl
             Grid.Row="0"

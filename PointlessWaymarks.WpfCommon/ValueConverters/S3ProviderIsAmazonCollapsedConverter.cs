@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
@@ -8,9 +8,9 @@ public sealed class S3ProviderIsAmazonCollapsedConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is null) return Visibility.Collapsed;
+        if (value is null) return Visibility.Visible;
         var stringValue = value.ToString();
-        if(string.IsNullOrWhiteSpace(stringValue)) return Visibility.Collapsed;
+        if(string.IsNullOrWhiteSpace(stringValue)) return Visibility.Visible;
         if(stringValue.Trim().Equals("amazon", StringComparison.OrdinalIgnoreCase)) return Visibility.Visible;
         return Visibility.Collapsed;
     }
