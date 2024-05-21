@@ -39,9 +39,9 @@ public static class PasswordVaultTools
         
         return (possibleCredentials[0].UserName, possibleCredentials[0].Password);
     }
-    
+
     /// <summary>
-    ///     Removes all AWS Credentials associated with this settings file
+    ///     Removes all Credentials associated with the resourceIdentifier
     /// </summary>
     public static void RemoveCredentials(string resourceIdentifier)
     {
@@ -72,9 +72,9 @@ public static class PasswordVaultTools
         
         possibleCredentials.ToList().ForEach(x => vault.Remove(x));
     }
-    
+
     /// <summary>
-    ///     Removes any existing AWS Credentials Associated with this settings file and Saves new Credentials
+    ///     Removes any existing Credentials Associated with the resourceIdentifier and then saves the new credentials
     /// </summary>
     /// <param name="resourceIdentifier"></param>
     /// <param name="userName"></param>

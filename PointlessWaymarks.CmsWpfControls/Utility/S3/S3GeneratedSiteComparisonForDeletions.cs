@@ -3,6 +3,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
+using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility.S3;
 
@@ -18,18 +19,15 @@ public class S3GeneratedSiteComparisonForDeletions
             .Replace("\\", "/") + "/";
     }
 
-    public static async Task<S3GeneratedSiteComparisonForDeletions> RunReport(IProgress<string> progress)
+    public static async Task<S3GeneratedSiteComparisonForDeletions> RunReport(IS3AccountInformation s3Account, IProgress<string> progress)
     {
         var returnReport = new S3GeneratedSiteComparisonForDeletions();
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().SiteS3Bucket))
         {
-            returnReport.ErrorMessages.Add("Amazon S3 Bucket Name not filled?");
+            returnReport.ErrorMessages.Add("S3 Bucket Name not filled?");
             return returnReport;
         }
-
-        var bucket = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
-        var region = UserSettingsSingleton.CurrentSettings().SiteS3BucketEndpoint();
 
         progress.Report("Getting list of all generated files");
 
@@ -53,19 +51,36 @@ public class S3GeneratedSiteComparisonForDeletions
 
         progress.Report($"Found {allGeneratedFiles.Count} Files in Generated Site");
 
-        progress.Report("Getting Aws S3 Credentials");
-
-        var (accessKey, secret) = CloudCredentials.GetAwsSiteCredentials();
-
-        if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secret))
+        progress.Report("Checking S3 Credentials");
+        
+        var bucket = s3Account.BucketName();
+        var region = s3Account.BucketRegion();
+        var accountId = s3Account.CloudflareAccountId();
+        
+        if (s3Account.S3Provider() == S3Providers.Cloudflare)
         {
-            returnReport.ErrorMessages.Add("Aws Credentials are not entered or valid?");
-            return returnReport;
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                returnReport.ErrorMessages.Add("Cloudflare Account Id is empty?");
+                return returnReport;
+            }
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(region))
+            {
+                returnReport.ErrorMessages.Add("S3 Bucket Endpoint (region) not filled?");
+                return returnReport;
+            }
+            
+            if (s3Account.BucketRegionEndpoint() == null)
+            {
+                returnReport.ErrorMessages.Add("S3 Bucket Endpoint (region) not valid?");
+                return returnReport;
+            }
         }
 
-        progress.Report("Setting up for Aws S3 Object Listings");
-
-        var s3Client = new AmazonS3Client(accessKey, secret, region);
+        var s3Client = s3Account.S3Client();
 
         var listRequest = new ListObjectsV2Request { BucketName = bucket };
 
@@ -75,7 +90,7 @@ public class S3GeneratedSiteComparisonForDeletions
 
         await foreach (var response in paginator.S3Objects)
         {
-            if (awsObjects.Count % 1000 == 0) progress.Report($"Aws Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+            if (awsObjects.Count % 1000 == 0) progress.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
 
             awsObjects.Add(response);
         }
@@ -89,7 +104,7 @@ public class S3GeneratedSiteComparisonForDeletions
         {
             if (++objectLoopCount % 100 == 0)
                 progress.Report(
-                    $"File Loop vs Aws S3 Objects Comparison - {objectLoopCount} or {totalGeneratedObjects} - {loopObject.Key}");
+                    $"File Loop vs S3 Objects Comparison - {objectLoopCount} or {totalGeneratedObjects} - {loopObject.Key}");
 
             if (loopObject.Key.EndsWith("/") && loopObject.Size == 0)
             {

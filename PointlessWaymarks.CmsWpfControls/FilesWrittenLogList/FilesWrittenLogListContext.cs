@@ -551,7 +551,7 @@ public partial class FilesWrittenLogListContext
     public async Task SiteDeletedFilesReport()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        var results = await S3GeneratedSiteComparisonForDeletions.RunReport(StatusContext.ProgressTracker());
+        var results = await S3GeneratedSiteComparisonForDeletions.RunReport(S3CmsTools.AmazonInformationFromSettings(), StatusContext.ProgressTracker());
         
         if (!results.S3KeysToDelete.Any())
         {

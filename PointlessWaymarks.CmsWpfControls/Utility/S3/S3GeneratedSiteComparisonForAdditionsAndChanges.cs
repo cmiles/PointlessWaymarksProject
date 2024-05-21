@@ -26,7 +26,6 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
             return returnReport;
         }
         
-        
         var bucket = s3Account.BucketName();
         var region = s3Account.BucketRegion();
         var accountId = s3Account.CloudflareAccountId();
@@ -43,13 +42,13 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
         {
             if (string.IsNullOrWhiteSpace(region))
             {
-                returnReport.ErrorMessages.Add("Amazon S3 Bucket Endpoint (region) not filled?");
+                returnReport.ErrorMessages.Add("S3 Bucket Endpoint (region) not filled?");
                 return returnReport;
             }
             
             if (s3Account.BucketRegionEndpoint() == null)
             {
-                returnReport.ErrorMessages.Add("Amazon S3 Bucket Endpoint (region) not valid?");
+                returnReport.ErrorMessages.Add("S3 Bucket Endpoint (region) not valid?");
                 return returnReport;
             }
         }
@@ -70,7 +69,7 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
         
         progress?.Report($"Found {allGeneratedFiles.Count} Files in Generated Site");
         
-        progress?.Report("Setting up for Aws S3 Object Listings");
+        progress?.Report("Setting up for S3 Object Listings");
         
         var s3Client = s3Account.S3Client();
         
@@ -97,7 +96,7 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
         {
             if (++fileLoopCount % 100 == 0)
                 progress?.Report(
-                    $"File Loop vs Aws S3 Objects Comparison - {fileLoopCount} or {totalGeneratedFiles} - {loopFile.FullName}");
+                    $"File Loop vs S3 Objects Comparison - {fileLoopCount} or {totalGeneratedFiles} - {loopFile.FullName}");
             
             var loopFileKey = S3CmsTools.FileInfoInGeneratedSiteToS3Key(loopFile);
             

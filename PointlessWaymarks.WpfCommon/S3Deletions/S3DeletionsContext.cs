@@ -46,30 +46,39 @@ public partial class S3DeletionsContext
         }
 
         progress.Report("Getting Amazon Credentials");
-
-        var accessKey = UploadS3Information.AccessKey();
-        var secret = UploadS3Information.Secret();
-
-        if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secret))
+        
+        var bucket = UploadS3Information.BucketName();
+        var region = UploadS3Information.BucketRegion();
+        var accountId = UploadS3Information.CloudflareAccountId();
+        
+        if (UploadS3Information.S3Provider() == S3Providers.Cloudflare)
         {
-            StatusContext.ToastError("Aws Credentials are not entered or valid?");
-            return;
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                StatusContext.ToastError("Cloudflare Account Id is empty?");
+                return;
+            }
         }
-
-        var bucketRegion = UploadS3Information.BucketRegionEndpoint();
-
-        if (bucketRegion == null)
+        else
         {
-            StatusContext.ToastError("Bucket Region is not entered or valid?");
-            return;
+            if (string.IsNullOrWhiteSpace(region))
+            {
+                StatusContext.ToastError("S3 Bucket Endpoint (region) not filled?");
+                return;
+            }
+            
+            if (UploadS3Information.BucketRegionEndpoint() == null)
+            {
+                StatusContext.ToastError("S3 Bucket Endpoint (region) not valid?");
+                return;
+            }
         }
 
         if (cancellationToken.IsCancellationRequested) throw new TaskCanceledException();
 
         progress.Report("Getting Amazon Client");
 
-        var s3Client = new AmazonS3Client(accessKey, secret,
-            UploadS3Information.BucketRegionEndpoint());
+        var s3Client = UploadS3Information.S3Client();
 
         var loopCount = 0;
         var totalCount = itemsToDelete.Count;
@@ -116,14 +125,14 @@ public partial class S3DeletionsContext
     [BlockingCommand]
     public async Task DeleteAll(CancellationToken cancellationToken)
     {
-        await Delete(Items?.ToList() ?? [], cancellationToken,
+        await Delete( Items?.ToList() ?? [], cancellationToken,
             StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]
     public async Task DeleteSelected(CancellationToken cancellationToken)
     {
-        await Delete(SelectedItems.ToList(), cancellationToken,
+        await Delete( SelectedItems.ToList(), cancellationToken,
             StatusContext.ProgressTracker());
     }
 
