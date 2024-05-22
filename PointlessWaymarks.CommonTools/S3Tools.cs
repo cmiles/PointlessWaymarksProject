@@ -23,7 +23,7 @@ public static class S3Tools
     public static async Task<List<S3RemoteFileAndMetadata>> ListS3Items(IS3AccountInformation accountInfo,
         string prefix, IProgress<string> progress, CancellationToken cancellationToken = default)
     {
-        Log.ForContext(nameof(prefix), progress).ForContext(nameof(accountInfo.BucketName), accountInfo.BucketName()).ForContext(nameof(accountInfo.BucketRegion), accountInfo.BucketRegion()).Information("Aws Object Listing - Starting");
+        Log.ForContext(nameof(prefix), progress).ForContext(nameof(accountInfo.BucketName), accountInfo.BucketName()).ForContext(nameof(accountInfo.BucketRegion), accountInfo.BucketRegion()).Information("S3 Object Listing - Starting");
 
         var s3Client = accountInfo.S3Client();
 
@@ -36,7 +36,7 @@ public static class S3Tools
         await foreach (var response in paginator.S3Objects)
         {
             if (awsObjects.Count % 100 == 0)
-                progress?.Report($"Aws Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+                progress?.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
 
             if (response.Key == prefix) continue;
 
