@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using ClosedXML.Excel;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CloudBackupData.Reports;
@@ -9,8 +11,8 @@ public static class BatchCopiesToExcel
     {
         progress.Report("Querying db for Cloud Transfer Batch Information");
         
-        var db = await CloudBackupContext.CreateInstance();
-        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
+        var db = await CloudBackupContext.CreateReportingInstance();
+        var batch = db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).Single(x => x.Id == batchId);
         var job = batch.Job!;
         
         var projectedCopies = db.CloudCopies.Where(x => x.CloudTransferBatchId == batch.Id).Select(x => new
@@ -62,8 +64,8 @@ public static class BatchCopiesToExcel
         
         await AddWorksheet(newExcelFile, batchId, progress);
         
-        var db = await CloudBackupContext.CreateInstance();
-        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
+        var db = await CloudBackupContext.CreateReportingInstance();
+        var batch = db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).Single(x => x.Id == batchId);
         var job = batch.Job!;
         
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,
@@ -72,7 +74,7 @@ public static class BatchCopiesToExcel
         progress.Report($"Saving Excel File {file.FullName}");
         
         newExcelFile.SaveAs(file.FullName);
-        
+
         return file.FullName;
     }
 }

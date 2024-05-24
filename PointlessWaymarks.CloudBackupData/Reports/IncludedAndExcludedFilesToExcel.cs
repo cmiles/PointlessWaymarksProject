@@ -13,9 +13,11 @@ public static class IncludedAndExcludedFilesToExcel
     {
         progress.Report("Querying Job Information");
 
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
 
-        var job = await db.BackupJobs.SingleAsync(x => x.Id == jobId);
+        var job = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
+            .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
+            .Include(backupJob => backupJob.ExcludedFileNamePatterns).SingleAsync(x => x.Id == jobId);
 
         return await Run(job.Name, job.LocalDirectory, job.ExcludedDirectories.Select(x => x.Directory).ToList(),
             job.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList(),
@@ -72,8 +74,7 @@ public static class IncludedAndExcludedFilesToExcel
         currentRow++;
 
         includedWorksheet.Cell(currentRow++, 1)
-            .InsertTable(includedFiles.Select(x => new { Included_Files = x.LocalFile.FullName })
-                .OrderBy(x => x.Included_Files));
+            .InsertTable(includedFiles.Select(x => new { Included_Files = x.LocalFile.FullName }));
 
         includedWorksheet.Columns().AdjustToContents();
 
@@ -116,8 +117,7 @@ public static class IncludedAndExcludedFilesToExcel
 
         excludedWorksheet.Cell(currentRow++, 1).Value = $"Excluded Files ({excludedFiles.Count})";
         excludedWorksheet.Cell(currentRow++, 1)
-            .InsertTable(excludedFiles.Select(x => new { Excluded_Files = x.LocalFile.FullName })
-                .OrderBy(x => x.Excluded_Files));
+            .InsertTable(excludedFiles.Select(x => new { Excluded_Files = x.LocalFile.FullName }));
 
         excludedWorksheet.Columns().AdjustToContents();
 

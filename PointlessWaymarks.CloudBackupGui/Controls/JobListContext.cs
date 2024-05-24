@@ -108,7 +108,11 @@ public partial class JobListContext
             return;
         }
 
-        await CloudCacheFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
+        var file = await CloudCacheFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
+        
+        StatusContext.Progress($"Opening Excel File {file}");
+        
+        ProcessTools.Open(file);
     }
 
     public static async Task<JobListContext> CreateInstance(StatusControlContext statusContext)
@@ -191,7 +195,7 @@ public partial class JobListContext
 
         PasswordVaultTools.RemoveCredentials(toDelete.VaultS3CredentialsIdentifier);
 
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
         var currentItem = await db.BackupJobs.SingleAsync(x => x.Id == toDelete.Id);
 
         db.Remove(currentItem);
@@ -246,7 +250,11 @@ public partial class JobListContext
             return;
         }
 
-        await IncludedAndExcludedFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
+        var file = await IncludedAndExcludedFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
+        
+        StatusContext.Progress($"Opening Excel File {file.FullName}");
+
+        ProcessTools.Open(file.FullName);
     }
 
     [NonBlockingCommand]
@@ -334,7 +342,7 @@ public partial class JobListContext
             })
         {
             var listItem = Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
-            var db = await CloudBackupContext.CreateInstance();
+            var db = await CloudBackupContext.CreateReportingInstance();
             var dbItem =
                 db.BackupJobs.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
 
@@ -373,7 +381,7 @@ public partial class JobListContext
 
         DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
 
         var jobs = await db.BackupJobs.ToListAsync();
 

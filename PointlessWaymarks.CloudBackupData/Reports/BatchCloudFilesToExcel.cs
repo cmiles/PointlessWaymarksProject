@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
@@ -10,8 +11,8 @@ public static class BatchCloudFilesToExcel
     {
         progress.Report("Querying db for Cloud Transfer Batch Information");
         
-        var db = await CloudBackupContext.CreateInstance();
-        var batch = await db.CloudTransferBatches.SingleAsync(x => x.Id == batchId);
+        var db = await CloudBackupContext.CreateReportingInstance();
+        var batch = await db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).SingleAsync(x => x.Id == batchId);
 
         var projectedFiles = db.CloudFiles.Where(x => x.CloudTransferBatchId == batch.Id).OrderBy(x => x.CloudObjectKey).Select(x => new
         {
@@ -55,8 +56,8 @@ public static class BatchCloudFilesToExcel
 
         progress.Report("Querying Job Information");
 
-        var db = await CloudBackupContext.CreateInstance();
-        var batch = db.CloudTransferBatches.Single(x => x.Id == batchId);
+        var db = await CloudBackupContext.CreateReportingInstance();
+        var batch = db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).Single(x => x.Id == batchId);
         var job = batch.Job!;
         
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,

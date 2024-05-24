@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.IO.Enumeration;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData.Models;
@@ -22,7 +23,7 @@ public static class CreationTools
     public static async Task<List<S3RemoteFileAndMetadata>> GetAllCloudFiles(int backupJobId, string cloudDirectory,
         IS3AccountInformation account, IProgress<string> progress)
     {
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
         
         progress.Report("Deleting Db Cloud Cache Files for Full Refresh");
         await db.CloudCacheFiles.Where(x => x.JobId == backupJobId).ExecuteDeleteAsync(CancellationToken.None);
@@ -32,11 +33,17 @@ public static class CreationTools
         
         var frozenNow = DateTime.Now;
         
-        progress.Report("Adding and Saving new Db Cloud Cache Files");
-        await db.CloudCacheFiles.AddRangeAsync(cloudFiles.Select(x =>
-            S3RemoteFileAndMetadataToCloudFile(backupJobId, x, frozenNow, $"{frozenNow:s} Scan;")).ToList());
-        await db.SaveChangesAsync();
+        var dbEntryChunks = cloudFiles.Select(x =>
+            S3RemoteFileAndMetadataToCloudFile(backupJobId, x, frozenNow, $"{frozenNow:s} Scan;")).ToList().Chunk(250).ToList();
         
+        var dbSaveCounter = 0;
+        foreach (var loopDbChunk in dbEntryChunks)
+        {
+            if(++dbSaveCounter % 25 == 0) Console.WriteLine($"Saving Db Cloud Cache Files - {dbSaveCounter} of {dbEntryChunks.Count}");
+            db.CloudCacheFiles.AddRange(loopDbChunk);
+            await db.SaveChangesAsync();
+        }
+
         return cloudFiles;
     }
     
@@ -45,9 +52,10 @@ public static class CreationTools
     {
         progress.Report("Getting Directories - Querying Job From Db");
         
-        var context = await CloudBackupContext.CreateInstance();
+        var context = await CloudBackupContext.CreateReportingInstance();
         
-        var job = await context.BackupJobs.SingleAsync(x => x.Id == jobId);
+        var job = await context.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
+            .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns).SingleAsync(x => x.Id == jobId);
         
         var excludedDirectories = job.ExcludedDirectories.Select(x => x.Directory)
             .ToList();
@@ -77,12 +85,12 @@ public static class CreationTools
     {
         Log.Information($"Cloud Backup - Getting Changes - Use Cache: {basedOnCloudCacheFiles}");
         
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
         
         var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
         
         var cloudFiles = basedOnCloudCacheFiles
-            ? job.CloudCacheFiles.Select(x => new S3RemoteFileAndMetadata(x.Bucket, x.CloudObjectKey,
+            ? db.CloudCacheFiles.Where(x => x.JobId == job.Id).Select(x => new S3RemoteFileAndMetadata(x.Bucket, x.CloudObjectKey,
                 new S3StandardMetadata(x.FileSystemDateTime, x.FileHash, x.FileSize))).ToList()
             : await GetAllCloudFiles(backupJobId, job.CloudDirectory, accountInformation, progress);
         
@@ -109,9 +117,15 @@ public static class CreationTools
         
         var singleFileHashGroup = hashGroupedFileSystemFiles.Where(x => x.Count() == 1).Select(x => x.First()).ToList();
         
-        foreach (var loopFiles in singleFileHashGroup)
+        var singleHashCopyContainer = new ConcurrentBag<S3CopyInformation>();
+        var singleHashUploadContainer = new ConcurrentBag<S3FileSystemFileAndMetadataWithCloudKey>();
+
+        await Parallel.ForEachAsync(singleFileHashGroup, async (loopFiles, _) =>
         {
-            counter++;
+            var frozenCounter = Interlocked.Increment(ref counter);
+            if (++frozenCounter % 500 == 0 || frozenCounter == 1)
+                progress.Report(
+                    $"Change Check - {frozenCounter} of {singleFileHashGroup.Count} Single Hash Files Checked - {singleHashUploadContainer.Count} to Upload, {singleHashCopyContainer.Count} to Copy.");
             
             var keyMatchingFiles = returnData.S3Files.Where(x => x.Key == loopFiles.CloudKey).ToList();
             
@@ -121,78 +135,83 @@ public static class CreationTools
                     .Where(x => x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash).ToList();
                 if (hashMatchFiles.Any())
                 {
-                    returnData.S3FilesToCopy.Add(new S3CopyInformation(loopFiles, hashMatchFiles.First()));
-                    
-                    continue;
+                    singleHashCopyContainer.Add(new S3CopyInformation(loopFiles, hashMatchFiles.First()));
+                    return;
                 }
                 
-                returnData.FileSystemFilesToUpload.Add(loopFiles);
-                continue;
+                singleHashUploadContainer.Add(loopFiles);
+                return;
             }
             
             if (keyMatchingFiles.Any(x =>
-                    x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash)) continue;
+                    x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash)) return;
             
-            returnData.FileSystemFilesToUpload.Add(loopFiles);
-            
-            if (counter % 500 == 0)
-                progress.Report(
-                    $"Change Check - {counter} of {singleFileHashGroup.Count} Single Hash Files Checked - {returnData.FileSystemFilesToUpload.Count} to Upload, {returnData.S3FilesToCopy.Count} to Copy.");
-        }
-        
+            singleHashUploadContainer.Add(loopFiles);
+        });
+
+        returnData.FileSystemFilesToUpload = singleHashUploadContainer.ToList();
+        returnData.S3FilesToCopy = singleHashCopyContainer.ToList();
+
         var multiFileHashGroup = hashGroupedFileSystemFiles.Where(x => x.Count() > 1).ToList();
         
         counter = 0;
         
-        foreach (var loopFileGroup in multiFileHashGroup)
+        var multiHashCopyContainer = new ConcurrentBag<S3CopyInformation>();
+        var multiHashUploadContainer = new ConcurrentBag<S3FileSystemFileAndMetadataWithCloudKey>();
+
+        await Parallel.ForEachAsync(multiFileHashGroup, async (loopFileGroup, _) =>
         {
-            counter++;
+            var frozenCounter = Interlocked.Increment(ref counter);
             
+            if (++frozenCounter % 500 == 0 || frozenCounter == 1)
+                progress.Report(
+                    $"Change Check - {frozenCounter} of {multiFileHashGroup.Count} Multiple Copy Files Checked - {multiHashUploadContainer.Count} to Upload, {multiHashCopyContainer.Count} to Copy.");
+
             var allKeys = loopFileGroup.Select(x => x.CloudKey).ToList();
-            
+
             var groupKeysMatchingFiles = returnData.S3Files.Where(x => allKeys.Contains(x.Key)).ToList();
-            
+
             //Case - all matches - nothing to do
-            if (loopFileGroup.Count() == groupKeysMatchingFiles.Count) continue;
-            
+            if (loopFileGroup.Count() == groupKeysMatchingFiles.Count) return;
+
             //Case - no matches - upload all
             if (!groupKeysMatchingFiles.Any())
             {
-                returnData.FileSystemFilesToUpload.AddRange(loopFileGroup);
-                continue;
+                loopFileGroup.ToList().ForEach(x => multiHashUploadContainer.Add(x));
+                return;
             }
-            
+
             foreach (var loopFiles in loopFileGroup)
             {
                 var keyMatchingFiles = returnData.S3Files.Where(x => x.Key == loopFiles.CloudKey).ToList();
-                
+
                 if (keyMatchingFiles.Count == 0)
                 {
                     var hashMatchFiles = returnData.S3Files
                         .Where(x => x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash).ToList();
                     if (hashMatchFiles.Any())
                     {
-                        returnData.S3FilesToCopy.Add(new S3CopyInformation(loopFiles, hashMatchFiles.First()));
+                        multiHashCopyContainer.Add(new S3CopyInformation(loopFiles, hashMatchFiles.First()));
                         Log.Information(
                             "Cloud Backup - File {file} has a Hash Match but no Key Match - {hashMatchFiles}",
                             loopFiles.LocalFile.FullName, hashMatchFiles);
                         continue;
                     }
-                    
-                    returnData.FileSystemFilesToUpload.Add(loopFiles);
+
+                    multiHashUploadContainer.Add(loopFiles);
                     continue;
                 }
-                
+
                 if (keyMatchingFiles.Any(x =>
                         x.Metadata.FileSystemHash == loopFiles.UploadMetadata.FileSystemHash)) continue;
                 
-                returnData.FileSystemFilesToUpload.Add(loopFiles);
+                multiHashUploadContainer.Add(loopFiles);
             }
-            
-            if (counter % 500 == 0)
-                progress.Report(
-                    $"Change Check - {counter} of {groupKeysMatchingFiles.Count} Multiple Copy Files Checked - {returnData.FileSystemFilesToUpload.Count} to Upload, {returnData.S3FilesToCopy.Count} to Copy.");
-        }
+
+        });
+        
+        returnData.S3FilesToCopy.AddRange(multiHashCopyContainer);
+        returnData.FileSystemFilesToUpload.AddRange(multiHashUploadContainer);
         
         returnData.S3FilesToDelete = returnData.S3Files
             .Where(x => returnData.FileSystemFiles.All(y => y.CloudKey != x.Key)).ToList();
@@ -207,9 +226,11 @@ public static class CreationTools
     public static async Task<List<S3LocalFileAndMetadata>> GetExcludedLocalFiles(int backupJobId,
         IProgress<string> progress)
     {
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
         
-        var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
+        var job = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
+            .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
+            .Include(backupJob => backupJob.ExcludedFileNamePatterns).SingleAsync(x => x.Id == backupJobId);
         
         var excludedDirectories = job.ExcludedDirectories.Select(x => x.Directory).OrderBy(x => x).ToList();
         var excludedDirectoryPatterns =
@@ -229,38 +250,40 @@ public static class CreationTools
         var directories =
             await GetAllLocalDirectories(initialDirectory, excludedDirectories, excludedDirectoryPatterns, progress);
         
-        var returnList = new List<S3LocalFileAndMetadata>();
-        
         progress.Report($"Local Files - Getting Files - Found {directories.Count} Directories to Process");
         
         var counter = 0;
         
-        foreach (var directoryInfo in directories)
+        var returnContainer = new ConcurrentBag<S3LocalFileAndMetadata>();
+
+        await Parallel.ForEachAsync(directories, async (info, _) =>
         {
-            counter++;
+            var frozenCounter = Interlocked.Increment(ref counter);
             
-            var files = directoryInfo.Directory.GetFiles();
+            if (counter % 50 == 0 || frozenCounter == 1)
+                progress.Report(
+                    $"Local Files - {counter} of {directories.Count} Directories Complete - {returnContainer.Count} Files");
+
+            var files = info.Directory.GetFiles();
             
             foreach (var fileInfo in files)
-                if (!directoryInfo.Included || (directoryInfo.Included &&
-                                                excludedFilePatterns.Any(x =>
-                                                    FileSystemName.MatchesSimpleExpression(x, fileInfo.Name))))
-                    returnList.Add(await S3Tools.LocalFileAndMetadata(fileInfo));
-            
-            if (counter % 50 == 0)
-                progress.Report(
-                    $"Local Files - {counter} of {directories.Count} Directories Complete - {returnList.Count} Files");
-        }
+            {
+                if (!info.Included || excludedFilePatterns.Any(x => FileSystemName.MatchesSimpleExpression(x, fileInfo.Name)))
+                    returnContainer.Add(await S3Tools.LocalFileAndMetadata(fileInfo));
+            }
+        });
         
-        return returnList;
+        return returnContainer.OrderByDescending(x => x.LocalFile.FullName.Count(c => c == Path.DirectorySeparatorChar || c == Path.AltDirectorySeparatorChar)).ThenBy(x => x.LocalFile.FullName).ToList();
     }
     
     public static async Task<List<S3LocalFileAndMetadata>> GetIncludedLocalFiles(int backupJobId,
         IProgress<string> progress)
     {
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
         
-        var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
+        var job = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
+            .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
+            .Include(backupJob => backupJob.ExcludedFileNamePatterns).SingleAsync(x => x.Id == backupJobId);
         
         var excludedDirectories = job.ExcludedDirectories.Select(x => x.Directory).OrderBy(x => x).ToList();
         var excludedDirectoryPatterns =
@@ -285,31 +308,31 @@ public static class CreationTools
             (await GetAllLocalDirectories(initialDirectory, excludedDirectories, excludedDirectoryPatterns, progress))
             .Where(x => x.Included).Select(x => x.Directory).OrderBy(x => x.FullName).ToList();
         
-        var returnList = new List<S3LocalFileAndMetadata>();
+        var fileContainer = new ConcurrentBag<S3LocalFileAndMetadata>();
         
         progress.Report(
             $"Local Files - Getting Included Files - Found {directories.Count} Included Directories to Process");
         
         var counter = 0;
         
-        foreach (var directoryInfo in directories)
+        await Parallel.ForEachAsync(directories, async (info, _) =>
         {
-            counter++;
+            var frozenCounter = Interlocked.Increment(ref counter);
             
-            var files = directoryInfo.GetFiles();
+            if (frozenCounter % 50 == 0 || frozenCounter == 1)
+                progress.Report(
+                    $"Local Files - {frozenCounter} of {directories.Count} Directories Complete - {fileContainer.Count} Files - {DateTime.Now:t}");
+
+            var files = info.GetFiles();
             
             foreach (var fileInfo in files)
             {
                 if (excludedFilePatterns.Any(x => FileSystemName.MatchesSimpleExpression(x, fileInfo.Name))) continue;
-                returnList.Add(await S3Tools.LocalFileAndMetadata(fileInfo));
+                fileContainer.Add(await S3Tools.LocalFileAndMetadata(fileInfo));
             }
-            
-            if (counter % 50 == 0)
-                progress.Report(
-                    $"Local Files - {counter} of {directories.Count} Directories Complete - {returnList.Count} Files - {DateTime.Now:t}");
-        }
+        });
         
-        return returnList;
+        return fileContainer.OrderByDescending(x => x.LocalFile.FullName.Count(c => c == Path.DirectorySeparatorChar || c == Path.AltDirectorySeparatorChar)).ThenBy(x => x.LocalFile.FullName).ToList();
     }
     
     private static List<CloudBackupLocalDirectory> GetSubdirectories(CloudBackupLocalDirectory searchLocalDirectory,
@@ -361,7 +384,7 @@ public static class CreationTools
     public static async Task<CloudTransferBatch> WriteChangesToDatabase(FileListAndChangeData changes)
     {
         var frozenNow = DateTime.Now.ToUniversalTime();
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
         
         var batch = new CloudTransferBatch
         {

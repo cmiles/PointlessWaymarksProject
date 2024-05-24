@@ -13,7 +13,7 @@ public static class Program
 {
     public static async Task Main(string[] args)
     {
-        LogTools.StandardStaticLoggerForProgramDirectory("CloudBackupRunner");
+        LogTools.StandardStaticLoggerForDefaultLogDirectory("CloudBackupRunner");
         
         AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs eventArgs)
         {
@@ -313,7 +313,7 @@ public static class Program
         //on the age of the last Cloud File Scan.
         if (batch == null)
         {
-            if (mostRecentCloudScanBatch != null && mostRecentCloudScanBatch.CreatedOn > DateTime.Now.AddDays(-28))
+            if (mostRecentCloudScanBatch != null && mostRecentCloudScanBatch.CreatedOn > DateTime.Now.AddDays(-180))
             {
                 batch = await CloudTransfer.CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(amazonCredentials,
                     backupJob,

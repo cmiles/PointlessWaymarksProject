@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
@@ -29,21 +30,35 @@ public static class S3Tools
 
         var listRequest = new ListObjectsV2Request { BucketName = accountInfo.BucketName(), Prefix = prefix };
 
-        var awsObjects = new List<S3RemoteFileAndMetadata>();
+        var s3Objects = new List<S3Object>();
 
         var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
 
         await foreach (var response in paginator.S3Objects)
         {
-            if (awsObjects.Count % 100 == 0)
-                progress?.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+            if(response == null) continue;
+
+            if (s3Objects.Count % 100 == 0)
+                progress?.Report($"S3 Object Listing - Added {s3Objects.Count} S3 Objects so far...");
 
             if (response.Key == prefix) continue;
 
-            awsObjects.Add(await RemoteFileAndMetadata(s3Client, response));
+            s3Objects.Add(response);
         }
+        
+        var collectedObjectsAndMetadata = new ConcurrentBag<S3RemoteFileAndMetadata>();
+        
+        var metadataCounter = 0;
+        await Parallel.ForEachAsync(s3Objects, cancellationToken, async (o, token) =>
+        {
+            var frozenCounter = Interlocked.Increment(ref metadataCounter);
+            if(frozenCounter % 100 == 0 || frozenCounter == 1)
+                progress?.Report($"S3 Object - Metadata Collection - {frozenCounter} of {s3Objects.Count}");
+            token.ThrowIfCancellationRequested();
+            collectedObjectsAndMetadata.Add(await RemoteFileAndMetadata(s3Client, o));
+        });
 
-        return awsObjects;
+        return collectedObjectsAndMetadata.OrderBy(x => x.Key).ToList();
     }
 
     public static async Task<S3LocalFileAndMetadata> LocalFileAndMetadata(FileInfo localFile)

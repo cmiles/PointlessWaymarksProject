@@ -52,7 +52,7 @@ public partial class JobListListItem
 
     public async Task RefreshLatestBatch()
     {
-        var context = await CloudBackupContext.CreateInstance();
+        var context = await CloudBackupContext.CreateReportingInstance();
 
         if (DbJob == null)
         {

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
@@ -10,12 +11,16 @@ public static class CloudCacheFilesToExcel
     {
         progress.Report("Querying db for Cloud Batch, Job and Cache File Information");
 
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
         var job = await db.BackupJobs.SingleAsync(x => x.Id == jobId);
-
-        var lastScan = job.Batches.Where(x => x.BasedOnNewCloudFileScan).MaxBy(x => x.CreatedOn);
         
-        var projectedFiles = job.CloudCacheFiles.OrderBy(x => x.CloudObjectKey).Select(x => new
+        progress.Report("Querying db for Last Scan Information");
+
+        var lastScan = await db.CloudTransferBatches.Where(x => x.JobId == job.Id && x.BasedOnNewCloudFileScan).OrderBy(x => x.CreatedOn).FirstOrDefaultAsync();
+        
+        progress.Report("Creating Excel Data Structures");
+
+        var projectedFiles = await db.CloudCacheFiles.Where(x => x.JobId == job.Id).OrderBy(x => x.CloudObjectKey).Select(x => new
         {
             Key = x.CloudObjectKey,
             x.Note,
@@ -24,7 +29,7 @@ public static class CloudCacheFilesToExcel
             x.LastEditOn,
             x.FileHash,
             x.Id,
-        }).ToList();
+        }).ToListAsync();
 
         progress.Report("Building Excel File");
 
@@ -72,7 +77,7 @@ public static class CloudCacheFilesToExcel
 
         progress.Report("Querying Job Information");
 
-        var db = await CloudBackupContext.CreateInstance();
+        var db = await CloudBackupContext.CreateReportingInstance();
         var job = db.BackupJobs.Single(x => x.Id == jobId);
 
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,

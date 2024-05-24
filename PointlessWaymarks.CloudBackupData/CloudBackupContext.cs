@@ -69,6 +69,26 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
         return context;
     }
     
+    public static async Task<CloudBackupContext> CreateReportingInstance()
+    {
+        return await CreateReportingInstance(CurrentDatabaseFileName);
+    }
+    
+    public static Task<CloudBackupContext> CreateReportingInstance(string fileName, bool setFileNameAsCurrentDb = true)
+    {
+        // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
+        Batteries_V2.Init();
+        raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
+        var optionsBuilder = new DbContextOptionsBuilder<CloudBackupContext>();
+        
+        optionsBuilder.LogTo(message => Debug.WriteLine(message));
+        
+        if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
+        
+        return Task.FromResult(new CloudBackupContext(optionsBuilder
+            .UseSqlite($"Data Source={fileName}").Options));
+    }
+    
     /// <summary>
     ///     Use TryCreateInstance to test whether an input file is a valid db.
     /// </summary>
