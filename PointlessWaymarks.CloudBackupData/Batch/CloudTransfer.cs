@@ -373,7 +373,7 @@ public static class CloudTransfer
         Log.Information("Creating new Batch based on Cloud and Local Scan");
         
         var changes = await CreationTools.GetChanges(accountInformation, job.Id, false, progress);
-        return await CreationTools.WriteChangesToDatabase(changes);
+        return await CreationTools.WriteChangesToDatabase(changes, progress);
     }
     
     /// <summary>
@@ -394,6 +394,6 @@ public static class CloudTransfer
         
         if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any()) return null;
         
-        return await CreationTools.WriteChangesToDatabase(changes);
+        return await CreationTools.WriteChangesToDatabase(changes, progress);
     }
 }

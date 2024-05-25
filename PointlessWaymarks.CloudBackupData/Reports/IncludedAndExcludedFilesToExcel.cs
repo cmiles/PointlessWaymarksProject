@@ -115,7 +115,6 @@ public static class IncludedAndExcludedFilesToExcel
         currentRow++;
         currentRow++;
 
-        excludedWorksheet.Cell(currentRow++, 1).Value = $"Excluded Files ({excludedFiles.Count})";
         excludedWorksheet.Cell(currentRow++, 1)
             .InsertTable(excludedFiles.Select(x => new { Excluded_Files = x.LocalFile.FullName }));
 
