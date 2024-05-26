@@ -1,17 +1,14 @@
 There is plenty of traditional README information below about this project - but a better 'README' might be taking a look at [Pointless Waymarks](https://PointlessWaymarks.com) and [cmiles - info](https://www.cmiles.info/) - these sites are generated with the Pointless Waymarks CMS and visiting them might tell you more than than all the information below...
 
-# Pointless Waymarks Project - CMS, Site Viewer, Tasks and GeoTools
+# Pointless Waymarks Project
 
-*At this point there are no public installers/releases from the Pointless Waymarks Project - the code is MIT Licensed made public on GitHub to share with friends, colleagues and anyone who finds the code interesting or useful. This project is probably only suitable for use if you enjoy debugging and working on code!*
+*At this point there are no public installers/releases from the Pointless Waymarks Project - the code is MIT Licensed and public on GitHub to share with friends, colleagues and anyone who finds the code interesting or useful. This project is suitable for use if you enjoy debugging and working on code - scripts to create installers and update support for local installers is included in the apps!*
 
-The focus of this project is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place,  history and nature.
-
-The Pointless Waymarks projects contains:
-  - The Pointless Waymarks CMS and (Local, Offline) Site Viewer (both described below)
-  - Tasks/Console Apps to support the Pointless Waymarks CMS including Memories Email, Photo Pickup and Garmin Connect Gpx Download (described below)
-  - The Pointless Waymarks GeoTools - [README with Description and Screen Shots](PointlessWaymarks.GeoToolsGui/README.md) - a WPF GUI for GeoTagging and Feature Intersect Tagging Photographs and managing Garmin Connect Downloads.
-  - [Pointless Waymarks Cloud Backup](PointlessWaymarks.CloudBackupGui/README.md) - A backup program to mirror your local files to Amazon S3 with a job editor, reporting and easy to schedule command line runner.
-  - [Pointless Waymarks Feed Reader](PointlessWaymarks.FeedReaderGui/README.MD) - A Windows Desktop Feed Reader
+The Pointless Waymarks Project is a set of applications that are connected by a focus on durable, rich, low maintenance, free, long-lasting, organized content and stories about the landscape, life, place, history and nature.
+  - [Windows Desktop CMS, Static Site Generator, Offline Site Viewer and supporting Command Line Tasks](https://github.com/cmiles/PointlessWaymarksProject) - described below. See [Pointless Waymarks](https://pointlesswaymarks.com/) and [cmiles - info](https://www.cmiles.info/), both sites are created with this system.
+  - [Pointless Waymarks GeoTools](https://github.com/cmiles/PointlessWaymarksProject/blob/main/PointlessWaymarks.GeoToolsGui/README.md) - a Windows Desktop program to help with: geotagging Photos (both from gpx files and Garmin Connect), tagging geotagged photos with location information (state, park/monument name, etc) and downloading activities from Garmin Connect.
+  - [Pointless Waymarks Cloud Backup](https://github.com/cmiles/PointlessWaymarksProject/blob/main/PointlessWaymarks.CloudBackupGui/README.md) - a data focused Windows backup program that uses Amazon S3 or Cloudflare R2. Features include: MD5 file comparisons, a maximum runtime for backups, Excel reports and easy scheduling via the Windows Task Scheduler. This program does not created versioned backups or have an mechanism to restore your files -> instead it focuses on creating a simple/direct backup of your files on S3/R2 - with your files on S3/R2 you can easily explore your backup on the web or via free clients on nearly any OS and in an emergency there is a very good chance you can find some reasonable way to see/view/access your backups.
+  - [Pointless Waymarks Feed Reader](https://github.com/cmiles/PointlessWaymarksProject/blob/main/PointlessWaymarks.FeedReaderGui/README.MD) - a simple Windows Desktop Feed Reader. No folders to organize, no online account and no temptation to doom scroll on your phone - this is a Windows Desktop only program for reading content that you care about with very low setup and ceremony.
 
 Todo Lists, Idea Lists and a Development Log are [found in a DevNotes.md file that is versioned along with the code](/DevNotes.md).
 
