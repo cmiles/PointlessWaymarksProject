@@ -166,7 +166,7 @@ I am incredibly grateful to the all the people and projects that make it possibl
  - [grepWin: A powerful and fast search tool using regular expressions](https://github.com/stefankueng/grepWin)
  - [Inno Setup](https://jrsoftware.org/isinfo.php)
  - [LINQPad - The .NET Programmer's Playground](https://www.linqpad.net/)
- - [Greenfish Icon Editor Pro 4.1 - Official Website](http://greenfishsoftware.org/gfie.php)
+ - [Greenfish Icon Editor Pro](http://greenfishsoftware.org/gfie.php)
  - [Notepad++](https://notepad-plus-plus.org/)
  - [RegexBuddy: Learn, Create, Understand, Test, Use and Save Regular Expression](https://www.regexbuddy.com/)
 

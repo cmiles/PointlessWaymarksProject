@@ -114,7 +114,7 @@ public partial class BatchListContext
         
         foreach (var loopBatch in SelectedBatches)
         {
-            var db = await CloudBackupContext.CreateReportingInstance();
+            var db = await CloudBackupContext.CreateInstance();
             var currentItem = await db.CloudTransferBatches.SingleAsync(x => x.Id == loopBatch.Statistics.BatchId);
             
             db.Remove(currentItem);
@@ -199,7 +199,7 @@ public partial class BatchListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         
         var job = db.BackupJobs.Include(backupJob => backupJob.Batches).Single(x => x.Id == JobId);
         

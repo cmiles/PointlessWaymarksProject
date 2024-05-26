@@ -63,6 +63,7 @@ public partial class MainWindow
 
         HelpTabContext = new HelpDisplayContext([
             HelpText,
+            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
             HelpMarkdown.SoftwareUsedBlock
         ]);
 

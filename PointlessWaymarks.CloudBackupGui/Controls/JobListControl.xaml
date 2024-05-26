@@ -313,6 +313,10 @@
                                         CommandParameter="{Binding DbJob}">
                                         Command Line Command to Clipboard
                                     </Button>
+                                    <Button Command="{Binding Data.RunJobForceCloudCacheRescan, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding DbJob}">
+                                        Run - New Batch/Full Rescan
+                                    </Button>
                                     <Button Command="{Binding Data.RunJobCommand, Source={StaticResource proxy}}"
                                             CommandParameter="{Binding DbJob}">
                                         Run
@@ -356,9 +360,11 @@
                                                Text="{Binding LatestBatch.DeletesNotCompletedCount, StringFormat='Deletes Remaining  {0:N0}', Converter={StaticResource FileSizePresentation}}"
                                                ToolTip="{StaticResource BatchDeleteStatisticsTooltip}">
                                     </TextBlock>
-
                                     <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding DbJob.MaximumRunTimeInHours, StringFormat='Max Runtime:  {0:N0} Hours'}">
+                                               Text="{Binding LastCloudScan, StringFormat='Last Cloud Scan:  {0:d}'}">
+                                    </TextBlock>
+                                    <TextBlock TextWrapping="Wrap"
+                                               Text="{Binding DbJob.MaximumRunTimeInHours, StringFormat='Max Runtime:  {0:M/d/yyyy}'}">
                                     </TextBlock>
                                 </WrapPanel>
                             </Grid>

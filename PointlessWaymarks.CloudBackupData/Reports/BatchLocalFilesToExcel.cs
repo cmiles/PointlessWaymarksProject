@@ -11,7 +11,7 @@ public static class BatchLocalFilesToExcel
     {
         progress.Report("Querying db for Cloud Transfer Batch Information");
         
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         var batch = await db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).SingleAsync(x => x.Id == batchId);
 
         var projectedFiles = db.FileSystemFiles.Where(x => x.CloudTransferBatchId == batch.Id).OrderBy(x => x.FileName).Select(x => new
@@ -56,7 +56,7 @@ public static class BatchLocalFilesToExcel
 
         progress.Report("Querying Job Information");
         
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).Single(x => x.Id == batchId);
         var job = batch.Job!;
 

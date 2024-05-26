@@ -13,7 +13,7 @@ public static class IncludedAndExcludedFilesToExcel
     {
         progress.Report("Querying Job Information");
 
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
 
         var job = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
             .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)

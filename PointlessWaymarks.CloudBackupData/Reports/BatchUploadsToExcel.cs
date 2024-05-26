@@ -10,7 +10,7 @@ public static class BatchUploadsToExcel
     {
         progress.Report("Querying db for Cloud Transfer Batch Information");
         
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).Single(x => x.Id == batchId);
         var job = batch.Job!;
 
@@ -62,7 +62,7 @@ public static class BatchUploadsToExcel
 
         await AddWorksheet(newExcelFile, batchId, progress);
 
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).Single(x => x.Id == batchId);
         var job = batch.Job!;
 

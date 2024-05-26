@@ -11,7 +11,7 @@ public static class CloudCacheFilesToExcel
     {
         progress.Report("Querying db for Cloud Batch, Job and Cache File Information");
 
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         var job = await db.BackupJobs.SingleAsync(x => x.Id == jobId);
         
         progress.Report("Querying db for Last Scan Information");
@@ -77,7 +77,7 @@ public static class CloudCacheFilesToExcel
 
         progress.Report("Querying Job Information");
 
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         var job = db.BackupJobs.Single(x => x.Id == jobId);
 
         var file = new FileInfo(Path.Combine(FileLocationHelpers.ReportsDirectory().FullName,

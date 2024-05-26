@@ -13,7 +13,7 @@ public static class BatchReportToExcel
 
         var newExcelFile = new XLWorkbook();
 
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         var batch = db.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).Single(x => x.Id == batchId);
         var job = batch.Job!;
 

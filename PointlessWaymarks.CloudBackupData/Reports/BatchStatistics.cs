@@ -44,7 +44,7 @@ public class BatchStatistics
     
     public static async Task<BatchStatistics> CreateInstance(int batchId)
     {
-        var context = await CloudBackupContext.CreateReportingInstance();
+        var context = await CloudBackupContext.CreateInstance();
         
         var batch = context.CloudTransferBatches.Single(x => x.Id == batchId);
         

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Controls;
 using PointlessWaymarks.GeoToolsGui.Messages;
@@ -90,12 +90,11 @@ public partial class MainWindow
         FeatureIntersectContext = await FeatureIntersectTaggerContext.CreateInstance(StatusContext, WindowStatus);
         GarminConnectDownloadContext = await ConnectDownloadContext.CreateInstance(StatusContext, WindowStatus);
         AboutContext = new HelpDisplayContext([
-            HelpMarkdown.GeoToolsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock
+            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription, HelpMarkdown.SoftwareUsedBlock
         ]);
         SettingsContext = new AppSettingsContext();
 
         await CheckForProgramUpdate(_currentDateVersion);
-
 
         WeakReferenceMessenger.Default.Register<ExifToolSettingsUpdateMessage>(this, (_, m) =>
         {

@@ -1,8 +1,6 @@
 using System.Collections.Concurrent;
-using System.Data;
 using System.Data.SQLite;
 using System.IO.Enumeration;
-using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CommonTools;
@@ -16,7 +14,7 @@ public static class CreationTools
     private static string FileInfoToS3Key(string initialDirectory, DirectoryInfo fileSystemBaseDirectory,
         FileInfo fileSystemFile)
     {
-        if (!initialDirectory.EndsWith(@"/")) initialDirectory = $@"{initialDirectory}/";
+        if (!initialDirectory.EndsWith("/")) initialDirectory = $"{initialDirectory}/";
         
         return fileSystemFile.FullName
             .Replace($"{fileSystemBaseDirectory.FullName}\\", $"{initialDirectory}")
@@ -26,7 +24,7 @@ public static class CreationTools
     public static async Task<List<S3RemoteFileAndMetadata>> GetAllCloudFiles(int backupJobId, string cloudDirectory,
         IS3AccountInformation account, IProgress<string> progress)
     {
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         
         progress.Report("Deleting Db Cloud Cache Files for Full Refresh");
         await db.CloudCacheFiles.Where(x => x.JobId == backupJobId).ExecuteDeleteAsync(CancellationToken.None);
@@ -36,19 +34,53 @@ public static class CreationTools
         
         var frozenNow = DateTime.Now;
         
-        var dbEntryChunks = cloudFiles.Select(x =>
-                S3RemoteFileAndMetadataToCloudFile(backupJobId, x, frozenNow, $"{frozenNow:s} Scan;")).ToList()
-            .Chunk(250)
-            .ToList();
+        var cloudFilesContainer = new ConcurrentBag<CloudCacheFile>();
+        var cloudFileCounter = 0;
         
-        var dbSaveCounter = 0;
-        foreach (var loopDbChunk in dbEntryChunks)
+        Parallel.ForEach(cloudFiles, (cloudFile, _) =>
         {
-            if (++dbSaveCounter % 25 == 0)
-                Console.WriteLine($"Saving Db Cloud Cache Files - {dbSaveCounter} of {dbEntryChunks.Count}");
-            db.CloudCacheFiles.AddRange(loopDbChunk);
-            await db.SaveChangesAsync();
+            var frozenCounter = Interlocked.Increment(ref cloudFileCounter);
+            
+            if (frozenCounter % 1000 == 0 || frozenCounter == 1)
+                progress.Report($"Cloud Files - {frozenCounter} of {cloudFiles.Count} Files Processed");
+            
+            cloudFilesContainer.Add(
+                S3RemoteFileAndMetadataToCloudFile(backupJobId, cloudFile, frozenNow, $"{frozenNow:s} Scan;"));
+        });
+        
+        var cloudFileList = cloudFilesContainer.ToList();
+        
+        await using var connection = new SQLiteConnection($"Data Source={CloudBackupContext.CurrentDatabaseFileName}");
+        await connection.OpenAsync();
+        await using var transaction = connection.BeginTransaction();
+        
+        progress.Report("Adding Cloud Files to Db");
+        
+        await using (var command = new SQLiteCommand(connection))
+        {
+            command.CommandText =
+                "INSERT INTO CloudCacheFiles (Bucket, CloudObjectKey, FileHash, FileSize, FileSystemDateTime, JobId, LastEditOn, Note) VALUES (@Bucket, @CloudObjectKey, @FileHash, @FileSize, @FileSystemDateTime, @JobId, @LastEditOn, @Note)";
+            command.Prepare();
+            
+            foreach (var file in cloudFileList)
+            {
+                command.Parameters.AddWithValue("@Bucket", file.Bucket);
+                command.Parameters.AddWithValue("@CloudObjectKey", file.CloudObjectKey);
+                command.Parameters.AddWithValue("@FileHash", file.FileHash);
+                command.Parameters.AddWithValue("@FileSize", file.FileSize);
+                command.Parameters.AddWithValue("@FileSystemDateTime", file.FileSystemDateTime);
+                command.Parameters.AddWithValue("@JobId", file.JobId);
+                command.Parameters.AddWithValue("@LastEditOn", file.LastEditOn.ToString("o"));
+                command.Parameters.AddWithValue("@Note", file.Note);
+                
+                await command.ExecuteNonQueryAsync();
+                command.Parameters.Clear();
+            }
         }
+        
+        progress.Report("Committing Cloud Files to Db");
+        
+        transaction.Commit();
         
         return cloudFiles;
     }
@@ -58,7 +90,7 @@ public static class CreationTools
     {
         progress.Report("Getting Directories - Querying Job From Db");
         
-        var context = await CloudBackupContext.CreateReportingInstance();
+        var context = await CloudBackupContext.CreateInstance();
         
         var job = await context.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
             .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns).SingleAsync(x => x.Id == jobId);
@@ -91,7 +123,7 @@ public static class CreationTools
     {
         Log.Information($"Cloud Backup - Getting Changes - Use Cache: {basedOnCloudCacheFiles}");
         
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         
         var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
         
@@ -132,7 +164,7 @@ public static class CreationTools
         returnData.FileSystemFiles = fileSystemFilesContainer.ToList();
         
         progress.Report($"Change Check - {returnData.FileSystemFiles.Count} to process");
-        var counter = 0;
+        var singleFileCounter = 0;
         
         var hashGroupedFileSystemFiles =
             returnData.FileSystemFiles.GroupBy(x => x.UploadMetadata.FileSystemHash).ToList();
@@ -142,9 +174,9 @@ public static class CreationTools
         var singleHashCopyContainer = new ConcurrentBag<S3CopyInformation>();
         var singleHashUploadContainer = new ConcurrentBag<S3FileSystemFileAndMetadataWithCloudKey>();
         
-        await Parallel.ForEachAsync(singleFileHashGroup, async (loopFiles, _) =>
+        Parallel.ForEach(singleFileHashGroup, (loopFiles, _) =>
         {
-            var frozenCounter = Interlocked.Increment(ref counter);
+            var frozenCounter = Interlocked.Increment(ref singleFileCounter);
             if (++frozenCounter % 500 == 0 || frozenCounter == 1)
                 progress.Report(
                     $"Change Check - {frozenCounter} of {singleFileHashGroup.Count} Single Hash Files Checked - {singleHashUploadContainer.Count} to Upload, {singleHashCopyContainer.Count} to Copy.");
@@ -176,14 +208,14 @@ public static class CreationTools
         
         var multiFileHashGroup = hashGroupedFileSystemFiles.Where(x => x.Count() > 1).ToList();
         
-        counter = 0;
+        var multiFileCounter = 0;
         
         var multiHashCopyContainer = new ConcurrentBag<S3CopyInformation>();
         var multiHashUploadContainer = new ConcurrentBag<S3FileSystemFileAndMetadataWithCloudKey>();
         
-        await Parallel.ForEachAsync(multiFileHashGroup, async (loopFileGroup, _) =>
+        Parallel.ForEach(multiFileHashGroup, (loopFileGroup, _) =>
         {
-            var frozenCounter = Interlocked.Increment(ref counter);
+            var frozenCounter = Interlocked.Increment(ref multiFileCounter);
             
             if (++frozenCounter % 500 == 0 || frozenCounter == 1)
                 progress.Report(
@@ -247,7 +279,7 @@ public static class CreationTools
     public static async Task<List<S3LocalFileAndMetadata>> GetExcludedLocalFiles(int backupJobId,
         IProgress<string> progress)
     {
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         
         var job = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
             .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
@@ -303,7 +335,7 @@ public static class CreationTools
     public static async Task<List<S3LocalFileAndMetadata>> GetIncludedLocalFiles(int backupJobId,
         IProgress<string> progress)
     {
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         
         var job = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
             .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
@@ -413,7 +445,7 @@ public static class CreationTools
         IProgress<string> progress)
     {
         var frozenNow = DateTime.Now.ToUniversalTime();
-        var db = await CloudBackupContext.CreateReportingInstance();
+        var db = await CloudBackupContext.CreateInstance();
         
         progress.Report($"Creating a new Cloud Transfer Batch - {frozenNow}");
         
@@ -426,177 +458,130 @@ public static class CreationTools
         
         await db.SaveChangesAsync();
         
-        progress.Report($"Batch Created - Starting Bulk Transaction");
+        progress.Report("Batch Created - Starting Bulk Transaction");
         
         progress.Report($"Adding {changes.FileSystemFiles.Count} File System Files");
         
-        await using (var connection = new SQLiteConnection($"Data Source={CloudBackupContext.CurrentDatabaseFileName}"))
+        await using var connection = new SQLiteConnection($"Data Source={CloudBackupContext.CurrentDatabaseFileName}");
+        await connection.OpenAsync();
+        await using var transaction = connection.BeginTransaction();
+        
+        await using (var command = new SQLiteCommand(connection))
         {
-            connection.Open();
+            command.CommandText =
+                "INSERT INTO FileSystemFiles (CreatedOn, FileHash, FileName, FileSystemDateTime, FileSize, CloudTransferBatchId) VALUES (@CreatedOn, @FileHash, @FileName, @FileSystemDateTime, @FileSize, @CloudTransferBatchId)";
+
+            command.Prepare();
             
-            await using (var transaction = connection.BeginTransaction())
+            foreach (var file in changes.FileSystemFiles)
             {
-                await using (var command = new SQLiteCommand(connection))
-                {
-                    command.CommandText =
-                        "INSERT INTO FileSystemFiles (CreatedOn, FileHash, FileName, FileSystemDateTime, FileSize, CloudTransferBatchId) VALUES (@CreatedOn, @FileHash, @FileName, @FileSystemDateTime, @FileSize, @CloudTransferBatchId)";
-                    command.Prepare();
-                    
-                    foreach (var file in changes.FileSystemFiles)
-                    {
-                        command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
-                        command.Parameters.AddWithValue("@FileHash", file.UploadMetadata.FileSystemHash);
-                        command.Parameters.AddWithValue("@FileName", file.LocalFile.FullName);
-                        command.Parameters.AddWithValue("@FileSystemDateTime", file.UploadMetadata.LastWriteTime);
-                        command.Parameters.AddWithValue("@FileSize", file.LocalFile.Length);
-                        command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
-                        
-                        command.ExecuteNonQuery();
-                    }
-                }
+                command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
+                command.Parameters.AddWithValue("@FileHash", file.UploadMetadata.FileSystemHash);
+                command.Parameters.AddWithValue("@FileName", file.LocalFile.FullName);
+                command.Parameters.AddWithValue("@FileSystemDateTime", file.UploadMetadata.LastWriteTime);
+                command.Parameters.AddWithValue("@FileSize", file.LocalFile.Length);
+                command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
                 
-                progress.Report($"Saving {changes.FileSystemFiles.Count} File System Files");
-                
-                transaction.Commit();
+                await command.ExecuteNonQueryAsync();
             }
         }
-
+        
         progress.Report($"Adding {changes.S3Files.Count} Cloud Files");
         
-        await using (var connection = new SQLiteConnection($"Data Source={CloudBackupContext.CurrentDatabaseFileName}"))
+        await using (var command = new SQLiteCommand(connection))
         {
-            connection.Open();
+            command.CommandText =
+                "INSERT INTO CloudFiles (CreatedOn, FileHash, CloudObjectKey, FileSystemDateTime, FileSize, CloudTransferBatchId) VALUES (@CreatedOn, @FileHash, @CloudObjectKey, @FileSystemDateTime, @FileSize, @CloudTransferBatchId)";
+            command.Prepare();
             
-            await using (var transaction = connection.BeginTransaction())
+            foreach (var file in changes.S3Files)
             {
-                await using (var command = new SQLiteCommand(connection))
-                {
-                    command.CommandText =
-                        "INSERT INTO CloudFiles (CreatedOn, FileHash, CloudObjectKey, FileSystemDateTime, FileSize, CloudTransferBatchId) VALUES (@CreatedOn, @FileHash, @CloudObjectKey, @FileSystemDateTime, @FileSize, @CloudTransferBatchId)";
-                    command.Prepare();
-                    
-                    foreach (var file in changes.S3Files)
-                    {
-                        command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
-                        command.Parameters.AddWithValue("@FileHash", file.Metadata.FileSystemHash);
-                        command.Parameters.AddWithValue("@CloudObjectKey", file.Key);
-                        command.Parameters.AddWithValue("@FileSystemDateTime", file.Metadata.LastWriteTime);
-                        command.Parameters.AddWithValue("@FileSize", file.Metadata.FileSize);
-                        command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
-                        
-                        command.ExecuteNonQuery();
-                    }
-                }
+                command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
+                command.Parameters.AddWithValue("@FileHash", file.Metadata.FileSystemHash);
+                command.Parameters.AddWithValue("@CloudObjectKey", file.Key);
+                command.Parameters.AddWithValue("@FileSystemDateTime", file.Metadata.LastWriteTime);
+                command.Parameters.AddWithValue("@FileSize", file.Metadata.FileSize);
+                command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
                 
-                progress.Report($"Saving {changes.S3Files.Count} Cloud Files");
-
-                transaction.Commit();
+                await command.ExecuteNonQueryAsync();
             }
         }
-
+        
         progress.Report($"Adding {changes.S3FilesToCopy.Count} S3 Files to Copy");
         
-        await using (var connection = new SQLiteConnection($"Data Source={CloudBackupContext.CurrentDatabaseFileName}"))
+        await using (var command = new SQLiteCommand(connection))
         {
-            connection.Open();
+            command.CommandText =
+                "INSERT INTO CloudCopies (BucketName, CloudTransferBatchId, CopyCompletedSuccessfully, CreatedOn, ErrorMessage, ExistingCloudObjectKey, FileSize, FileSystemFile, LastUpdatedOn, NewCloudObjectKey) VALUES (@BucketName, @CloudTransferBatchId, @CopyCompletedSuccessfully, @CreatedOn, @ErrorMessage, @ExistingCloudObjectKey, @FileSize, @FileSystemFile, @LastUpdatedOn, @NewCloudObjectKey)";
+            command.Prepare();
             
-            await using (var transaction = connection.BeginTransaction())
+            foreach (var file in changes.S3FilesToCopy)
             {
-                await using (var command = new SQLiteCommand(connection))
-                {
-                    command.CommandText = "INSERT INTO CloudCopies (BucketName, CloudTransferBatchId, CopyCompletedSuccessfully, CreatedOn, ErrorMessage, ExistingCloudObjectKey, FileSize, FileSystemFile, LastUpdatedOn, NewCloudObjectKey) VALUES (@BucketName, @CloudTransferBatchId, @CopyCompletedSuccessfully, @CreatedOn, @ErrorMessage, @ExistingCloudObjectKey, @FileSize, @FileSystemFile, @LastUpdatedOn, @NewCloudObjectKey)";
-                    command.Prepare();
-
-                    foreach (var file in changes.S3FilesToCopy)
-                    {
-                        command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
-                        command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
-                        command.Parameters.AddWithValue("@BucketName", changes.AccountInformation.BucketName());
-                        command.Parameters.AddWithValue("@FileSystemFile", file.LocalFile.LocalFile.FullName);
-                        command.Parameters.AddWithValue("@FileSize", file.LocalFile.LocalFile.Length);
-                        command.Parameters.AddWithValue("@ExistingCloudObjectKey", file.ExistingRemoteFile.Key);
-                        command.Parameters.AddWithValue("@NewCloudObjectKey", file.LocalFile.CloudKey);
-                        command.Parameters.AddWithValue("@LastUpdatedOn", frozenNow.ToString("o"));
-                        command.Parameters.AddWithValue("@CopyCompletedSuccessfully", false);
-                        command.Parameters.AddWithValue("@ErrorMessage", string.Empty);
-
-                        command.ExecuteNonQuery();
-                    }
-                }
+                command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
+                command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
+                command.Parameters.AddWithValue("@BucketName", changes.AccountInformation.BucketName());
+                command.Parameters.AddWithValue("@FileSystemFile", file.LocalFile.LocalFile.FullName);
+                command.Parameters.AddWithValue("@FileSize", file.LocalFile.LocalFile.Length);
+                command.Parameters.AddWithValue("@ExistingCloudObjectKey", file.ExistingRemoteFile.Key);
+                command.Parameters.AddWithValue("@NewCloudObjectKey", file.LocalFile.CloudKey);
+                command.Parameters.AddWithValue("@LastUpdatedOn", frozenNow.ToString("o"));
+                command.Parameters.AddWithValue("@CopyCompletedSuccessfully", false);
+                command.Parameters.AddWithValue("@ErrorMessage", string.Empty);
                 
-                progress.Report($"Saving {changes.S3FilesToCopy.Count} S3 Files to Copy");
-
-                transaction.Commit();
+                await command.ExecuteNonQueryAsync();
             }
         }
-
+        
         progress.Report($"Adding {changes.FileSystemFilesToUpload.Count} Files to Upload");
-
-        await using (var connection = new SQLiteConnection($"Data Source={CloudBackupContext.CurrentDatabaseFileName}"))
+        
+        await using (var command = new SQLiteCommand(connection))
         {
-            connection.Open();
+            command.CommandText =
+                "INSERT INTO CloudUploads (BucketName, CloudObjectKey, CloudTransferBatchId, CreatedOn, ErrorMessage, FileSize, FileSystemFile, LastUpdatedOn, UploadCompletedSuccessfully) VALUES (@BucketName, @CloudObjectKey, @CloudTransferBatchId, @CreatedOn, @ErrorMessage, @FileSize, @FileSystemFile, @LastUpdatedOn, @UploadCompletedSuccessfully)";
+            command.Prepare();
             
-            await using (var transaction = connection.BeginTransaction())
+            foreach (var file in changes.FileSystemFilesToUpload)
             {
-                await using (var command = new SQLiteCommand(connection))
-                {
-                    command.CommandText = "INSERT INTO CloudUploads (BucketName, CloudObjectKey, CloudTransferBatchId, CreatedOn, ErrorMessage, FileSize, FileSystemFile, LastUpdatedOn, UploadCompletedSuccessfully) VALUES (@BucketName, @CloudObjectKey, @CloudTransferBatchId, @CreatedOn, @ErrorMessage, @FileSize, @FileSystemFile, @LastUpdatedOn, @UploadCompletedSuccessfully)";
-                    command.Prepare();
-
-                    foreach (var file in changes.FileSystemFilesToUpload)
-                    {
-                        command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
-                        command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
-                        command.Parameters.AddWithValue("@BucketName", changes.AccountInformation.BucketName());
-                        command.Parameters.AddWithValue("@FileSystemFile", file.LocalFile.FullName);
-                        command.Parameters.AddWithValue("@FileSize", file.LocalFile.Length);
-                        command.Parameters.AddWithValue("@CloudObjectKey", file.CloudKey);
-                        command.Parameters.AddWithValue("@LastUpdatedOn", frozenNow.ToString("o"));
-                        command.Parameters.AddWithValue("@ErrorMessage", string.Empty);
-                        command.Parameters.AddWithValue("@UploadCompletedSuccessfully", false);
-
-                        command.ExecuteNonQuery();
-                    }
-                }
+                command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
+                command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
+                command.Parameters.AddWithValue("@BucketName", changes.AccountInformation.BucketName());
+                command.Parameters.AddWithValue("@FileSystemFile", file.LocalFile.FullName);
+                command.Parameters.AddWithValue("@FileSize", file.LocalFile.Length);
+                command.Parameters.AddWithValue("@CloudObjectKey", file.CloudKey);
+                command.Parameters.AddWithValue("@LastUpdatedOn", frozenNow.ToString("o"));
+                command.Parameters.AddWithValue("@ErrorMessage", string.Empty);
+                command.Parameters.AddWithValue("@UploadCompletedSuccessfully", false);
                 
-                progress.Report($"Saving {changes.FileSystemFilesToUpload.Count} Files to Upload");
-
-                transaction.Commit();
+                await command.ExecuteNonQueryAsync();
             }
         }
-
+        
         progress.Report($"Adding {changes.S3FilesToDelete.Count} S3 Files to Delete");
-
-        await using (var connection = new SQLiteConnection($"Data Source={CloudBackupContext.CurrentDatabaseFileName}"))
+        
+        await using (var command = new SQLiteCommand(connection))
         {
-            connection.Open();
+            command.CommandText =
+                "INSERT INTO CloudDeletions (BucketName, CloudObjectKey, CloudTransferBatchId, CreatedOn, DeletionCompletedSuccessfully, ErrorMessage, FileSize, LastUpdatedOn) VALUES (@BucketName, @CloudObjectKey, @CloudTransferBatchId, @CreatedOn, @DeletionCompletedSuccessfully, @ErrorMessage, @FileSize, @LastUpdatedOn)";
+            command.Prepare();
             
-            await using (var transaction = connection.BeginTransaction())
+            foreach (var file in changes.S3FilesToDelete)
             {
-                await using (var command = new SQLiteCommand(connection))
-                {
-                    command.CommandText = "INSERT INTO CloudDeletions (BucketName, CloudObjectKey, CloudTransferBatchId, CreatedOn, DeletionCompletedSuccessfully, ErrorMessage, FileSize, LastUpdatedOn) VALUES (@BucketName, @CloudObjectKey, @CloudTransferBatchId, @CreatedOn, @DeletionCompletedSuccessfully, @ErrorMessage, @FileSize, @LastUpdatedOn)";
-                    command.Prepare();
-
-                    foreach (var file in changes.S3FilesToDelete)
-                    {
-                        command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
-                        command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
-                        command.Parameters.AddWithValue("@BucketName", changes.AccountInformation.BucketName());
-                        command.Parameters.AddWithValue("@CloudObjectKey", file.Key);
-                        command.Parameters.AddWithValue("@FileSize", file.Metadata.FileSize);
-                        command.Parameters.AddWithValue("@LastUpdatedOn", frozenNow.ToString("o"));
-                        command.Parameters.AddWithValue("@DeletionCompletedSuccessfully", false);
-                        command.Parameters.AddWithValue("@ErrorMessage", string.Empty);
-                        command.ExecuteNonQuery();
-                    }
-                }
+                command.Parameters.AddWithValue("@CreatedOn", frozenNow.ToString("o"));
+                command.Parameters.AddWithValue("@CloudTransferBatchId", batch.Id);
+                command.Parameters.AddWithValue("@BucketName", changes.AccountInformation.BucketName());
+                command.Parameters.AddWithValue("@CloudObjectKey", file.Key);
+                command.Parameters.AddWithValue("@FileSize", file.Metadata.FileSize);
+                command.Parameters.AddWithValue("@LastUpdatedOn", frozenNow.ToString("o"));
+                command.Parameters.AddWithValue("@DeletionCompletedSuccessfully", false);
+                command.Parameters.AddWithValue("@ErrorMessage", string.Empty);
                 
-                progress.Report($"Saving {changes.S3FilesToDelete.Count} S3 Files to Delete");
-
-                transaction.Commit();
+                await command.ExecuteNonQueryAsync();
             }
         }
+        
+        progress.Report("Committing all changes...");
+        
+        transaction.Commit();
         
         Log.Information(
             "New Batch Created - Id {batchId}, New Cloud Scan {newCloudScan}, {uploadCount} Uploads, {deleteCount} Deletes, {localFilesCount} Local Files, {cloudFilesCount}",
@@ -606,6 +591,10 @@ public static class CreationTools
         DataNotifications.PublishDataNotification(nameof(CreationTools), DataNotificationContentType.BackupJob,
             DataNotificationUpdateType.New, changes.Job.PersistentId, batch.Id);
         
-        return batch;
+        var returnBatch = await db.CloudTransferBatches.Include(x => x.CloudUploads)
+            .Include(x => x.CloudCopies).Include(x => x.CloudDeletions).Include(x => x.FileSystemFiles)
+            .Include(x => x.CloudFiles).SingleAsync(x => x.Id == batch.Id);
+
+        return returnBatch;
     }
 }

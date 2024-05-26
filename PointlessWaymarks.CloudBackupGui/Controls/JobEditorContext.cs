@@ -669,7 +669,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (LoadedJob.Id > 0)
         {
-            var item = await db.BackupJobs.SingleOrDefaultAsync(x => x.Id == LoadedJob.Id);
+            var item = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
+                .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
+                .Include(backupJob => backupJob.ExcludedFileNamePatterns).SingleOrDefaultAsync(x => x.Id == LoadedJob.Id);
             if (item != null) toSave = item;
         }
         

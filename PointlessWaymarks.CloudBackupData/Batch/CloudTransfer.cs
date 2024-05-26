@@ -16,7 +16,7 @@ public static class CloudTransfer
         IS3AccountInformation accountInformation, int cloudTransferBatchId, DateTime? startTime,
         IProgress<string>? progress)
     {
-        var context = await CloudBackupContext.CreateReportingInstance();
+        var context = await CloudBackupContext.CreateInstance();
         
         var batch = await context.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).SingleAsync(x => x.Id == cloudTransferBatchId);
         

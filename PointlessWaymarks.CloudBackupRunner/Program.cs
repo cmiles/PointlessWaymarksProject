@@ -15,7 +15,7 @@ public static class Program
     {
         LogTools.StandardStaticLoggerForDefaultLogDirectory("CloudBackupRunner");
         
-        AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs eventArgs)
+        AppDomain.CurrentDomain.UnhandledException += delegate(object _, UnhandledExceptionEventArgs eventArgs)
         {
             var exceptionMessage = "Unhandled Fatal Exception";
             if (eventArgs.ExceptionObject is Exception castException) exceptionMessage = castException.Message;
@@ -91,6 +91,10 @@ public static class Program
                               """);
             Console.WriteLine();
             Console.WriteLine("""
+                                new - A new batch will be created including a full rescan of the cloud files.
+                              """);
+            Console.WriteLine();
+            Console.WriteLine("""
                                 auto - To have the program guess whether there is a batch worth resuming specify
                                 'auto'. This will look for a recent batch that has a low error rate and still
                                 needs a large number of actions to complete. If a 'best guess' Batch is not found
@@ -126,7 +130,7 @@ public static class Program
         
         if (args.Length == 1)
         {
-            var jobs = await db.context.BackupJobs.ToListAsync();
+            var jobs = await db.context.BackupJobs.Include(backupJob => backupJob.Batches).ToListAsync();
             
             Log.Verbose("Found {jobCount} Jobs", jobs.Count);
             
@@ -158,7 +162,7 @@ public static class Program
             return;
         }
         
-        var backupJob = await db.context.BackupJobs.SingleOrDefaultAsync(x => x.Id == jobId);
+        var backupJob = await db.context.BackupJobs.Include(backupJob => backupJob.Batches).SingleOrDefaultAsync(x => x.Id == jobId);
         
         if (backupJob == null)
         {
@@ -187,7 +191,7 @@ public static class Program
         if (string.IsNullOrWhiteSpace(cloudCredentials.username) ||
             string.IsNullOrWhiteSpace(cloudCredentials.password))
         {
-            await errorNotifier.Error($"Cloud Credentials are not Valid?");
+            await errorNotifier.Error("Cloud Credentials are not Valid?");
             
             Log.Error(
                 $"Cloud Credentials are not Valid? Access Key is blank {string.IsNullOrWhiteSpace(cloudCredentials.username)}, Password is blank {string.IsNullOrWhiteSpace(cloudCredentials.password)}");
@@ -212,7 +216,7 @@ public static class Program
                 await errorNotifier.Error("Cloudflare Account Id is not Valid?");
                 
                 Log.Error(
-                    $"Cloudflare Account Id is not Valid? Account Id is Blank.");
+                    "Cloudflare Account Id is not Valid? Account Id is Blank.");
                 Log.Information("Cloud Backup Runner - Finished Run");
                 await Log.CloseAndFlushAsync();
                 return;
@@ -238,9 +242,9 @@ public static class Program
         var mostRecentCloudScanBatch =
             backupJob.Batches.Where(x => x.BasedOnNewCloudFileScan).MaxBy(x => x.CreatedOn);
         
-//3 Args mean that a batch has been specified in one of 3 ways: auto, last, or id. On all of these options
-//a 'bad' option (last when there is no last batch, id that doesn't match anything in the db...) will fall
-//thru to a new batch being generated. 
+        //3 Args mean that a batch has been specified in one of 3 ways: auto, last, or id. On all of these options
+        //a 'bad' option (last when there is no last batch, id that doesn't match anything in the db...) will fall
+        //thru to a new batch being generated. 
         if (args.Length == 3)
         {
             //Auto: Very simple - if there is a batch in the last two weeks that is < 95% done and < 10% errors use it
@@ -305,6 +309,12 @@ public static class Program
                 else
                     Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables())
                         .Information("Setting Batch based on argument Id Argument {batchArgument} Failed", args[2]);
+            }
+            //New Batch - this will be a new batch and a full rescan
+            else if (args[2].Equals("new", StringComparison.OrdinalIgnoreCase))
+            {
+                batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
+                    progress);
             }
         }
         

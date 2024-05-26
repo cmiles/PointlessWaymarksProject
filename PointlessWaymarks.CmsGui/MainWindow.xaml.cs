@@ -521,7 +521,7 @@ public partial class MainWindow
 
         SettingsEditorContext =
             await UserSettingsEditorContext.CreateInstance(null, UserSettingsSingleton.CurrentSettings());
-        AboutContext = new HelpDisplayContext([HelpMarkdown.CmsGeneralDescriptionBlock, HelpMarkdown.SoftwareUsedBlock]);
+        AboutContext = new HelpDisplayContext([HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription, HelpMarkdown.SoftwareUsedBlock]);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

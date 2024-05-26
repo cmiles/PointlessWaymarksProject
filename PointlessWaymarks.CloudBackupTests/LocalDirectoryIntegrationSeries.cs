@@ -15,7 +15,7 @@ namespace PointlessWaymarks.CloudBackupTests;
 public class LocalDirectoryIntegrationSeries
 {
     /// <summary>
-    ///     Setup a test directory with a subdirectory structure, test database and a test job
+    ///     Set up a test directory with a subdirectory structure, test database and a test job
     /// </summary>
     /// <returns></returns>
     [OneTimeSetUp]

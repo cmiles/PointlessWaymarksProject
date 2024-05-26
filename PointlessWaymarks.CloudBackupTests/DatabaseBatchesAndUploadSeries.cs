@@ -9,6 +9,27 @@ using PointlessWaymarks.CommonTools.S3;
 
 namespace PointlessWaymarks.CloudBackupTests;
 
+public class BatchCountHelper
+{
+    public List<CloudCopy> CloudCopies { get; set; }
+    public List<CloudDelete> CloudDeletions { get; set; }
+    public List<FileSystemFile> FileSystemFiles { get; set; }
+    public List<CloudUpload> CloudUploads { get; set; }
+    
+    public static async Task<BatchCountHelper> CreateInstance(int batchId)
+    {
+        var context = await CloudBackupContext.CreateInstance();
+
+        return new BatchCountHelper
+        {
+            FileSystemFiles = await context.FileSystemFiles.Where(x => x.CloudTransferBatchId == batchId).AsNoTracking().ToListAsync(),
+            CloudCopies = await context.CloudCopies.Where(x => x.CloudTransferBatchId == batchId).AsNoTracking().ToListAsync(),
+            CloudUploads = await context.CloudUploads.Where(x => x.CloudTransferBatchId == batchId).AsNoTracking().ToListAsync(),
+            CloudDeletions = await context.CloudDeletions.Where(x => x.CloudTransferBatchId == batchId).AsNoTracking().ToListAsync()
+        };
+    }
+}
+
 /// <summary>
 ///     This tests both database and S3 listings/uploads. The intent is that this is used with a 'local' S3
 ///     service such as:
@@ -20,7 +41,7 @@ public class DatabaseBatchesAndUploadSeries
     public IS3AccountInformation S3Credentials { get; set; }
     
     /// <summary>
-    ///     Setup a test directory with a subdirectory structure, test database and a test job.
+    ///     Set up a test directory with a subdirectory structure, test database and a test job.
     /// </summary>
     /// <returns></returns>
     [OneTimeSetUp]
@@ -95,8 +116,7 @@ public class DatabaseBatchesAndUploadSeries
         var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
         var batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(S3Credentials, job, progress);
         
-        var testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+        var testBatch = await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -106,11 +126,10 @@ public class DatabaseBatchesAndUploadSeries
             Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(8));
         });
         
-        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, testBatch.Id, null, null);
+        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, batch.Id, null, null);
         
-        testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
-        
+        testBatch = await BatchCountHelper.CreateInstance(batch.Id);
+
         Assert.Multiple(() =>
         {
             Assert.That(testBatch.CloudCopies.Where(x => x.CopyCompletedSuccessfully).ToList(),
@@ -143,9 +162,8 @@ public class DatabaseBatchesAndUploadSeries
         var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
         var batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(S3Credentials, job, progress);
         
-        var testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
-        
+        var testBatch = await BatchCountHelper.CreateInstance(batch.Id);
+
         Assert.Multiple(() =>
         {
             Assert.That(testBatch.CloudCopies, Has.Count.EqualTo(0));
@@ -154,10 +172,9 @@ public class DatabaseBatchesAndUploadSeries
             Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(8));
         });
         
-        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, testBatch.Id, null, null);
+        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, batch.Id, null, null);
         
-        testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+        testBatch = await BatchCountHelper.CreateInstance(batch.Id); ;
         
         Assert.Multiple(() =>
         {
@@ -191,8 +208,7 @@ public class DatabaseBatchesAndUploadSeries
         var job = await (await CloudBackupContext.CreateInstance()).BackupJobs.SingleAsync();
         var batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(S3Credentials, job, progress);
         
-        var testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+        var testBatch = await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -202,10 +218,10 @@ public class DatabaseBatchesAndUploadSeries
             Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(7));
         });
         
-        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, testBatch.Id, null, null);
+        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, batch.Id, null, null);
         
         testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -243,7 +259,7 @@ public class DatabaseBatchesAndUploadSeries
         var batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(S3Credentials, job, progress);
         
         var testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -253,10 +269,10 @@ public class DatabaseBatchesAndUploadSeries
             Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(3));
         });
         
-        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, testBatch.Id, null, null);
+        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, batch.Id, null, null);
         
         testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -286,7 +302,7 @@ public class DatabaseBatchesAndUploadSeries
         var progress = new ConsoleProgress();
         
         var context = await CloudBackupContext.CreateInstance();
-        var job = await context.BackupJobs.SingleAsync();
+        var job = await context.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories).SingleAsync();
         job.ExcludedDirectories.Remove(job.ExcludedDirectories.First());
         await context.SaveChangesAsync();
         
@@ -295,7 +311,7 @@ public class DatabaseBatchesAndUploadSeries
         var batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(S3Credentials, job, progress);
         
         var testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -305,10 +321,10 @@ public class DatabaseBatchesAndUploadSeries
             Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(6));
         });
         
-        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, testBatch.Id, null, null);
+        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, batch.Id, null, null);
         
         testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -347,7 +363,7 @@ public class DatabaseBatchesAndUploadSeries
         var batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(S3Credentials, job, progress);
         
         var testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -357,10 +373,10 @@ public class DatabaseBatchesAndUploadSeries
             Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(6));
         });
         
-        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, testBatch.Id, null, null);
+        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, batch.Id, null, null);
         
         testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -405,7 +421,7 @@ public class DatabaseBatchesAndUploadSeries
         var batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(S3Credentials, job, progress);
         
         var testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -415,10 +431,10 @@ public class DatabaseBatchesAndUploadSeries
             Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(10));
         });
         
-        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, testBatch.Id, null, null);
+        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, batch.Id, null, null);
         
         testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -466,7 +482,7 @@ public class DatabaseBatchesAndUploadSeries
         var batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(S3Credentials, job, progress);
         
         var testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {
@@ -476,10 +492,10 @@ public class DatabaseBatchesAndUploadSeries
             Assert.That(testBatch.FileSystemFiles, Has.Count.EqualTo(6));
         });
         
-        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, testBatch.Id, null, null);
+        await CloudTransfer.CloudCopyUploadAndDelete(S3Credentials, batch.Id, null, null);
         
         testBatch =
-            await (await CloudBackupContext.CreateInstance()).CloudTransferBatches.SingleAsync(x => x.Id == batch.Id);
+            await BatchCountHelper.CreateInstance(batch.Id);
         
         Assert.Multiple(() =>
         {

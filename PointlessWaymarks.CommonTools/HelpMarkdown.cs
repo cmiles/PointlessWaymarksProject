@@ -2,25 +2,17 @@ namespace PointlessWaymarks.CommonTools;
 
 public static class HelpMarkdown
 {
-    public static string CmsGeneralDescriptionBlock =>
+    public static string PointlessWaymarksAllProjectsQuickDescription =
         """
-    ### Pointless Waymarks CMS
-    
-    The Pointless Waymarks CMS is part of the [Pointless Waymarks Project](https://github.com/cmiles/PointlessWaymarksProject) whose focus is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place, history and nature.
-
-    The Pointless Waymarks CMS creates content focused static sites that can easily become a public website (or remain only on your computer and be viewed offline).
-  
-    [Pointless Waymarks](https://pointlesswaymarks.com/) and [cmiles - info](https://www.cmiles.info/) are both created using the Pointless Waymarks CMS and are good examples of its output.
-    """;
-
-    public static string GeoToolsGeneralDescriptionBlock =>
-        """
-    ### Pointless Waymarks CMS
-    
-    The Pointless Waymarks CMS is part of the [Pointless Waymarks Project](https://github.com/cmiles/PointlessWaymarksProject) whose focus is creating durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place, history and nature.
-
-    The Pointless Waymarks GeoTools helps you archive your GPX files, GeoTag content and add tags based on geographic location.
-    """;
+        ## The Pointless Waymarks Project
+        
+        The Pointless Waymarks Project is a set of apps that are connected by a focus on durable, rich, low maintenance, free, long-lasting, organized content that allows you to tell stories about the landscape, life, place, history and nature.
+          - [Windows Desktop CMS, Static Site Generator, Offline Site Viewer and supporting Command Line Tasks](https://github.com/cmiles/PointlessWaymarksProject) - see [Pointless Waymarks](https://pointlesswaymarks.com/) and [cmiles - info](https://www.cmiles.info/), both sites are created with this system.
+          - [Pointless Waymarks GeoTools](https://github.com/cmiles/PointlessWaymarksProject/blob/main/PointlessWaymarks.GeoToolsGui/README.md) - a Windows Desktop program to help with: geotagging Photos (both from gpx files and Garmin Connect), tagging geotagged photos with location information (state, park/monument name, etc) and downloading activities from Garmin Connect.
+          - [Pointless Waymarks Cloud Backup](https://github.com/cmiles/PointlessWaymarksProject/blob/main/PointlessWaymarks.CloudBackupGui/README.md) - a data focused Windows backup program that uses Amazon S3 or Cloudflare R2. Features include: MD5 file comparisons, a maximum runtime for backups, Excel reports and easy scheduling via the Windows Task Scheduler. This program does not created versioned backups or have an mechanism to restore your files -> instead it focuses on creating a simple/direct backup of your files on S3/R2 - with your files on S3/R2 you can easily explore your backup on the web or via free clients on nearly any OS and in an emergency there is a very good chance you can find some reasonable way to see/view/access your backups.
+          - [Pointless Waymarks Feed Reader](https://github.com/cmiles/PointlessWaymarksProject/blob/main/PointlessWaymarks.FeedReaderGui/README.MD) - a simple Windows Desktop Feed Reader. No folders to organize, no online account and no temptation to doom scroll on your phone - this is a Windows Desktop only program for reading content that you care about with very low setup and ceremony.
+          - [Open Source Code on GitHub](https://github.com/cmiles/PointlessWaymarksProject): The source code for the project is available on GitHub and (largely) MIT Licensed. Primary technologies include C#, .NET Core, WPF, EF Core, WebView2 and SQLite. The project has projects/components/details that might be generic enough to be re-used in your own code...
+        """;
 
     public static string SoftwareUsedBlock =>
         """
@@ -43,7 +35,7 @@ I am incredibly grateful to the all the people and projects that make it possibl
  - [grepWin: A powerful and fast search tool using regular expressions](https://github.com/stefankueng/grepWin)
  - [Inno Setup](https://jrsoftware.org/isinfo.php)
  - [LINQPad - The .NET Programmer's Playground](https://www.linqpad.net/)
- - [Greenfish Icon Editor Pro 4.1 - Official Website](http://greenfishsoftware.org/gfie.php)
+ - [Greenfish Icon Editor Pro](http://greenfishsoftware.org/gfie.php)
  - [Notepad++](https://notepad-plus-plus.org/)
  - [RegexBuddy: Learn, Create, Understand, Test, Use and Save Regular Expression](https://www.regexbuddy.com/)
 

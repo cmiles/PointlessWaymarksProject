@@ -40,7 +40,7 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
         
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
         
-        return Task.FromResult(new CloudBackupContext(optionsBuilder.UseLazyLoadingProxies()
+        return Task.FromResult(new CloudBackupContext(optionsBuilder
             .UseSqlite($"Data Source={fileName}").Options));
     }
     
@@ -67,26 +67,6 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
         await context.Database.EnsureCreatedAsync();
         
         return context;
-    }
-    
-    public static async Task<CloudBackupContext> CreateReportingInstance()
-    {
-        return await CreateReportingInstance(CurrentDatabaseFileName);
-    }
-    
-    public static Task<CloudBackupContext> CreateReportingInstance(string fileName, bool setFileNameAsCurrentDb = true)
-    {
-        // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
-        Batteries_V2.Init();
-        raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
-        var optionsBuilder = new DbContextOptionsBuilder<CloudBackupContext>();
-        
-        optionsBuilder.LogTo(message => Debug.WriteLine(message));
-        
-        if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
-        
-        return Task.FromResult(new CloudBackupContext(optionsBuilder
-            .UseSqlite($"Data Source={fileName}").Options));
     }
     
     /// <summary>
@@ -135,7 +115,7 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
         
         try
         {
-            db = new CloudBackupContext(optionsBuilder.UseLazyLoadingProxies().UseSqlite($"Data Source={fileName}")
+            db = new CloudBackupContext(optionsBuilder.UseSqlite($"Data Source={fileName}")
                 .Options);
         }
         catch (Exception e)

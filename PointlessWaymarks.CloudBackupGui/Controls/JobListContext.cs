@@ -30,30 +30,30 @@ public partial class JobListContext
     public JobListListItem? SelectedJob { get; set; }
     public List<JobListListItem> SelectedJobs { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
-
+    
     [NonBlockingCommand]
     public async Task BasicCommandLineCommandToClipboard(BackupJob? listItem)
     {
         if (listItem is null) return;
-
+        
         var settings = CloudBackupGuiSettingTools.ReadSettings();
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText($@".\PointlessWaymarks.CloudBackupRunner.exe ""{settings.DatabaseFile}"" {listItem.Id}");
-
+        
+        Clipboard.SetText($""".\PointlessWaymarks.CloudBackupRunner.exe "{settings.DatabaseFile}" {listItem.Id}""");
+        
         StatusContext.ToastSuccess("Command Line Command on Clipboard");
     }
-
+    
     [BlockingCommand]
     public async Task ChooseCurrentDb()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var initialDirectoryString = CloudBackupGuiSettingTools.ReadSettings().LastDirectory;
-
+        
         DirectoryInfo? initialDirectory = null;
-
+        
         try
         {
             if (!string.IsNullOrWhiteSpace(initialDirectoryString))
@@ -63,32 +63,32 @@ public partial class JobListContext
         {
             Console.WriteLine(e);
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         StatusContext.Progress("Starting File Chooser");
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var filePicker = new VistaOpenFileDialog
             { Filter = "db files (*.db)|*.db|All files (*.*)|*.*" };
-
+        
         if (initialDirectory != null) filePicker.FileName = $"{initialDirectory.FullName}\\";
-
+        
         var result = filePicker.ShowDialog();
-
+        
         if (!result ?? false) return;
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         StatusContext.Progress("Checking that file exists");
-
+        
         var possibleFile = new FileInfo(filePicker.FileName);
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (!possibleFile.Exists) return;
-
+        
         var currentSettings = CloudBackupGuiSettingTools.ReadSettings();
         if (!string.IsNullOrWhiteSpace(possibleFile.Directory?.Parent?.FullName))
             currentSettings.LastDirectory = possibleFile.Directory?.Parent?.FullName;
@@ -96,69 +96,69 @@ public partial class JobListContext
         await CloudBackupGuiSettingTools.WriteSettings(currentSettings);
         CurrentDatabase = possibleFile.FullName;
     }
-
+    
     [BlockingCommand]
     public async Task CloudCacheFilesReport(BackupJob? toEdit)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (toEdit == null)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
-
+        
         var file = await CloudCacheFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
         
         StatusContext.Progress($"Opening Excel File {file}");
         
         ProcessTools.Open(file);
     }
-
+    
     public static async Task<JobListContext> CreateInstance(StatusControlContext statusContext)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var factoryStatusContext = statusContext;
         var settings = CloudBackupGuiSettingTools.ReadSettings();
-
+        
         if (string.IsNullOrWhiteSpace(settings.DatabaseFile) || !File.Exists(settings.DatabaseFile))
         {
             var newDb = UniqueFileTools.UniqueFile(
                 FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-CloudBackup.db");
             settings.DatabaseFile = newDb!.FullName;
-
+            
             await CloudBackupContext.CreateInstanceWithEnsureCreated(newDb.FullName);
-
+            
             await CloudBackupGuiSettingTools.WriteSettings(settings);
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var initialItems = new ObservableCollection<JobListListItem>();
-
+        
         var toReturn = new JobListContext
         {
             StatusContext = factoryStatusContext,
             Items = initialItems,
             CurrentDatabase = settings.DatabaseFile
         };
-
+        
         await toReturn.Setup();
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         await toReturn.UpdateDatabaseFile();
-
+        
         return toReturn;
     }
-
+    
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
-
+        
         var toRun = translatedMessage.Match(ProcessDataUpdateNotification,
             ProcessProgressNotification,
             x =>
@@ -169,124 +169,126 @@ public partial class JobListContext
                 return Task.CompletedTask;
             }
         );
-
+        
         if (toRun is not null) await toRun;
     }
-
+    
     [BlockingCommand]
     public async Task DeleteJob(BackupJob? toDelete)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (toDelete == null)
         {
             StatusContext.ToastWarning("Nothing Selected to Delete?");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         if (MessageBox.Show(
                 "Deleting a Backup Job will NOT delete any files or directories - but it will delete all records associated with this backup job! Continue??",
                 "Delete Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
             return;
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         PasswordVaultTools.RemoveCredentials(toDelete.VaultS3CredentialsIdentifier);
-
-        var db = await CloudBackupContext.CreateReportingInstance();
+        
+        var db = await CloudBackupContext.CreateInstance();
         var currentItem = await db.BackupJobs.SingleAsync(x => x.Id == toDelete.Id);
-
+        
         db.Remove(currentItem);
         await db.SaveChangesAsync();
-
+        
         await RefreshList();
     }
-
+    
     [NonBlockingCommand]
     public async Task EditJob(BackupJob? toEdit)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (toEdit == null)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var window = await JobEditorWindow.CreateInstance(toEdit, CurrentDatabase);
         window.PositionWindowAndShow();
     }
-
-
+    
+    
     [NonBlockingCommand]
     public async Task EditSelectedJob()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (SelectedJob?.DbJob == null)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var window = await JobEditorWindow.CreateInstance(SelectedJob.DbJob, CurrentDatabase);
         window.PositionWindowAndShow();
     }
-
+    
     [BlockingCommand]
     public async Task IncludedAndExcludedFilesReport(BackupJob? toEdit)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         if (toEdit == null)
         {
             StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
-
+        
         var file = await IncludedAndExcludedFilesToExcel.Run(toEdit.Id, StatusContext.ProgressTracker());
         
         StatusContext.Progress($"Opening Excel File {file.FullName}");
-
+        
         ProcessTools.Open(file.FullName);
     }
-
+    
     [NonBlockingCommand]
     public async Task KillProgressProcess(JobListListItem listItem)
     {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
         if (listItem.ProgressProcess == null)
         {
             StatusContext.ToastWarning("No Process to Kill?");
             return;
         }
-
+        
         var processId = listItem.ProgressProcess.Value;
-
+        
         Process.GetProcessById(listItem.ProgressProcess.Value).Kill(true);
-
+        
         StatusContext.ToastSuccess($"Requested Process {processId} be Killed");
     }
-
+    
     [NonBlockingCommand]
     public async Task NewBatchWindow(BackupJob? listItem)
     {
         if (listItem is null) return;
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         await BatchListWindow.CreateInstanceAndShow(listItem.Id, listItem.Name);
     }
-
+    
     [NonBlockingCommand]
     public async Task NewJob()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         var newJob = new BackupJob
         {
             CreatedOn = DateTime.Now,
@@ -294,47 +296,47 @@ public partial class JobListContext
             MaximumRunTimeInHours = 6,
             PersistentId = Guid.NewGuid()
         };
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var window = await JobEditorWindow.CreateInstance(newJob, CurrentDatabase);
         window.PositionWindowAndShow();
     }
-
+    
     [NonBlockingCommand]
     public async Task NewProgressWindow(BackupJob? listItem)
     {
         if (listItem is null) return;
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         var window = await ProgressTrackerWindow.CreateInstance(listItem.PersistentId, listItem.Name);
         window.PositionWindowAndShow();
     }
-
+    
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor?.Enqueue(e);
     }
-
+    
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
         if (e.PropertyName.Equals(nameof(CurrentDatabase)))
             StatusContext.RunFireAndForgetBlockingTask(UpdateDatabaseFile);
     }
-
+    
     private async Task ProcessDataUpdateNotification(InterProcessDataNotification interProcessUpdateNotification)
     {
         if (interProcessUpdateNotification is
             { ContentType: DataNotificationContentType.BackupJob, UpdateType: DataNotificationUpdateType.Delete })
         {
             await ThreadSwitcher.ResumeForegroundAsync();
-
+            
             var toRemove = Items.Where(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId).ToList();
             toRemove.ForEach(x => Items.Remove(x));
             return;
         }
-
+        
         if (interProcessUpdateNotification is
             {
                 ContentType: DataNotificationContentType.BackupJob, UpdateType: DataNotificationUpdateType.Update
@@ -342,58 +344,57 @@ public partial class JobListContext
             })
         {
             var listItem = Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
-            var db = await CloudBackupContext.CreateReportingInstance();
+            var db = await CloudBackupContext.CreateInstance();
             var dbItem =
                 db.BackupJobs.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
-
+            
             if (dbItem == null) return;
-
+            
             if (listItem != null)
             {
                 listItem.DbJob = dbItem;
                 return;
             }
         }
-
+        
         if (interProcessUpdateNotification is { ContentType: DataNotificationContentType.CloudTransferBatch })
         {
             var listItem = Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
             if (listItem is not null) await listItem.RefreshLatestBatch();
-            return;
         }
     }
-
+    
     private async Task ProcessProgressNotification(InterProcessProgressNotification arg)
     {
         var possibleListItem = Items.SingleOrDefault(x => x.PersistentId == arg.JobPersistentId);
         if (possibleListItem == null) return;
-
+        
         possibleListItem.ProgressString = arg.ProgressMessage;
         possibleListItem.ProgressProcess = arg.ProcessId;
-
+        
         if (arg.BatchId == possibleListItem.LatestBatch?.BatchId) await possibleListItem.RefreshLatestBatchStatistics();
     }
-
+    
     [BlockingCommand]
     public async Task RefreshList()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
-
-        var db = await CloudBackupContext.CreateReportingInstance();
-
+        
+        var db = await CloudBackupContext.CreateInstance();
+        
         var jobs = await db.BackupJobs.ToListAsync();
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         Items.Clear();
-
+        
         foreach (var x in jobs) Items.Add(await JobListListItem.CreateInstance(x));
-
+        
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
-
+    
     [NonBlockingCommand]
     public async Task RunJob(BackupJob? toRun)
     {
@@ -402,49 +403,69 @@ public partial class JobListContext
             StatusContext.ToastWarning("Nothing Selected to Run?");
             return;
         }
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         DataNotifications.PublishProgressNotification("CloudBackupGui", 0, "Starting Backup Runner", toRun.PersistentId,
             null);
-
+        
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             await Program.Main([CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "auto"]));
-
+        
         StatusContext.ToastSuccess("Starting Backup Runner...");
     }
-
+    
+    [NonBlockingCommand]
+    public async Task RunJobForceCloudCacheRescan(BackupJob? toRun)
+    {
+        if (toRun == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Run?");
+            return;
+        }
+        
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        DataNotifications.PublishProgressNotification("CloudBackupGui", 0, "Starting Backup Runner", toRun.PersistentId,
+            null);
+        
+        StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            await Program.Main([CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "auto"]));
+        
+        StatusContext.ToastSuccess("Starting Backup Runner...");
+    }
+    
     public Task Setup()
     {
         BuildCommands();
         PropertyChanged += OnPropertyChanged;
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
-
+        
         return Task.CompletedTask;
     }
-
+    
     public async Task UpdateDatabaseFile()
     {
         DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
-
+        
         var dbCheck = await CloudBackupContext.TryCreateInstance(CurrentDatabase);
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         Items.Clear();
-
+        
         await ThreadSwitcher.ResumeBackgroundAsync();
-
+        
         CurrentDatabaseIsValid = dbCheck.success;
-
+        
         if (!dbCheck.success) return;
-
+        
         var jobs = await dbCheck.context!.BackupJobs.ToListAsync();
-
+        
         await ThreadSwitcher.ResumeForegroundAsync();
-
+        
         foreach (var x in jobs) Items.Add(await JobListListItem.CreateInstance(x));
-
+        
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 }
