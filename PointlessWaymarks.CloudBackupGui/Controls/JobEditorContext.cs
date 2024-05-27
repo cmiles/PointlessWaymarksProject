@@ -231,6 +231,12 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     {
         await ThreadSwitcher.ResumeForegroundAsync();
         
+        var db = await CloudBackupContext.CreateInstance();
+
+        await db.Entry(initialJob).Collection(x => x.ExcludedDirectories).LoadAsync();
+        await db.Entry(initialJob).Collection(x => x.ExcludedDirectoryNamePatterns).LoadAsync();
+        await db.Entry(initialJob).Collection(x => x.ExcludedFileNamePatterns).LoadAsync();
+
         var statusContext = context ?? new StatusControlContext();
         
         var nameEntry = StringDataEntryContext.CreateInstance();
@@ -392,15 +398,15 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         var dbExcludedDirectory = initialJob.ExcludedDirectories
             .Select(x => new DirectoryInfo(x.Directory)).ToList();
-        var excludedDirectory = new ObservableCollection<DirectoryInfo>(dbExcludedDirectory);
+        var excludedDirectory = new ObservableCollection<DirectoryInfo>(dbExcludedDirectory.GroupBy(x => x.FullName).Select(x => x.First()).OrderBy(x => x.FullName).ToList());
         
         var dbExcludedDirectoryPatterns = initialJob.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList();
         var excludedDirectoryPatterns =
-            new ObservableCollection<string>(dbExcludedDirectoryPatterns);
+            new ObservableCollection<string>(dbExcludedDirectoryPatterns.Distinct().OrderBy(x => x).ToList());
         
         var dbExcludedFilePatterns = initialJob.ExcludedFileNamePatterns.Select(x => x.Pattern).ToList();
         var excludedFilePatterns =
-            new ObservableCollection<string>(dbExcludedFilePatterns);
+            new ObservableCollection<string>(dbExcludedFilePatterns.Distinct().OrderBy(x => x).ToList());
         
         var toReturn = new JobEditorContext
         {
@@ -492,7 +498,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         var added = frozenList.Except(originalList).ToList();
         var removed = originalList.Except(frozenList).ToList();
         
-        ExcludedDirectoriesHasChanges = added.Any() || removed.Any();
+        ExcludedDirectoriesHasChanges = added.Any() || removed.Any() || frozenList.Count != ExcludedDirectoriesOriginal.Count;
         
         ExcludedDirectoriesHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedDirectoriesHasChangesMessage += $"Added: {string.Join(",", added)}";
@@ -514,8 +520,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         var added = frozenList.Except(ExcludedDirectoryPatternsOriginal).ToList();
         var removed = ExcludedDirectoryPatternsOriginal.Except(frozenList).ToList();
-        
-        ExcludedDirectoryPatternsHasChanges = added.Any() || removed.Any();
+
+        ExcludedDirectoryPatternsHasChanges = added.Any() || removed.Any() || frozenList.Count != ExcludedDirectoryPatternsOriginal.Count;
         
         ExcludedDirectoryPatternsHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedDirectoryPatternsHasChangesMessage += $"Added: {string.Join(",", added)}";
@@ -538,7 +544,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         var added = frozenList.Except(ExcludedFilePatternsOriginal).ToList();
         var removed = ExcludedFilePatternsOriginal.Except(frozenList).ToList();
         
-        ExcludedFilePatternsHasChanges = added.Any() || removed.Any();
+        ExcludedFilePatternsHasChanges = added.Any() || removed.Any()|| frozenList.Count != ExcludedFilePatternsOriginal.Count;
         
         ExcludedFilePatternsHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedFilePatternsHasChangesMessage += $"Added: {string.Join(",", added)}";
@@ -736,7 +742,35 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         if (toSave.Id < 1) db.BackupJobs.Add(toSave);
         
         await db.SaveChangesAsync();
+
+        var directoryToRemoveForDuplicates = await db.ExcludedDirectories.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
+        var duplicateDirectoryGroups = directoryToRemoveForDuplicates.GroupBy(x => x.Directory);
+        foreach (var loopDuplicateDirectoryGroup in duplicateDirectoryGroups)
+        {
+            db.ExcludedDirectories.RemoveRange(loopDuplicateDirectoryGroup.Skip(1));
+        }
         
+        var directoryPatternsToRemoveForDuplicates = await db.ExcludedDirectoryNamePatterns.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
+        var duplicateDirectoryPatternGroups = directoryPatternsToRemoveForDuplicates.GroupBy(x => x.Pattern);
+        foreach (var loopDuplicateDirectoryPatternGroup in duplicateDirectoryPatternGroups)
+        {
+            db.ExcludedDirectoryNamePatterns.RemoveRange(loopDuplicateDirectoryPatternGroup.Skip(1));
+        }
+
+        var filePatternsToRemoveForDuplicates = await db.ExcludedFileNamePatterns.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
+        var duplicateFilePatternGroups = filePatternsToRemoveForDuplicates.GroupBy(x => x.Pattern);
+        foreach (var loopDuplicateFilePatternGroup in duplicateFilePatternGroups)
+        {
+            db.ExcludedFileNamePatterns.RemoveRange(loopDuplicateFilePatternGroup.Skip(1));
+        }
+        
+        await db.SaveChangesAsync();
+        
+        //Make sure we have the latest from the db
+        toSave = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
+            .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
+            .Include(backupJob => backupJob.ExcludedFileNamePatterns).SingleAsync(x => x.Id == toSave.Id);
+
         DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
             DataNotificationContentType.BackupJob, DataNotificationUpdateType.Update, toSave.PersistentId, null);
         

@@ -239,9 +239,6 @@ public static class Program
         };
         CloudTransferBatch? batch = null;
         
-        var mostRecentCloudScanBatch =
-            backupJob.Batches.Where(x => x.BasedOnNewCloudFileScan).MaxBy(x => x.CreatedOn);
-        
         //3 Args mean that a batch has been specified in one of 3 ways: auto, last, or id. On all of these options
         //a 'bad' option (last when there is no last batch, id that doesn't match anything in the db...) will fall
         //thru to a new batch being generated. 
@@ -326,7 +323,7 @@ public static class Program
         //on the age of the last Cloud File Scan.
         if (batch == null)
         {
-            if (mostRecentCloudScanBatch != null && mostRecentCloudScanBatch.CreatedOn > DateTime.Now.AddDays(-180))
+            if (backupJob.LastCloudFileScan != null && backupJob.LastCloudFileScan > DateTime.Now.AddDays(-180))
             {
                 batchInformation = await CloudTransfer.CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(amazonCredentials,
                     backupJob,

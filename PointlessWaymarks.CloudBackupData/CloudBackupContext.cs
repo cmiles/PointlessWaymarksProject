@@ -74,16 +74,26 @@ public class CloudBackupContext(DbContextOptions<CloudBackupContext> options) : 
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="setFileNameAsCurrentDb"></param>
+    /// <param name="createFileIfDoesNotExist"></param>
     /// <returns></returns>
     public static async Task<(bool success, string message, CloudBackupContext? context)> TryCreateInstance(
         string fileName,
-        bool setFileNameAsCurrentDb = true)
+        bool setFileNameAsCurrentDb = true, bool createFileIfDoesNotExist = false)
     {
         var newFileInfo = new FileInfo(fileName);
         
         if (!newFileInfo.Exists)
-            return (false,
-                "File does not exist?", null);
+            if (createFileIfDoesNotExist)
+            {
+                var createContext = await CreateInstance(fileName, setFileNameAsCurrentDb);
+                await createContext.Database.EnsureCreatedAsync();
+                await createContext.DisposeAsync();
+            }
+            else
+            {
+                return (false,
+                    "File does not exist?", null);
+            }
         
         try
         {

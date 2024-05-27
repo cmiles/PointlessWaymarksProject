@@ -25,7 +25,6 @@ public partial class JobListListItem
     }
     
     public BackupJob? DbJob { get; set; }
-    public DateTime? LastCloudScan { get; set; }
     public BatchStatistics? LatestBatch { get; set; }
     public Guid PersistentId { get; set; }
     public int? ProgressProcess { get; set; }
@@ -40,7 +39,6 @@ public partial class JobListListItem
         
         return toReturn;
     }
-    
     
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -71,9 +69,6 @@ public partial class JobListListItem
         }
         
         LatestBatch = await BatchStatistics.CreateInstance(possibleLastBatch.Id);
-        
-        LastCloudScan = context.CloudTransferBatches.Where(x => x.BackupJobId == DbJob.Id && x.BasedOnNewCloudFileScan)
-            .OrderByDescending(x => x.CreatedOn).FirstOrDefault()?.CreatedOn;
     }
     
     public async Task RefreshLatestBatchStatistics()

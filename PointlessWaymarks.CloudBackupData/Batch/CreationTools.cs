@@ -82,6 +82,10 @@ public static class CreationTools
         
         transaction.Commit();
         
+        var job = await db.BackupJobs.SingleAsync(x => x.Id == backupJobId);
+        job.LastCloudFileScan = frozenNow;
+        await db.SaveChangesAsync();
+
         return cloudFiles;
     }
     

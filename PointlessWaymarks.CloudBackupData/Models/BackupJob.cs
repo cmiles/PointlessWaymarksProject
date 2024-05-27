@@ -28,6 +28,7 @@ public class BackupJob
     public int MaximumRunTimeInHours { get; set; }
     public string Name { get; set; } = string.Empty;
     public Guid PersistentId { get; set; } = Guid.Empty;
+    public DateTime? LastCloudFileScan { get; set; }
     
     [NotMapped] public string VaultS3CredentialsIdentifier => $"Pointless-{PersistentId}";
     [NotMapped] public string VaultCloudflareAccountIdentifier => $"Pointless-CF-{PersistentId}";

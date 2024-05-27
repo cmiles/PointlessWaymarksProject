@@ -194,14 +194,16 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Button Padding="8,0,8,0" Command="{Binding ChooseCurrentDbCommand}">Choose Database</Button>
-            <Image Grid.Column="1" ToolTip="Database is not valid?" Margin="6,0,0,0"
+            <Button Padding="8,0,8,0" Width="120" Command="{Binding NewDatabaseCommand}">Create New</Button>
+            <Button Grid.Column="1" Padding="8,0,8,0" Width="120" Command="{Binding ChooseCurrentDbCommand}">Choose Existing</Button>
+            <Image Grid.Column="2" ToolTip="Database is not valid?" Margin="6,0,0,0"
                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
                    Visibility="{Binding CurrentDatabaseIsValid, Converter={StaticResource BooleanNotToHidden}}"
                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
-            <TextBox Margin="4,0,0,0" Grid.Column="2" Text="{Binding CurrentDatabase, Delay=750}"></TextBox>
+            <TextBox Margin="4,0,0,0" Grid.Column="3" Text="{Binding CurrentDatabase, Delay=750}"></TextBox>
         </Grid>
         <GroupBox
             Margin="4,4,4,0"
@@ -259,14 +261,6 @@
                                 </TextBox>
                                 <GroupBox Grid.Column="1" Grid.RowSpan="2" Grid.Row="0" Margin="24,0,0,4"
                                           Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
-                                    <GroupBox.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Header="Kill Job"
-                                                      Command="{Binding Data.KillProgressProcessCommand, Source={StaticResource proxy}}"
-                                                      CommandParameter="{Binding .}">
-                                            </MenuItem>
-                                        </ContextMenu>
-                                    </GroupBox.ContextMenu>
                                     <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"
                                              Text="{Binding ProgressString}"
                                              Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
@@ -361,7 +355,7 @@
                                                ToolTip="{StaticResource BatchDeleteStatisticsTooltip}">
                                     </TextBlock>
                                     <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LastCloudScan, StringFormat='Last Cloud Scan:  {0:d}'}">
+                                               Text="{Binding DbJob.LastCloudFileScan, StringFormat='Last Cloud Scan:  {0:d}', TargetNullValue='Last Cloud Scan: (none)'}">
                                     </TextBlock>
                                     <TextBlock TextWrapping="Wrap"
                                                Text="{Binding DbJob.MaximumRunTimeInHours, StringFormat='Max Runtime: {0:N0} Hours'}">

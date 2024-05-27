@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using Microsoft.EntityFrameworkCore;
@@ -148,7 +147,16 @@ public partial class JobListContext
         
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        await toReturn.UpdateDatabaseFile();
+        try
+        {
+            await toReturn.UpdateDatabaseFile();
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Error in Job List Startup with Database File {databaseFile}", settings.DatabaseFile);
+            await statusContext.ShowMessageWithOkButton("Database Load Error",
+                $"There was an error loading the database:{Environment.NewLine}{Environment.NewLine}{e.Message}");
+        }
         
         return toReturn;
     }
@@ -258,30 +266,79 @@ public partial class JobListContext
     }
     
     [NonBlockingCommand]
-    public async Task KillProgressProcess(JobListListItem listItem)
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
-        if (listItem.ProgressProcess == null)
-        {
-            StatusContext.ToastWarning("No Process to Kill?");
-            return;
-        }
-        
-        var processId = listItem.ProgressProcess.Value;
-        
-        Process.GetProcessById(listItem.ProgressProcess.Value).Kill(true);
-        
-        StatusContext.ToastSuccess($"Requested Process {processId} be Killed");
-    }
-    
-    [NonBlockingCommand]
     public async Task NewBatchWindow(BackupJob? listItem)
     {
         if (listItem is null) return;
         await ThreadSwitcher.ResumeForegroundAsync();
         
         await BatchListWindow.CreateInstanceAndShow(listItem.Id, listItem.Name);
+    }
+    
+    [BlockingCommand]
+    public async Task NewDatabase()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        var initialDirectoryString = CloudBackupGuiSettingTools.ReadSettings().LastDirectory;
+        
+        DirectoryInfo? initialDirectory = null;
+        
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(initialDirectoryString))
+                initialDirectory = new DirectoryInfo(initialDirectoryString);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        StatusContext.Progress("Starting File Chooser");
+        
+        await ThreadSwitcher.ResumeForegroundAsync();
+        
+        var userFilePicker = new VistaSaveFileDialog { OverwritePrompt = true, CheckPathExists = true, Filter = "db files (*.db)|*.db|All files (*.*)|*.*" };
+        
+        if (initialDirectory != null) userFilePicker.FileName = $"{initialDirectory.FullName}\\";
+        
+        if (!userFilePicker.ShowDialog() ?? false) return;
+        
+        var userChoice = userFilePicker.FileName;
+        
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        
+        if (string.IsNullOrWhiteSpace(userChoice))
+        {
+            StatusContext.ToastWarning("No File Selected? New Db Cancelled...");
+            return;
+        }
+        
+        if(!Path.HasExtension(userChoice)) userChoice += ".db";
+
+        var userDatabaseFile = new FileInfo(userChoice);
+        
+        if (!userDatabaseFile.Directory?.Exists ?? false)
+        {
+            StatusContext.ToastError("Directory for New Database Doesn't Exist?");
+            return;
+        }
+        
+        var result = await CloudBackupContext.TryCreateInstance(userDatabaseFile.FullName, false, true);
+        
+        if (!result.success)
+        {
+            StatusContext.ToastError($"Trouble Creating New Database - {result.message}");
+            return;
+        }
+        
+        var currentSettings = CloudBackupGuiSettingTools.ReadSettings();
+        if (!string.IsNullOrWhiteSpace(userDatabaseFile.Directory?.Parent?.FullName))
+            currentSettings.LastDirectory = userDatabaseFile.Directory?.Parent?.FullName;
+        currentSettings.DatabaseFile = userDatabaseFile.FullName;
+        await CloudBackupGuiSettingTools.WriteSettings(currentSettings);
+        CurrentDatabase = userDatabaseFile.FullName;
     }
     
     [NonBlockingCommand]
@@ -355,6 +412,12 @@ public partial class JobListContext
                 listItem.DbJob = dbItem;
                 return;
             }
+            
+            var toAdd = await JobListListItem.CreateInstance(dbItem);
+            
+            await ThreadSwitcher.ResumeForegroundAsync();
+            
+            Items.Add(toAdd);
         }
         
         if (interProcessUpdateNotification is { ContentType: DataNotificationContentType.CloudTransferBatch })
@@ -465,7 +528,6 @@ public partial class JobListContext
         await ThreadSwitcher.ResumeForegroundAsync();
         
         foreach (var x in jobs)
-        {
             try
             {
                 Items.Add(await JobListListItem.CreateInstance(x));
@@ -475,7 +537,6 @@ public partial class JobListContext
                 Log.Error(e, $"Trouble Adding Job Items from {CurrentDatabase}");
                 StatusContext.ToastError("Trouble Adding Job...");
             }
-        }
         
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
