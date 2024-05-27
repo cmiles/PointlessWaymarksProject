@@ -313,11 +313,14 @@ public static class Program
             //New Batch - this will be a new batch and a full rescan
             else if (args[2].Equals("new", StringComparison.OrdinalIgnoreCase))
             {
-                batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
+                var newBatch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
                     progress);
+                batch = await db.context.CloudTransferBatches.SingleAsync(x => x.Id == newBatch.Batch.Id);
             }
         }
         
+        CloudTransferBatchInformation? batchInformation;
+
         //Batch equals null here means either that no batch was specified or that the batch specification
         //didn't return anything - either way a new batch is created, the source of the batch changes depends
         //on the age of the last Cloud File Scan.
@@ -325,43 +328,48 @@ public static class Program
         {
             if (mostRecentCloudScanBatch != null && mostRecentCloudScanBatch.CreatedOn > DateTime.Now.AddDays(-180))
             {
-                batch = await CloudTransfer.CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(amazonCredentials,
+                batchInformation = await CloudTransfer.CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(amazonCredentials,
                     backupJob,
                     progress);
-                
-                //Batch is null here means that the local scan and the cloud cache files match - nothing to do
-                if (batch == null)
-                {
-                    Log.ForContext(nameof(backupJob), backupJob.Dump())
-                        .Information(
-                            "Comparing Local Files to the Cloud File Cache Files produced no backup actions - Nothing To Do, Stopping");
-                    Log.Information("Cloud Backup Runner - Finished Run");
-                    return;
-                }
             }
             else
             {
-                batch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
+                batchInformation = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
                     progress);
             }
         }
+        else
+        {
+            batchInformation = await CloudTransferBatchInformation.CreateInstance(batch.Id);
+        }
         
-        Log.ForContext(nameof(batch), batch.SafeObjectDumpNoEnumerables()).Information(
+        
+        //Batch is null here means that the local scan and the cloud cache files match - nothing to do
+        if (batchInformation == null)
+        {
+            Log.ForContext(nameof(backupJob), backupJob.Dump())
+                .Information(
+                    "Comparing Local Files to the Cloud File Cache Files produced no backup actions - Nothing To Do, Stopping");
+            Log.Information("Cloud Backup Runner - Finished Run");
+            return;
+        }
+
+        Log.ForContext(nameof(batchInformation), batchInformation.SafeObjectDumpNoEnumerables()).Information(
             "Using Batch Id {batchId} with {copyCount} Copies, {uploadCount} Uploads and {deleteCount} Deletes",
-            batch.Id,
-            batch.CloudCopies.Count, batch.CloudUploads.Count, batch.CloudDeletions.Count);
+            batchInformation.Batch.Id,
+            batchInformation.CloudCopies.Count, batchInformation.CloudUploads.Count, batchInformation.CloudDeletions.Count);
         
-        if (batch.CloudCopies.Count < 1 && batch.CloudUploads.Count < 1 && batch.CloudDeletions.Count < 1)
+        if (batchInformation.CloudCopies.Count < 1 && batchInformation.CloudUploads.Count < 1 && batchInformation.CloudDeletions.Count < 1)
         {
             Log.Information("Cloud Backup Ending - No Copies, Uploads or Deletions for Job Id {jobId} batch {batchId}",
                 backupJob.Id,
-                batch.Id);
+                batchInformation.Batch.Id);
             Log.Information("Cloud Backup Runner - Finished Run");
             await Log.CloseAndFlushAsync();
             return;
         }
         
-        progress.BatchId = batch.Id;
+        progress.BatchId = batchInformation.Batch.Id;
         
         try
         {

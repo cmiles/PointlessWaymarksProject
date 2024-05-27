@@ -61,7 +61,7 @@ public partial class JobListListItem
             return;
         }
         
-        var possibleLastBatch = await context.CloudTransferBatches.Where(x => x.JobId == DbJob.Id)
+        var possibleLastBatch = await context.CloudTransferBatches.Where(x => x.BackupJobId == DbJob.Id)
             .OrderByDescending(x => x.CreatedOn).FirstOrDefaultAsync();
         
         if (possibleLastBatch == null)
@@ -72,7 +72,7 @@ public partial class JobListListItem
         
         LatestBatch = await BatchStatistics.CreateInstance(possibleLastBatch.Id);
         
-        LastCloudScan = context.CloudTransferBatches.Where(x => x.JobId == DbJob.Id && x.BasedOnNewCloudFileScan)
+        LastCloudScan = context.CloudTransferBatches.Where(x => x.BackupJobId == DbJob.Id && x.BasedOnNewCloudFileScan)
             .OrderByDescending(x => x.CreatedOn).FirstOrDefault()?.CreatedOn;
     }
     

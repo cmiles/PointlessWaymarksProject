@@ -88,7 +88,7 @@ public class LocalDirectoryIntegrationSeries
         context.ExcludedDirectories.Add(new ExcludedDirectory
         {
             CreatedOn = DateTime.Now,
-            JobId = job.Id,
+            BackupJobId = job.Id,
             Directory = TestDirectory5.FullName
         });
         await context.SaveChangesAsync();
@@ -121,7 +121,7 @@ public class LocalDirectoryIntegrationSeries
         context.ExcludedDirectoryNamePatterns.Add(new ExcludedDirectoryNamePattern
         {
             CreatedOn = DateTime.Now,
-            JobId = job.Id,
+            BackupJobId = job.Id,
             Pattern = "*2L"
         });
         await context.SaveChangesAsync();
@@ -156,7 +156,7 @@ public class LocalDirectoryIntegrationSeries
         context.ExcludedDirectoryNamePatterns.Add(new ExcludedDirectoryNamePattern
         {
             CreatedOn = DateTime.Now,
-            JobId = job.Id,
+            BackupJobId = job.Id,
             Pattern = "Test?"
         });
         await context.SaveChangesAsync();
@@ -189,7 +189,7 @@ public class LocalDirectoryIntegrationSeries
         context.ExcludedDirectories.Add(new ExcludedDirectory
         {
             CreatedOn = DateTime.Now,
-            JobId = job.Id,
+            BackupJobId = job.Id,
             Directory = TestDirectory3.FullName
         });
         await context.SaveChangesAsync();

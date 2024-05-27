@@ -11,5 +11,5 @@ public class CloudTransferBatch
     public virtual ICollection<FileSystemFile> FileSystemFiles { get; } = new List<FileSystemFile>();
     public int Id { get; set; }
     public virtual BackupJob? Job { get; set; }
-    public int JobId { get; set; }
+    public int BackupJobId { get; set; }
 }

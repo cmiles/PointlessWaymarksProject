@@ -16,11 +16,11 @@ public static class CloudCacheFilesToExcel
         
         progress.Report("Querying db for Last Scan Information");
 
-        var lastScan = await db.CloudTransferBatches.Where(x => x.JobId == job.Id && x.BasedOnNewCloudFileScan).OrderBy(x => x.CreatedOn).FirstOrDefaultAsync();
+        var lastScan = await db.CloudTransferBatches.Where(x => x.BackupJobId == job.Id && x.BasedOnNewCloudFileScan).OrderBy(x => x.CreatedOn).FirstOrDefaultAsync();
         
         progress.Report("Creating Excel Data Structures");
 
-        var projectedFiles = await db.CloudCacheFiles.Where(x => x.JobId == job.Id).OrderBy(x => x.CloudObjectKey).Select(x => new
+        var projectedFiles = await db.CloudCacheFiles.Where(x => x.BackupJobId == job.Id).OrderBy(x => x.CloudObjectKey).Select(x => new
         {
             Key = x.CloudObjectKey,
             x.Note,

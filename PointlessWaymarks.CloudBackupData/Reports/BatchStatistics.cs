@@ -52,7 +52,7 @@ public class BatchStatistics
         {
             BatchCreatedOn = batch.CreatedOn,
             BatchId = batch.Id,
-            JobId = batch.JobId,
+            JobId = batch.BackupJobId,
             BasedOnNewCloudFileScan = batch.BasedOnNewCloudFileScan,
             LocalFileCount = await context.FileSystemFiles.CountAsync(x => x.CloudTransferBatchId == batch.Id),
             LocalFileSize = await context.FileSystemFiles.Where(x => x.CloudTransferBatchId == batch.Id)

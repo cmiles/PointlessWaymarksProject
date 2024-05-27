@@ -430,7 +430,7 @@ public partial class JobListContext
             null);
         
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>
-            await Program.Main([CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "auto"]));
+            await Program.Main([CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "new"]));
         
         StatusContext.ToastSuccess("Starting Backup Runner...");
     }
@@ -464,7 +464,18 @@ public partial class JobListContext
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        foreach (var x in jobs) Items.Add(await JobListListItem.CreateInstance(x));
+        foreach (var x in jobs)
+        {
+            try
+            {
+                Items.Add(await JobListListItem.CreateInstance(x));
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Trouble Adding Job Items from {CurrentDatabase}");
+                StatusContext.ToastError("Trouble Adding Job...");
+            }
+        }
         
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }

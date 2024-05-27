@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CloudBackupData.Models;
+namespace PointlessWaymarks.CloudBackupData.Models;
 
 public class ExcludedDirectory
 {
@@ -6,5 +6,5 @@ public class ExcludedDirectory
     public string Directory { get; set; }  = string.Empty;
     public int Id { get; set; }
     public virtual BackupJob? Job { get; set; }
-    public int JobId { get; set; }
+    public int BackupJobId { get; set; }
 }

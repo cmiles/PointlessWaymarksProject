@@ -110,7 +110,7 @@ public class LocalFileIntegrationSeries
         context.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
         {
             CreatedOn = DateTime.Now,
-            JobId = job.Id,
+            BackupJobId = job.Id,
             Pattern = TestFile5.Name
         });
         await context.SaveChangesAsync();
@@ -152,7 +152,7 @@ public class LocalFileIntegrationSeries
         context.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
         {
             CreatedOn = DateTime.Now,
-            JobId = job.Id,
+            BackupJobId = job.Id,
             Pattern = "*.txt"
         });
         await context.SaveChangesAsync();
@@ -191,7 +191,7 @@ public class LocalFileIntegrationSeries
         context.ExcludedFileNamePatterns.Add(new ExcludedFileNamePattern
         {
             CreatedOn = DateTime.Now,
-            JobId = job.Id,
+            BackupJobId = job.Id,
             Pattern = "*3*"
         });
         await context.SaveChangesAsync();
@@ -228,7 +228,7 @@ public class LocalFileIntegrationSeries
         context.ExcludedDirectories.Add(new ExcludedDirectory
         {
             CreatedOn = DateTime.Now,
-            JobId = job.Id,
+            BackupJobId = job.Id,
             Directory = TestDirectory1.FullName
         });
         await context.SaveChangesAsync();

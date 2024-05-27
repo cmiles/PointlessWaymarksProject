@@ -18,7 +18,8 @@ public static class CloudTransfer
     {
         var context = await CloudBackupContext.CreateInstance();
         
-        var batch = await context.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!).SingleAsync(x => x.Id == cloudTransferBatchId);
+        var batch = await context.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job!)
+            .SingleAsync(x => x.Id == cloudTransferBatchId);
         
         var startDateTime = startTime ?? DateTime.Now;
         
@@ -41,78 +42,248 @@ public static class CloudTransfer
         var totalCopiedSeconds = 0D;
         var totalCopiedLength = 0L;
         
-        foreach (var copy in copies)
+        if (accountInformation.S3Provider() == S3Providers.Amazon)
         {
-            copyCount++;
-            
-            try
+            foreach (var copy in copies)
             {
-                await pollyS3RetryPolicy.ExecuteAsync(() => s3CopyMoveClient.CopyObjectAsync(copy.BucketName,
-                    copy.ExistingCloudObjectKey, copy.BucketName, copy.NewCloudObjectKey));
-                copy.LastUpdatedOn = DateTime.Now;
-                copy.CopyCompletedSuccessfully = true;
-                copy.ErrorMessage = string.Empty;
+                copyCount++;
                 
-                var cacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
-                    x.JobId == batch.JobId && x.Bucket == copy.BucketName &&
-                    x.CloudObjectKey == copy.NewCloudObjectKey);
-                
-                if (cacheEntry != null)
+                try
                 {
-                    cacheEntry.LastEditOn = DateTime.Now;
-                    cacheEntry.Note += $"{DateTime.Now:s} Copy;";
-                }
-                else
-                {
-                    cacheEntry = new CloudCacheFile
+                    await pollyS3RetryPolicy.ExecuteAsync(() => s3CopyMoveClient.CopyObjectAsync(copy.BucketName,
+                        copy.ExistingCloudObjectKey, copy.BucketName, copy.NewCloudObjectKey));
+                    copy.LastUpdatedOn = DateTime.Now;
+                    copy.CopyCompletedSuccessfully = true;
+                    copy.ErrorMessage = string.Empty;
+                    
+                    var cacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
+                        x.BackupJobId == batch.BackupJobId && x.Bucket == copy.BucketName &&
+                        x.CloudObjectKey == copy.NewCloudObjectKey);
+                    
+                    if (cacheEntry != null)
                     {
-                        Bucket = copy.BucketName,
-                        CloudObjectKey = copy.NewCloudObjectKey,
-                        JobId = batch.JobId,
-                        LastEditOn = DateTime.Now,
-                        Note = $"{DateTime.Now:s} Copy;"
+                        cacheEntry.LastEditOn = DateTime.Now;
+                        cacheEntry.Note += $"{DateTime.Now:s} Copy;";
+                    }
+                    else
+                    {
+                        cacheEntry = new CloudCacheFile
+                        {
+                            Bucket = copy.BucketName,
+                            CloudObjectKey = copy.NewCloudObjectKey,
+                            BackupJobId = batch.BackupJobId,
+                            LastEditOn = DateTime.Now,
+                            Note = $"{DateTime.Now:s} Copy;"
+                        };
+                        
+                        context.CloudCacheFiles.Add(cacheEntry);
+                    }
+                    
+                    var localFile = new FileInfo(copy.FileSystemFile);
+                    var localMetadata = await S3Tools.LocalFileAndMetadata(localFile);
+                    
+                    cacheEntry.FileHash = localMetadata.UploadMetadata.FileSystemHash;
+                    cacheEntry.FileSize = localFile.Length;
+                    cacheEntry.FileSystemDateTime = localMetadata.UploadMetadata.LastWriteTime;
+                    
+                    await context.SaveChangesAsync();
+                    
+                    var elapsed = DateTime.Now.Subtract(copyStartTime);
+                    totalCopiedSeconds += elapsed.TotalSeconds;
+                    totalCopiedLength += localFile.Length;
+                }
+                catch (Exception e)
+                {
+                    copy.ErrorMessage += $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Copy Failed - {e.Message};";
+                    await context.SaveChangesAsync();
+                    
+                    progress?.Report($"Copy Failed - {e.Message}");
+                    
+                    copyErrorCount++;
+                }
+                
+                if (DateTime.Now > stopDateTime)
+                {
+                    progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {copies.Count} Files");
+                    return new CloudTransferRunInformation
+                    {
+                        DeleteCount = 0,
+                        Ended = DateTime.Now,
+                        EndedBecauseOfMaxRuntime = true,
+                        Started = startDateTime,
+                        CopyCount = copyCount,
+                        CopiedSize = totalCopiedLength,
+                        CopySeconds = totalCopiedSeconds,
+                        CopyErrorCount = copyErrorCount
+                    };
+                }
+            }
+        }
+        else
+        {
+            //2024-05-26 - Cloudflare does not support CopyObject with the same options/setup as Amazon - the link below indicates that
+            //an internal bug was filed 10/1/2024, but it is still failing today and I can't see a public bug report so sadly it might
+            //be a 'never fixed' type situation. This sad workaround turns the copies into uploads.
+            //https://stackoverflow.com/questions/77633198/why-doesnt-copyobject-for-cloudflare-r2-not-work-with-the-aws-sdk-for-net
+            //
+            var copyUploads = context.CloudCopies
+                .Where(x => x.CloudTransferBatchId == batch.Id && !x.CopyCompletedSuccessfully).ToList();
+            
+            var totalCopyUploadEstimatedLength = copyUploads.Sum(x => x.FileSize);
+            
+            var copyUploadTransferUtility = new TransferUtility(accountInformation.S3Client());
+            
+            progress?.Report(
+                $"Starting Copy Uploads for Batch {batch.Id} - {copyUploads.Count} Files, {FileAndFolderTools.GetBytesReadable(totalCopyUploadEstimatedLength)}");
+            
+            foreach (var copyUpload in copyUploads)
+            {
+                copyCount++;
+                
+                var localFileToCopy = new FileInfo(copyUpload.FileSystemFile);
+                
+                if (!localFileToCopy.Exists)
+                {
+                    copyUpload.ErrorMessage +=
+                        $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Local File {localFileToCopy.FullName} Not Found;";
+                    copyUpload.LastUpdatedOn = DateTime.Now;
+                    await context.SaveChangesAsync();
+                    copyErrorCount++;
+                    continue;
+                }
+                
+                var copyUploadLength = new FileInfo(copyUpload.FileSystemFile).Length;
+                var estimateCurrentCopyUpload = "Estimated Completion Unknown...";
+                var estimateTotalCopyUpload = "Estimated Completion Unknown...";
+                
+                if (totalCopiedSeconds > 0 && totalCopiedLength > 0 && copyUploadLength > 0)
+                {
+                    var currentSecondsPerLength = totalCopiedSeconds / totalCopiedLength;
+                    
+                    var currentUploadEstimatedSeconds = copyUploadLength * currentSecondsPerLength;
+                    
+                    var estimateCurrentUploadCompleteIn = currentUploadEstimatedSeconds switch
+                    {
+                        < 60 => $"{currentUploadEstimatedSeconds:N2} Seconds",
+                        < 360 => $"{currentUploadEstimatedSeconds / 60D:N2} Minutes",
+                        < 86400 => $"{currentUploadEstimatedSeconds / 360D:N2} Hours",
+                        _ => $"{currentUploadEstimatedSeconds / 86400D:N2} Days"
                     };
                     
-                    context.CloudCacheFiles.Add(cacheEntry);
+                    estimateCurrentCopyUpload =
+                        $"Estimated Completion in {estimateCurrentUploadCompleteIn} ({DateTime.Now.AddSeconds(currentUploadEstimatedSeconds):h:mm:ss tt})";
+                    
+                    var currentFinishEstimate =
+                        DateTime.Now.AddSeconds(totalCopyUploadEstimatedLength * currentSecondsPerLength);
+                    
+                    var totalUploadEstimatedSeconds = totalCopyUploadEstimatedLength * currentSecondsPerLength;
+                    
+                    var estimateCompleteIn = totalUploadEstimatedSeconds switch
+                    {
+                        < 60 => $"{totalUploadEstimatedSeconds:N2} Seconds",
+                        < 360 => $"{totalUploadEstimatedSeconds / 60D:N2} Minutes",
+                        < 86400 => $"{totalUploadEstimatedSeconds / 360D:N2} Hours",
+                        _ => $"{totalUploadEstimatedSeconds / 86400D:N2} Days"
+                    };
+                    
+                    estimateTotalCopyUpload =
+                        $"Estimated Completion in {estimateCompleteIn} ({DateTime.Now.AddSeconds(totalUploadEstimatedSeconds):G}){(currentFinishEstimate > stopDateTime ? $" - this run will stop at {stopDateTime:G} ({batch.Job!.MaximumRunTimeInHours} Hour Max)" : string.Empty)}";
                 }
                 
-                var localFile = new FileInfo(copy.FileSystemFile);
-                var localMetadata = await S3Tools.LocalFileAndMetadata(localFile);
+                if (copyCount == 1 || copyCount == 2 || copyCount == 5 || copyCount == 10 || copyCount % 15 == 0)
+                    progress?.Report(
+                        $"Copy Upload {copyCount} of {copies.Count}, {FileAndFolderTools.GetBytesReadable(totalCopiedLength)} of {FileAndFolderTools.GetBytesReadable(totalCopyUploadEstimatedLength - totalCopiedLength)} - {estimateTotalCopyUpload}");
                 
-                cacheEntry.FileHash = localMetadata.UploadMetadata.FileSystemHash;
-                cacheEntry.FileSize = localFile.Length;
-                cacheEntry.FileSystemDateTime = localMetadata.UploadMetadata.LastWriteTime;
+                progress?.Report(
+                    $"Copy Upload {copyCount} - {copyUpload.NewCloudObjectKey} - {FileAndFolderTools.GetBytesReadable(copyUploadLength)} - {estimateCurrentCopyUpload}");
                 
-                await context.SaveChangesAsync();
+                var transferRequest =
+                    await S3Tools.S3TransferUploadRequest(localFileToCopy, copyUpload.BucketName,
+                        copyUpload.NewCloudObjectKey);
                 
-                var elapsed = DateTime.Now.Subtract(copyStartTime);
-                totalCopiedSeconds += elapsed.TotalSeconds;
-                totalCopiedLength += localFile.Length;
-            }
-            catch (Exception e)
-            {
-                copy.ErrorMessage += $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Copy Failed - {e.Message};";
-                await context.SaveChangesAsync();
+                if (accountInformation.S3Provider() == S3Providers.Cloudflare)
+                    transferRequest.DisablePayloadSigning = true;
                 
-                progress?.Report($"Copy Failed - {e.Message}");
-                
-                copyErrorCount++;
-            }
-            
-            if (DateTime.Now > stopDateTime)
-            {
-                progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {copies.Count} Files");
-                return new CloudTransferRunInformation
+                try
                 {
-                    DeleteCount = 0,
-                    Ended = DateTime.Now,
-                    EndedBecauseOfMaxRuntime = true,
-                    Started = startDateTime,
-                    CopyCount = copyCount,
-                    CopiedSize = totalCopiedLength,
-                    CopySeconds = totalCopiedSeconds,
-                    CopyErrorCount = copyErrorCount
-                };
+                    await pollyS3RetryPolicy.ExecuteAsync(() => copyUploadTransferUtility.UploadAsync(transferRequest));
+                    
+                    copyUpload.LastUpdatedOn = DateTime.Now;
+                    copyUpload.CopyCompletedSuccessfully = true;
+                    copyUpload.ErrorMessage = string.Empty;
+                    
+                    var cacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
+                        x.BackupJobId == batch.BackupJobId && x.Bucket == copyUpload.BucketName &&
+                        x.CloudObjectKey == copyUpload.NewCloudObjectKey);
+                    
+                    if (cacheEntry != null)
+                    {
+                        cacheEntry.LastEditOn = DateTime.Now;
+                        cacheEntry.Note += $"{DateTime.Now:s} Upload;";
+                    }
+                    else
+                    {
+                        cacheEntry = new CloudCacheFile
+                        {
+                            Bucket = copyUpload.BucketName,
+                            CloudObjectKey = copyUpload.NewCloudObjectKey,
+                            BackupJobId = batch.BackupJobId,
+                            LastEditOn = DateTime.Now,
+                            Note = $"{DateTime.Now:s} Upload;"
+                        };
+                        
+                        context.CloudCacheFiles.Add(cacheEntry);
+                    }
+                    
+                    var localMetadata = await S3Tools.LocalFileAndMetadata(localFileToCopy);
+                    
+                    cacheEntry.FileHash = localMetadata.UploadMetadata.FileSystemHash;
+                    cacheEntry.FileSize = localFileToCopy.Length;
+                    cacheEntry.FileSystemDateTime = localMetadata.UploadMetadata.LastWriteTime;
+                    
+                    await context.SaveChangesAsync();
+                    
+                    await pollyS3RetryPolicy.ExecuteAsync(async () =>
+                        await accountInformation.S3Client()
+                            .DeleteObjectAsync(copyUpload.BucketName, copyUpload.ExistingCloudObjectKey));
+                    
+                    var toDeleteCacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
+                        x.BackupJobId == batch.BackupJobId && x.Bucket == copyUpload.BucketName &&
+                        x.CloudObjectKey == copyUpload.ExistingCloudObjectKey);
+                    
+                    if (toDeleteCacheEntry != null) context.CloudCacheFiles.Remove(toDeleteCacheEntry);
+                    
+                    await context.SaveChangesAsync();
+                    
+                    var elapsed = DateTime.Now.Subtract(copyStartTime);
+                    totalCopiedLength += copyUploadLength;
+                    totalCopiedSeconds += elapsed.TotalSeconds;
+                }
+                catch (Exception e)
+                {
+                    copyUpload.ErrorMessage += $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Upload Failed - {e.Message};";
+                    await context.SaveChangesAsync();
+                    
+                    progress?.Report($"Copy Upload Failed - {e.Message}");
+                    
+                    copyErrorCount++;
+                }
+                
+                if (DateTime.Now > stopDateTime)
+                {
+                    progress?.Report($"Ending Batch {batch.Id} based on Maximum Runtime - {copies.Count} Files");
+                    return new CloudTransferRunInformation
+                    {
+                        DeleteCount = 0,
+                        Ended = DateTime.Now,
+                        EndedBecauseOfMaxRuntime = true,
+                        Started = startDateTime,
+                        CopyCount = copyCount,
+                        CopiedSize = totalCopiedLength,
+                        CopySeconds = totalCopiedSeconds,
+                        CopyErrorCount = copyErrorCount
+                    };
+                }
             }
         }
         
@@ -165,7 +336,7 @@ public static class CloudTransfer
                 };
                 
                 estimateCurrentUpload =
-                    $"Estimated Completion in {estimateCurrentUploadCompleteIn} ({DateTime.Now.AddSeconds(uploadLength * currentSecondsPerLength):h:mm:ss tt})";
+                    $"Estimated Completion in {estimateCurrentUploadCompleteIn} ({DateTime.Now.AddSeconds(currentUploadEstimatedSeconds):h:mm:ss tt})";
                 
                 var currentFinishEstimate =
                     DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength);
@@ -181,7 +352,7 @@ public static class CloudTransfer
                 };
                 
                 estimateTotalUpload =
-                    $"Estimated Completion in {estimateCompleteIn} ({DateTime.Now.AddSeconds(totalUploadEstimatedLength * currentSecondsPerLength):G}){(currentFinishEstimate > stopDateTime ? $" - this run will stop at {stopDateTime:G} ({batch.Job!.MaximumRunTimeInHours} Hour Max)" : string.Empty)}";
+                    $"Estimated Completion in {estimateCompleteIn} ({DateTime.Now.AddSeconds(totalUploadEstimatedSeconds):G}){(currentFinishEstimate > stopDateTime ? $" - this run will stop at {stopDateTime:G} ({batch.Job!.MaximumRunTimeInHours} Hour Max)" : string.Empty)}";
             }
             
             var uploadStartTime = DateTime.Now;
@@ -196,10 +367,7 @@ public static class CloudTransfer
             var transferRequest =
                 await S3Tools.S3TransferUploadRequest(localFile, upload.BucketName, upload.CloudObjectKey);
             
-            if (accountInformation.S3Provider() == S3Providers.Cloudflare)
-            {
-                transferRequest.DisablePayloadSigning = true;
-            }
+            if (accountInformation.S3Provider() == S3Providers.Cloudflare) transferRequest.DisablePayloadSigning = true;
             
             try
             {
@@ -209,7 +377,7 @@ public static class CloudTransfer
                 upload.ErrorMessage = string.Empty;
                 
                 var cacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
-                    x.JobId == batch.JobId && x.Bucket == upload.BucketName &&
+                    x.BackupJobId == batch.BackupJobId && x.Bucket == upload.BucketName &&
                     x.CloudObjectKey == upload.CloudObjectKey);
                 
                 if (cacheEntry != null)
@@ -223,7 +391,7 @@ public static class CloudTransfer
                     {
                         Bucket = upload.BucketName,
                         CloudObjectKey = upload.CloudObjectKey,
-                        JobId = batch.JobId,
+                        BackupJobId = batch.BackupJobId,
                         LastEditOn = DateTime.Now,
                         Note = $"{DateTime.Now:s} Upload;"
                     };
@@ -301,7 +469,7 @@ public static class CloudTransfer
                 delete.DeletionCompletedSuccessfully = true;
                 
                 var cacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
-                    x.JobId == batch.JobId && x.Bucket == delete.BucketName &&
+                    x.BackupJobId == batch.BackupJobId && x.Bucket == delete.BucketName &&
                     x.CloudObjectKey == delete.CloudObjectKey);
                 
                 if (cacheEntry != null) context.CloudCacheFiles.Remove(cacheEntry);
@@ -367,12 +535,15 @@ public static class CloudTransfer
     /// <param name="job"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<CloudTransferBatch> CreateBatchInDatabaseFromCloudAndLocalScan(
+    public static async Task<CloudTransferBatchInformation?> CreateBatchInDatabaseFromCloudAndLocalScan(
         IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
     {
         Log.Information("Creating new Batch based on Cloud and Local Scan");
         
         var changes = await CreationTools.GetChanges(accountInformation, job.Id, false, progress);
+        
+        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any()) return null;
+        
         return await CreationTools.WriteChangesToDatabase(changes, progress);
     }
     
@@ -384,7 +555,7 @@ public static class CloudTransfer
     /// <param name="job"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public static async Task<CloudTransferBatch?> CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(
+    public static async Task<CloudTransferBatchInformation?> CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(
         IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
     {
         Log.Information("Creating new Batch based on Cloud Cache Files and Local Scan");
