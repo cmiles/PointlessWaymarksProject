@@ -75,8 +75,8 @@
                                             </TextBox.Text>
                                         </TextBox>
                                         <WrapPanel Grid.Row="1" Margin="10,6,0,4"
-                                                   Orientation="Vertical">
-                                            <StackPanel Orientation="Vertical">
+                                                   Orientation="Horizontal">
+                                            <StackPanel Orientation="Vertical" Width="380">
                                                 <Label FontWeight="DemiBold" Margin="4">Copies</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
@@ -110,7 +110,7 @@
                                                     Copies Report
                                                 </Button>
                                             </StackPanel>
-                                            <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Vertical" Width="380">
                                                 <Label FontWeight="DemiBold" Margin="4">Uploads</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
@@ -144,7 +144,7 @@
                                                     Uploads Report
                                                 </Button>
                                             </StackPanel>
-                                            <StackPanel>
+                                            <StackPanel Orientation="Vertical" Width="380">
                                                 <Label FontWeight="DemiBold" Margin="4">Deletions</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
@@ -178,7 +178,7 @@
                                                     Deletion Report
                                                 </Button>
                                             </StackPanel>
-                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                            <StackPanel Orientation="Vertical" Width="380">
                                                 <Label FontWeight="DemiBold" Margin="4">Files</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
@@ -211,7 +211,7 @@
                                                 </Grid>
                                             </StackPanel>
                                         </WrapPanel>
-                                        <Button Grid.Row="2" Margin="8" Height="30"
+                                        <Button Grid.Row="2" Margin="8" Height="30" Width="720" HorizontalAlignment="Left"
                                                 Command="{Binding Data.BatchToExcelCommand, Source={StaticResource proxy}}"
                                                 CommandParameter="{Binding Statistics.BatchId}">
                                             <TextBlock>Full Report</TextBlock>
