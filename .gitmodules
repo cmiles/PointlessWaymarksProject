@@ -1,0 +1,3 @@
+[submodule "VaultfuscatedSettings"]
+	path = VaultfuscatedSettings
+	url = https://github.com/cmiles/VaultfuscatedSettings.git

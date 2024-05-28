@@ -70,6 +70,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReade
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PublishReadmeHelper", "PointlessWaymarks.PublishReadmeHelper\PointlessWaymarks.PublishReadmeHelper.csproj", "{6FF96150-1179-4A1C-8F07-9C4D11948D2A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.VaultfuscationTools", "VaultfuscatedSettings\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj", "{796561B2-3673-42C8-BC63-714B1E686E31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -192,6 +194,10 @@ Global
 		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Debug|x64.Build.0 = Debug|x64
 		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Release|x64.ActiveCfg = Release|x64
 		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Release|x64.Build.0 = Release|x64
+		{796561B2-3673-42C8-BC63-714B1E686E31}.Debug|x64.ActiveCfg = Debug|x64
+		{796561B2-3673-42C8-BC63-714B1E686E31}.Debug|x64.Build.0 = Debug|x64
+		{796561B2-3673-42C8-BC63-714B1E686E31}.Release|x64.ActiveCfg = Release|x64
+		{796561B2-3673-42C8-BC63-714B1E686E31}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
