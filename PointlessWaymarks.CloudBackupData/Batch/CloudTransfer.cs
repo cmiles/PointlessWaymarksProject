@@ -42,7 +42,7 @@ public static class CloudTransfer
         var totalCopiedSeconds = 0D;
         var totalCopiedLength = 0L;
         
-        if (accountInformation.S3Provider() == S3Providers.Amazon)
+        if (accountInformation.S3Provider() != S3Providers.Cloudflare)
         {
             foreach (var copy in copies)
             {
@@ -240,18 +240,6 @@ public static class CloudTransfer
                     cacheEntry.FileHash = localMetadata.UploadMetadata.FileSystemHash;
                     cacheEntry.FileSize = localFileToCopy.Length;
                     cacheEntry.FileSystemDateTime = localMetadata.UploadMetadata.LastWriteTime;
-                    
-                    await context.SaveChangesAsync();
-                    
-                    await pollyS3RetryPolicy.ExecuteAsync(async () =>
-                        await accountInformation.S3Client()
-                            .DeleteObjectAsync(copyUpload.BucketName, copyUpload.ExistingCloudObjectKey));
-                    
-                    var toDeleteCacheEntry = await context.CloudCacheFiles.SingleOrDefaultAsync(x =>
-                        x.BackupJobId == batch.BackupJobId && x.Bucket == copyUpload.BucketName &&
-                        x.CloudObjectKey == copyUpload.ExistingCloudObjectKey);
-                    
-                    if (toDeleteCacheEntry != null) context.CloudCacheFiles.Remove(toDeleteCacheEntry);
                     
                     await context.SaveChangesAsync();
                     
@@ -542,7 +530,7 @@ public static class CloudTransfer
         
         var changes = await CreationTools.GetChanges(accountInformation, job.Id, false, progress);
         
-        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any()) return null;
+        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any() && !changes.S3FilesToCopy.Any()) return null;
         
         return await CreationTools.WriteChangesToDatabase(changes, progress);
     }
@@ -563,7 +551,7 @@ public static class CloudTransfer
         var changes =
             await CreationTools.GetChanges(accountInformation, job.Id, true, progress);
         
-        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any()) return null;
+        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any() && !changes.S3FilesToCopy.Any()) return null;
         
         return await CreationTools.WriteChangesToDatabase(changes, progress);
     }

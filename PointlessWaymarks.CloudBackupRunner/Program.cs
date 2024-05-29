@@ -342,6 +342,7 @@ public static class Program
         
         
         //Batch is null here means that the local scan and the cloud cache files match - nothing to do
+
         if (batchInformation == null)
         {
             Log.ForContext(nameof(backupJob), backupJob.Dump())
@@ -371,7 +372,7 @@ public static class Program
         try
         {
             var runInformation =
-                await CloudTransfer.CloudCopyUploadAndDelete(amazonCredentials, batch.Id, startTime, progress);
+                await CloudTransfer.CloudCopyUploadAndDelete(amazonCredentials, batchInformation.Batch.Id, startTime, progress);
             Log.ForContext(nameof(runInformation), runInformation, true).Information("Cloud Backup Ending");
             
             var batchReport = await BatchReportToExcel.Run(batch.Id, progress);
