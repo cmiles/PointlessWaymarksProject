@@ -1,4 +1,5 @@
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.VaultfuscationTools;
 
 namespace PointlessWaymarks.FeedReaderData;
 

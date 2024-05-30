@@ -20,5 +20,6 @@
     <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.FeedReader\PointlessWaymarks.FeedReader.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
+    <ProjectReference Include="..\VaultfuscatedSettings\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
   </ItemGroup>
 </Project>

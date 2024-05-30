@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
+    <ProjectReference Include="..\VaultfuscatedSettings\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
   </ItemGroup>
 
   <ItemGroup>

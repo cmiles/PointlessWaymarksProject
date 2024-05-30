@@ -3,6 +3,7 @@
 using System.Reflection;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.GarminConnectGpxImport;
+using PointlessWaymarks.VaultfuscationTools;
 using Serilog;
 
 LogTools.StandardStaticLoggerForProgramDirectory("GarminConnectGpxImport");
@@ -68,7 +69,7 @@ if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.Ordi
         return;
     }
 
-    var password = ConsoleTools.GetPasswordFromConsole("Password: ");
+    var password = ConsoleEntryTools.GetObscuredStringFromConsole("Password: ");
 
     Console.WriteLine();
 

@@ -3,6 +3,7 @@
 using System.Reflection;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.MemoriesEmail;
+using PointlessWaymarks.VaultfuscationTools;
 using Serilog;
 
 LogTools.StandardStaticLoggerForProgramDirectory("MemoriesEmail");
@@ -67,7 +68,7 @@ if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.Ordi
         return;
     }
 
-    var password = ConsoleTools.GetPasswordFromConsole("Password: ");
+    var password = ConsoleEntryTools.GetObscuredStringFromConsole("Password: ");
 
     PasswordVaultTools.SaveCredentials(MemoriesSmtpEmailFromWebSettings.PasswordVaultResourceIdentifier(loginCode),
         userName, password);
