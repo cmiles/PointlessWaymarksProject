@@ -1,5 +1,4 @@
 using System.IO;
-using Amazon.S3;
 using Amazon.S3.Model;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
@@ -30,7 +29,7 @@ public class S3GeneratedSiteComparisonForDeletions
             return returnReport;
         }
         
-        progress.Report("Getting list of all generated files");
+        progress?.Report("Getting list of all generated files");
         
         var allGeneratedFiles =
             new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
@@ -50,9 +49,9 @@ public class S3GeneratedSiteComparisonForDeletions
             return returnReport;
         }
         
-        progress.Report($"Found {allGeneratedFiles.Count} Files in Generated Site");
+        progress?.Report($"Found {allGeneratedFiles.Count} Files in Generated Site");
         
-        progress.Report("Checking S3 Credentials");
+        progress?.Report("Checking S3 Credentials");
         
         var bucket = s3Account.BucketName();
         var serviceUrl = s3Account.ServiceUrl();
@@ -75,17 +74,34 @@ public class S3GeneratedSiteComparisonForDeletions
         
         var awsObjects = new List<S3Object>();
         
-        var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
+        //5/31/2024 - The code commented out below has been tested with Amazon S3 and Cloudflare R2 but fails
+        //with Wasabi. Hoping the 'straight' ListObjectsV2Async version below will help with compatibility
+        //more S3 providers.
+        //var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
+        //await foreach (var response in paginator.S3Objects)
+        //{
+        //    if (awsObjects.Count % 1000 == 0)
+        //        progress?.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+        //    awsObjects.Add(response);
+        //}
         
-        await foreach (var response in paginator.S3Objects)
+        ListObjectsV2Response response;
+        do
         {
-            if (awsObjects.Count % 1000 == 0)
-                progress.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+            response = await s3Client.ListObjectsV2Async(listRequest);
             
-            awsObjects.Add(response);
-        }
+            foreach (var entry in response.S3Objects)
+            {
+                if (awsObjects.Count % 1000 == 0)
+                    progress?.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+                
+                awsObjects.Add(entry);
+            }
+            
+            listRequest.ContinuationToken = response.NextContinuationToken;
+        } while (response.IsTruncated);
         
-        progress.Report($"Found {awsObjects.Count} S3 Objects - starting file comparison");
+        progress?.Report($"Found {awsObjects.Count} S3 Objects - starting file comparison");
         
         var totalGeneratedObjects = allGeneratedFiles.Count;
         var objectLoopCount = 0;
@@ -93,7 +109,7 @@ public class S3GeneratedSiteComparisonForDeletions
         foreach (var loopObject in awsObjects)
         {
             if (++objectLoopCount % 100 == 0)
-                progress.Report(
+                progress?.Report(
                     $"File Loop vs S3 Objects Comparison - {objectLoopCount} or {totalGeneratedObjects} - {loopObject.Key}");
             
             if (loopObject.Key.EndsWith("/") && loopObject.Size == 0)
@@ -114,7 +130,7 @@ public class S3GeneratedSiteComparisonForDeletions
             }
         }
         
-        progress.Report(
+        progress?.Report(
             $"Returning Report - {returnReport.S3KeysToDelete.Count} Files/Directories found to deleted, {returnReport.ErrorMessages.Count} Error.");
         
         return returnReport;

@@ -44,21 +44,42 @@ public static class S3Tools
         var listRequest = new ListObjectsV2Request { BucketName = accountInfo.BucketName(), Prefix = prefix };
         
         var s3Objects = new List<S3Object>();
+
+        //5/31/2024 - The code commented out below has been tested with Amazon S3 and Cloudflare R2 but fails
+        //with Wasabi. Hoping the 'straight' ListObjectsV2Async version below will help with compatibility
+        //more S3 providers.
+        //
+        //var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
+        //await foreach (var response in paginator.S3Objects)
+        //{
+        //    if (response == null) continue;
+        //    if (s3Objects.Count % 100 == 0)
+        //        progress?.Report($"S3 Object Listing - Added {s3Objects.Count} S3 Objects so far...");
+        //    if (response.Key == prefix) continue;
+        //    s3Objects.Add(response);
+        //}
+
+        ListObjectsV2Response response;
         
-        var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
-        
-        await foreach (var response in paginator.S3Objects)
+        do
         {
-            if (response == null) continue;
+            response = await s3Client.ListObjectsV2Async(listRequest, cancellationToken);
             
-            if (s3Objects.Count % 100 == 0)
-                progress?.Report($"S3 Object Listing - Added {s3Objects.Count} S3 Objects so far...");
+            foreach (var entry in response.S3Objects)
+            {
+                if (entry == null) continue;
+                
+                if (s3Objects.Count % 100 == 0)
+                    progress?.Report($"S3 Object Listing - Added {s3Objects.Count} S3 Objects so far...");
+                
+                if (entry.Key == prefix) continue;
+                
+                s3Objects.Add(entry);
+            }
             
-            if (response.Key == prefix) continue;
-            
-            s3Objects.Add(response);
-        }
-        
+            listRequest.ContinuationToken = response.NextContinuationToken;
+        } while (response.IsTruncated);
+
         var collectedObjectsAndMetadata = new ConcurrentBag<S3RemoteFileAndMetadata>();
         
         var metadataCounter = 0;

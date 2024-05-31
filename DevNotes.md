@@ -1,6 +1,4 @@
 ## Todos
- - Point Icons
- - Improve Map Editor
  - For geo types and notes review local file cleanup on delete
  - Check whole site import - test(s)?
  - Deleted Content Report so it is possible to restore completely deleted
@@ -15,6 +13,18 @@
  - Could all in app font sizes be controlled by slider or setting? I like the control in the editor but maybe everywhere would be more useful? And persist in Settings?
 
 ## Notes
+
+5/31/2024
+
+Cloudflare has been a nice update from S3 both in terms of speed (not measured but visibly faster) and in terms of peace of mind about cost. While watching a Primeagen episode about some apparent distasteful strong arm sales tactics from Cloudflare the post he was reading had a suggestion to keep your setup generic and not strongly tied to anything specific to Cloudflare. This made me look up some alternatives and while looking at 'things' I was reminded of Wasabi and since I don't still have my login from when Wasabi was a really great banking app I made a new login to check things out. I think the simplicity of the setup and speed for serving sites off Cloudflare makes R2 great for that - but Wasabi has the potential to push the cost down even more so I added support for Wasabi to Pointless Waymarks esp. with Backup use in mind.
+
+The good part about adding Wasabi is that it immediately improved the S3 setup because after years of being focused on AWS I hadn't realized that by focusing on 'Service URL' rather than 'Region' you immediately made a nice leap forward in quickly supporting more S3 vendors. I had missed this in the R2 code rewrite in part because they use a Service Url that is primarily about your Account ID and not about a region address so I supported saving the Account ID rather than the Service URL.
+
+Wasabi says:
+
+Wasabi’s object storage service is built to be 100% bit-compatible with Amazon Web Services’ Simple Storage Service (AWS S3) and Identity and Access Management (AWS IAM) APIs. This means that any existing AWS S3-compatible application or gateway device will work seamlessly with Wasabi.
+
+As usual this quickly worked out to be not true at least from the perspective of the .NET S3 API where a Paginators call that worked for AWS and Cloudflare failed for Wasabi - it seems like based on the Cloudflare R2 and Wasabi experience that this kind of compatibility issue is par for the course and that it probably is worth forcing the user to enter the Provider so that exceptions can be made as needed.
 
 5/26/2024
 

@@ -64,17 +64,34 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
         var listRequest = new ListObjectsV2Request { BucketName = bucket };
         
         var awsObjects = new List<S3Object>();
-        
-        var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
-        
-        await foreach (var response in paginator.S3Objects)
+
+        //5/31/2024 - The code commented out below has been tested with Amazon S3 and Cloudflare R2 but fails
+        //with Wasabi. Hoping the 'straight' ListObjectsV2Async version below will help with compatibility
+        //more S3 providers.
+        //var paginator = s3Client.Paginators.ListObjectsV2(listRequest);
+        //await foreach (var response in paginator.S3Objects)
+        //{
+        //    if (awsObjects.Count % 1000 == 0)
+        //        progress?.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+        //    awsObjects.Add(response);
+        //}
+
+        ListObjectsV2Response response;
+        do
         {
-            if (awsObjects.Count % 1000 == 0)
-                progress?.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+            response = await s3Client.ListObjectsV2Async(listRequest);
             
-            awsObjects.Add(response);
-        }
-        
+            foreach (var entry in response.S3Objects)
+            {
+                if (awsObjects.Count % 1000 == 0)
+                    progress?.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
+                
+                awsObjects.Add(entry);
+            }
+            
+            listRequest.ContinuationToken = response.NextContinuationToken;
+        } while (response.IsTruncated);
+
         progress?.Report($"Found {awsObjects.Count} S3 Objects - starting file comparison");
         
         var totalGeneratedFiles = allGeneratedFiles.Count;
