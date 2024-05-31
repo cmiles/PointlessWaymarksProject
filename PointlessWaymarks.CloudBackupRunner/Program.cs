@@ -29,7 +29,7 @@ public static class Program
                     .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                         FileAndFolderTools.ReadAllText(
                             Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md")))
-                    .Error($"Unhandled Exception...", exceptionMessage)
+                    .Error("Unhandled Exception...", exceptionMessage)
                     .RunSynchronously();
             }
             catch (Exception)
@@ -162,7 +162,8 @@ public static class Program
             return;
         }
         
-        var backupJob = await db.context.BackupJobs.Include(backupJob => backupJob.Batches).SingleOrDefaultAsync(x => x.Id == jobId);
+        var backupJob = await db.context.BackupJobs.Include(backupJob => backupJob.Batches)
+            .SingleOrDefaultAsync(x => x.Id == jobId);
         
         if (backupJob == null)
         {
@@ -204,33 +205,36 @@ public static class Program
         
         if (!Enum.TryParse(backupJob.CloudProvider, out S3Providers provider)) provider = S3Providers.Amazon;
         
-        var cloudflareAccountId = string.Empty;
+        var serviceUrl = string.Empty;
         
-        if (provider == S3Providers.Cloudflare)
+        if (provider != S3Providers.Amazon)
         {
-            cloudflareAccountId =
-                PasswordVaultTools.GetCredentials(backupJob.VaultCloudflareAccountIdentifier).password;
+            serviceUrl =
+                PasswordVaultTools.GetCredentials(backupJob.VaultServiceUrlIdentifier).password;
             
-            if (string.IsNullOrWhiteSpace(cloudflareAccountId))
+            if (string.IsNullOrWhiteSpace(serviceUrl))
             {
-                await errorNotifier.Error("Cloudflare Account Id is not Valid?");
+                await errorNotifier.Error("Service URL is not Valid?");
                 
                 Log.Error(
-                    "Cloudflare Account Id is not Valid? Account Id is Blank.");
+                    "Service URL is not Valid? Service URL is Blank.");
                 Log.Information("Cloud Backup Runner - Finished Run");
                 await Log.CloseAndFlushAsync();
                 return;
             }
         }
-
+        else
+        {
+            serviceUrl = S3Tools.AmazonServiceUrlFromBucketRegion(backupJob.CloudRegion);
+        }
+        
         var amazonCredentials = new S3AccountInformation
         {
             AccessKey = () => cloudCredentials.username,
             Secret = () => cloudCredentials.password,
-            CloudflareAccountId = () => cloudflareAccountId,
+            ServiceUrl = () => serviceUrl,
             BucketName = () => backupJob.CloudBucket,
             S3Provider = () => provider,
-            BucketRegion = () => backupJob.CloudRegion,
             FullFileNameForJsonUploadInformation = () =>
                 Path.Combine(FileLocationHelpers.DefaultStorageDirectory().FullName,
                     $"{frozenNow:yyyy-MM-dd-HH-mm}-{args[0]}.json"),
@@ -310,30 +314,40 @@ public static class Program
             //New Batch - this will be a new batch and a full rescan
             else if (args[2].Equals("new", StringComparison.OrdinalIgnoreCase))
             {
-                var newBatch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
+                var newBatch = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials,
+                    backupJob,
                     progress);
-                batch = await db.context.CloudTransferBatches.SingleAsync(x => x.Id == newBatch.Batch.Id);
+                if (newBatch is not null)
+                {
+                    batch = await db.context.CloudTransferBatches.SingleAsync(x => x.Id == newBatch.Batch.Id);
+                }
+                else
+                {
+                    Log.ForContext(nameof(backupJob), backupJob.Dump())
+                        .Information(
+                            "Comparing Local Files to the Cloud File Cache Files produced no backup actions - Nothing To Do, Stopping");
+                    Log.Information("Cloud Backup Runner - Finished Run");
+                    return;
+                }
             }
         }
         
         CloudTransferBatchInformation? batchInformation;
-
+        
         //Batch equals null here means either that no batch was specified or that the batch specification
         //didn't return anything - either way a new batch is created, the source of the batch changes depends
         //on the age of the last Cloud File Scan.
         if (batch == null)
         {
             if (backupJob.LastCloudFileScan != null && backupJob.LastCloudFileScan > DateTime.Now.AddDays(-180))
-            {
-                batchInformation = await CloudTransfer.CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(amazonCredentials,
+                batchInformation = await CloudTransfer.CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(
+                    amazonCredentials,
                     backupJob,
                     progress);
-            }
             else
-            {
-                batchInformation = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials, backupJob,
+                batchInformation = await CloudTransfer.CreateBatchInDatabaseFromCloudAndLocalScan(amazonCredentials,
+                    backupJob,
                     progress);
-            }
         }
         else
         {
@@ -342,7 +356,7 @@ public static class Program
         
         
         //Batch is null here means that the local scan and the cloud cache files match - nothing to do
-
+        
         if (batchInformation == null)
         {
             Log.ForContext(nameof(backupJob), backupJob.Dump())
@@ -351,13 +365,15 @@ public static class Program
             Log.Information("Cloud Backup Runner - Finished Run");
             return;
         }
-
+        
         Log.ForContext(nameof(batchInformation), batchInformation.SafeObjectDumpNoEnumerables()).Information(
             "Using Batch Id {batchId} with {copyCount} Copies, {uploadCount} Uploads and {deleteCount} Deletes",
             batchInformation.Batch.Id,
-            batchInformation.CloudCopies.Count, batchInformation.CloudUploads.Count, batchInformation.CloudDeletions.Count);
+            batchInformation.CloudCopies.Count, batchInformation.CloudUploads.Count,
+            batchInformation.CloudDeletions.Count);
         
-        if (batchInformation.CloudCopies.Count < 1 && batchInformation.CloudUploads.Count < 1 && batchInformation.CloudDeletions.Count < 1)
+        if (batchInformation.CloudCopies.Count < 1 && batchInformation.CloudUploads.Count < 1 &&
+            batchInformation.CloudDeletions.Count < 1)
         {
             Log.Information("Cloud Backup Ending - No Copies, Uploads or Deletions for Job Id {jobId} batch {batchId}",
                 backupJob.Id,
@@ -372,10 +388,11 @@ public static class Program
         try
         {
             var runInformation =
-                await CloudTransfer.CloudCopyUploadAndDelete(amazonCredentials, batchInformation.Batch.Id, startTime, progress);
+                await CloudTransfer.CloudCopyUploadAndDelete(amazonCredentials, batchInformation.Batch.Id, startTime,
+                    progress);
             Log.ForContext(nameof(runInformation), runInformation, true).Information("Cloud Backup Ending");
             
-            var batchReport = await BatchReportToExcel.Run(batch.Id, progress);
+            var batchReport = await BatchReportToExcel.Run(batchInformation.Batch.Id, progress);
             
             (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
                 .SetAutomationLogoNotificationIconUrl().MessageWithFile(

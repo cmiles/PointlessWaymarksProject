@@ -31,5 +31,5 @@ public class BackupJob
     public DateTime? LastCloudFileScan { get; set; }
     
     [NotMapped] public string VaultS3CredentialsIdentifier => $"Pointless-{PersistentId}";
-    [NotMapped] public string VaultCloudflareAccountIdentifier => $"Pointless-CF-{PersistentId}";
+    [NotMapped] public string VaultServiceUrlIdentifier => $"Pointless-S3Url-{PersistentId}";
 }

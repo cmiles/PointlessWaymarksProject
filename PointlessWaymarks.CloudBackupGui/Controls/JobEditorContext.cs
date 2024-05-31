@@ -216,13 +216,12 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         CloudCredentialsHaveValidationIssues = string.IsNullOrWhiteSpace(currentCredentials.username) ||
                                                string.IsNullOrWhiteSpace(currentCredentials.password);
         
-        if (UserCloudProviderEntry.UserValue == S3Providers.Cloudflare.ToString())
+        if (UserCloudProviderEntry.UserValue != S3Providers.Amazon.ToString())
         {
-            var currentCloudflareAccount =
-                PasswordVaultTools.GetCredentials(LoadedJob.VaultCloudflareAccountIdentifier);
+            var currentCloudServiceUrl =
+                PasswordVaultTools.GetCredentials(LoadedJob.VaultServiceUrlIdentifier);
             CloudCredentialsHaveValidationIssues = CloudCredentialsHaveValidationIssues ||
-                                                   string.IsNullOrWhiteSpace(currentCloudflareAccount.username) ||
-                                                   string.IsNullOrWhiteSpace(currentCloudflareAccount.password);
+                                                   string.IsNullOrWhiteSpace(currentCloudServiceUrl.password);
         }
     }
     
@@ -232,11 +231,11 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         await ThreadSwitcher.ResumeForegroundAsync();
         
         var db = await CloudBackupContext.CreateInstance();
-
+        
         await db.Entry(initialJob).Collection(x => x.ExcludedDirectories).LoadAsync();
         await db.Entry(initialJob).Collection(x => x.ExcludedDirectoryNamePatterns).LoadAsync();
         await db.Entry(initialJob).Collection(x => x.ExcludedFileNamePatterns).LoadAsync();
-
+        
         var statusContext = context ?? new StatusControlContext();
         
         var nameEntry = StringDataEntryContext.CreateInstance();
@@ -285,7 +284,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             {
                 if (string.IsNullOrWhiteSpace(x))
                     return Task.FromResult(new IsValid(false, "A Cloud Directory is required for the job"));
-                if (!Regex.IsMatch(x, @"^[a-zA-Z0-9-/]+$"))
+                if (!Regex.IsMatch(x, "^[a-zA-Z0-9-/]+$"))
                     return Task.FromResult(new IsValid(false,
                         "To keep easy compatibility with cloud storage only a-z, A-Z, 0-9, - and / are allowed in the Cloud Directory Name."));
                 if (x.StartsWith("/"))
@@ -385,11 +384,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         [
             x =>
             {
-                if (cloudProviderDataEntry.UserValue != S3Providers.Cloudflare.ToString())
-                {
+                if (cloudProviderDataEntry.UserValue == S3Providers.Amazon.ToString())
                     if (string.IsNullOrWhiteSpace(x))
                         return new IsValid(false, "A Cloud Region is required for the job");
-                }
                 
                 return new IsValid(true, string.Empty);
             }
@@ -398,7 +395,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         var dbExcludedDirectory = initialJob.ExcludedDirectories
             .Select(x => new DirectoryInfo(x.Directory)).ToList();
-        var excludedDirectory = new ObservableCollection<DirectoryInfo>(dbExcludedDirectory.GroupBy(x => x.FullName).Select(x => x.First()).OrderBy(x => x.FullName).ToList());
+        var excludedDirectory = new ObservableCollection<DirectoryInfo>(dbExcludedDirectory.GroupBy(x => x.FullName)
+            .Select(x => x.First()).OrderBy(x => x.FullName).ToList());
         
         var dbExcludedDirectoryPatterns = initialJob.ExcludedDirectoryNamePatterns.Select(x => x.Pattern).ToList();
         var excludedDirectoryPatterns =
@@ -464,29 +462,27 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             return;
         }
         
-        var cleanedCloudFlareAccount = string.Empty;
+        PasswordVaultTools.SaveCredentials(LoadedJob.VaultS3CredentialsIdentifier, cleanedKey, cleanedSecret);
         
-        if (UserCloudProviderEntry.UserValue == S3Providers.Cloudflare.ToString())
+        if (UserCloudProviderEntry.UserValue != S3Providers.Amazon.ToString())
         {
-            PasswordVaultTools.SaveCredentials(LoadedJob.VaultS3CredentialsIdentifier, cleanedKey, cleanedSecret);
+            var serviceUrl = await StatusContext.ShowStringEntry("Service URL",
+                "Enter the S3 service URL. For Cloudflare this will be https://{accountId}.r2.cloudflarestorage.com - other providers, like Wasabi, will have a Service URL based on region (for example s3.ca-central-1.wasabisys.com for Wasabi-Toronto)",
+                string.Empty);
             
-            var newCloudFlareAccountEntry = await StatusContext.ShowStringEntry("Cloudflare Account Id",
-                "Enter the Cloudflare Account Id", string.Empty);
+            if (!serviceUrl.Item1) return;
             
-            if (!newCloudFlareAccountEntry.Item1) return;
+            var cleanedServiceUrl = serviceUrl.Item2.TrimNullToEmpty();
             
-            cleanedCloudFlareAccount = newCloudFlareAccountEntry.Item2.TrimNullToEmpty();
-            
-            if (string.IsNullOrWhiteSpace(cleanedCloudFlareAccount))
+            if (string.IsNullOrWhiteSpace(cleanedServiceUrl))
             {
-                StatusContext.ToastError("Cloud Credential Entry Canceled - Cloudflare Account Id can not be blank");
+                StatusContext.ToastError("Cloud Credential Entry Canceled - Service URL can not be blank");
                 return;
             }
+            
+            PasswordVaultTools.SaveCredentials(LoadedJob.VaultServiceUrlIdentifier, "Service Url",
+                cleanedServiceUrl);
         }
-        
-        PasswordVaultTools.SaveCredentials(LoadedJob.VaultS3CredentialsIdentifier, cleanedKey, cleanedSecret);
-        PasswordVaultTools.SaveCredentials(LoadedJob.VaultCloudflareAccountIdentifier, cleanedKey,
-            cleanedCloudFlareAccount);
         
         CloudCredentialsCheckForValidationIssues();
     }
@@ -498,7 +494,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         var added = frozenList.Except(originalList).ToList();
         var removed = originalList.Except(frozenList).ToList();
         
-        ExcludedDirectoriesHasChanges = added.Any() || removed.Any() || frozenList.Count != ExcludedDirectoriesOriginal.Count;
+        ExcludedDirectoriesHasChanges =
+            added.Any() || removed.Any() || frozenList.Count != ExcludedDirectoriesOriginal.Count;
         
         ExcludedDirectoriesHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedDirectoriesHasChangesMessage += $"Added: {string.Join(",", added)}";
@@ -520,8 +517,9 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         var added = frozenList.Except(ExcludedDirectoryPatternsOriginal).ToList();
         var removed = ExcludedDirectoryPatternsOriginal.Except(frozenList).ToList();
-
-        ExcludedDirectoryPatternsHasChanges = added.Any() || removed.Any() || frozenList.Count != ExcludedDirectoryPatternsOriginal.Count;
+        
+        ExcludedDirectoryPatternsHasChanges = added.Any() || removed.Any() ||
+                                              frozenList.Count != ExcludedDirectoryPatternsOriginal.Count;
         
         ExcludedDirectoryPatternsHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedDirectoryPatternsHasChangesMessage += $"Added: {string.Join(",", added)}";
@@ -544,7 +542,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         var added = frozenList.Except(ExcludedFilePatternsOriginal).ToList();
         var removed = ExcludedFilePatternsOriginal.Except(frozenList).ToList();
         
-        ExcludedFilePatternsHasChanges = added.Any() || removed.Any()|| frozenList.Count != ExcludedFilePatternsOriginal.Count;
+        ExcludedFilePatternsHasChanges =
+            added.Any() || removed.Any() || frozenList.Count != ExcludedFilePatternsOriginal.Count;
         
         ExcludedFilePatternsHasChangesMessage = string.Empty;
         if (added.Any()) ExcludedFilePatternsHasChangesMessage += $"Added: {string.Join(",", added)}";
@@ -677,7 +676,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         {
             var item = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
                 .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
-                .Include(backupJob => backupJob.ExcludedFileNamePatterns).SingleOrDefaultAsync(x => x.Id == LoadedJob.Id);
+                .Include(backupJob => backupJob.ExcludedFileNamePatterns)
+                .SingleOrDefaultAsync(x => x.Id == LoadedJob.Id);
             if (item != null) toSave = item;
         }
         
@@ -742,27 +742,24 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         if (toSave.Id < 1) db.BackupJobs.Add(toSave);
         
         await db.SaveChangesAsync();
-
-        var directoryToRemoveForDuplicates = await db.ExcludedDirectories.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
+        
+        var directoryToRemoveForDuplicates =
+            await db.ExcludedDirectories.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
         var duplicateDirectoryGroups = directoryToRemoveForDuplicates.GroupBy(x => x.Directory);
         foreach (var loopDuplicateDirectoryGroup in duplicateDirectoryGroups)
-        {
             db.ExcludedDirectories.RemoveRange(loopDuplicateDirectoryGroup.Skip(1));
-        }
         
-        var directoryPatternsToRemoveForDuplicates = await db.ExcludedDirectoryNamePatterns.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
+        var directoryPatternsToRemoveForDuplicates =
+            await db.ExcludedDirectoryNamePatterns.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
         var duplicateDirectoryPatternGroups = directoryPatternsToRemoveForDuplicates.GroupBy(x => x.Pattern);
         foreach (var loopDuplicateDirectoryPatternGroup in duplicateDirectoryPatternGroups)
-        {
             db.ExcludedDirectoryNamePatterns.RemoveRange(loopDuplicateDirectoryPatternGroup.Skip(1));
-        }
-
-        var filePatternsToRemoveForDuplicates = await db.ExcludedFileNamePatterns.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
+        
+        var filePatternsToRemoveForDuplicates =
+            await db.ExcludedFileNamePatterns.Where(x => x.BackupJobId == toSave.Id).ToListAsync();
         var duplicateFilePatternGroups = filePatternsToRemoveForDuplicates.GroupBy(x => x.Pattern);
         foreach (var loopDuplicateFilePatternGroup in duplicateFilePatternGroups)
-        {
             db.ExcludedFileNamePatterns.RemoveRange(loopDuplicateFilePatternGroup.Skip(1));
-        }
         
         await db.SaveChangesAsync();
         
@@ -770,7 +767,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         toSave = await db.BackupJobs.Include(backupJob => backupJob.ExcludedDirectories)
             .Include(backupJob => backupJob.ExcludedDirectoryNamePatterns)
             .Include(backupJob => backupJob.ExcludedFileNamePatterns).SingleAsync(x => x.Id == toSave.Id);
-
+        
         DataNotifications.PublishDataNotification(StatusContext.StatusControlContextId.ToString(),
             DataNotificationContentType.BackupJob, DataNotificationUpdateType.Update, toSave.PersistentId, null);
         
@@ -826,9 +823,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         {
             CloudCredentialsCheckForValidationIssues();
             
-            if (UserCloudProviderEntry.UserValue == S3Providers.Cloudflare.ToString())
-                UserAwsRegionEntry.ValidationFunctions = [];
-            else
+            if (UserCloudProviderEntry.UserValue == S3Providers.Amazon.ToString())
                 UserAwsRegionEntry.ValidationFunctions =
                 [
                     x =>
@@ -838,6 +833,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
                         return new IsValid(true, string.Empty);
                     }
                 ];
+            else
+                UserAwsRegionEntry.ValidationFunctions = [];
         }
     }
 }

@@ -27,8 +27,8 @@ public static class S3CmsTools
     {
         progress.Report("Checking Bucket Details in Settings");
         
-        var isCloudflare = UserSettingsSingleton.CurrentSettings().SiteS3CloudProvider ==
-                           S3Providers.Cloudflare.ToString();
+        var isAmazon = UserSettingsSingleton.CurrentSettings().SiteS3CloudProvider ==
+                           S3Providers.Amazon.ToString();
 
         var userBucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket;
         var userBucketRegion = UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion;
@@ -36,7 +36,7 @@ public static class S3CmsTools
         if (string.IsNullOrEmpty(userBucketName))
             return (new IsValid(false, "Bucket Name is Empty"), []);
 
-        if (!isCloudflare && string.IsNullOrEmpty(userBucketRegion))
+        if (isAmazon && string.IsNullOrEmpty(userBucketRegion))
             return (new IsValid(false, "Bucket Region is Empty"), []);
 
         progress.Report("Setting Up Db");
@@ -108,11 +108,11 @@ public static class S3CmsTools
     public static async Task S3UploaderItemsToS3UploaderJsonFile(List<S3UploadRequest> items, string fileName)
     {
         var deDuplicatedItems =
-            items.GroupBy(x => new { x.ToUpload.LocalFile.FullName, x.BucketName, x.Region, x.S3Key })
+            items.GroupBy(x => new { x.ToUpload.LocalFile.FullName, x.BucketName, Region = x.ServiceUrl, x.S3Key })
                 .Select(x => x.First()).ToList();
 
         var jsonInfo = JsonSerializer.Serialize(deDuplicatedItems.Select(x =>
-            new S3UploadFileEntry(x.ToUpload.LocalFile.FullName, x.S3Key, x.BucketName, x.Region, x.Note)));
+            new S3UploadFileEntry(x.ToUpload.LocalFile.FullName, x.S3Key, x.BucketName, x.ServiceUrl, x.Note)));
 
         var file = new FileInfo(fileName);
 
@@ -139,28 +139,20 @@ public static class S3CmsTools
     
     public static IS3AccountInformation AmazonInformationFromSettings()
     {
-        var useCloudflare = UserSettingsSingleton.CurrentSettings().SiteS3CloudProvider ==
-                            S3Providers.Cloudflare.ToString();
-        
+        Enum.TryParse(UserSettingsSingleton.CurrentSettings().SiteS3CloudProvider, out S3Providers cloudProvider);
+
         return new S3AccountInformation
         {
-            CloudflareAccountId = () => useCloudflare ? CloudCredentials.GetCloudflareAccountId().secret : string.Empty,
-            AccessKey = () =>
-                useCloudflare
-                    ? CloudCredentials.GetCloudflareSiteCredentials().accessKey
-                    : CloudCredentials.GetAwsSiteCredentials().accessKey,
-            Secret = () =>
-                useCloudflare
-                    ? CloudCredentials.GetCloudflareSiteCredentials().secret
-                    : CloudCredentials.GetAwsSiteCredentials().secret,
+            ServiceUrl = cloudProvider == S3Providers.Amazon ? () => S3Tools.AmazonServiceUrlFromBucketRegion(UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion) : CloudCredentials.GetS3ServiceUrl,
+            AccessKey = () => CloudCredentials.GetS3SiteCredentials().accessKey,
+            Secret = () => CloudCredentials.GetS3SiteCredentials().secret,
             BucketName = () => UserSettingsSingleton.CurrentSettings().SiteS3Bucket,
-            BucketRegion = () => UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion,
             FullFileNameForJsonUploadInformation = () =>
                 Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                     $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"),
             FullFileNameForToExcel = () => Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid("S3UploadItems")}.xlsx"),
-            S3Provider = () => useCloudflare ? S3Providers.Cloudflare : S3Providers.Amazon
+            S3Provider = () => cloudProvider
         };
     }
 }

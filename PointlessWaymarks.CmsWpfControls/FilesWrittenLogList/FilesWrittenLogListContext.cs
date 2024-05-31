@@ -477,7 +477,7 @@ public partial class FilesWrittenLogListContext
             var newUploaderWindow =
                 new S3UploadsWindow(S3CmsTools.AmazonInformationFromSettings(),
                     await items.ToAsyncEnumerable().SelectAwait(async x =>
-                            await S3Tools.UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.Region,
+                            await S3Tools.UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.ServiceUrl,
                                 x.Note))
                         .ToListAsync(), UserSettingsSingleton.CurrentSettings().SiteName,
                     false);

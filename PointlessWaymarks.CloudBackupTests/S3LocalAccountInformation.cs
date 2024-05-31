@@ -19,7 +19,7 @@ public class S3LocalAccountInformation : IS3AccountInformation
             x.SystemName == bucketRegion);
     }
     
-    public Func<string> CloudflareAccountId { get; init; } = () => string.Empty;
+    public Func<string> ServiceUrl { get; init; } = () => string.Empty;
     public Func<string> FullFileNameForJsonUploadInformation { get; init; } = () => "CloudTestUpload.json";
     public Func<string> FullFileNameForToExcel { get; init; } = () => "CloudTestExcel.xlsx";
     

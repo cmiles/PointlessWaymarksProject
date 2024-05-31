@@ -1,4 +1,4 @@
-﻿using Amazon.S3.Transfer;
+using Amazon.S3.Transfer;
 
 namespace PointlessWaymarks.CommonTools.S3;
 
@@ -13,14 +13,14 @@ public class S3UploadRequest
     /// <param name="toUpload"></param>
     /// <param name="s3Key"></param>
     /// <param name="bucketName"></param>
-    /// <param name="region"></param>
+    /// <param name="serviceUrl"></param>
     /// <param name="note"></param>
-    public S3UploadRequest(S3LocalFileAndMetadata toUpload, string s3Key, string bucketName, string region, string note)
+    public S3UploadRequest(S3LocalFileAndMetadata toUpload, string s3Key, string bucketName, string serviceUrl, string note)
     {
         ToUpload = toUpload;
         S3Key = s3Key;
         BucketName = bucketName;
-        Region = region;
+        ServiceUrl = serviceUrl;
         Note = note;
     }
 
@@ -28,7 +28,7 @@ public class S3UploadRequest
 
     public string Note { get; }
 
-    public string Region { get; }
+    public string ServiceUrl { get; }
 
     public string S3Key { get; }
 

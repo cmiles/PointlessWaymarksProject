@@ -48,30 +48,18 @@ public partial class S3DeletionsContext
         progress.Report("Getting Amazon Credentials");
         
         var bucket = UploadS3Information.BucketName();
-        var region = UploadS3Information.BucketRegion();
-        var accountId = UploadS3Information.CloudflareAccountId();
+        var serviceUrl = UploadS3Information.ServiceUrl();
         
-        if (UploadS3Information.S3Provider() == S3Providers.Cloudflare)
+        if (string.IsNullOrWhiteSpace(bucket))
         {
-            if (string.IsNullOrWhiteSpace(accountId))
-            {
-                StatusContext.ToastError("Cloudflare Account Id is empty?");
-                return;
-            }
+            StatusContext.ToastError("S3 Bucket is Blank?");
+            return;
         }
-        else
+        
+        if (string.IsNullOrWhiteSpace(serviceUrl))
         {
-            if (string.IsNullOrWhiteSpace(region))
-            {
-                StatusContext.ToastError("S3 Bucket Endpoint (region) not filled?");
-                return;
-            }
-            
-            if (UploadS3Information.BucketRegionEndpoint() == null)
-            {
-                StatusContext.ToastError("S3 Bucket Endpoint (region) not valid?");
-                return;
-            }
+            StatusContext.ToastError("S3 Service URL is empty?");
+            return;
         }
 
         if (cancellationToken.IsCancellationRequested) throw new TaskCanceledException();

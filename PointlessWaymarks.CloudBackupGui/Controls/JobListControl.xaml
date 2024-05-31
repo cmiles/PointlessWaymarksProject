@@ -263,7 +263,7 @@
                                           Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
                                     <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"
                                              Text="{Binding ProgressString}"
-                                             Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
+                                             Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Height="70">
                                     </TextBox>
                                 </GroupBox>
                                 <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="10,6,0,8"

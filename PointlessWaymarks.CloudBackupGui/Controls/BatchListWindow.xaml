@@ -7,7 +7,7 @@
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
         mc:Ignorable="d"
-        Title="{Binding JobName, StringFormat='Batch List - {0}'}" Height="600" Width="800" d:DataContext="{d:DesignInstance controls:BatchListWindow}">
+        Title="{Binding JobName, StringFormat='Batch List - {0}'}" Height="600" Width="900" d:DataContext="{d:DesignInstance controls:BatchListWindow}">
     <Grid>
         <controls:BatchListControl Margin="4" DataContext="{Binding BatchContext}"/>
         <status:StatusControl

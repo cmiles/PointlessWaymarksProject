@@ -1,7 +1,8 @@
-﻿namespace PointlessWaymarks.CommonTools.S3;
+namespace PointlessWaymarks.CommonTools.S3;
 
 public enum S3Providers
 {
     Amazon,
-    Cloudflare
+    Cloudflare,
+    Wasabi
 }

@@ -508,18 +508,9 @@
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                         </Grid>
-                        <Button Command="{Binding UserCloudflareAccountIdKeySecretEntryCommand}">Enter Cloudflare Site Account Id and Credentials</Button>
-                        <Button Command="{Binding DeleteCloudflareCredentialsCommand}">Delete Cloudflare Site Id and Credentials</Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Vertical">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                        </Grid>
-                        <Button Command="{Binding UserAwsKeyAndSecretEntryCommand}">Enter AWS Site Credentials</Button>
-                        <Button Command="{Binding DeleteAwsCredentialsCommand}">Delete AWS Site Credentials</Button>
+                        <Button Command="{Binding UserAwsKeyAndSecretEntryCommand}">Enter S3 Site Credentials</Button>
+                        <Button Command="{Binding DeleteAwsCredentialsCommand}">Delete S3 Site Credentials</Button>
+                        <Button Command="{Binding DeleteS3ServiceUrlsCommand}">Delete S3 Service URLs</Button>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}">

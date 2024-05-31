@@ -5,106 +5,75 @@ namespace PointlessWaymarks.CmsData.S3;
 public static class CloudCredentials
 {
     /// <summary>
-    ///     Returns the Credential Manager Resource Key for the current settings file for AWS Site credentials
+    ///     Retrieves the S3 Credentials associated with this settings file
     /// </summary>
     /// <returns></returns>
-    public static string AwsSiteCredentialResourceString()
+    public static string GetS3ServiceUrl()
+    {
+        return PasswordVaultTools.GetCredentials(S3SiteServiceUrlResourceString()).password;
+    }
+    
+    /// <summary>
+    ///     Retrieves the S3 Credentials associated with this settings file
+    /// </summary>
+    /// <returns></returns>
+    public static (string accessKey, string secret) GetS3SiteCredentials()
+    {
+        return PasswordVaultTools.GetCredentials(S3SiteCredentialResourceString());
+    }
+    
+    /// <summary>
+    ///     Removes all S3 Service URLs associated with this settings file
+    /// </summary>
+    public static void RemoveS3ServiceUrls()
+    {
+        PasswordVaultTools.RemoveCredentials(S3SiteServiceUrlResourceString());
+    }
+    
+    /// <summary>
+    ///     Removes all S3 Credentials associated with this settings file
+    /// </summary>
+    public static void RemoveS3SiteCredentials()
+    {
+        PasswordVaultTools.RemoveCredentials(S3SiteCredentialResourceString());
+    }
+    
+    /// <summary>
+    ///     Returns the Credential Manager Resource Key for the current settings file for S3 Site credentials
+    /// </summary>
+    /// <returns></returns>
+    public static string S3SiteCredentialResourceString()
     {
         return
-            $"Pointless Waymarks CMS - AWS, Site - {UserSettingsSingleton.CurrentSettings().SettingsId}";
+            $"Pointless Waymarks CMS - S3 Credentials, Site - {UserSettingsSingleton.CurrentSettings().SettingsId}";
     }
     
     /// <summary>
-    ///     Returns the Credential Manager Resource Key for the current settings file for Cloudflare Site credentials
+    ///     Returns the Credential Manager Resource Key for the current settings file for an S3 Service URL
     /// </summary>
     /// <returns></returns>
-    public static string CloudflareAccountIdResourceString()
+    public static string S3SiteServiceUrlResourceString()
     {
         return
-            $"Pointless Waymarks CMS - Cloudflare Account Id, Site - {UserSettingsSingleton.CurrentSettings().SettingsId}";
+            $"Pointless Waymarks CMS - S3 Service URL, Site - {UserSettingsSingleton.CurrentSettings().SettingsId}";
     }
     
     /// <summary>
-    ///     Returns the Credential Manager Resource Key for the current settings file for Cloudflare Site credentials
+    ///     Removes any existing S3 Service URLs Saves a new Service URL
     /// </summary>
-    /// <returns></returns>
-    public static string CloudflareSiteCredentialResourceString()
+    /// <param name="serviceUrl"></param>
+    public static void SaveS3ServiceUrl(string serviceUrl)
     {
-        return
-            $"Pointless Waymarks CMS - Cloudflare Credentials, Site - {UserSettingsSingleton.CurrentSettings().SettingsId}";
+        PasswordVaultTools.SaveCredentials(S3SiteServiceUrlResourceString(), "Service Url", serviceUrl);
     }
     
     /// <summary>
-    ///     Retrieves the AWS Credentials associated with this settings file
-    /// </summary>
-    /// <returns></returns>
-    public static (string accessKey, string secret) GetAwsSiteCredentials()
-    {
-        return PasswordVaultTools.GetCredentials(AwsSiteCredentialResourceString());
-    }
-    
-    /// <summary>
-    ///     Retrieves the Cloudflare Account Id associated with this settings file
-    /// </summary>
-    /// <returns></returns>
-    public static (string accessKey, string secret) GetCloudflareAccountId()
-    {
-        return PasswordVaultTools.GetCredentials(CloudflareAccountIdResourceString());
-    }
-    
-    /// <summary>
-    ///     Retrieves the Cloudflare Credentials associated with this settings file
-    /// </summary>
-    /// <returns></returns>
-    public static (string accessKey, string secret) GetCloudflareSiteCredentials()
-    {
-        return PasswordVaultTools.GetCredentials(CloudflareSiteCredentialResourceString());
-    }
-    
-    /// <summary>
-    ///     Removes all AWS Credentials associated with this settings file
-    /// </summary>
-    public static void RemoveAwsSiteCredentials()
-    {
-        PasswordVaultTools.RemoveCredentials(AwsSiteCredentialResourceString());
-    }
-    
-    /// <summary>
-    ///     Removes all Cloudflare Credentials associated with this settings file
-    /// </summary>
-    public static void RemoveCloudflareSiteAccountIdAndCredentials()
-    {
-        PasswordVaultTools.RemoveCredentials(CloudflareAccountIdResourceString());
-        PasswordVaultTools.RemoveCredentials(CloudflareSiteCredentialResourceString());
-    }
-    
-    /// <summary>
-    ///     Removes any existing AWS Credentials Associated with this settings file and Saves new Credentials
+    ///     Removes any existing S3 Credentials Associated with this settings file and Saves new Credentials
     /// </summary>
     /// <param name="accessKey"></param>
     /// <param name="secret"></param>
-    public static void SaveAwsSiteCredential(string accessKey, string secret)
+    public static void SaveS3SiteCredential(string accessKey, string secret)
     {
-        PasswordVaultTools.SaveCredentials(AwsSiteCredentialResourceString(), accessKey, secret);
-    }
-    
-    /// <summary>
-    ///     Removes any existing Cloudflare Credentials Associated with this settings file and Saves new Credentials
-    /// </summary>
-    /// <param name="accountId"></param>
-    public static void SaveCloudflareSiteAccountId(string accountId)
-    {
-        PasswordVaultTools.SaveCredentials(CloudflareAccountIdResourceString(),
-            SlugTools.RandomLowerCaseString(10), accountId);
-    }
-    
-    /// <summary>
-    ///     Removes any existing Cloudflare Credentials Associated with this settings file and Saves new Credentials
-    /// </summary>
-    /// <param name="accessKey"></param>
-    /// <param name="secret"></param>
-    public static void SaveCloudflareSiteCredential(string accessKey, string secret)
-    {
-        PasswordVaultTools.SaveCredentials(CloudflareSiteCredentialResourceString(), accessKey, secret);
+        PasswordVaultTools.SaveCredentials(S3SiteCredentialResourceString(), accessKey, secret);
     }
 }

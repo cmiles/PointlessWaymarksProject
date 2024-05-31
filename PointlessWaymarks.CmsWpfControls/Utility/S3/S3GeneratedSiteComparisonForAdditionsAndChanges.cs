@@ -27,30 +27,18 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
         }
         
         var bucket = s3Account.BucketName();
-        var region = s3Account.BucketRegion();
-        var accountId = s3Account.CloudflareAccountId();
+        var serviceUrl = s3Account.ServiceUrl();
         
-        if (s3Account.S3Provider() == S3Providers.Cloudflare)
+        if (string.IsNullOrWhiteSpace(bucket))
         {
-            if (string.IsNullOrWhiteSpace(accountId))
-            {
-                returnReport.ErrorMessages.Add("Cloudflare Account Id is empty?");
-                return returnReport;
-            }
+            returnReport.ErrorMessages.Add("S3 Bucket is empty?");
+            return returnReport;
         }
-        else
+
+        if (string.IsNullOrWhiteSpace(serviceUrl))
         {
-            if (string.IsNullOrWhiteSpace(region))
-            {
-                returnReport.ErrorMessages.Add("S3 Bucket Endpoint (region) not filled?");
-                return returnReport;
-            }
-            
-            if (s3Account.BucketRegionEndpoint() == null)
-            {
-                returnReport.ErrorMessages.Add("S3 Bucket Endpoint (region) not valid?");
-                return returnReport;
-            }
+            returnReport.ErrorMessages.Add("S3 Service URL is empty?");
+            return returnReport;
         }
         
         progress?.Report("Getting list of all generated files");
@@ -114,14 +102,14 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
                     if (loopFile.Length != matches.First().Size)
                         returnReport.FileSizeMismatches.Add(await S3Tools.UploadRequest(loopFile, matches.First().Key,
                             bucket,
-                            s3Account.BucketRegionEndpoint()?.SystemName ?? string.Empty, "S3 File Size Mismatch"));
+                            s3Account.ServiceUrl(), "S3 File Size Mismatch"));
                     matches.ForEach(x => awsObjects.Remove(x));
                     break;
                 }
                 default:
                     returnReport.MissingFiles.Add(await S3Tools.UploadRequest(loopFile,
                         S3CmsTools.FileInfoInGeneratedSiteToS3Key(loopFile),
-                        bucket, s3Account.BucketRegionEndpoint()?.SystemName ?? string.Empty, "File Missing on S3"));
+                        bucket, s3Account.ServiceUrl(), "File Missing on S3"));
                     break;
             }
         }

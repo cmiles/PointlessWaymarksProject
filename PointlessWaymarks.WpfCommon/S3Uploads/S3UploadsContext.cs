@@ -87,7 +87,7 @@ public partial class S3UploadsContext
 
         var jsonInfo = JsonSerializer.Serialize(items.Select(x =>
             new S3UploadFileEntry(x.FileToUpload.FullName, x.AmazonObjectKey, x.UploadS3Information.BucketName(),
-                x.UploadS3Information.BucketRegion(), x.Note)));
+                x.UploadS3Information.ServiceUrl(), x.Note)));
 
         var file = new FileInfo(fileName);
 

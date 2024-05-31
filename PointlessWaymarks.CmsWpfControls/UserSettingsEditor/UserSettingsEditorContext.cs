@@ -89,7 +89,7 @@ public partial class UserSettingsEditorContext
         "The location the program should check for updates.";
     
     public static string HelpMarkdownS3Information =>
-        "This is NOT required. Cloud S3 Storage from Amazon or Cloudflare - especially combined with Cloudflare's caching - can be an good way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and Site Credentials (these are not shown and are stored securely by Windows - these are NOT stored in the database or in the settings, file but be aware that anyone with access to your Windows Account has access to these credentials!).";
+        "This is NOT required. Cloud S3 Storage from Amazon or Cloudflare - especially combined with Cloudflare for caching - can be an good way to host a static site like this program generates. This program can help you upload files and maintain files on S3, but to do so you must provide some information - S3 Bucket Name (this will often match your domain name), S3 Bucket Region and Site Credentials (these are not shown and are stored securely by Windows - these are NOT stored in the database or in the settings, file but be aware that anyone with access to your Windows Account has access to these credentials!).";
     
     public static string HelpMarkdownShowImageSizesByDefault =>
         "Used as the default value for a Photo's or Image's 'Show Sizes' setting - if this is checked by default image pages will have links to every size available. ALL IMAGE FILES are 'public', but unless this is checked the user is never shown a direct link to any image file.";
@@ -133,15 +133,15 @@ public partial class UserSettingsEditorContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        CloudCredentials.RemoveAwsSiteCredentials();
+        CloudCredentials.RemoveS3SiteCredentials();
     }
     
     [BlockingCommand]
-    public async Task DeleteCloudflareCredentials()
+    public async Task DeleteS3ServiceUrls()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        CloudCredentials.RemoveCloudflareSiteAccountIdAndCredentials();
+        CloudCredentials.RemoveS3ServiceUrls();
     }
     
     [BlockingCommand]
@@ -164,95 +164,52 @@ public partial class UserSettingsEditorContext
     [BlockingCommand]
     public async Task UserAwsKeyAndSecretEntry()
     {
-        var newKeyEntry = await StatusContext.ShowStringEntry("AWS Access Key",
-            "Enter the AWS Access Key", string.Empty);
-        
+        var newKeyEntry = await StatusContext.ShowStringEntry("Cloud Access Key",
+             "Enter the Cloud Access Key", string.Empty);
+
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning("Amazon Credential Entry Cancelled");
+            StatusContext.ToastWarning("Cloud Credential Entry Cancelled");
             return;
         }
-        
-        var cleanedKey = StringTools.TrimNullToEmpty(newKeyEntry.Item2);
-        
-        if (string.IsNullOrWhiteSpace(cleanedKey))
-        {
-            StatusContext.ToastError("AWS Credential Entry Canceled - Access Key can not be blank");
-            return;
-        }
-        
-        ;
-        
-        var newSecretEntry = await StatusContext.ShowStringEntry("AWS Secret Access Key",
-            "Enter the AWS Secret Access Key", string.Empty);
-        
+
+        var cleanedKey = newKeyEntry.Item2.TrimNullToEmpty();
+
+        if (string.IsNullOrWhiteSpace(cleanedKey)) return;
+
+        var newSecretEntry = await StatusContext.ShowStringEntry("Cloud Secret Key",
+            "Enter the Secret Key", string.Empty);
+
         if (!newSecretEntry.Item1) return;
-        
-        var cleanedSecret = StringTools.TrimNullToEmpty(newSecretEntry.Item2);
-        
+
+        var cleanedSecret = newSecretEntry.Item2.TrimNullToEmpty();
+
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {
-            StatusContext.ToastError("AWS Credential Entry Canceled - Secret can not be blank");
+            StatusContext.ToastError("Cloud Credential Entry Canceled - secret can not be blank");
             return;
         }
         
-        CloudCredentials.SaveAwsSiteCredential(cleanedKey, cleanedSecret);
-    }
-    
-    [BlockingCommand]
-    public async Task UserCloudflareAccountIdKeySecretEntry()
-    {
-        var newAccountIdEntry = await StatusContext.ShowStringEntry("Cloudflare Account Id",
-            "Enter the Cloudflare Account Id", string.Empty);
-        
-        if (!newAccountIdEntry.Item1)
+        CloudCredentials.SaveS3SiteCredential(cleanedKey, cleanedSecret);
+
+        if (EditorSettings.SiteS3CloudProvider != S3Providers.Amazon.ToString())
         {
-            StatusContext.ToastWarning("Cloudflare Credential Entry Cancelled");
-            return;
+            var serviceUrl = await StatusContext.ShowStringEntry("Service URL",
+                "Enter the S3 service URL. For Cloudflare this will be https://{accountId}.r2.cloudflarestorage.com - other providers, like Wasabi, will have a Service URL based on region (for example s3.ca-central-1.wasabisys.com for Wasabi-Toronto)",
+                string.Empty);
+
+            if (!serviceUrl.Item1) return;
+
+            var cleanedServiceUrl = serviceUrl.Item2.TrimNullToEmpty();
+
+            if (string.IsNullOrWhiteSpace(cleanedServiceUrl))
+            {
+                StatusContext.ToastError("Cloud Credential Entry Canceled - Service URL can not be blank");
+                return;
+            }
+            
+            CloudCredentials.SaveS3ServiceUrl(cleanedServiceUrl);
         }
-        
-        var cleanedAccountId = StringTools.TrimNullToEmpty(newAccountIdEntry.Item2);
-        
-        if (string.IsNullOrWhiteSpace(cleanedAccountId))
-        {
-            StatusContext.ToastError("Cloudflare Credential Entry Canceled - Account Id can not be blank");
-            return;
-        }
-        
-        var newKeyEntry = await StatusContext.ShowStringEntry("Cloudflare Access Key",
-            "Enter the Cloudflare Access Key", string.Empty);
-        
-        if (!newKeyEntry.Item1)
-        {
-            StatusContext.ToastWarning("Cloudflare Credential Entry Cancelled");
-            return;
-        }
-        
-        var cleanedKey = StringTools.TrimNullToEmpty(newKeyEntry.Item2);
-        
-        if (string.IsNullOrWhiteSpace(cleanedKey))
-        {
-            StatusContext.ToastError("Cloudflare Credential Entry Canceled - Access Key can not be blank");
-            return;
-        }
-        
-        ;
-        
-        var newSecretEntry = await StatusContext.ShowStringEntry("Cloudflare Secret Access Key",
-            "Enter the Cloudflare Secret Access Key", string.Empty);
-        
-        if (!newSecretEntry.Item1) return;
-        
-        var cleanedSecret = StringTools.TrimNullToEmpty(newSecretEntry.Item2);
-        
-        if (string.IsNullOrWhiteSpace(cleanedSecret))
-        {
-            StatusContext.ToastError("Cloudflare Credential Entry Canceled - Secret can not be blank");
-            return;
-        }
-        
-        CloudCredentials.SaveCloudflareSiteAccountId(cleanedAccountId);
-        CloudCredentials.SaveCloudflareSiteCredential(cleanedKey, cleanedSecret);
     }
     
     [BlockingCommand]

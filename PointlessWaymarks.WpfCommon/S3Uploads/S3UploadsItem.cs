@@ -43,11 +43,10 @@ public partial class S3UploadsItem : ISelectedTextTracker
         ErrorMessage = string.Empty;
         Completed = false;
         
-        var isCloudflare = UploadS3Information.S3Provider() == S3Providers.Cloudflare;
+        var isAmazon = UploadS3Information.S3Provider() == S3Providers.Amazon;
         
         var accessKey = UploadS3Information.AccessKey();
         var secret = UploadS3Information.Secret();
-        var cloudflareAccountId = UploadS3Information.CloudflareAccountId();
         
         if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secret))
         {
@@ -55,42 +54,14 @@ public partial class S3UploadsItem : ISelectedTextTracker
             ErrorMessage = "S3 Credentials are not entered or valid?";
             return;
         }
-        
-        if (string.IsNullOrWhiteSpace(UploadS3Information.BucketName()))
+
+        if (string.IsNullOrWhiteSpace(UploadS3Information.ServiceUrl()))
         {
             HasError = true;
-            ErrorMessage = "Bucket Name is blank?";
+            ErrorMessage = "S3 Service URL is blank?";
             return;
         }
-        
-        if (isCloudflare)
-        {
-            if (string.IsNullOrWhiteSpace(cloudflareAccountId))
-            {
-                HasError = true;
-                ErrorMessage = "Cloudflare Account Id is blank?";
-                return;
-            }
-        }
-        else
-        {
-            if (string.IsNullOrWhiteSpace(UploadS3Information.BucketRegion()))
-            {
-                HasError = true;
-                ErrorMessage = "Amazon Region is blank?";
-                return;
-            }
-            
-            var region = UploadS3Information.BucketRegionEndpoint();
-            
-            if (region == null)
-            {
-                HasError = true;
-                ErrorMessage = "Amazon Region is null?";
-                return;
-            }
-        }
-        
+
         FileToUpload.Refresh();
         
         if (!FileToUpload.Exists)
