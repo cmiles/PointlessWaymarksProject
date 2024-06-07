@@ -25,7 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PointlessWaymarks.FeedReaderData\PointlessWaymarks.FeedReaderData.csproj" />
-      <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+      <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
     </ItemGroup>
 
     <ItemGroup>

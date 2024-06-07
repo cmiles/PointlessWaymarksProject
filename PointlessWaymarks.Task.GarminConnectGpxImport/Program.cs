@@ -4,6 +4,7 @@ using System.Reflection;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.GarminConnectGpxImport;
 using PointlessWaymarks.VaultfuscationTools;
+using PointlessWaymarks.WindowsTools;
 using Serilog;
 
 LogTools.StandardStaticLoggerForProgramDirectory("GarminConnectGpxImport");

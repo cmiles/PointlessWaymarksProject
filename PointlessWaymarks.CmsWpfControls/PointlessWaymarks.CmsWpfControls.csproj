@@ -49,10 +49,8 @@
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.PressSharper\PointlessWaymarks.PressSharper.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
   </ItemGroup>
 
   <ItemGroup>

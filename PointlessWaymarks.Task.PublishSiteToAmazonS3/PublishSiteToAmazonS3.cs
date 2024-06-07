@@ -7,6 +7,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.WindowsTools;
 using Polly;
 using Serilog;
 

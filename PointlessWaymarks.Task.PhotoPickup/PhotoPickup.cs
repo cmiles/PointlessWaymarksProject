@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -9,6 +9,7 @@ using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WindowsTools;
 using Serilog;
 
 namespace PointlessWaymarks.Task.PhotoPickup;

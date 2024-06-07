@@ -22,11 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
-    <ProjectReference Include="..\VaultfuscatedSettings\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="MemoriesSmtpEmailFromWebSettingsSample.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -42,6 +37,11 @@
     <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
       <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
   </ItemGroup>
 
   <ItemGroup>

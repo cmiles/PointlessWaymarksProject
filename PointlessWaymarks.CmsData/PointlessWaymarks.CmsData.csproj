@@ -441,9 +441,9 @@
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
   </ItemGroup>
 
 </Project>

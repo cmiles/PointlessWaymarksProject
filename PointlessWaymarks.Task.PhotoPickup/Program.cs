@@ -3,6 +3,7 @@
 using System.Reflection;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.PhotoPickup;
+using PointlessWaymarks.WindowsTools;
 using Serilog;
 
 LogTools.StandardStaticLoggerForProgramDirectory("PhotoPickup");

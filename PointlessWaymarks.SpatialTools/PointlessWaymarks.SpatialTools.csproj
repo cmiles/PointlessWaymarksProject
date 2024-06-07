@@ -13,8 +13,4 @@
     <PackageReference Include="Unofficial.Garmin.Connect" Version="0.6.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
-  </ItemGroup>
-
 </Project>

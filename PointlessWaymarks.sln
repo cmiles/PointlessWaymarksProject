@@ -15,14 +15,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PressShar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PressSharper.UnitTests", "PointlessWaymarks.PressSharper.UnitTests\PointlessWaymarks.PressSharper.UnitTests.csproj", "{A9BB501C-E170-460C-A815-EEF0C5AB632F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.WpfCommon", "PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj", "{510C25C0-8FA8-4323-9B5D-042C637A382F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{92A969F8-6B12-41B2-B393-C87402CCF53D}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		DevNotes.md = DevNotes.md
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json
+		PointlessWaymarksTools\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj = PointlessWaymarksTools\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj
+		PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj = PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -35,10 +35,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.GarminConnectGpxImport", "PointlessWaymarks.Task.GarminConnectGpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj", "{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeatureIntersectionTags", "PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj", "{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.SpatialTools", "PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj", "{CD620C67-0C5F-45AB-91C8-02A4D7C45152}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CommonTools", "PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj", "{A4009BB0-DEB5-4FB2-B62E-834054F77362}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.PhotoPickup", "PointlessWaymarks.Task.PhotoPickup\PointlessWaymarks.Task.PhotoPickup.csproj", "{69770B90-F127-45C3-ACAD-CB6629099F8D}"
 EndProject
@@ -54,8 +50,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBack
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupTests", "PointlessWaymarks.CloudBackupTests\PointlessWaymarks.CloudBackupTests.csproj", "{28FCAD6F-CA80-49D9-915F-F1ED3B164235}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LlamaAspects", "PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj", "{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupRunner", "PointlessWaymarks.CloudBackupRunner\PointlessWaymarks.CloudBackupRunner.csproj", "{5E9084D4-527E-464E-B133-5AEEEE60211A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReaderData", "PointlessWaymarks.FeedReaderData\PointlessWaymarks.FeedReaderData.csproj", "{4AB7FD0B-FE11-48E1-B692-E4040A985F9D}"
@@ -70,9 +64,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeedReade
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PublishReadmeHelper", "PointlessWaymarks.PublishReadmeHelper\PointlessWaymarks.PublishReadmeHelper.csproj", "{6FF96150-1179-4A1C-8F07-9C4D11948D2A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.VaultfuscationTools", "VaultfuscatedSettings\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj", "{796561B2-3673-42C8-BC63-714B1E686E31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CommonTools", "PointlessWaymarksTools\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj", "{095975E0-6F2C-4EBB-ACC1-02986F6238DF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.VaultfuscationManualConsoleTest", "VaultfuscatedSettings\PointlessWaymarks.VaultfuscationManualConsoleTest\PointlessWaymarks.VaultfuscationManualConsoleTest.csproj", "{8DD7E043-CCB7-45F8-B6FB-5E17722AD95F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.LlamaAspects", "PointlessWaymarksTools\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj", "{9628DCF0-C071-49F6-9698-2EDD4C9CE68A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.VaultfuscationTools", "PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj", "{70C126D0-484A-4438-9452-75AF744B0C12}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.WindowsTools", "PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj", "{B71DE8EB-C6BE-4C13-9709-C81AB5B57D3B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PointlessWaymarksTools", "PointlessWaymarksTools", "{2F5AF64D-0D0F-4A6B-A1D9-E0CF751447C1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.SpatialTools", "PointlessWaymarksTools\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj", "{67E06F75-F83B-4FCC-851C-F98A2ED4155A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.WpfCommon", "PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj", "{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -104,10 +108,6 @@ Global
 		{A9BB501C-E170-460C-A815-EEF0C5AB632F}.Debug|x64.Build.0 = Debug|x64
 		{A9BB501C-E170-460C-A815-EEF0C5AB632F}.Release|x64.ActiveCfg = Release|x64
 		{A9BB501C-E170-460C-A815-EEF0C5AB632F}.Release|x64.Build.0 = Release|x64
-		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Debug|x64.ActiveCfg = Debug|x64
-		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Debug|x64.Build.0 = Debug|x64
-		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Release|x64.ActiveCfg = Release|x64
-		{510C25C0-8FA8-4323-9B5D-042C637A382F}.Release|x64.Build.0 = Release|x64
 		{08337AB5-00B2-449D-8E64-1525E1F50CEE}.Debug|x64.ActiveCfg = Debug|x64
 		{08337AB5-00B2-449D-8E64-1525E1F50CEE}.Debug|x64.Build.0 = Debug|x64
 		{08337AB5-00B2-449D-8E64-1525E1F50CEE}.Release|x64.ActiveCfg = Release|x64
@@ -128,14 +128,6 @@ Global
 		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Debug|x64.Build.0 = Debug|x64
 		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Release|x64.ActiveCfg = Release|x64
 		{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}.Release|x64.Build.0 = Release|x64
-		{CD620C67-0C5F-45AB-91C8-02A4D7C45152}.Debug|x64.ActiveCfg = Debug|x64
-		{CD620C67-0C5F-45AB-91C8-02A4D7C45152}.Debug|x64.Build.0 = Debug|x64
-		{CD620C67-0C5F-45AB-91C8-02A4D7C45152}.Release|x64.ActiveCfg = Release|x64
-		{CD620C67-0C5F-45AB-91C8-02A4D7C45152}.Release|x64.Build.0 = Release|x64
-		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Debug|x64.ActiveCfg = Debug|x64
-		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Debug|x64.Build.0 = Debug|x64
-		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Release|x64.ActiveCfg = Release|x64
-		{A4009BB0-DEB5-4FB2-B62E-834054F77362}.Release|x64.Build.0 = Release|x64
 		{69770B90-F127-45C3-ACAD-CB6629099F8D}.Debug|x64.ActiveCfg = Debug|x64
 		{69770B90-F127-45C3-ACAD-CB6629099F8D}.Debug|x64.Build.0 = Debug|x64
 		{69770B90-F127-45C3-ACAD-CB6629099F8D}.Release|x64.ActiveCfg = Release|x64
@@ -164,10 +156,6 @@ Global
 		{28FCAD6F-CA80-49D9-915F-F1ED3B164235}.Debug|x64.Build.0 = Debug|x64
 		{28FCAD6F-CA80-49D9-915F-F1ED3B164235}.Release|x64.ActiveCfg = Release|x64
 		{28FCAD6F-CA80-49D9-915F-F1ED3B164235}.Release|x64.Build.0 = Release|x64
-		{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}.Debug|x64.ActiveCfg = Debug|x64
-		{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}.Debug|x64.Build.0 = Debug|x64
-		{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}.Release|x64.ActiveCfg = Release|x64
-		{39BD8DD8-A7A0-46B5-BC2C-C7A411EEB3AA}.Release|x64.Build.0 = Release|x64
 		{5E9084D4-527E-464E-B133-5AEEEE60211A}.Debug|x64.ActiveCfg = Debug|x64
 		{5E9084D4-527E-464E-B133-5AEEEE60211A}.Debug|x64.Build.0 = Debug|x64
 		{5E9084D4-527E-464E-B133-5AEEEE60211A}.Release|x64.ActiveCfg = Release|x64
@@ -196,17 +184,41 @@ Global
 		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Debug|x64.Build.0 = Debug|x64
 		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Release|x64.ActiveCfg = Release|x64
 		{6FF96150-1179-4A1C-8F07-9C4D11948D2A}.Release|x64.Build.0 = Release|x64
-		{796561B2-3673-42C8-BC63-714B1E686E31}.Debug|x64.ActiveCfg = Debug|x64
-		{796561B2-3673-42C8-BC63-714B1E686E31}.Debug|x64.Build.0 = Debug|x64
-		{796561B2-3673-42C8-BC63-714B1E686E31}.Release|x64.ActiveCfg = Release|x64
-		{796561B2-3673-42C8-BC63-714B1E686E31}.Release|x64.Build.0 = Release|x64
-		{8DD7E043-CCB7-45F8-B6FB-5E17722AD95F}.Debug|x64.ActiveCfg = Debug|x64
-		{8DD7E043-CCB7-45F8-B6FB-5E17722AD95F}.Debug|x64.Build.0 = Debug|x64
-		{8DD7E043-CCB7-45F8-B6FB-5E17722AD95F}.Release|x64.ActiveCfg = Release|x64
-		{8DD7E043-CCB7-45F8-B6FB-5E17722AD95F}.Release|x64.Build.0 = Release|x64
+		{095975E0-6F2C-4EBB-ACC1-02986F6238DF}.Debug|x64.ActiveCfg = Debug|x64
+		{095975E0-6F2C-4EBB-ACC1-02986F6238DF}.Debug|x64.Build.0 = Debug|x64
+		{095975E0-6F2C-4EBB-ACC1-02986F6238DF}.Release|x64.ActiveCfg = Release|x64
+		{095975E0-6F2C-4EBB-ACC1-02986F6238DF}.Release|x64.Build.0 = Release|x64
+		{9628DCF0-C071-49F6-9698-2EDD4C9CE68A}.Debug|x64.ActiveCfg = Debug|x64
+		{9628DCF0-C071-49F6-9698-2EDD4C9CE68A}.Debug|x64.Build.0 = Debug|x64
+		{9628DCF0-C071-49F6-9698-2EDD4C9CE68A}.Release|x64.ActiveCfg = Release|x64
+		{9628DCF0-C071-49F6-9698-2EDD4C9CE68A}.Release|x64.Build.0 = Release|x64
+		{70C126D0-484A-4438-9452-75AF744B0C12}.Debug|x64.ActiveCfg = Debug|x64
+		{70C126D0-484A-4438-9452-75AF744B0C12}.Debug|x64.Build.0 = Debug|x64
+		{70C126D0-484A-4438-9452-75AF744B0C12}.Release|x64.ActiveCfg = Release|x64
+		{70C126D0-484A-4438-9452-75AF744B0C12}.Release|x64.Build.0 = Release|x64
+		{B71DE8EB-C6BE-4C13-9709-C81AB5B57D3B}.Debug|x64.ActiveCfg = Debug|x64
+		{B71DE8EB-C6BE-4C13-9709-C81AB5B57D3B}.Debug|x64.Build.0 = Debug|x64
+		{B71DE8EB-C6BE-4C13-9709-C81AB5B57D3B}.Release|x64.ActiveCfg = Release|x64
+		{B71DE8EB-C6BE-4C13-9709-C81AB5B57D3B}.Release|x64.Build.0 = Release|x64
+		{67E06F75-F83B-4FCC-851C-F98A2ED4155A}.Debug|x64.ActiveCfg = Debug|x64
+		{67E06F75-F83B-4FCC-851C-F98A2ED4155A}.Debug|x64.Build.0 = Debug|x64
+		{67E06F75-F83B-4FCC-851C-F98A2ED4155A}.Release|x64.ActiveCfg = Release|x64
+		{67E06F75-F83B-4FCC-851C-F98A2ED4155A}.Release|x64.Build.0 = Release|x64
+		{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}.Debug|x64.ActiveCfg = Debug|x64
+		{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}.Debug|x64.Build.0 = Debug|x64
+		{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}.Release|x64.ActiveCfg = Release|x64
+		{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{095975E0-6F2C-4EBB-ACC1-02986F6238DF} = {2F5AF64D-0D0F-4A6B-A1D9-E0CF751447C1}
+		{9628DCF0-C071-49F6-9698-2EDD4C9CE68A} = {2F5AF64D-0D0F-4A6B-A1D9-E0CF751447C1}
+		{70C126D0-484A-4438-9452-75AF744B0C12} = {2F5AF64D-0D0F-4A6B-A1D9-E0CF751447C1}
+		{B71DE8EB-C6BE-4C13-9709-C81AB5B57D3B} = {2F5AF64D-0D0F-4A6B-A1D9-E0CF751447C1}
+		{67E06F75-F83B-4FCC-851C-F98A2ED4155A} = {2F5AF64D-0D0F-4A6B-A1D9-E0CF751447C1}
+		{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B} = {2F5AF64D-0D0F-4A6B-A1D9-E0CF751447C1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75AFFEC9-7D18-4CFC-B893-5FA77C6942C8}

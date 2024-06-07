@@ -32,7 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsWpfControls\PointlessWaymarks.CmsWpfControls.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
   </ItemGroup>
 
   <ItemGroup>

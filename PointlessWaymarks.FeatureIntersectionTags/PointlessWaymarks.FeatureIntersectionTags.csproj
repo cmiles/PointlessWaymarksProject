@@ -10,7 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj" />
   </ItemGroup>
 
   <ItemGroup>

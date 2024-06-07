@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Net;
 using System.Net.Mail;
@@ -7,6 +7,7 @@ using System.Text.Json;
 using HtmlAgilityPack;
 using Mjml.Net;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WindowsTools;
 using Serilog;
 using ContentType = System.Net.Mime.ContentType;
 using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;

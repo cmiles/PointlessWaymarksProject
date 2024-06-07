@@ -17,9 +17,9 @@
     <PackageReference Include="ValueInjecter" Version="3.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
     <ProjectReference Include="..\PointlessWaymarks.FeedReader\PointlessWaymarks.FeedReader.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
-    <ProjectReference Include="..\VaultfuscatedSettings\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
   </ItemGroup>
 </Project>

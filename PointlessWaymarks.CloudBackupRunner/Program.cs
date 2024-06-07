@@ -5,6 +5,7 @@ using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.CloudBackupData.Reports;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
+using PointlessWaymarks.WindowsTools;
 using Serilog;
 
 namespace PointlessWaymarks.CloudBackupRunner;

@@ -1,6 +1,7 @@
 using System.Reflection;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.PublishSiteToAmazonS3;
+using PointlessWaymarks.WindowsTools;
 using Serilog;
 
 LogTools.StandardStaticLoggerForProgramDirectory("PublishToS3");
