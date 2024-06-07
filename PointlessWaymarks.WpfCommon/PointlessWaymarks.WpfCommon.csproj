@@ -48,10 +48,10 @@
     <PackageReference Include="MathConverter" Version="2.2.1" />
     <PackageReference Include="MdXaml.Plugins" Version="1.27.0" />
     <PackageReference Include="MetadataExtractor" Version="2.8.1" />
-    <PackageReference Include="Metalama.Framework" Version="2024.1.19" />
+    <PackageReference Include="Metalama.Framework" Version="2024.1.20" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2535.41" />
     <PackageReference Include="Microsoft.Web.WebView2.DevToolsProtocolExtension" Version="1.0.2271" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.122" />
     <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />
     <PackageReference Include="OneOf.SourceGenerator" Version="3.0.271" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
