@@ -1,3 +1,4 @@
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.VaultfuscationTools;
 using PointlessWaymarks.WindowsTools;
 

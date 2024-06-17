@@ -69,7 +69,7 @@ if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.Ordi
         return;
     }
 
-    var password = ConsoleEntryTools.GetObscuredStringFromConsole("Password: ");
+    var password = ConsoleTools.GetObscuredStringFromConsole("Password: ");
 
     PasswordVaultTools.SaveCredentials(MemoriesSmtpEmailFromWebSettings.PasswordVaultResourceIdentifier(loginCode),
         userName, password);
