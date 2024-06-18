@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Text.Json;
 using Garmin.Connect;
 using Garmin.Connect.Auth;
 using NetTopologySuite.IO;
@@ -19,96 +17,23 @@ namespace PointlessWaymarks.Task.GarminConnectGpxImport;
 
 public class GpxTrackImport
 {
-    public async System.Threading.Tasks.Task Import(string settingsFile)
+    public async System.Threading.Tasks.Task Import(GarminConnectGpxImportSettings settings)
     {
-        var notifier = (await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName))
+        var notifier =
+            (await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName()))
             .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
-                AppContext.BaseDirectory, "README_Task-GarminConnectGpxImport.md"))).SetAutomationLogoNotificationIconUrl();
+                AppContext.BaseDirectory, "README_Task-GarminConnectGpxImport.md")))
+            .SetAutomationLogoNotificationIconUrl();
 
         var consoleProgress = new ConsoleProgress();
 
-        if (string.IsNullOrWhiteSpace(settingsFile))
-        {
-            Log.Error("Blank settings file is not valid...");
-            await notifier.Error("Blank Settings File Name.",
-                "The program should be run with the Settings File as the argument.");
-            return;
-        }
-
-        settingsFile = settingsFile.Trim();
-
-        var settingsFileInfo = new FileInfo(settingsFile);
-
-        if (!settingsFileInfo.Exists)
-        {
-            Log.Error("Could not find settings file: {settingsFile}", settingsFile);
-            await notifier.Error($"Could not find settings file: {settingsFile}");
-            return;
-        }
-
-        GarminConnectGpxImportSettings? settings;
-        try
-        {
-            var settingsFileJsonString = await File.ReadAllTextAsync(settingsFileInfo.FullName);
-            var tryReadSettings =
-                JsonSerializer.Deserialize<GarminConnectGpxImportSettings>(settingsFileJsonString,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (tryReadSettings == null)
-            {
-                Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
-                    settingsFile);
-                await notifier.Error($"Error: Settings file {settingsFile} deserialized into a null object.",
-                    "The program found and was able to read the Settings File - {settingsFile} - but nothing was returned when converting the file into program settings - this probably indicates a format problem with the settings file.");
-                return;
-            }
-
-            settings = tryReadSettings;
-
-            Log.ForContext("settings",
+        Log.ForContext("settings",
                 settings.Dump(new DumpOptions
                 {
                     ExcludeProperties = new List<string>
-                        { nameof(settings.ConnectUserName), nameof(settings.ConnectPassword) }
-                })).Information($"Using settings from {settingsFileInfo.FullName}");
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
-            await notifier.Error(e);
-            return;
-        }
-
-        if (settings.ImportActivitiesToSite &&
-            string.IsNullOrWhiteSpace(settings.PointlessWaymarksSiteSettingsFileFullName))
-        {
-            Log.Error(
-                $"The settings specify {nameof(settings.ImportActivitiesToSite)} but the Pointless Waymarks CMS Site Settings file is empty?");
-            return;
-        }
-
-        var validationContext = new ValidationContext(settings, null, null);
-        var simpleValidationResults = new List<ValidationResult>();
-        var simpleValidationPassed = Validator.TryValidateObject(
-            settings, validationContext, simpleValidationResults,
-            true
-        );
-
-        if (!simpleValidationPassed)
-        {
-            Log.ForContext("SimpleValidationErrors", simpleValidationResults.SafeObjectDump())
-                .Error("Validating data from {settingsFile} failed.", settingsFile);
-            simpleValidationResults.ForEach(Console.WriteLine);
-            await notifier.Error($"Validating data from {settingsFile} failed.",
-                simpleValidationResults.SafeObjectDump());
-
-            return;
-        }
-
-        Log.ForContext("settings",
-                settings.Dump(new DumpOptions
-                    { ExcludeProperties = new List<string> { nameof(settings.ConnectPassword) } }))
-            .Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
+                        { nameof(settings.ConnectPassword), nameof(settings.ConnectUserName) }
+                }))
+            .Information("Starting with Settings - {daysBack} Days Back", settings.DownloadDaysBack);
 
 
         FileInfo? siteSettingsFileInfo = null;
@@ -148,7 +73,7 @@ public class GpxTrackImport
         //9/25/2022 - I haven't done any research or extensive testing but the assumption here is
         //that for large search ranges that it will be better to only query Garmin Connect for a limited
         //number of days...
-        var searchEndDate = settings.DownloadEndDate.AddDays(1).Date.AddTicks(-1);
+        var searchEndDate = DateTime.Now.Date.AddTicks(-1);
         var searchStartDate = searchEndDate.AddDays(-(Math.Abs(settings.DownloadDaysBack) - 1)).Date;
 
         var searchSegmentLength = 100;
@@ -161,29 +86,11 @@ public class GpxTrackImport
 
         if (settings.DownloadDaysBack % searchSegmentLength != 0)
             searchDateRanges.Add((
-                settings.DownloadEndDate.Date.AddDays(-(settings.DownloadDaysBack % searchSegmentLength) + 1),
-                settings.DownloadEndDate.AddDays(1).Date.AddTicks(-1)));
+                searchEndDate.Date.AddDays(-(settings.DownloadDaysBack % searchSegmentLength) + 1),
+                searchEndDate.AddDays(1).Date.AddTicks(-1)));
 
-        string username;
-        string password;
-
-        if (string.IsNullOrWhiteSpace(settings.LoginCode))
-        {
-            Log.Verbose("Using User Name and Password from Settings File");
-            username = settings.ConnectUserName;
-            password = settings.ConnectPassword;
-        }
-        else
-        {
-            Log.Verbose($"Using Login Code {settings.LoginCode} and Password Vault");
-            var credentials =
-                PasswordVaultTools.GetCredentials(
-                    GarminConnectGpxImportSettings.PasswordVaultResourceIdentifier(settings.LoginCode));
-            username = credentials.username;
-            password = credentials.password;
-        }
-
-        var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), new BasicAuthParameters(username, password)));
+        var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(),
+            new BasicAuthParameters(settings.ConnectUserName, settings.ConnectPassword)));
 
         var fileList = new List<(FileInfo activityFileInfo, FileInfo? gpxFileInfo)>();
 
@@ -233,7 +140,9 @@ public class GpxTrackImport
                 {
                     var gpxFile = await GarminConnectTools.GetGpx(loopActivity, archiveDirectory,
                         true, settings.OverwriteExistingArchiveDirectoryFiles,
-                        new ConnectGpxService { ConnectUsername = username, ConnectPassword = password }, consoleProgress);
+                        new ConnectGpxService
+                            { ConnectUsername = settings.ConnectUserName, ConnectPassword = settings.ConnectPassword },
+                        consoleProgress);
 
                     fileList.Add((jsonArchiveFile, gpxFile));
                 }
@@ -316,13 +225,14 @@ public class GpxTrackImport
                         await CommonContentValidation.ValidateSlugLocalAndDb(newEntry.Slug, newEntry.ContentId);
                 }
 
-                if (!string.IsNullOrEmpty(settings.IntersectionTagSettings))
+                if (siteSettings.FeatureIntersectionTagOnImport &&
+                    !string.IsNullOrWhiteSpace(siteSettings.FeatureIntersectionTagSettingsFile))
                 {
                     var featureToCheck = newEntry.FeatureFromGeoJsonLine();
 
                     if (featureToCheck != null)
                     {
-                        var tagResult = featureToCheck.IntersectionTags(settings.IntersectionTagSettings,
+                        var tagResult = featureToCheck.IntersectionTags(siteSettings.FeatureIntersectionTagSettingsFile,
                             CancellationToken.None,
                             new ConsoleProgress());
 
