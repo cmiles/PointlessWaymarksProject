@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.ErrorHtml;
 
@@ -39,7 +40,7 @@ public partial class ErrorPage
         {
             if (writeOnlyIfChanged)
             {
-                var currentFileString = await htmlFileInfo.OpenText().ReadToEndAsync();
+                var currentFileString = FileAndFolderTools.ReadAllText(htmlFileInfo.FullName);
                 var pattern = "data-generationversion=\"[^\"\"]*\"";
 
                 var currentTextString = Regex.Replace(currentFileString, pattern, string.Empty);
