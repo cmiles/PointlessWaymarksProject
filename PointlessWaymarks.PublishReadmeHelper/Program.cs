@@ -15,7 +15,7 @@ if (!searchDirectory.Exists)
     return;
 }
 
-var subDirectories = searchDirectory.GetDirectories();
+var subDirectories = searchDirectory.GetDirectories("*", SearchOption.AllDirectories);
 
 Console.WriteLine($"Scanning {subDirectories.Length} SubDirectories.");
 
