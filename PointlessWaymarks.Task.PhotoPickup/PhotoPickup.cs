@@ -1,12 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Text.Json;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WindowsTools;
@@ -16,81 +13,12 @@ namespace PointlessWaymarks.Task.PhotoPickup;
 
 public class PhotoPickup
 {
-    public async System.Threading.Tasks.Task PickupPhotos(string settingsFile)
+    public async System.Threading.Tasks.Task PickupPhotos(PhotoPickupSettings settings)
     {
-        var notifier = (await WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName))
+        var notifier = (await WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName()))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                 FileAndFolderTools.ReadAllText(
                     Path.Combine(AppContext.BaseDirectory, "README_Task-PhotoPickup.md")));
-
-        if (string.IsNullOrWhiteSpace(settingsFile))
-        {
-            Log.Error("Settings File is Null or Whitespace?");
-            await notifier.Error("Blank Settings File Name.",
-                "The program should be run with the Settings File as the argument");
-            return;
-        }
-
-        settingsFile = settingsFile.Trim();
-
-        var settingsFileInfo = new FileInfo(settingsFile);
-
-        if (!settingsFileInfo.Exists)
-        {
-            Log.Error("Settings File {settingsFile} Does Not Exist?", settingsFile);
-            await notifier.Error($"Could not find settings file: {settingsFile}");
-            return;
-        }
-
-        PhotoPickupSettings? settings;
-        try
-        {
-            var settingsFileJsonString = await File.ReadAllTextAsync(settingsFileInfo.FullName);
-            var tryReadSettings =
-                JsonSerializer.Deserialize<PhotoPickupSettings>(settingsFileJsonString,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (tryReadSettings == null)
-            {
-                Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
-                    settingsFile);
-                await notifier.Error($"Error: Settings file {settingsFile} deserialized into a null object.",
-                    $"The program found and was able to read the Settings File - {settingsFile} - but nothing was returned when converting the file into program settings - this probably indicates a format problem with the settings file.");
-                return;
-            }
-
-            settings = tryReadSettings;
-
-            Log.ForContext("settings",
-                settings.Dump()).Information($"Using settings from {settingsFileInfo.FullName}");
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
-            await notifier.Error(e);
-            return;
-        }
-
-        var validationContext = new ValidationContext(settings, null, null);
-        var simpleValidationResults = new List<ValidationResult>();
-        var simpleValidationPassed = Validator.TryValidateObject(
-            settings, validationContext, simpleValidationResults,
-            true
-        );
-
-        if (!simpleValidationPassed)
-        {
-            Log.ForContext("SimpleValidationErrors", simpleValidationResults.SafeObjectDump())
-                .Error("Validating data from {settingsFile} failed.", settingsFile);
-            simpleValidationResults.ForEach(Console.WriteLine);
-            await notifier.Error($"Validating data from {settingsFile} failed.",
-                simpleValidationResults.SafeObjectDump());
-            return;
-        }
-
-        Log.ForContext("settings",
-                settings.Dump())
-            .Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
 
         var pickupDirectory = new DirectoryInfo(settings.PhotoPickupDirectory);
 
@@ -220,10 +148,10 @@ public class PhotoPickup
                 var generatedPhotoInformation = PictureAssetProcessing.ProcessPhotoDirectory(savedContent);
 
                 Debug.Assert(generatedPhotoInformation != null, nameof(generatedPhotoInformation) + " != null");
-                
+
                 var closestSize = generatedPhotoInformation.SrcsetImages.MinBy(x => Math.Abs(384 - x.Width));
 
-                if (closestSize is { File: { }, SiteUrl: { } })
+                if (closestSize is { File: not null, SiteUrl: not null })
                     notifier.Message(
                         $"{UserSettingsSingleton.CurrentSettings().SiteName} - Photo Added '{metaContent.Title}'",
                         closestSize.SiteUrl);

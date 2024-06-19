@@ -1,11 +1,13 @@
 // See https://aka.ms/new-console-template for more information
 
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.Task.MemoriesEmail;
 using PointlessWaymarks.VaultfuscationTools;
 using PointlessWaymarks.WindowsTools;
 using Serilog;
+using Serilog.Extensions.Logging;
 
 LogTools.StandardStaticLoggerForProgramDirectory("MemoriesEmail");
 
@@ -14,92 +16,199 @@ Log.ForContext("args", Helpers.SafeObjectDump(args)).Information(
 
 Console.WriteLine($"Memories Email - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 
-if (args.Length == 0)
+if (args.Length == 0 || (args.Length == 1 && (args[0].Equals("help") || args[0].Equals("-help"))))
 {
-    Console.WriteLine("Welcome to the Pointless Waymarks Project Memories Email.");
-    Console.WriteLine();
-    Console.WriteLine("This program will scan a Pointless Waymarks Project site and");
-    Console.WriteLine("  generate an email from content X years back.");
-    Console.WriteLine();
-    Console.WriteLine("This program takes either:");
-    Console.WriteLine(" -authentication - this will start the setup to securely store");
-    Console.WriteLine("   your email credentials.");
-    Console.WriteLine(" The name of your settings file.");
+    ConsoleTools.WriteWrappedTextBlock("""
+                                       Welcome to the Pointless Waymarks Project Memories Email. This program can scan a Pointless Waymarks Project site and generate an email from content X years back.
 
-    return;
+                                       """);
+
+    VaultfuscationMessages.VaultfuscationWarning();
+
+    ConsoleTools.WriteWrappedTextBlock("""
+
+                                       On the command line you must specify:
+                                        - The name of the settings file. You can specify the name of a new file and the program will prompt you for the settings to use and then save them to the file. By default the program will also prompt the user to enter settings if there are any missing or have invalid values - see the '-notinteractive' flag below to control this behavior.
+                                        
+                                       You can also specify:
+                                        - '-notinteractive': By default the program will prompt the user for input if the settings file is not found or settings are not valid. If you specify -notinteractive the program will exit with an error message if the settings file is not found or settings are not valid. This must be specified after the settings file name.
+                                       """);
 }
 
+var cleanedSettingsFile = args[0].Trim();
 
-if (args.Length > 0 && args[0].Contains("-authentication", StringComparison.OrdinalIgnoreCase))
+var interactive = !args.Any(x => x.Contains("-notinteractive", StringComparison.OrdinalIgnoreCase));
+
+var msLogger = new SerilogLoggerFactory(Log.Logger)
+    .CreateLogger<ObfuscatedSettingsConsoleSetup<MemoriesSmtpEmailFromWebSettings>>();
+
+var vaultService = "http://memoriesemail.pointlesswaymarks.private";
+
+var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEmailFromWebSettings>(msLogger)
 {
-    Console.WriteLine("To save a secure login for sending email give it a login code to identify it.");
-    Console.WriteLine(" You will need to enter the login_code into your settings file, for example:");
-    Console.WriteLine("  \"loginCode\":\"mainGcLogin\"");
-    Console.WriteLine(" The loginCode should only contain letters and number - no spaces or symbols.");
-    Console.WriteLine(" Specifying an existing login code will overwrite the current username and password.");
-    Console.WriteLine();
-    Console.Write("Login Code: ");
-    var loginCode = Console.ReadLine();
+    SettingsFile = cleanedSettingsFile,
+    SettingsFileIdentifier = MemoriesSmtpEmailFromWebSettings.SettingsTypeIdentifier(),
+    VaultServiceIdentifier = vaultService,
+    Interactive = interactive,
+    SettingsFileProperties =
+    [
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "From Email Address",
+            PropertyEntryHelp =
+                "The email address that the email will be sent from. This email address must be valid and the email account must be able to send email through SMTP.",
+            PropertyIsValid =
+                ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
+                    x.FromEmailAddress),
+            UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfNotNullOrWhiteSpace(),
+            SetValue = (settings, userEntry) => settings.FromEmailAddress = userEntry.Trim(),
+            GetCurrentStringValue = x => x.FromEmailAddress
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "From Email Password",
+            PropertyEntryHelp =
+                "2FA is not currently supported and blank is not a valid value. Be sure to read the program warnings about security before entering this value.",
+            HideEnteredValue = true,
+            PropertyIsValid =
+                ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
+                    x.FromEmailPassword),
+            UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfNotNullOrWhiteSpace(),
+            SetValue = (settings, userEntry) => settings.FromEmailPassword = userEntry.Trim(),
+            GetCurrentStringValue = x => x.FromEmailPassword
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "From Email Display Name",
+            PropertyEntryHelp = "The display name for the email address that the email will be sent from.",
+            PropertyIsValid =
+                ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
+                    x.FromEmailDisplayName),
+            UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfNotNullOrWhiteSpace(),
+            SetValue = (settings, userEntry) => settings.FromEmailDisplayName = userEntry.Trim(),
+            GetCurrentStringValue = x => x.FromEmailDisplayName
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "SMTP Host",
+            PropertyIsValid =
+                ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
+                    x.SmtpHost),
+            UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfNotNullOrWhiteSpace(),
+            SetValue = (settings, userEntry) => settings.SmtpHost = userEntry.Trim(),
+            GetCurrentStringValue = x => x.SmtpHost
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "SMTP Port",
+            PropertyIsValid =
+                ObfuscatedSettingsHelpers.PropertyIsValidIfPositiveInt<MemoriesSmtpEmailFromWebSettings>(x =>
+                    x.SmtpPort),
+            UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfInt(),
+            SetValue = (settings, userEntry) => settings.SmtpPort = int.Parse(userEntry),
+            GetCurrentStringValue = x => x.SmtpPort.ToString()
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "SMTP Enable SSL",
+            PropertyIsValid = _ => (true, ""),
+            UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfBool(),
+            SetValue = (settings, userEntry) => settings.SmtpEnableSsl = bool.Parse(userEntry),
+            GetCurrentStringValue = x => x.SmtpEnableSsl.ToString()
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "Site Url",
+            PropertyEntryHelp = "The URL of the site to generate the email from.",
+            PropertyIsValid =
+                ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
+                    x.SiteUrl),
+            UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfNotNullOrWhiteSpace(),
+            SetValue = (settings, userEntry) => settings.SiteUrl = userEntry.Trim(),
+            GetCurrentStringValue = x => x.SiteUrl
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "Basic Auth User Name",
+            PropertyEntryHelp =
+                "If the site for the Memories Email requires basic authentication - enter the user name here, otherwise leave blank.",
+            PropertyIsValid = _ => (true, ""),
+            UserEntryIsValid = _ => (true, ""),
+            SetValue = (settings, userEntry) => settings.BasicAuthUserName = userEntry.Trim(),
+            GetCurrentStringValue = x => x.BasicAuthUserName
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "Basic Auth Password",
+            PropertyEntryHelp =
+                "If the site for the Memories Email requires basic authentication - enter the password here, otherwise leave blank.",
+            HideEnteredValue = true,
+            PropertyIsValid = _ => (true, ""),
+            UserEntryIsValid = _ => (true, ""),
+            SetValue = (settings, userEntry) => settings.BasicAuthPassword = userEntry.Trim(),
+            GetCurrentStringValue = x => x.BasicAuthPassword
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "To Address List",
+            PropertyEntryHelp = "A comma separated list of email addresses to send the email to.",
+            PropertyIsValid =
+                ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
+                    x.ToAddressList),
+            UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfNotNullOrWhiteSpace(),
+            SetValue = (settings, userEntry) => settings.ToAddressList = userEntry.Trim(),
+            GetCurrentStringValue = x => x.ToAddressList
+        },
+        new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
+        {
+            PropertyDisplayName = "Years Back",
+            PropertyEntryHelp = "A list of years back to generate emails for.",
+            PropertyIsValid = x =>
+            {
+                if (!x.YearsBack.Any())
+                    return (false, "Years back list is empty - at least one year must be specified.");
+                return (true, "");
+            },
+            UserEntryIsValid = x =>
+            {
+                if (string.IsNullOrWhiteSpace(x))
+                    return (false, "Years back list is empty - at least one year must be specified.");
+                if (x.Split(',').Any(y => !int.TryParse(y, out _)))
+                    return (false, "Years back list contains non-integer values.");
+                return (true, "");
+            },
+            SetValue = (settings, userEntry) => settings.YearsBack = userEntry.Split(',').Select(int.Parse).ToList(),
+            GetCurrentStringValue = x => string.Join(", ", x.YearsBack)
+        }
+    ]
+};
 
-    if (string.IsNullOrEmpty(loginCode))
-    {
-        Console.WriteLine("Sorry, a blank login code is not valid... Please try again.");
-        return;
-    }
+var settingsSetupResult = await settingFileReadAndSetup.Setup();
 
-    if (!loginCode.All(char.IsLetterOrDigit))
-    {
-        Console.WriteLine(
-            "Sorry, login codes must consist of only letters and numbers - no spaces or symbols... Please try again.");
-        return;
-    }
-
-    Console.WriteLine();
-
-    Console.WriteLine($"Login Code is {loginCode} - set the username and password for this login.");
-    Console.WriteLine();
-
-    Console.Write("Username: ");
-
-    var userName = Console.ReadLine();
-
-    if (string.IsNullOrEmpty(userName))
-    {
-        Console.WriteLine("Sorry, a blank username is not valid... Please try again.");
-        return;
-    }
-
-    var password = ConsoleTools.GetObscuredStringFromConsole("Password: ");
-
-    PasswordVaultTools.SaveCredentials(MemoriesSmtpEmailFromWebSettings.PasswordVaultResourceIdentifier(loginCode),
-        userName, password);
-
-    Console.WriteLine();
-
-    Console.WriteLine($"Username and password saved for Login Code {loginCode} - ");
-    Console.WriteLine("  the line below should appear in your settings file:");
-    Console.WriteLine($"  \"loginCode\":\"{loginCode}\"");
-
-    Console.WriteLine();
-
+if (!settingsSetupResult.isValid)
+{
+    Console.WriteLine("");
+    ConsoleTools.WriteLineRedWrappedTextBlock(
+        $"Settings Setup FAILED - setup returned isValid: {settingsSetupResult.isValid}");
+    ConsoleTools.WriteLineRedWrappedTextBlock($"{settingsSetupResult.settings}", indent: 2);
     return;
 }
-
 
 try
 {
     var runner = new MemoriesSmtpEmailFromWeb();
-    await runner.GenerateEmail(args[0]);
+    await runner.GenerateEmail(settingsSetupResult.settings);
 }
 catch (Exception e)
 {
     Log.Error(e, "Error Running Program...");
     Console.WriteLine(e);
 
-    await (await WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName))
+    await (await WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName()))
         .SetAutomationLogoNotificationIconUrl()
         .SetErrorReportAdditionalInformationMarkdown(
-            FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README_Task-MemoriesEmail.md"))).Error(e);
+            FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README_Task-MemoriesEmail.md")))
+        .Error(e);
 }
 finally
 {

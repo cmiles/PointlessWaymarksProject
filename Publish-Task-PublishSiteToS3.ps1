@@ -18,12 +18,12 @@ $msBuild = & $vsWhere -latest -prerelease -requires Microsoft.Component.MSBuild 
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 
-$publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.Task.PublishSiteToAmazonS3"
+$publishPath = "M:\PointlessWaymarksPublications\PointlessWaymarks.Task.PublishSiteToS3"
 if(!(test-path -PathType container $publishPath)) { New-Item -ItemType Directory -Path $publishPath }
 
 Remove-Item -Path $publishPath\* -Recurse
 
-& $msBuild .\PointlessWaymarks.Task.PublishSiteToAmazonS3\PointlessWaymarks.Task.PublishSiteToAmazonS3.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.Task.PublishSiteToAmazonS3\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
+& $msBuild .\PointlessWaymarks.Task.PublishSiteToS3\PointlessWaymarks.Task.PublishSiteToS3.csproj -t:publish -p:PublishProfile=.\PointlessWaymarks.Task.PublishSiteToS3\Properties\PublishProfile\FolderProfile.pubxml -verbosity:minimal
 
 if ($lastexitcode -ne 0) { throw ("Exec: " + $errorMessage) }
 

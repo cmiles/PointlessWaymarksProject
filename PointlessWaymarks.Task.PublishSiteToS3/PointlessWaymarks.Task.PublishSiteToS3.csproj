@@ -24,6 +24,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
+    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
     <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
   </ItemGroup>
   
@@ -36,13 +37,13 @@
   
   
   <ItemGroup>
-    <None Update="PointlessWaymarks.Task.PublishSiteToAmazonS3.args.json">
+    <None Update="PointlessWaymarks.Task.PublishSiteToS3.args.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="README.md">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="README_Task-PublishSiteToAmazonS3.md">
+    <None Update="README_Task-PublishSiteToS3.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

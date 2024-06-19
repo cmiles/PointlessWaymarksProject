@@ -17,7 +17,7 @@ Log.ForContext("args", args.SafeObjectDump()).Information(
 Console.WriteLine(
     $"Garmin Connect Gpx Import - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 
-if (args.Length == 0 || (args.Length == 1 && args[0].Contains("help", StringComparison.OrdinalIgnoreCase)))
+if (args.Length == 0 || (args.Length == 1 && (args[0].Equals("help") || args[0].Equals("-help"))))
 {
     ConsoleTools.WriteWrappedTextBlock("""
                                        Welcome to the Pointless Waymarks CMS Garmin Connect Gpx Import Task.
@@ -32,10 +32,10 @@ if (args.Length == 0 || (args.Length == 1 && args[0].Contains("help", StringComp
                                        This program will NOT prevent activities from being imported multiple times - the intended use is for the program to be run at regular intervals and to import the previous _ days without overlap. For example you might run the program daily and always import just the previous day's activities. This is not ideal for some uses but has the advantage that it is clean and simple to understand - no 'sync' that might overwrite custom changes you made to the activity in the CMS, no need to keep a tracking id or worry about matching other identifiers into Garmin Connect.
 
                                        On the command line you must specify:
-                                        - The name of the settings file to use for the import. You can specify the name of a new file and the program will prompt you for the settings to use and then save them to the file. By default the program will also prompt the user to enter any settings that are missing from the settings file or have invalid values - see the '-notinteractive' flag below to control this behavior.
+                                        - The name of the settings file to use for the import. You can specify the name of a new file and the program will prompt you for the settings to use and then save them to the file. By default the program will also prompt the user to enter settings if there are any missing or have invalid values - see the '-notinteractive' flag below to control this behavior.
                                         
                                        You can also specify:
-                                        - '-notinteractive': By default the program will prompt the user for input if the settings file is not found or settings are not valid. If you specify -notinteractive the program will exit with an error message if the settings file is not found or settings are not valid. This must be specified before -daterange and after the settings file name.
+                                        - '-notinteractive': By default the program will prompt the user for input if the settings file is not found or settings are not valid. If you specify -notinteractive the program will exit with an error message if the settings file is not found or settings are not valid. This must be specified after the settings file name.
 
                                        """
     );
@@ -131,7 +131,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<GarminConnectGp
         {
             PropertyDisplayName = "Pointless Waymarks Site Settings File",
             PropertyEntryHelp =
-                "The full path to the settings file for the Pointless Waymarks CMS site. This file should be a JSON file that contains the settings for the site.",
+                "The full path to the settings file for the Pointless Waymarks CMS site. This file should be the JSON file that contains the settings for the site.",
             ShowForUserEntry = x => x.ImportActivitiesToSite,
             PropertyIsValid = settings =>
             {

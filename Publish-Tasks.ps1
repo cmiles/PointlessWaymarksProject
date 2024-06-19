@@ -2,4 +2,4 @@
 .\Publish-Task-GarminConnectGpxImport.ps1
 .\Publish-Task-MemoriesEmail.ps1
 .\Publish-Task-PhotoPickup.ps1
-.\Publish-Task-PublishSiteToAmazonS3.ps1
+.\Publish-Task-PublishSiteToS3.ps1

@@ -1,107 +1,24 @@
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
-using System.Text.Json;
 using HtmlAgilityPack;
 using Mjml.Net;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WindowsTools;
 using Serilog;
 using ContentType = System.Net.Mime.ContentType;
-using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace PointlessWaymarks.Task.MemoriesEmail;
 
-public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
+public class MemoriesSmtpEmailFromWeb
 {
-    public async System.Threading.Tasks.Task GenerateEmail(string settingsFile)
+    public async System.Threading.Tasks.Task GenerateEmail(MemoriesSmtpEmailFromWebSettings settings)
     {
-        var notifier = (await WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName))
+        var notifier =
+            (await WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName()))
             .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
                 AppContext.BaseDirectory, "README_Task-MemoriesEmail.md"))).SetAutomationLogoNotificationIconUrl();
-
-        if (string.IsNullOrWhiteSpace(settingsFile))
-        {
-            Log.Error("Blank settings file is not valid...");
-            await notifier.Error("Blank Settings File Name.", "The program should be run with the Settings File as the argument.");
-            return;
-        }
-
-        var settingsFileInfo = new FileInfo(settingsFile.Trim());
-
-        if (!settingsFileInfo.Exists)
-        {
-            Log.Error("Could not find settings file: {settingsFile}", settingsFile);
-            await notifier.Error($"Could not find settings file: {settingsFile}");
-            return;
-        }
-
-        MemoriesSmtpEmailFromWebSettings? settings;
-        try
-        {
-            var settingsFileJsonString = await File.ReadAllTextAsync(settingsFileInfo.FullName);
-            var tryReadSettings =
-                JsonSerializer.Deserialize<MemoriesSmtpEmailFromWebSettings>(settingsFileJsonString,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (tryReadSettings == null)
-            {
-                Log.Error("Settings file {settingsFile} deserialized into a null object - is the format correct?",
-                    settingsFile);
-                await notifier.Error($"Error: Settings file {settingsFile} deserialized into a null object.", "The program found and was able to read the Settings File - {settingsFile} - but nothing was returned when converting the file into program settings - this probably indicates a format problem with the settings file.");
-                return;
-            }
-
-            settings = tryReadSettings;
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Exception reading settings file {settingsFile}", settingsFile);
-            await notifier.Error(e);
-            return;
-        }
-
-        var validationContext = new ValidationContext(settings, null, null);
-        var simpleValidationResults = new List<ValidationResult>();
-        var simpleValidationPassed = Validator.TryValidateObject(
-            settings, validationContext, simpleValidationResults,
-            true
-        );
-
-        if (!simpleValidationPassed)
-        {
-            Log.ForContext("SimpleValidationErrors", simpleValidationResults.SafeObjectDump())
-                .Error("Validating data from {settingsFile} failed.", settingsFile);
-            simpleValidationResults.ForEach(Console.WriteLine);
-            await notifier.Error($"Validating data from {settingsFile} failed.",
-                simpleValidationResults.SafeObjectDump());
-
-            return;
-        }
-
-        Log.ForContext("settings",
-                settings.Dump(new DumpOptions
-                    { ExcludeProperties = new List<string> { nameof(settings.FromEmailPassword) } }))
-            .Information("Settings Passed Basic Validation - Settings File {settingsFile}", settingsFile);
-
-        string fromEmailAddress;
-        string fromEmailPassword;
-
-        if (string.IsNullOrEmpty(settings.LoginCode))
-        {
-            fromEmailAddress = settings.FromEmailAddress;
-            fromEmailPassword = settings.FromEmailPassword;
-        }
-        else
-        {
-            var emailCredentials =
-                PasswordVaultTools.GetCredentials(
-                    MemoriesSmtpEmailFromWebSettings.PasswordVaultResourceIdentifier(settings.LoginCode));
-            fromEmailAddress = emailCredentials.username;
-            fromEmailPassword = emailCredentials.password;
-        }
 
         var httpClient = new HttpClient();
         if (!string.IsNullOrWhiteSpace(settings.BasicAuthUserName) &&
@@ -137,7 +54,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         {
             Log.Error("No Content List Items Found from {allContentUrl}?", allContentUrl);
             await notifier.Error($"Error: No Content List Items Found from {allContentUrl}",
-                $"Normally the All Content URL - {allContentUrl} - should have some content. In this case no content - either from the dates relevant to this email or for any other dates were found. This could indicate that there is a problem with the Url in the Settings File - {settingsFile} - or a problem with the site.");
+                $"Normally the All Content URL - {allContentUrl} - should have some content. In this case no content - either from the dates relevant to this email or for any other dates were found. This could indicate that there is a problem with the Url or a problem with the site.");
             return;
         }
 
@@ -147,7 +64,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
 
         var textInfo = new CultureInfo("en-US", false).TextInfo;
 
-        var fromAddress = new MailAddress(fromEmailAddress, settings.FromDisplayName);
+        var fromAddress = new MailAddress(settings.FromEmailAddress, settings.FromEmailDisplayName);
         var toAddress = settings.ToAddressList.Split(";", StringSplitOptions.RemoveEmptyEntries)
             .Select(x => new MailAddress(x.Trim())).ToList();
 
@@ -171,7 +88,7 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
 
             var targetDateMatchItems = new List<(string itemUrl, string imageUrl, string title, string itemType)>();
 
-            var targetDate = settings.ReferenceDate.AddYears(-Math.Abs(loopYearsBack));
+            var targetDate = DateTime.Today.AddYears(-Math.Abs(loopYearsBack));
             var targetDateString = targetDate.ToString("yyyy-MM-dd");
 
             Log.Information("Checking for Target Date {targetDate}", targetDateString);
@@ -237,15 +154,15 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
 
             // ReSharper disable once StringLiteralTypo
             contentSections.Add($"""               
-                            <mj-section>
-                                <mj-column>
-                    				<mj-text align="center" font-size="14px">
-                                    {(string.IsNullOrWhiteSpace(siteTitle) ? "C" : $"{siteTitle} c")}ontent created {loopYearsBack}
-                                     year{(loopYearsBack > 1 ? "s" : "")} ago ({targetDateString}).
-                    				</mj-text>
-                                </mj-column>
-                            </mj-section>
-                    """);
+                                         <mj-section>
+                                             <mj-column>
+                                 				<mj-text align="center" font-size="14px">
+                                                 {(string.IsNullOrWhiteSpace(siteTitle) ? "C" : $"{siteTitle} c")}ontent created {loopYearsBack}
+                                                  year{(loopYearsBack > 1 ? "s" : "")} ago ({targetDateString}).
+                                 				</mj-text>
+                                             </mj-column>
+                                         </mj-section>
+                                 """);
 
             var groupedItems = targetDateMatchItems.GroupBy(x => x.itemType).ToList();
 
@@ -288,20 +205,20 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
                 message.Attachments.Add(imageEmbed);
 
                 imageCarouselMjmlLines.Add($"""
-	<mj-carousel-image src="cid:{contentId}" />
-""");
+                                            	<mj-carousel-image src="cid:{contentId}" />
+                                            """);
             }
 
             if (imageCarouselMjmlLines.Any())
                 contentSections.Add($"""
-<mj-section>
-      <mj-column>
-        <mj-carousel>
-          {string.Join(Environment.NewLine, imageCarouselMjmlLines)}
-        </mj-carousel>
-      </mj-column>
-    </mj-section>
-""");
+                                     <mj-section>
+                                           <mj-column>
+                                             <mj-carousel>
+                                               {string.Join(Environment.NewLine, imageCarouselMjmlLines)}
+                                             </mj-carousel>
+                                           </mj-column>
+                                         </mj-section>
+                                     """);
 
             foreach (var loopItems in groupedItems)
             {
@@ -311,19 +228,19 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
                 var itemTexts = new List<string>();
                 foreach (var loopItem in loopItems)
                     itemTexts.Add($"""
-		<mj-text padding-left="14px" padding-top="2px"><a href="{loopItem.itemUrl}">{loopItem.title}</a></mj-text>
-		""");
+                                   <mj-text padding-left="14px" padding-top="2px"><a href="{loopItem.itemUrl}">{loopItem.title}</a></mj-text>
+                                   """);
 
                 contentSections.Add($"""
-<mj-section>
-	<mj-column>
-		<mj-text font-size="14px" padding-left="0px">{textInfo.ToTitleCase(loopItems.Key)}{(loopItems.Count() > 1
-            ? "s"
-            : string.Empty)}:</mj-text>
-			{string.Join(Environment.NewLine, itemTexts)}
-	</mj-column>
-</mj-section>
-""");
+                                     <mj-section>
+                                     	<mj-column>
+                                     		<mj-text font-size="14px" padding-left="0px">{textInfo.ToTitleCase(loopItems.Key)}{(loopItems.Count() > 1
+                                                 ? "s"
+                                                 : string.Empty)}:</mj-text>
+                                     			{string.Join(Environment.NewLine, itemTexts)}
+                                     	</mj-column>
+                                     </mj-section>
+                                     """);
             }
         }
 
@@ -342,23 +259,23 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         message.Subject = subject;
 
         var text = $"""
-
-            <mjml>
-    <mj-head>
-        <mj-title>
-            {(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)} Content from {yearTextList} Year{(yearTextList.Equals("1") ? "" : "s")} Ago...</mj-title>
-    </mj-head>
-    <mj-body>
-	    <mj-section>
-      		<mj-column>
-        		<mj-text align="center" font-size="30px"><a href="{settings.SiteUrl}">{
-                    (string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}</a></mj-text>
-	      	</mj-column>
-	    </mj-section>
-        {string.Join(Environment.NewLine, contentSections)}
-    </mj-body>
-</mjml>
-""";
+                    
+                                <mjml>
+                        <mj-head>
+                            <mj-title>
+                                {(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)} Content from {yearTextList} Year{(yearTextList.Equals("1") ? "" : "s")} Ago...</mj-title>
+                        </mj-head>
+                        <mj-body>
+                    	    <mj-section>
+                          		<mj-column>
+                            		<mj-text align="center" font-size="30px"><a href="{settings.SiteUrl}">{
+                                  (string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)}</a></mj-text>
+                    	      	</mj-column>
+                    	    </mj-section>
+                            {string.Join(Environment.NewLine, contentSections)}
+                        </mj-body>
+                    </mjml>
+                    """;
 
         Console.WriteLine("Rendering Email");
         var mjmlRenderer = new MjmlRenderer();
@@ -370,9 +287,9 @@ public class MemoriesSmtpEmailFromWeb : IMemoriesSmtpEmailFromWeb
         {
             Host = settings.SmtpHost,
             Port = settings.SmtpPort,
-            EnableSsl = settings.EnableSsl,
+            EnableSsl = settings.SmtpEnableSsl,
             DeliveryMethod = SmtpDeliveryMethod.Network,
-            Credentials = new NetworkCredential(fromEmailAddress, fromEmailPassword),
+            Credentials = new NetworkCredential(settings.FromEmailAddress, settings.FromEmailPassword),
             Timeout = 60000
         };
 

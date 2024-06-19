@@ -1,21 +1,33 @@
-﻿using System.ComponentModel.DataAnnotations;
+using PointlessWaymarks.VaultfuscationTools;
 
 namespace PointlessWaymarks.Task.PhotoPickup;
 
-public class PhotoPickupSettings
+public class PhotoPickupSettings : ISettingsFileType
 {
-    public static string ProgramShortName = "Photo Pickup";
-
-    [Required(ErrorMessage = "A directory to move processed Photo files into.")]
     public string PhotoPickupArchiveDirectory { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "The directory to look in for jpg photos in.")]
     public string PhotoPickupDirectory { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "A Settings file for a Pointless Waymarks CMS Site must be specified.")]
     public string PointlessWaymarksSiteSettingsFileFullName { get; set; } = string.Empty;
 
     public bool RenameFileToTitle { get; set; }
 
     public bool ShowInMainSiteFeed { get; set; }
+
+    public string SettingsType { get; set; } = SettingsTypeIdentifier();
+
+    public static string PasswordVaultResourceIdentifier(string loginCode)
+    {
+        return $"Pointless--{loginCode}--PhotoPickup";
+    }
+
+    public static string ProgramShortName()
+    {
+        return "Photo Pickup";
+    }
+
+    public static string SettingsTypeIdentifier()
+    {
+        return nameof(PhotoPickupSettings);
+    }
 }
