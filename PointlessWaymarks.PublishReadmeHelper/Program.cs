@@ -33,9 +33,16 @@ foreach (var subDirectory in subDirectories)
             continue;
         }
 
-        var postPendValue = string.Join("-", subDirectory.Name.Split(".")[1..]);
+        var readmeName = string.Join("-", subDirectory.Name.Split(".")[1..]);
 
-        var targetReadme = new FileInfo(Path.Combine(subDirectory.FullName, $"README_{postPendValue}.md"));
+        if (string.IsNullOrWhiteSpace(readmeName))
+        {
+            var possibleSolutionFile = subDirectory.EnumerateFiles("*.sln", SearchOption.TopDirectoryOnly).ToList();
+
+            readmeName = possibleSolutionFile.Any() ? possibleSolutionFile.First().Name.Split(".")[0] : subDirectory.Name;
+        }
+
+        var targetReadme = new FileInfo(Path.Combine(subDirectory.FullName, $"README_{readmeName}.md"));
 
         possibleReadme.CopyTo(targetReadme.FullName, true);
 
