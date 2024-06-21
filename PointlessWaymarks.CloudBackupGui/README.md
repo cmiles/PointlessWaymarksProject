@@ -14,25 +14,25 @@ There is some obvious absurdity in writing your own backup program - so many bac
 
 ## Warnings
 
-**This program uses Amazon S3 - Amazon S3 is not free and Amazon charges you for nearly EVERYTHING related to S3 - bandwidth, storage, requests... Using this program WILL INCUR CHARGES on your Amazon AWS Account and it WILL NOT help you calculate, estimate, limit or manage those costs!! In general this is a well understood part of setting up and using Amazon S3 but be warned...**
+**This program uses S3 - S3 is never free and vendors like Amazon will charge you for nearly EVERYTHING related to S3 - bandwidth, storage, requests... Using this program WILL INCUR CHARGES on your S3 Account and it WILL NOT help you calculate, estimate, limit or manage those costs!! In general this is a well understood part of setting up and using S3 but be warned...**
 
 **This program stores your AWS Keys in the [Windows Credential Manager](https://support.microsoft.com/en-us/windows/accessing-credential-manager-1b5c916a-6a16-889f-8581-fc16e8165ac0). This could expose your keys to malicious programs running under your login - it is up to you to decide if this is too much of a security risk.**
 
-**This program creates a simple mirror of your local directories and files on Amazon S3 and to create this mirror it WILL DELETE FILES ON S3 without prompting you - you may be able to version-enable your Amazon Bucket and mitigate this risk, but the program itself has no sense of a recycle bin, history or archiving...**
+**This program creates a simple mirror of your local directories and files on S3 and to create this mirror it WILL DELETE FILES ON S3 without prompting you - you may be able to version-enable your S3 Bucket and mitigate this risk, but the program itself has no sense of a recycle bin, history or archiving...**
 
-![MainWindow](../PointlessWaymarks.CloudBackupScreenShots/BackupEditorMainWindow.jpg "Job Backup Editor Main Screen")
+![MainWindow](../PointlessWaymarks.CloudBackupScreenShots/Pointless-Waymarks-Cloud-Backup-Main-Window.jpg "Job Backup Editor Main Screen")
 
 ## General Information
 
-For me this program is basically a companion to the [Pointless Waymarks CMS](https://github.com/cmiles/PointlessWaymarksProject). A large amount of the data I care about is in CMS sites that are synced to S3. Because the CMS creates a full local version of the sites the sync to S3 provides a nice first layer of backup. But what the CMS is not designed to do is work with RAW photographs or large chunks of data that aren't imported/categorized/tagged - this program is my way of addressing that and getting the data I care about not held in CMS sites on S3.
+For me this program is basically a companion to the [Pointless Waymarks CMS](https://github.com/cmiles/PointlessWaymarksProject). A large amount of the data I care about is in CMS sites that are synced to S3. But what the CMS is not designed to do is work with RAW photographs or large chunks of data that aren't imported/categorized/tagged - this program is my way of addressing that and getting the data I care that isn't in a Pointless Waymarks CMS site into S3.
 
-The Pointless Waymarks Cloud Backup consists of a GUI Editor (this project) to create, update edit and report on Backup Jobs and a [command line program](https://github.com/cmiles/PointlessWaymarksProject/tree/main/PointlessWaymarks.CloudBackupRunner) to run the Jobs.
+The Pointless Waymarks Cloud Backup consists of a GUI (this project) to create, update, edit, monitor and report on Backup Jobs and a [command line program](https://github.com/cmiles/PointlessWaymarksProject/tree/main/PointlessWaymarks.CloudBackupRunner) to run the jobs thru a Task Scheduler.
 
-![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/JobEditorWindow.jpg "Job Editor Window")
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/Pointless-Waymarks-Cloud-Backup-Job-Editor-Window.jpg "Job Editor Window")
 
-Files are stored on Amazon S3 as a simple mirror of the local file system - there is no attempt to de-duplicate data, store incremental changes or otherwise complicate the storage - the backup is easily viewable in the AWS S3 console or any program that can access S3.
+Files are stored on S3 as a simple mirror of the local file system - there is no attempt to de-duplicate data, store incremental changes or otherwise complicate the storage - the backup is easily viewable in an S3 console or program.
 
-Files are compared by an MD5 hash (both stored as Metadata on S3) - the file comparison happens every run of the program. The database holds information about the backup runs including uploads, downloads, errors, etc... Because the backup is a simple mirror and a full comparison can be done on any run of the program a lost/deleted/corrupt database is only a minimal hassle in resuming a backup.
+Files are compared by an MD5 hash (stored as Metadata on S3) - the file comparison happens every run of the program. The database holds information about the backup runs including uploads, downloads, errors, etc... Because the backup is a simple mirror and a full comparison can be done on any run of the program a lost/deleted/corrupt database is only a minimal hassle in resuming a backup.
 
 ## Program Features
 
@@ -43,20 +43,20 @@ The Cloud Backup Job List:
 
 Job Editor with some help seeing changes and getting valid data entered.
 
-![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/ProgressWindow.jpg "Progress Window")
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/Pointless-Waymarks-Cloud-Backup-Progress-Window.jpg "Progress Window")
 
-![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/BackupEditorMainWindowHelp.jpg "Job Backup Editor Help Screen")
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/Pointless-Waymarks-Cloud-Backup-Help-Screen.jpg "Job Backup Editor Help Screen")
 
 Transfer Batch List with Excel reporting.
 
-![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/BatchListWindow.jpg "Transfer Batch Window")
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/Pointless-Waymarks-Cloud-Backup-Batch-List-Window.jpg "Transfer Batch Window")
 
 Windows Notifications on Completion of a Job that you can click to see an Excel Report about the run.
 
-![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/CompletionNotification.jpg "Windows Notification for Completion")
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/Pointless-Waymarks-Cloud-Backup-Completion-Notification.jpg "Windows Notification for Completion")
 
 Command Line Backup Runner with options to resume Batches and detailed progress.
 
-![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/CommandLineRunnerProgress.jpg "Command Line Job Runner")
+![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/Pointless-Waymarks-Cloud-Backup-Command-Line-Runner-Progress.jpg "Command Line Job Runner")
 
 *At this point there are no public installers/releases from the Pointless Waymarks Project - using this project is probably only appropriate if you enjoy debugging and working on code, but the code does inc~~~~ludes scripts to easily create published/installable versions on your local system.*
