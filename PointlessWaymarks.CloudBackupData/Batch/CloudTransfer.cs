@@ -3,6 +3,7 @@ using Amazon.S3;
 using Amazon.S3.Transfer;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CloudBackupData.Models;
+using PointlessWaymarks.CloudBackupData.Reports;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using Polly;
@@ -526,15 +527,40 @@ public static class CloudTransfer
     public static async Task<CloudTransferBatchInformation?> CreateBatchInDatabaseFromCloudAndLocalScan(
         IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
     {
-        Log.Information("Creating new Batch based on Cloud and Local Scan");
-        
-        var changes = await CreationTools.GetChanges(accountInformation, job.Id, false, progress);
-        
-        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any() && !changes.S3FilesToCopy.Any()) return null;
-        
-        return await CreationTools.WriteChangesToDatabase(changes, progress);
+        return await CreateBatch(accountInformation, job, false, progress);
     }
     
+    private static async Task<CloudTransferBatchInformation?> CreateBatch(
+        IS3AccountInformation accountInformation, BackupJob job, bool fromCloudCache, IProgress<string> progress)
+    {
+        Log.Information("Creating new Batch - Based on Cloud Cache {useCloudCache}", fromCloudCache);
+
+        var changes =
+            await CreationTools.GetChanges(accountInformation, job.Id, fromCloudCache, progress);
+
+        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any() && !changes.S3FilesToCopy.Any())
+        {
+            var context = await CloudBackupContext.CreateInstance();
+            var lastBatch = context.CloudTransferBatches
+                .Where(x => x.BackupJobId == job.Id)
+                .OrderByDescending(x => x.CreatedOn)
+                .FirstOrDefault();
+
+            //If we have nothing to do and the last batch has the same count of local and cloud files just return null
+            //rather than making another no-op batch - otherwise fall through to writing a new batch since seeing the 
+            //stats from the last batch can be slightly confusing if it finished successfully.
+            if (lastBatch != null)
+            {
+                var lastStats = await BatchStatistics.CreateInstance(lastBatch.Id);
+
+                if (lastStats.CloudFileCount == changes.S3Files.Count && lastStats.CloudFileCount == changes.FileSystemFiles.Count)
+                    return null;
+            }
+        };
+
+        return await CreationTools.WriteChangesToDatabase(changes, progress);
+    }
+
     /// <summary>
     ///     Creates a batch in the database based on the Cloud Cache Files and Local Scan. If there are no Uploads or Deletes
     ///     returns null.
@@ -546,13 +572,6 @@ public static class CloudTransfer
     public static async Task<CloudTransferBatchInformation?> CreateBatchInDatabaseFromCloudCacheFilesAndLocalScan(
         IS3AccountInformation accountInformation, BackupJob job, IProgress<string> progress)
     {
-        Log.Information("Creating new Batch based on Cloud Cache Files and Local Scan");
-        
-        var changes =
-            await CreationTools.GetChanges(accountInformation, job.Id, true, progress);
-        
-        if (!changes.FileSystemFilesToUpload.Any() && !changes.S3FilesToDelete.Any() && !changes.S3FilesToCopy.Any()) return null;
-        
-        return await CreationTools.WriteChangesToDatabase(changes, progress);
+        return await CreateBatch(accountInformation, job, true, progress);
     }
 }

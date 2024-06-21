@@ -183,7 +183,7 @@
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
                                                         <MultiBinding
-                                                            StringFormat="When the Batch was created there were {0:N0} Local Files totaling {1} and {2:N0} Cloud Files totaling {3}.">
+                                                            StringFormat="When the Batch was started there were {0:N0} Local Files totaling {1} and {2:N0} Cloud Files totaling {3}.">
                                                             <Binding Path="Statistics.LocalFileCount" />
                                                             <Binding Path="Statistics.LocalFileSize"
                                                                      Converter="{StaticResource HumanFileSize}" />
