@@ -24,7 +24,7 @@ There is some obvious absurdity in writing your own backup program - so many bac
 
 ## General Information
 
-For me this program is basically a companion to the [Pointless Waymarks CMS](https://github.com/cmiles/PointlessWaymarksProject). A large amount of the data I care about is in CMS sites that are synced to S3. But what the CMS is not designed to do is work with RAW photographs or large chunks of data that aren't imported/categorized/tagged - this program is my way of addressing that and getting the data I care that isn't in a Pointless Waymarks CMS site into S3.
+For me this program is basically a companion to the [Pointless Waymarks CMS](https://github.com/cmiles/PointlessWaymarksProject). A large amount of the data I care about is in CMS sites that are synced to S3. But what the CMS is not designed to do is work with RAW photographs or large chunks of data that aren't imported/categorized/tagged - this program is my way of addressing that and getting the data I care that isn't in a Pointless Waymarks CMS site into S3 (Amazon AWS, Cloudflare R2, Wasabi).
 
 The Pointless Waymarks Cloud Backup consists of a GUI (this project) to create, update, edit, monitor and report on Backup Jobs and a [command line program](https://github.com/cmiles/PointlessWaymarksProject/tree/main/PointlessWaymarks.CloudBackupRunner) to run the jobs thru a Task Scheduler.
 
@@ -59,4 +59,4 @@ Command Line Backup Runner with options to resume Batches and detailed progress.
 
 ![JobEditor](../PointlessWaymarks.CloudBackupScreenShots/Pointless-Waymarks-Cloud-Backup-Command-Line-Runner-Progress.jpg "Command Line Job Runner")
 
-*At this point there are no public installers/releases from the Pointless Waymarks Project - using this project is probably only appropriate if you enjoy debugging and working on code, but the code does inc~~~~ludes scripts to easily create published/installable versions on your local system.*
+*At this point there are no public installers/releases from the Pointless Waymarks Project - using this project is probably only appropriate if you enjoy debugging and working on code, but the code does include scripts to easily create published/installable versions on your local system.*
