@@ -1,6 +1,6 @@
 ﻿using PointlessWaymarks.LlamaAspects;
 
-namespace PointlessWaymarks.PowershellRunnerGui.Controls;
+namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
 public partial class ScriptRunnerProgressListItem

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls
 {
     /// <summary>
-    /// Interaction logic for ScriptRunnerControl.xaml
+    /// Interaction logic for ScheduleEditorControl.xaml
     /// </summary>
-    public partial class ScriptRunnerControl : UserControl
+    public partial class ScheduleEditorControl : UserControl
     {
-        public ScriptRunnerControl()
+        public ScheduleEditorControl()
         {
             InitializeComponent();
         }

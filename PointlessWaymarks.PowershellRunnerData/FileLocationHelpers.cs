@@ -1,6 +1,6 @@
 using PointlessWaymarks.CommonTools;
 
-namespace PointlessWaymarks.PowershellRunnerData;
+namespace PointlessWaymarks.PowerShellRunnerData;
 
 public static class FileLocationHelpers
 {

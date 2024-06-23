@@ -2,9 +2,9 @@ using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
-namespace PointlessWaymarks.PowershellRunnerData;
+namespace PointlessWaymarks.PowerShellRunnerData;
 
-public class PowershellRun
+public class PowerShellRun
 {
     public static async Task Execute(string toInvoke, int scheduleId, int runId)
     {

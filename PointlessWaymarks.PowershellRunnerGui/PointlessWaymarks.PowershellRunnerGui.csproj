@@ -1,13 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <UseWPF>true</UseWPF>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.PowershellRunnerData\PointlessWaymarks.PowershellRunnerData.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Jot" Version="2.1.17" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PointlessWaymarks.PowerShellRunnerData\PointlessWaymarks.PowerShellRunnerData.csproj" />
+        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
+        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+    </ItemGroup>
 
 </Project>

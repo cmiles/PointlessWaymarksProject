@@ -1,10 +1,10 @@
 using System.Text;
 using OneOf;
 using PointlessWaymarks.CommonTools;
-using PointlessWaymarks.PowershellRunnerData.Models;
+using PointlessWaymarks.PowerShellRunnerData.Models;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarks.PowershellRunnerData;
+namespace PointlessWaymarks.PowerShellRunnerData;
 
 public static class DataNotifications
 {
@@ -46,8 +46,8 @@ public static class DataNotifications
     {
         return content switch
         {
-            RunSchedule => DataNotificationContentType.RunSchedule,
-            RunResult => DataNotificationContentType.RunResult,
+            Schedule => DataNotificationContentType.RunSchedule,
+            Job => DataNotificationContentType.RunResult,
             _ => DataNotificationContentType.Unknown
         };
     }

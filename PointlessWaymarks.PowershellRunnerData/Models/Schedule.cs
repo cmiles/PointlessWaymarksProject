@@ -1,6 +1,6 @@
-namespace PointlessWaymarks.PowershellRunnerData.Models;
+namespace PointlessWaymarks.PowerShellRunnerData.Models;
 
-public class RunSchedule
+public class Schedule
 {
     public string CronExpression { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

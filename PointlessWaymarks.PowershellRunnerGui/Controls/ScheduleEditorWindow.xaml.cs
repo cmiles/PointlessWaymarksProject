@@ -10,17 +10,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls
 {
     /// <summary>
-    /// Interaction logic for ScriptRunnerControl.xaml
+    /// Interaction logic for ScheduleEditorWindow.xaml
     /// </summary>
-    public partial class ScriptRunnerControl : UserControl
+    public partial class ScheduleEditorWindow : Window
     {
-        public ScriptRunnerControl()
+        public ScheduleEditorWindow()
         {
             InitializeComponent();
         }

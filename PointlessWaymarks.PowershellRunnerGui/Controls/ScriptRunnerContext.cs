@@ -1,13 +1,13 @@
 using System.Collections.ObjectModel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
-using PointlessWaymarks.PowershellRunnerData;
+using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using Serilog;
 using TinyIpc.Messaging;
 
-namespace PointlessWaymarks.PowershellRunnerGui.Controls;
+namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
 [StaThreadConstructorGuard]
@@ -37,7 +37,7 @@ public partial class ScriptRunnerContext
     public string UserScript { get; set; } = string.Empty;
 
 
-    public static async Task<ScriptRunnerContext> Create(StatusControlContext? statusContext)
+    public static async Task<ScriptRunnerContext> CreateInstance(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -86,6 +86,6 @@ public partial class ScriptRunnerContext
             return;
         }
 
-        await PowershellRun.Execute(UserScript, _scheduleId, _runId);
+        await PowerShellRun.Execute(UserScript, _scheduleId, _runId);
     }
 }

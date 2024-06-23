@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using Serilog;
@@ -202,7 +202,7 @@ public class GeoTag
         return new GeoTagProduceActionsResult(returnTitle, returnNotes.ToString(), returnFileResults);
     }
 
-    public Task<GeoTagWriteMetadataToFilesResult> WriteGeoTagActions(List<GeoTagFileAction> filesToTag,
+    public async Task<GeoTagWriteMetadataToFilesResult> WriteGeoTagActions(List<GeoTagFileAction> filesToTag,
         bool createBackupBeforeWritingMetadata, bool backupIntoDefaultStorage, string? exifToolFullName = null,
         IProgress<string>? progress = null)
     {
@@ -228,8 +228,7 @@ public class GeoTag
             var noFilesMessage = "GeoTag - No files to tag, ending...";
             progress?.Report(noFilesMessage);
             returnNotes.Append(noFilesMessage);
-            return Task.FromResult(
-                new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults));
+            return new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults);
         }
 
         var exifTool = FileMetadataTools.ExifToolExecutable(exifToolFullName);
@@ -313,7 +312,7 @@ public class GeoTag
             try
             {
                 var exifToolWriteOutcome =
-                    ProcessTools.Execute(exifTool.exifToolFile!.FullName, exifToolParameters, progress);
+                    await ProcessTools.Execute(exifTool.exifToolFile!.FullName, exifToolParameters, progress);
 
                 if (!exifToolWriteOutcome.success)
                 {
@@ -351,8 +350,7 @@ public class GeoTag
                 $"GeoTag - Wrote Metadata with ExifTool - {exifTool.exifToolFile.FullName} {exifToolParameters}");
         }
 
-        return Task.FromResult(
-            new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults));
+        return new GeoTagWriteMetadataToFilesResult(returnTitle, returnNotes.ToString(), returnFileResults);
     }
 
 
