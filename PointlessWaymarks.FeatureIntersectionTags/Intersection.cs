@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using NetTopologySuite.Features;
 using PointlessWaymarks.CommonTools;
@@ -593,7 +593,7 @@ public static class Intersection
             try
             {
                 var exifToolWriteOutcome =
-                    ProcessTools.Execute(exifTool.exifToolFile!.FullName, exifToolParameters, progress);
+                    await ProcessTools.Execute(exifTool.exifToolFile!.FullName, exifToolParameters, progress);
 
                 if (!exifToolWriteOutcome.success)
                 {
