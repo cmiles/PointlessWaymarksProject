@@ -353,6 +353,4 @@ launchSettings.json
 README_*.md
 *.TaskCanvasSL
 nuget.exe
-bfg-1.14.0.jar
 BuildTools/PointlessWaymarks.PublishReadmeHelper.exe
-DevNotes.md.saved.bak.md
