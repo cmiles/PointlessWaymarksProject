@@ -78,6 +78,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.SpatialTo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.WpfCommon", "PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj", "{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PowershellRunnerData", "PointlessWaymarks.PowershellRunnerData\PointlessWaymarks.PowershellRunnerData.csproj", "{D9D946BD-D31D-41CA-8018-2971D54998A1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PowershellRunnerGui", "PointlessWaymarks.PowershellRunnerGui\PointlessWaymarks.PowershellRunnerGui.csproj", "{D8A3BD32-2EB6-4A75-A110-AB9723467A94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -208,6 +212,14 @@ Global
 		{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}.Debug|x64.Build.0 = Debug|x64
 		{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}.Release|x64.ActiveCfg = Release|x64
 		{3F6B7793-5CAB-43BE-A7A4-D2CAA867AE8B}.Release|x64.Build.0 = Release|x64
+		{D9D946BD-D31D-41CA-8018-2971D54998A1}.Debug|x64.ActiveCfg = Debug|x64
+		{D9D946BD-D31D-41CA-8018-2971D54998A1}.Debug|x64.Build.0 = Debug|x64
+		{D9D946BD-D31D-41CA-8018-2971D54998A1}.Release|x64.ActiveCfg = Release|x64
+		{D9D946BD-D31D-41CA-8018-2971D54998A1}.Release|x64.Build.0 = Release|x64
+		{D8A3BD32-2EB6-4A75-A110-AB9723467A94}.Debug|x64.ActiveCfg = Debug|x64
+		{D8A3BD32-2EB6-4A75-A110-AB9723467A94}.Debug|x64.Build.0 = Debug|x64
+		{D8A3BD32-2EB6-4A75-A110-AB9723467A94}.Release|x64.ActiveCfg = Release|x64
+		{D8A3BD32-2EB6-4A75-A110-AB9723467A94}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
