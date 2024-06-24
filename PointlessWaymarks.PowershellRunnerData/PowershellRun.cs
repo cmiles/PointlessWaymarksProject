@@ -47,6 +47,8 @@ public class PowerShellRun
 
         pipeline.InvokeAsync();
 
-        while (pipeline.PipelineStateInfo.State != PipelineState.Running) await Task.Delay(200);
+        await Task.Delay(200);
+
+        while (pipeline.PipelineStateInfo.State == PipelineState.Running) await Task.Delay(200);
     }
 }

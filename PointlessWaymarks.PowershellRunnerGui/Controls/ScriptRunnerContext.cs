@@ -31,6 +31,8 @@ public partial class ScriptRunnerContext
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public ObservableCollection<ScriptRunnerProgressListItem> Items { get; set; }
+
+    public bool ScriptRunning { get; set; }
     public ScriptRunnerProgressListItem? SelectedProgress { get; set; }
     public List<ScriptRunnerProgressListItem> SelectedProgresses { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
@@ -86,6 +88,19 @@ public partial class ScriptRunnerContext
             return;
         }
 
-        await PowerShellRun.Execute(UserScript, _scheduleId, _runId);
+        ScriptRunning = true;
+
+        try
+        {
+            await PowerShellRun.Execute(UserScript, _scheduleId, _runId);
+        }
+        catch (Exception e)
+        {
+            await StatusContext.ShowMessageWithOkButton("Error Running Script", e.ToString());
+        }
+        finally
+        {
+            ScriptRunning = false;
+        }
     }
 }

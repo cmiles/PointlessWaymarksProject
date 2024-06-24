@@ -1,6 +1,8 @@
+using System.IO;
 using System.Windows;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerGui.Controls;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
@@ -14,7 +16,7 @@ namespace PointlessWaymarks.PowerShellRunnerGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
-public partial class MainWindow : Window
+public partial class MainWindow
 {
     public MainWindow()
     {
@@ -29,7 +31,7 @@ public partial class MainWindow : Window
 
         var versionInfo =
             ProgramInfoTools.StandardAppInformationString(AppContext.BaseDirectory,
-                "Pointless Waymarks Cloud Backup Beta");
+                "Pointless Waymarks PowerShell Runner Beta");
 
         InfoTitle = versionInfo.humanTitleString;
 
@@ -41,24 +43,23 @@ public partial class MainWindow : Window
 
         UpdateMessageContext = new ProgramUpdateMessageContext();
 
-        HelpContext = new HelpDisplayContext([
-            HelpText,
-            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
-            HelpMarkdown.SoftwareUsedBlock
-        ]);
-
         StatusContext.RunFireAndForgetBlockingTask(async () => { await CheckForProgramUpdate(currentDateVersion); });
     }
 
     public ScriptRunnerContext? ArbitraryRunnerContext { get; set; }
 
-    public HelpDisplayContext HelpContext { get; set; }
+    public HelpDisplayContext? HelpContext { get; set; }
 
-    public string HelpText => "Help";
+    public string HelpText => """
+                              ## Pointless Waymarks PowerShell Runner
+
+                              This program is designed to help you perform scheduled runs of PowerShell scripts.
+
+                              """;
 
     public string InfoTitle { get; set; }
 
-    public AppSettingsContext SettingsContext { get; set; }
+    public AppSettingsContext? SettingsContext { get; set; }
 
     public StatusControlContext StatusContext { get; set; }
 
@@ -95,7 +96,30 @@ public partial class MainWindow : Window
     public async Task Setup()
     {
         ArbitraryRunnerContext = await ScriptRunnerContext.CreateInstance(null);
+        SettingsContext = await AppSettingsContext.CreateInstance(null);
+        HelpContext = new HelpDisplayContext([
+            HelpText,
+            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
+            HelpMarkdown.SoftwareUsedBlock
+        ]);
 
-        SettingsContext = new AppSettingsContext();
+        var settings = PowerShellRunnerGuiSettingTools.ReadSettings();
+
+        if (string.IsNullOrWhiteSpace(settings.DatabaseFile) || !File.Exists(settings.DatabaseFile))
+        {
+            var newDb = UniqueFileTools.UniqueFile(
+                FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-PowerShellRunner.db");
+            settings.DatabaseFile = newDb!.FullName;
+
+            await PowerShellRunnerContext.CreateInstanceWithEnsureCreated(newDb.FullName);
+
+            await PowerShellRunnerGuiSettingTools.WriteSettings(settings);
+        }
+        else
+        {
+            await PowerShellRunnerContext.CreateInstance(settings.DatabaseFile);
+        }
+
+        await ObfuscationKeyHelpers.GetObfuscationKey(StatusContext);
     }
 }
