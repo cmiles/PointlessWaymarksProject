@@ -12,13 +12,13 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [NotifyPropertyChanged]
 [StaThreadConstructorGuard]
 [GenerateStatusCommands]
-public partial class ScriptRunnerContext
+public partial class ArbitraryScriptRunnerContext
 {
     private readonly int _runId = -999;
     private readonly int _scheduleId = -888;
 
-    public ScriptRunnerContext(StatusControlContext statusContext,
-        ObservableCollection<ScriptRunnerProgressListItem> items)
+    public ArbitraryScriptRunnerContext(StatusControlContext statusContext,
+        ObservableCollection<ArbitraryScriptRunnerProgressListItem> items)
     {
         StatusContext = statusContext;
         Items = items;
@@ -30,20 +30,20 @@ public partial class ScriptRunnerContext
     }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public ObservableCollection<ScriptRunnerProgressListItem> Items { get; set; }
+    public ObservableCollection<ArbitraryScriptRunnerProgressListItem> Items { get; set; }
 
     public bool ScriptRunning { get; set; }
-    public ScriptRunnerProgressListItem? SelectedProgress { get; set; }
-    public List<ScriptRunnerProgressListItem> SelectedProgresses { get; set; } = [];
+    public ArbitraryScriptRunnerProgressListItem? SelectedProgress { get; set; }
+    public List<ArbitraryScriptRunnerProgressListItem> SelectedProgresses { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
     public string UserScript { get; set; } = string.Empty;
 
 
-    public static async Task<ScriptRunnerContext> CreateInstance(StatusControlContext? statusContext)
+    public static async Task<ArbitraryScriptRunnerContext> CreateInstance(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        return new ScriptRunnerContext(statusContext ?? new StatusControlContext(), []);
+        return new ArbitraryScriptRunnerContext(statusContext ?? new StatusControlContext(), []);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
@@ -76,7 +76,8 @@ public partial class ScriptRunnerContext
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptRunnerProgressListItem { ReceivedOn = DateTime.Now, Message = arg.ProgressMessage });
+        Items.Add(new ArbitraryScriptRunnerProgressListItem
+            { ReceivedOn = DateTime.Now, Message = arg.ProgressMessage });
     }
 
     [NonBlockingCommand]

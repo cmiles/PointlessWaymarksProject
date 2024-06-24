@@ -16,7 +16,7 @@
     <Grid>
         <TabControl>
             <TabItem Header="Custom Script">
-                <controls:ScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
+                <controls:ArbitraryScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
             </TabItem>
             <TabItem Header="Help and Notes">
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />

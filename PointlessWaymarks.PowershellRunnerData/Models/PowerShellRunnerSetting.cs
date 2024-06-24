@@ -1,6 +1,6 @@
 namespace PointlessWaymarks.PowerShellRunnerData.Models;
 
-public class Setting
+public class PowerShellRunnerSetting
 {
     public int Id { get; set; }
     public string Key { get; set; } = string.Empty;

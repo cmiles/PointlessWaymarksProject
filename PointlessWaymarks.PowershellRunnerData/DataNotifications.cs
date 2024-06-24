@@ -46,8 +46,8 @@ public static class DataNotifications
     {
         return content switch
         {
-            Schedule => DataNotificationContentType.RunSchedule,
-            Job => DataNotificationContentType.RunResult,
+            ScriptJob => DataNotificationContentType.RunSchedule,
+            ScriptJobRun => DataNotificationContentType.RunResult,
             _ => DataNotificationContentType.Unknown
         };
     }

@@ -6,17 +6,30 @@ namespace PointlessWaymarks.PowerShellRunnerGui;
 
 public static class ObfuscationKeyHelpers
 {
+    public static async Task<string> GetObfuscationKey(string dbFileName)
+    {
+        var db = await PowerShellRunnerContext.CreateInstance(dbFileName, false);
+
+        var account = await db.ObfuscationAccountName();
+
+        if (account == null || string.IsNullOrWhiteSpace(account))
+            throw new Exception(
+                "No Obfuscation Account Name found in the database - cannot retrieve Obfuscation Key. Restart the program???");
+
+        return account;
+    }
+
     /// <summary>
     ///     Gets the Obfuscation Key from the Credential Manager or prompts the user to enter one if it is not found. The
     ///     database must already have been set/created.
     /// </summary>
     /// <param name="statusContext"></param>
     /// <returns></returns>
-    public static async Task<string> GetObfuscationKey(StatusControlContext statusContext)
+    public static async Task<string> GetObfuscationKeyWithUserCreateAsNeeded(StatusControlContext statusContext)
     {
         var db = await PowerShellRunnerContext.CreateInstance();
 
-        var account = await db.GetObfuscationAccountNameWithCreateAsNeeded();
+        var account = await db.ObfuscationAccountNameWithCreateAsNeeded();
 
         var store = CredentialManager.Create();
         var obfuscationKey = store.Get(PowerShellRunnerDb.ObfuscationService, account);

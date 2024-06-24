@@ -1,6 +1,6 @@
 namespace PointlessWaymarks.PowerShellRunnerData.Models;
 
-public class Job
+public class ScriptJobRun
 {
     public string Command { get; set; } = string.Empty;
     public DateTime CompletedOnUtc { get; set; }

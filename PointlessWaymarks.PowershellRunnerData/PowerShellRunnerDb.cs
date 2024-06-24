@@ -8,7 +8,14 @@ public static class PowerShellRunnerDb
     public const string ObfuscationService = "https://pointlesswaymarks.powershellrunner.private";
     public const string ObfuscationServiceAccountKey = "ObfuscationServiceAccountKey";
 
-    public static async Task<string> GetObfuscationAccountNameWithCreateAsNeeded(this PowerShellRunnerContext context)
+    public static async Task<string?> ObfuscationAccountName(this PowerShellRunnerContext context)
+    {
+        var possibleEntry = await context.Settings.FirstOrDefaultAsync(x => x.Key == ObfuscationServiceAccountKey);
+
+        return possibleEntry?.Value;
+    }
+
+    public static async Task<string> ObfuscationAccountNameWithCreateAsNeeded(this PowerShellRunnerContext context)
     {
         //Clear any invalid entries
         var invalidEntries =
@@ -31,18 +38,11 @@ public static class PowerShellRunnerDb
         return (await context.ObfuscationAccountName())!;
     }
 
-    private static async Task<string?> ObfuscationAccountName(this PowerShellRunnerContext context)
-    {
-        var possibleEntry = await context.Settings.FirstOrDefaultAsync(x => x.Key == ObfuscationServiceAccountKey);
-
-        return possibleEntry?.Value;
-    }
-
     private static async Task SetNewObfuscationAccountName(this PowerShellRunnerContext context)
     {
         await context.Settings.Where(x => x.Key == "ObfuscationService").ExecuteDeleteAsync();
 
-        await context.Settings.AddAsync(new Setting()
+        await context.Settings.AddAsync(new PowerShellRunnerSetting()
         {
             Key = ObfuscationServiceAccountKey,
             Value = Guid.NewGuid().ToString()

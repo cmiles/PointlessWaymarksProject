@@ -46,7 +46,7 @@ public partial class MainWindow
         StatusContext.RunFireAndForgetBlockingTask(async () => { await CheckForProgramUpdate(currentDateVersion); });
     }
 
-    public ScriptRunnerContext? ArbitraryRunnerContext { get; set; }
+    public ArbitraryScriptRunnerContext? ArbitraryRunnerContext { get; set; }
 
     public HelpDisplayContext? HelpContext { get; set; }
 
@@ -95,7 +95,7 @@ public partial class MainWindow
 
     public async Task Setup()
     {
-        ArbitraryRunnerContext = await ScriptRunnerContext.CreateInstance(null);
+        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null);
         SettingsContext = await AppSettingsContext.CreateInstance(null);
         HelpContext = new HelpDisplayContext([
             HelpText,
@@ -120,6 +120,6 @@ public partial class MainWindow
             await PowerShellRunnerContext.CreateInstance(settings.DatabaseFile);
         }
 
-        await ObfuscationKeyHelpers.GetObfuscationKey(StatusContext);
+        await ObfuscationKeyHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext);
     }
 }

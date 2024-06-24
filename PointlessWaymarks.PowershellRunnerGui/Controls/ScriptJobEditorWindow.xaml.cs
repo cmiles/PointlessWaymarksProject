@@ -1,20 +1,19 @@
-using System.Windows;
-using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 
-namespace PointlessWaymarks.CloudBackupGui.Controls;
+namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 /// <summary>
-///     Interaction logic for JobEditorWindow.xaml
+///     Interaction logic for ScriptJobEditorWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
 [StaThreadConstructorGuard]
-public partial class JobEditorWindow
+public partial class ScriptJobEditorWindow
 {
-    private JobEditorWindow()
+    private ScriptJobEditorWindow()
     {
         InitializeComponent();
         StatusContext = new StatusControlContext();
@@ -22,7 +21,7 @@ public partial class JobEditorWindow
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
-    public JobEditorContext? JobContext { get; set; }
+    public ScriptJobEditorContext? JobContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
 
     /// <summary>
@@ -31,15 +30,15 @@ public partial class JobEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<JobEditorWindow> CreateInstance(BackupJob toLoad, string databaseFile)
+    public static async Task<ScriptJobEditorWindow> CreateInstance(ScriptJob toLoad, string databaseFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new JobEditorWindow();
+        var window = new ScriptJobEditorWindow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        window.JobContext = await JobEditorContext.CreateInstance(window.StatusContext, toLoad, databaseFile);
+        window.JobContext = await ScriptJobEditorContext.CreateInstance(window.StatusContext, toLoad, databaseFile);
 
         window.JobContext.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 
