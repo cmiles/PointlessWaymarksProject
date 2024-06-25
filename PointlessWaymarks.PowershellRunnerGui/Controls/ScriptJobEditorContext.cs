@@ -135,11 +135,11 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         var db = await PowerShellRunnerContext.CreateInstance(DatabaseFile, false);
 
-        var toSave = db.Jobs.SingleOrDefault(x => x.Id == DbEntry.Id);
+        var toSave = db.ScriptJobs.SingleOrDefault(x => x.Id == DbEntry.Id);
         if (toSave == null)
         {
             toSave = new ScriptJob();
-            db.Jobs.Add(toSave);
+            db.ScriptJobs.Add(toSave);
         }
 
         toSave.Name = NameEntry.UserValue;

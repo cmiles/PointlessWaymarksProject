@@ -10,8 +10,9 @@ public static class DataNotifications
 {
     public enum DataNotificationContentType
     {
-        RunSchedule,
-        RunResult,
+        ScriptJob,
+        ScriptJobRun,
+        PowerShellRunnerSettings,
         Unknown,
         Progress
     }
@@ -46,8 +47,9 @@ public static class DataNotifications
     {
         return content switch
         {
-            ScriptJob => DataNotificationContentType.RunSchedule,
-            ScriptJobRun => DataNotificationContentType.RunResult,
+            ScriptJob => DataNotificationContentType.ScriptJob,
+            ScriptJobRun => DataNotificationContentType.ScriptJobRun,
+            PowerShellRunnerSetting => DataNotificationContentType.PowerShellRunnerSettings,
             _ => DataNotificationContentType.Unknown
         };
     }

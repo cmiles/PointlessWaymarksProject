@@ -10,7 +10,8 @@
              xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ArbitraryScriptRunnerContext}">
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance local:ArbitraryScriptRunnerContext}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -37,29 +38,35 @@
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
                 <TextBox AcceptsReturn="true" Text="{Binding UserScript, UpdateSourceTrigger=PropertyChanged}" />
-                <Button Grid.Column="1" IsEnabled="{Binding ScriptRunning, Converter={StaticResource BooleanNot}}" Command="{Binding RunScriptCommand}">Run</Button>
+                <Button Grid.Column="1" IsEnabled="{Binding ScriptRunning, Converter={StaticResource BooleanNot}}"
+                        Command="{Binding RunScriptCommand}">
+                    Run
+                </Button>
             </Grid>
         </GroupBox>
         <GroupBox Header="Progress" Grid.Row="1" Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Style="{StaticResource ContentListListBoxStyle}"
                 ItemsSource="{Binding Source={StaticResource SortedProgressItems}}"
-                SelectedItem="{Binding SelectedProgress}"
-                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedProgresses}"
+                SelectedItem="{Binding SelectedItem}"
+                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
                 ScrollViewer.VerticalScrollBarVisibility="Visible">
                 <b:Interaction.Behaviors>
                     <behaviors:ListBoxAutoScrollToEndBehaviour />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type local:ArbitraryScriptRunnerProgressListItem}">
-                        <TextBox Margin="0,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
-                            <TextBox.Text>
-                                <MultiBinding StringFormat="{}{0} - {1}">
-                                    <Binding Path="ReceivedOn" />
-                                    <Binding Path="Message" />
-                                </MultiBinding>
-                            </TextBox.Text>
-                        </TextBox>
+                    <DataTemplate DataType="{x:Type local:ScriptProgressListItem}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                     Opacity=".4" VerticalAlignment="Center">
+                            </TextBox>
+                            <TextBox Grid.Column="1" Margin="16,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                     TextWrapping="Wrap" Text="{Binding Message}" />
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

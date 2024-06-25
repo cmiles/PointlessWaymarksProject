@@ -27,22 +27,26 @@
             <ListBox
                 Style="{StaticResource ContentListListBoxStyle}"
                 ItemsSource="{Binding Source={StaticResource SortedProgressItems}}"
-                SelectedItem="{Binding SelectedProgress}"
-                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedProgresses}">
+                SelectedItem="{Binding SelectedItem}"
+                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}">
                 <b:Interaction.Behaviors>
                     <behaviors:ListBoxAutoScrollToEndBehaviour />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type local:AllProgressListItem}">
-                        <TextBox Margin="0,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
-                            <TextBox.Text>
-                                <MultiBinding StringFormat="{}{0} - {1} - {2}">
-                                    <Binding Path="ReceivedOn" />
-                                    <Binding Path="Sender" />
-                                    <Binding Path="Message" />
-                                </MultiBinding>
-                            </TextBox.Text>
-                        </TextBox>
+                    <DataTemplate DataType="{x:Type local:ScriptProgressListItem}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Center" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                     Opacity=".4">
+                            </TextBox>
+                            <TextBox Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Text="{Binding Sender}" Style="{StaticResource ReadOnlyTextBoxStyle}" Opacity=".4"></TextBox>
+                            <TextBox Grid.Column="2" Margin="16,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                     TextWrapping="Wrap" Text="{Binding Message}" />
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

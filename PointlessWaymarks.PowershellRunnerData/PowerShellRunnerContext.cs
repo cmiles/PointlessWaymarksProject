@@ -11,9 +11,9 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 public class PowerShellRunnerContext(DbContextOptions<PowerShellRunnerContext> options) : DbContext(options)
 {
     public static string CurrentDatabaseFileName = string.Empty;
-    public DbSet<ScriptJobRun> JobRuns { get; set; } = null!;
-    public DbSet<ScriptJob> Jobs { get; set; } = null!;
-    public DbSet<PowerShellRunnerSetting> Settings { get; set; } = null!;
+    public DbSet<ScriptJobRun> ScriptJobRuns { get; set; } = null!;
+    public DbSet<ScriptJob> ScriptJobs { get; set; } = null!;
+    public DbSet<PowerShellRunnerSetting> PowerShellRunnerSettings { get; set; } = null!;
 
     public static async Task<PowerShellRunnerContext> CreateInstance()
     {

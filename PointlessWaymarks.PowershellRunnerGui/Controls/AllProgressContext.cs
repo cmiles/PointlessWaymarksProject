@@ -18,9 +18,9 @@ public partial class AllProgressContext
     }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public required ObservableCollection<AllProgressListItem> Items { get; set; }
-    public ArbitraryScriptRunnerProgressListItem? SelectedProgress { get; set; }
-    public List<ArbitraryScriptRunnerProgressListItem> SelectedProgresses { get; set; } = [];
+    public required ObservableCollection<ScriptProgressListItem> Items { get; set; }
+    public ScriptProgressListItem? SelectedItem { get; set; }
+    public List<ScriptProgressListItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<AllProgressContext> CreateInstance(StatusControlContext? statusContext)
@@ -68,7 +68,7 @@ public partial class AllProgressContext
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new AllProgressListItem()
+        Items.Add(new ScriptProgressListItem()
             { ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender });
 
         if (Items.Count > 1200)

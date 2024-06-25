@@ -6,5 +6,6 @@ public class ScriptJobRun
     public DateTime CompletedOnUtc { get; set; }
     public int Id { get; set; }
     public string Output { get; set; } = string.Empty;
+    public int ScriptJobId { get; set; }
     public DateTime StartedOnUtc { get; set; }
 }

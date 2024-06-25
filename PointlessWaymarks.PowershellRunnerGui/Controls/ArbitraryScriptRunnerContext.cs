@@ -18,7 +18,7 @@ public partial class ArbitraryScriptRunnerContext
     private readonly int _scheduleId = -888;
 
     public ArbitraryScriptRunnerContext(StatusControlContext statusContext,
-        ObservableCollection<ArbitraryScriptRunnerProgressListItem> items)
+        ObservableCollection<ScriptProgressListItem> items)
     {
         StatusContext = statusContext;
         Items = items;
@@ -30,10 +30,10 @@ public partial class ArbitraryScriptRunnerContext
     }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public ObservableCollection<ArbitraryScriptRunnerProgressListItem> Items { get; set; }
+    public ObservableCollection<ScriptProgressListItem> Items { get; set; }
     public bool ScriptRunning { get; set; }
-    public ArbitraryScriptRunnerProgressListItem? SelectedProgress { get; set; }
-    public List<ArbitraryScriptRunnerProgressListItem> SelectedProgresses { get; set; } = [];
+    public ScriptProgressListItem? SelectedItem { get; set; }
+    public List<ScriptProgressListItem> SelectedItems { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
     public string UserScript { get; set; } = string.Empty;
 
@@ -74,8 +74,8 @@ public partial class ArbitraryScriptRunnerContext
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ArbitraryScriptRunnerProgressListItem
-            { ReceivedOn = DateTime.Now, Message = arg.ProgressMessage });
+        Items.Add(new ScriptProgressListItem
+            { ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender });
     }
 
     [NonBlockingCommand]

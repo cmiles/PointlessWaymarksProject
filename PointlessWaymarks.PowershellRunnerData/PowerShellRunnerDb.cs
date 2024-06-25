@@ -10,7 +10,7 @@ public static class PowerShellRunnerDb
 
     public static async Task<string?> ObfuscationAccountName(this PowerShellRunnerContext context)
     {
-        var possibleEntry = await context.Settings.FirstOrDefaultAsync(x => x.Key == ObfuscationServiceAccountKey);
+        var possibleEntry = await context.PowerShellRunnerSettings.FirstOrDefaultAsync(x => x.Key == ObfuscationServiceAccountKey);
 
         return possibleEntry?.Value;
     }
@@ -19,7 +19,7 @@ public static class PowerShellRunnerDb
     {
         //Clear any invalid entries
         var invalidEntries =
-            context.Settings.Where(x => x.Key == ObfuscationServiceAccountKey && string.IsNullOrWhiteSpace(x.Value));
+            context.PowerShellRunnerSettings.Where(x => x.Key == ObfuscationServiceAccountKey && string.IsNullOrWhiteSpace(x.Value));
 
         if (invalidEntries.Any())
         {
@@ -27,9 +27,9 @@ public static class PowerShellRunnerDb
             await context.SaveChangesAsync();
         }
 
-        var currentSettings = await context.Settings.Where(x => x.Key == ObfuscationServiceAccountKey).ToListAsync();
+        var currentSettings = await context.PowerShellRunnerSettings.Where(x => x.Key == ObfuscationServiceAccountKey).ToListAsync();
 
-        if (currentSettings.Count > 1) context.Settings.RemoveRange(currentSettings.Skip(1));
+        if (currentSettings.Count > 1) context.PowerShellRunnerSettings.RemoveRange(currentSettings.Skip(1));
 
         if (currentSettings.Any()) return currentSettings[0].Value;
 
@@ -40,9 +40,9 @@ public static class PowerShellRunnerDb
 
     private static async Task SetNewObfuscationAccountName(this PowerShellRunnerContext context)
     {
-        await context.Settings.Where(x => x.Key == "ObfuscationService").ExecuteDeleteAsync();
+        await context.PowerShellRunnerSettings.Where(x => x.Key == "ObfuscationService").ExecuteDeleteAsync();
 
-        await context.Settings.AddAsync(new PowerShellRunnerSetting()
+        await context.PowerShellRunnerSettings.AddAsync(new PowerShellRunnerSetting()
         {
             Key = ObfuscationServiceAccountKey,
             Value = Guid.NewGuid().ToString()
