@@ -6,7 +6,7 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 
 public class PowerShellRun
 {
-    public static async Task Execute(string toInvoke, int scheduleId, int runId)
+    public static async Task Execute(string toInvoke, int scheduleId, int runId, string identifier)
     {
         // create Powershell runspace
         var runSpace = RunspaceFactory.CreateRunspace();
@@ -23,13 +23,13 @@ public class PowerShellRun
         {
             Collection<PSObject> psObjects = pipeline.Output.NonBlockingRead();
             foreach (var psObject in psObjects)
-                DataNotifications.PublishProgressNotification(nameof(Execute), scheduleId, runId,
+                DataNotifications.PublishProgressNotification(identifier, scheduleId, runId,
                     psObject.ToString());
         };
 
         pipeline.StateChanged += (sender, eventArgs) =>
         {
-            DataNotifications.PublishProgressNotification(nameof(Execute), scheduleId, runId,
+            DataNotifications.PublishProgressNotification(identifier, scheduleId, runId,
                 $"{eventArgs.PipelineStateInfo.State.ToString()} - {eventArgs.PipelineStateInfo.Reason}");
         };
 
@@ -40,7 +40,7 @@ public class PowerShellRun
             {
                 var errorString = errorObject.ToString();
                 if (!string.IsNullOrWhiteSpace(errorString))
-                    DataNotifications.PublishProgressNotification(nameof(Execute), scheduleId, runId,
+                    DataNotifications.PublishProgressNotification(identifier, scheduleId, runId,
                         errorString);
             }
         };

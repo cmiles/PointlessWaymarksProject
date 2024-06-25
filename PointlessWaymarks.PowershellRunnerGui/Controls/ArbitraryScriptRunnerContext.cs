@@ -31,13 +31,11 @@ public partial class ArbitraryScriptRunnerContext
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public ObservableCollection<ArbitraryScriptRunnerProgressListItem> Items { get; set; }
-
     public bool ScriptRunning { get; set; }
     public ArbitraryScriptRunnerProgressListItem? SelectedProgress { get; set; }
     public List<ArbitraryScriptRunnerProgressListItem> SelectedProgresses { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
     public string UserScript { get; set; } = string.Empty;
-
 
     public static async Task<ArbitraryScriptRunnerContext> CreateInstance(StatusControlContext? statusContext)
     {
@@ -93,7 +91,7 @@ public partial class ArbitraryScriptRunnerContext
 
         try
         {
-            await PowerShellRun.Execute(UserScript, _scheduleId, _runId);
+            await PowerShellRun.Execute(UserScript, _scheduleId, _runId, "Arbitrary Script");
         }
         catch (Exception e)
         {

@@ -59,6 +59,8 @@ public partial class MainWindow
 
     public string InfoTitle { get; set; }
 
+    public AllProgressContext? ProgressContext { get; set; }
+
     public AppSettingsContext? SettingsContext { get; set; }
 
     public StatusControlContext StatusContext { get; set; }
@@ -96,6 +98,7 @@ public partial class MainWindow
     public async Task Setup()
     {
         ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null);
+        ProgressContext = await AllProgressContext.CreateInstance(null);
         SettingsContext = await AppSettingsContext.CreateInstance(null);
         HelpContext = new HelpDisplayContext([
             HelpText,
