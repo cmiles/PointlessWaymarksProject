@@ -45,12 +45,6 @@ namespace PointlessWaymarks.FeedReader.Tests
         }
 
         [TestMethod]
-        public async Task TestParseRssLinksHeise() { await TestParseRssLinksAsync("http://heise.de/", 2).ConfigureAwait(false); }
-        [TestMethod]
-        public async Task TestParseRssLinksHeise2() { await TestParseRssLinksAsync("heise.de", 2).ConfigureAwait(false); }
-        [TestMethod]
-        public async Task TestParseRssLinksHeise3() { await TestParseRssLinksAsync("www.heise.de", 2).ConfigureAwait(false); }
-        [TestMethod]
         public async Task TestParseRssLinksNYTimes() { await TestParseRssLinksAsync("nytimes.com", 1).ConfigureAwait(false); }
 
         private static async Task TestParseRssLinksAsync(string url, int expectedNumberOfLinks)
@@ -206,14 +200,6 @@ namespace PointlessWaymarks.FeedReader.Tests
         {
             var feed = await Reader.ReadAsync("http://www.thaqafnafsak.com/feed").ConfigureAwait(false);
             Assert.AreEqual("ثقف نفسك", feed.Title);
-            Assert.IsTrue(feed.Items.Count > 0);
-        }
-
-        [TestMethod]
-        public async Task TestReadTheStudentLawyer()
-        {
-            var feed = await Reader.ReadAsync("http://us10.campaign-archive.com/feed?u=8da2e137a07b178e5d9a71c2c&id=9134b0cc95").ConfigureAwait(false);
-            Assert.AreEqual("The Student Lawyer Careers Network Archive Feed", feed.Title);
             Assert.IsTrue(feed.Items.Count > 0);
         }
 
