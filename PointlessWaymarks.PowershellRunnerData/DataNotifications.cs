@@ -1,3 +1,4 @@
+using System.Management.Automation.Runspaces;
 using System.Text;
 using OneOf;
 using PointlessWaymarks.CommonTools;
@@ -65,7 +66,7 @@ public static class DataNotifications
             $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{id}");
     }
 
-    public static void PublishProgressNotification(string sender, int scheduleId, int runId, string progress)
+    public static void PublishPowershellProgressNotification(string sender, int scheduleId, int runId, string progress)
     {
         if (SuspendNotifications) return;
 
@@ -73,10 +74,23 @@ public static class DataNotifications
         var cleanedProgress = string.IsNullOrWhiteSpace(progress) ? "..." : progress.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"Progress|{cleanedSender.Replace("|", " ")}|{scheduleId}|{runId}|{cleanedProgress.Replace("|", " ")}");
+            $"PowershellProgress|{cleanedSender.Replace("|", " ")}|{scheduleId}|{runId}|{cleanedProgress.Replace("|", " ")}");
     }
 
-    public static OneOf<InterProcessDataNotification, InterProcessProgressNotification, InterProcessError>
+    public static void PublishPowershellStateNotification(string sender, int scheduleId, int runId, PipelineState state,
+        string reason)
+    {
+        if (SuspendNotifications) return;
+
+        var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
+        var cleanedProgress = string.IsNullOrWhiteSpace(reason) ? string.Empty : reason.Trim();
+
+        SendMessageQueue.Enqueue(
+            $"PowershellState|{cleanedSender.Replace("|", " ")}|{scheduleId}|{runId}|{state}|{cleanedProgress.Replace("|", " ")}");
+    }
+
+    public static OneOf<InterProcessDataNotification, InterProcessPowershellProgressNotification,
+            InterProcessPowershellStateNotification, InterProcessError>
         TranslateDataNotification(IReadOnlyList<byte>? received)
     {
         if (received == null || received.Count == 0)
@@ -92,15 +106,16 @@ public static class DataNotifications
             var parsedString = asString.Split("|").ToList();
 
             if (!parsedString.Any()
-                || parsedString.Count is not 5
-                || !(parsedString[0].Equals("Data") || parsedString[0].Equals("Progress"))
+                || !(parsedString.Count is 5 or 6)
+                || !(parsedString[0].Equals("PowershellData") || parsedString[0].Equals("PowershellProgress") ||
+                     parsedString[0].Equals("PowershellState"))
                )
                 return new InterProcessError
                 {
                     ErrorMessage = $"Data appears to be in the wrong format - {asString}"
                 };
 
-            if (parsedString[0].Equals("Data"))
+            if (parsedString[0].Equals("PowershellData"))
                 return new InterProcessDataNotification
                 {
                     Sender = parsedString[1],
@@ -109,15 +124,27 @@ public static class DataNotifications
                     Id = int.TryParse(parsedString[4], out var parsedBatchId) ? parsedBatchId : -1
                 };
 
-            if (parsedString[0].Equals("Progress"))
-                return new InterProcessProgressNotification
+            if (parsedString[0].Equals("PowershellProgress"))
+                return new InterProcessPowershellProgressNotification
                 {
                     Sender = parsedString[1],
-                    RunScheduleId = int.TryParse(parsedString[2], out var parsedRunScheduleId)
+                    ScriptJobId = int.TryParse(parsedString[2], out var parsedRunScheduleId)
                         ? parsedRunScheduleId
                         : -1,
-                    RunResultId = int.TryParse(parsedString[3], out var parsedRunResultId) ? parsedRunResultId : -1,
+                    ScriptJobRunId = int.TryParse(parsedString[3], out var parsedRunResultId) ? parsedRunResultId : -1,
                     ProgressMessage = parsedString[4]
+                };
+
+            if (parsedString[0].Equals("PowershellState"))
+                return new InterProcessPowershellStateNotification
+                {
+                    Sender = parsedString[1],
+                    ScriptJobId = int.TryParse(parsedString[2], out var parsedRunScheduleId)
+                        ? parsedRunScheduleId
+                        : -1,
+                    ScriptJobRunId = int.TryParse(parsedString[3], out var parsedRunResultId) ? parsedRunResultId : -1,
+                    State = Enum.Parse<PipelineState>(parsedString[4]),
+                    ProgressMessage = parsedString[5]
                 };
         }
         catch (Exception e)
@@ -141,11 +168,20 @@ public static class DataNotifications
         public string ErrorMessage = string.Empty;
     }
 
-    public record InterProcessProgressNotification
+    public record InterProcessPowershellProgressNotification
     {
         public string ProgressMessage { get; init; } = string.Empty;
-        public int RunResultId { get; init; }
-        public int RunScheduleId { get; init; }
+        public int ScriptJobId { get; init; }
+        public int ScriptJobRunId { get; init; }
         public string? Sender { get; init; }
+    }
+
+    public record InterProcessPowershellStateNotification
+    {
+        public string ProgressMessage { get; init; } = string.Empty;
+        public int ScriptJobId { get; init; }
+        public int ScriptJobRunId { get; init; }
+        public string? Sender { get; init; }
+        public PipelineState State { get; set; }
     }
 }

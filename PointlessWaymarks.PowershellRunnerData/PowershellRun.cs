@@ -23,14 +23,15 @@ public class PowerShellRun
         {
             Collection<PSObject> psObjects = pipeline.Output.NonBlockingRead();
             foreach (var psObject in psObjects)
-                DataNotifications.PublishProgressNotification(identifier, scheduleId, runId,
+                DataNotifications.PublishPowershellProgressNotification(identifier, scheduleId, runId,
                     psObject.ToString());
         };
 
         pipeline.StateChanged += (sender, eventArgs) =>
         {
-            DataNotifications.PublishProgressNotification(identifier, scheduleId, runId,
-                $"{eventArgs.PipelineStateInfo.State.ToString()} - {eventArgs.PipelineStateInfo.Reason}");
+            DataNotifications.PublishPowershellStateNotification(identifier, scheduleId, runId,
+                eventArgs.PipelineStateInfo.State,
+                eventArgs.PipelineStateInfo.Reason?.ToString() ?? string.Empty);
         };
 
         pipeline.Error.DataReady += (sender, eventArgs) =>
@@ -40,7 +41,7 @@ public class PowerShellRun
             {
                 var errorString = errorObject.ToString();
                 if (!string.IsNullOrWhiteSpace(errorString))
-                    DataNotifications.PublishProgressNotification(identifier, scheduleId, runId,
+                    DataNotifications.PublishPowershellProgressNotification(identifier, scheduleId, runId,
                         errorString);
             }
         };

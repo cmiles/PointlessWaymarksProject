@@ -4,7 +4,6 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using Serilog;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
@@ -18,9 +17,9 @@ public partial class AllProgressContext
     }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public required ObservableCollection<ScriptProgressListItem> Items { get; set; }
-    public ScriptProgressListItem? SelectedItem { get; set; }
-    public List<ScriptProgressListItem> SelectedItems { get; set; } = [];
+    public required ObservableCollection<IPowerShellProgress> Items { get; set; }
+    public IPowerShellProgress? SelectedItem { get; set; }
+    public List<IPowerShellProgress> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<AllProgressContext> CreateInstance(StatusControlContext? statusContext)
@@ -47,13 +46,8 @@ public partial class AllProgressContext
 
         var toRun = translatedMessage.Match(null,
             ProcessProgressNotification,
-            x =>
-            {
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
-                    x.ErrorMessage,
-                    StatusContext.StatusControlContextId);
-                return Task.CompletedTask;
-            }
+            ProcessStateNotification,
+            ProcessErrorNotification
         );
 
         if (toRun is not null) await toRun;
@@ -64,17 +58,39 @@ public partial class AllProgressContext
         DataNotificationsProcessor?.Enqueue(e);
     }
 
-    private async Task ProcessProgressNotification(DataNotifications.InterProcessProgressNotification arg)
+    private async Task ProcessErrorNotification(DataNotifications.InterProcessError arg)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptProgressListItem()
-            { ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender });
+        Items.Add(new ScriptErrorMessageItem()
+            { ReceivedOn = DateTime.Now, Message = arg.ErrorMessage });
+    }
+
+    private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Items.Add(new ScriptProgressMessageItem()
+        {
+            ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
+            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId
+        });
 
         if (Items.Count > 1200)
         {
             var toRemove = Items.OrderBy(x => x.ReceivedOn).Take(300).ToList();
             toRemove.ForEach(x => Items.Remove(x));
         }
+    }
+
+    private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Items.Add(new ScriptStateMessageItem()
+        {
+            ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
+            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId, State = arg.State
+        });
     }
 }

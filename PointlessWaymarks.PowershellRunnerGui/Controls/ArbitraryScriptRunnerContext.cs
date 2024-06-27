@@ -14,11 +14,11 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [GenerateStatusCommands]
 public partial class ArbitraryScriptRunnerContext
 {
-    private readonly int _runId = -999;
-    private readonly int _scheduleId = -888;
+    private readonly int _scriptJobId = -888;
+    private readonly int _scriptRunId = -999;
 
     public ArbitraryScriptRunnerContext(StatusControlContext statusContext,
-        ObservableCollection<ScriptProgressListItem> items)
+        ObservableCollection<IPowerShellProgress> items)
     {
         StatusContext = statusContext;
         Items = items;
@@ -30,10 +30,10 @@ public partial class ArbitraryScriptRunnerContext
     }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public ObservableCollection<ScriptProgressListItem> Items { get; set; }
+    public ObservableCollection<IPowerShellProgress> Items { get; set; }
     public bool ScriptRunning { get; set; }
-    public ScriptProgressListItem? SelectedItem { get; set; }
-    public List<ScriptProgressListItem> SelectedItems { get; set; } = [];
+    public IPowerShellProgress? SelectedItem { get; set; }
+    public List<IPowerShellProgress> SelectedItems { get; set; } = [];
     public StatusControlContext StatusContext { get; set; }
     public string UserScript { get; set; } = string.Empty;
 
@@ -52,6 +52,7 @@ public partial class ArbitraryScriptRunnerContext
 
         var toRun = translatedMessage.Match(null,
             ProcessProgressNotification,
+            ProcessStateNotification,
             x =>
             {
                 Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
@@ -64,18 +65,41 @@ public partial class ArbitraryScriptRunnerContext
         if (toRun is not null) await toRun;
     }
 
-
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor?.Enqueue(e);
     }
 
-    private async Task ProcessProgressNotification(DataNotifications.InterProcessProgressNotification arg)
+    private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
+        if (arg.ScriptJobId != _scriptJobId || arg.ScriptJobRunId != _scriptRunId) return;
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptProgressListItem
-            { ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender });
+        Items.Add(new ScriptProgressMessageItem()
+        {
+            ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
+            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId
+        });
+
+        if (Items.Count > 1200)
+        {
+            var toRemove = Items.OrderBy(x => x.ReceivedOn).Take(300).ToList();
+            toRemove.ForEach(x => Items.Remove(x));
+        }
+    }
+
+    private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)
+    {
+        if (arg.ScriptJobId != _scriptJobId || arg.ScriptJobRunId != _scriptRunId) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Items.Add(new ScriptStateMessageItem()
+        {
+            ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
+            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId, State = arg.State
+        });
     }
 
     [NonBlockingCommand]
@@ -91,7 +115,7 @@ public partial class ArbitraryScriptRunnerContext
 
         try
         {
-            await PowerShellRun.Execute(UserScript, _scheduleId, _runId, "Arbitrary Script");
+            await PowerShellRun.Execute(UserScript, _scriptJobId, _scriptRunId, "Arbitrary Script");
         }
         catch (Exception e)
         {
