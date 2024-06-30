@@ -1,0 +1,60 @@
+<UserControl x:Class="PointlessWaymarks.PowerShellRunnerGui.PowerShellEditor.PowerShellEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.PowerShellEditor"
+             xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance stringDataEntry:StringDataEntryContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/WpfCommonResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <Label
+                    Content="{Binding Title}"
+                    Style="{StaticResource DataEntryLabelStyle}"
+                    Target="{Binding ElementName=ValueTextBox}"
+                    ToolTip="{Binding HelpText}" />
+                <Image
+                    Margin="0,0,4,0"
+                    Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
+                    Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
+                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                    <Image.ToolTip>
+                        <ToolTip
+                            Content="{Binding ReferenceValue, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
+                            ContentStringFormat="Original Value: {0}" />
+                    </Image.ToolTip>
+                </Image>
+                <Image ToolTip="{Binding ValidationMessage}"
+                       Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
+                       Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
+                       Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
+            </StackPanel>
+        </StackPanel>
+        <avalonedit:TextEditor
+            Grid.Row="1"
+            Name="TextEditor"
+            HorizontalScrollBarVisibility="Disabled"
+            SyntaxHighlighting="PowerShell">
+            <b:Interaction.Behaviors>
+                <local:AvalonEditRenderedStringBindingBehaviour
+                    RenderedText="{Binding UserValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </b:Interaction.Behaviors>
+        </avalonedit:TextEditor>
+    </Grid>
+</UserControl>

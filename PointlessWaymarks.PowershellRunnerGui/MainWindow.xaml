@@ -15,6 +15,9 @@
         d:DataContext="{d:DesignInstance powershellRunnerGui:MainWindow }">
     <Grid>
         <TabControl>
+            <TabItem Header="Job List">
+                <controls:ScriptJobListControl DataContext="{Binding JobListContext}" />
+            </TabItem>
             <TabItem Header="Custom Script">
                 <controls:ArbitraryScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
             </TabItem>

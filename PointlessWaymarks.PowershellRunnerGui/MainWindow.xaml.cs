@@ -59,6 +59,8 @@ public partial class MainWindow
 
     public string InfoTitle { get; set; }
 
+    public ScriptJobListContext? JobListContext { get; set; }
+
     public AllProgressContext? ProgressContext { get; set; }
 
     public AppSettingsContext? SettingsContext { get; set; }
@@ -97,15 +99,6 @@ public partial class MainWindow
 
     public async Task Setup()
     {
-        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null);
-        ProgressContext = await AllProgressContext.CreateInstance(null);
-        SettingsContext = await AppSettingsContext.CreateInstance(null);
-        HelpContext = new HelpDisplayContext([
-            HelpText,
-            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
-            HelpMarkdown.SoftwareUsedBlock
-        ]);
-
         var settings = PowerShellRunnerGuiSettingTools.ReadSettings();
 
         if (string.IsNullOrWhiteSpace(settings.DatabaseFile) || !File.Exists(settings.DatabaseFile))
@@ -123,6 +116,16 @@ public partial class MainWindow
             await PowerShellRunnerContext.CreateInstance(settings.DatabaseFile);
         }
 
-        await ObfuscationKeyHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext);
+        await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext);
+
+        JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, settings.DatabaseFile);
+        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null);
+        ProgressContext = await AllProgressContext.CreateInstance(null);
+        SettingsContext = await AppSettingsContext.CreateInstance(null);
+        HelpContext = new HelpDisplayContext([
+            HelpText,
+            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
+            HelpMarkdown.SoftwareUsedBlock
+        ]);
     }
 }

@@ -3,8 +3,14 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
+        <ApplicationIcon>PointlessWaymarksPowerShellRunnerIcon.ico</ApplicationIcon>
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="PointlessWaymarksPowerShellRunnerIcon.ico" />
+      <None Remove="PowerShellEditor\PowerShell.xshd" />
+    </ItemGroup>
 
     <ItemGroup>
         <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
@@ -13,6 +19,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="PowerShellEditor\PowerShell.xshd" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
         <PackageReference Include="Jot" Version="2.1.17" />
     </ItemGroup>
 
@@ -20,6 +31,12 @@
         <ProjectReference Include="..\PointlessWaymarks.PowerShellRunnerData\PointlessWaymarks.PowerShellRunnerData.csproj" />
         <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
         <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="PointlessWaymarksPowerShellRunnerIcon.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
 </Project>

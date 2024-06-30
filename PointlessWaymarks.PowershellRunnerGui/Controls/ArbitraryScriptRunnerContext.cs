@@ -115,7 +115,7 @@ public partial class ArbitraryScriptRunnerContext
 
         try
         {
-            await PowerShellRun.Execute(UserScript, _scriptJobId, _scriptRunId, "Arbitrary Script");
+            await PowerShellRun.ExecuteScript(UserScript, _scriptJobId, _scriptRunId, "Arbitrary Script");
         }
         catch (Exception e)
         {

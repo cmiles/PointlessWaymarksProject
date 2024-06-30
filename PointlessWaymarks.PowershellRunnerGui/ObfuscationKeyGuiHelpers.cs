@@ -4,21 +4,8 @@ using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.PowerShellRunnerGui;
 
-public static class ObfuscationKeyHelpers
+public static class ObfuscationKeyGuiHelpers
 {
-    public static async Task<string> GetObfuscationKey(string dbFileName)
-    {
-        var db = await PowerShellRunnerContext.CreateInstance(dbFileName, false);
-
-        var account = await db.ObfuscationAccountName();
-
-        if (account == null || string.IsNullOrWhiteSpace(account))
-            throw new Exception(
-                "No Obfuscation Account Name found in the database - cannot retrieve Obfuscation Key. Restart the program???");
-
-        return account;
-    }
-
     /// <summary>
     ///     Gets the Obfuscation Key from the Credential Manager or prompts the user to enter one if it is not found. The
     ///     database must already have been set/created.

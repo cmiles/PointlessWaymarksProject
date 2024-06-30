@@ -2,6 +2,7 @@ using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
@@ -43,6 +44,8 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     public static async Task<ScriptJobEditorContext> CreateInstance(StatusControlContext? statusContext,
         ScriptJob initialScriptJob, string databaseFile)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         var nameEntry = StringDataEntryContext.CreateInstance();
         nameEntry.Title = "Name";
         nameEntry.HelpText =
@@ -77,6 +80,8 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         enabledEntry.HelpText =
             "If checked the job will run on schedule, if not it will only run on demand.";
 
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         var newContext = new ScriptJobEditorContext
         {
             DatabaseFile = databaseFile,
@@ -88,6 +93,8 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             ScriptEntry = scriptEntry,
             EnabledEntry = enabledEntry
         };
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         await newContext.Setup(initialScriptJob);
 
