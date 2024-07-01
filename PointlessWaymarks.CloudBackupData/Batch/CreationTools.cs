@@ -598,7 +598,7 @@ public static class CreationTools
             batchInformation.CloudDeletions.Count,
             batchInformation.FileSystemFiles.Count, batchInformation.CloudFiles.Count);
         
-        DataNotifications.PublishDataNotification(nameof(CreationTools), DataNotificationContentType.BackupJob,
+        DataNotifications.PublishDataNotification(nameof(CreationTools), DataNotificationContentType.CloudTransferBatch,
             DataNotificationUpdateType.New, changes.Job.PersistentId, batchInformation.Batch.Id);
         
         return batchInformation;
