@@ -451,11 +451,15 @@ public partial class JobListContext
         var jobs = await db.BackupJobs.ToListAsync();
         
         await ThreadSwitcher.ResumeForegroundAsync();
-        
+
+        var previousSelectedItemPersistentId = SelectedJob?.PersistentId;
+
         Items.Clear();
         
         foreach (var x in jobs) Items.Add(await JobListListItem.CreateInstance(x));
         
+        if(previousSelectedItemPersistentId != null) SelectedJob = Items.SingleOrDefault(y => y.PersistentId == previousSelectedItemPersistentId);
+
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
     
