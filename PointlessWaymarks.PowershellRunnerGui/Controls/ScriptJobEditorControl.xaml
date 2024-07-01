@@ -27,13 +27,15 @@
             <stringDataEntry:StringDataEntryControl DataContext="{Binding NameEntry}"></stringDataEntry:StringDataEntryControl>
             <stringDataEntry:StringDataEntryControl DataContext="{Binding DescriptionEntry}"></stringDataEntry:StringDataEntryControl>
             <stringDataEntry:StringDataEntryControl DataContext="{Binding ScheduleEntry}"></stringDataEntry:StringDataEntryControl>
+            <TextBox Margin="16,6,4,2" Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding CronDescription, StringFormat='Description: {0}'}"></TextBox>
+            <TextBox Margin="16,2,4,2" Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding CronNextRun, StringFormat='Next Run: {0}'}"></TextBox>
             <boolDataEntry:BoolDataEntryControl Margin="6,10,4,0" DataContext="{Binding EnabledEntry}"></boolDataEntry:BoolDataEntryControl>
         </StackPanel>
         <powerShellEditor:PowerShellEditorControl Margin="2,4,6,12" DataContext="{Binding ScriptEntry}" Grid.Row="1"></powerShellEditor:PowerShellEditorControl>
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <Button Command="{Binding SaveCommand}" Style="{StaticResource ActionPanelButtonStyle}">Script to Clipboard</Button>
-                <Button Command="{Binding SaveCommand}" Style="{StaticResource ActionPanelButtonStyle}">Save and Close</Button>
+                <Button Command="{Binding ScriptToClipboardCommand}" Style="{StaticResource ActionPanelButtonStyle}">Script to Clipboard</Button>
+                <Button Command="{Binding SaveAndCloseCommand}" Style="{StaticResource ActionPanelButtonStyle}">Save and Close</Button>
                 <Button Command="{Binding SaveCommand}" Style="{StaticResource ActionPanelButtonStyle}">Save</Button>
             </WrapPanel>
         </Border>

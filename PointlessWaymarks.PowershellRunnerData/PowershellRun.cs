@@ -11,14 +11,14 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 
 public class PowerShellRun
 {
-    public static async Task<ScriptJobRun?> ExecuteJob(int jobId, string databaseFile)
+    public static async Task<ScriptJobRun?> ExecuteJob(int jobId, string databaseFile, string runType)
     {
         var db = await PowerShellRunnerContext.CreateInstance(databaseFile, false);
         var job = await db.ScriptJobs.FirstOrDefaultAsync(x => x.Id == jobId);
 
         if (job == null) return null;
 
-        var run = new ScriptJobRun { ScriptJobId = job.Id, StartedOnUtc = DateTime.UtcNow, Script = job.Script };
+        var run = new ScriptJobRun { ScriptJobId = job.Id, StartedOnUtc = DateTime.UtcNow, Script = job.Script, RunType = runType };
         var obfuscationKey = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
 
         db.ScriptJobRuns.Add(run);

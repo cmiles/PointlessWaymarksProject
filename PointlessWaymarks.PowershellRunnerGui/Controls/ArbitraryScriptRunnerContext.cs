@@ -4,6 +4,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -17,31 +18,40 @@ public partial class ArbitraryScriptRunnerContext
     private readonly int _scriptJobId = -888;
     private readonly int _scriptRunId = -999;
 
-    public ArbitraryScriptRunnerContext(StatusControlContext statusContext,
-        ObservableCollection<IPowerShellProgress> items)
+    public ArbitraryScriptRunnerContext()
     {
-        StatusContext = statusContext;
-        Items = items;
-
-        BuildCommands();
-
-        DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
-        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public ObservableCollection<IPowerShellProgress> Items { get; set; }
+    public required ObservableCollection<IPowerShellProgress> Items { get; set; }
     public bool ScriptRunning { get; set; }
     public IPowerShellProgress? SelectedItem { get; set; }
     public List<IPowerShellProgress> SelectedItems { get; set; } = [];
-    public StatusControlContext StatusContext { get; set; }
-    public string UserScript { get; set; } = string.Empty;
+    public required StatusControlContext StatusContext { get; set; }
+    public required StringDataEntryNoIndicatorsContext UserScriptEntryContext { get; set; }
 
     public static async Task<ArbitraryScriptRunnerContext> CreateInstance(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        return new ArbitraryScriptRunnerContext(statusContext ?? new StatusControlContext(), []);
+        var factoryScriptEntry = StringDataEntryNoIndicatorsContext.CreateInstance();
+        factoryScriptEntry.Title = "PowerShell Script";
+        factoryScriptEntry.HelpText =
+            "Enter a PowerShell Script to run.";
+
+        var factoryContext = new ArbitraryScriptRunnerContext
+        {
+            StatusContext = statusContext ?? new StatusControlContext(),
+            UserScriptEntryContext = factoryScriptEntry,
+            Items = []
+        };
+
+        factoryContext.BuildCommands();
+
+        factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = factoryContext.DataNotificationReceived };
+        DataNotifications.NewDataNotificationChannel().MessageReceived += factoryContext.OnDataNotificationReceived;
+
+        return factoryContext;
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
@@ -105,7 +115,7 @@ public partial class ArbitraryScriptRunnerContext
     [NonBlockingCommand]
     public async Task RunScript()
     {
-        if (string.IsNullOrWhiteSpace(UserScript))
+        if (string.IsNullOrWhiteSpace(UserScriptEntryContext.UserValue))
         {
             StatusContext.ToastError("No Script to Run?");
             return;
@@ -115,7 +125,7 @@ public partial class ArbitraryScriptRunnerContext
 
         try
         {
-            await PowerShellRun.ExecuteScript(UserScript, _scriptJobId, _scriptRunId, "Arbitrary Script");
+            await PowerShellRun.ExecuteScript(UserScriptEntryContext.UserValue, _scriptJobId, _scriptRunId, "Arbitrary Script");
         }
         catch (Exception e)
         {

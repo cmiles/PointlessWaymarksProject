@@ -1,3 +1,7 @@
+using System.ComponentModel;
+using System.Windows;
+using CronExpressionDescriptor;
+using Cronos;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
@@ -7,6 +11,7 @@ using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
+using Console = System.Console;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -16,10 +21,14 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
+    private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(30));
+
     public ScriptJobEditorContext()
     {
     }
 
+    public string? CronDescription { get; set; }
+    public DateTime? CronNextRun { get; set; }
     public required string DatabaseFile { get; set; }
     public required ScriptJob DbEntry { get; set; }
     public required StringDataEntryContext DescriptionEntry { get; set; }
@@ -69,11 +78,39 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         cronEntry.Title = "Schedule (Cron Expression)";
         cronEntry.HelpText =
             "A Cron Expression or a blank if the job is only run on demand.";
+        cronEntry.ValidationFunctions =
+        [
+            x =>
+            {
+                if (string.IsNullOrWhiteSpace(x))
+                    return Task.FromResult(new IsValid(true, string.Empty));
+
+                try
+                {
+                    CronExpression.Parse(x);
+                    return Task.FromResult(new IsValid(true, string.Empty));
+                }
+                catch (Exception)
+                {
+                    return Task.FromResult(new IsValid(false, "Invalid Cron Expression"));
+                }
+            }
+        ];
+
 
         var scriptEntry = StringDataEntryContext.CreateInstance();
-        scriptEntry.Title = "Schedule (Cron Expression)";
+        scriptEntry.Title = "Script";
         scriptEntry.HelpText =
-            "A Cron Expression or a blank if the job is only run on demand.";
+            "A PowerShell script to run.";
+        scriptEntry.ValidationFunctions = 
+        [
+            x =>
+            {
+                if (string.IsNullOrWhiteSpace(x))
+                    return Task.FromResult(new IsValid(false, "A Script is required for the Job"));
+                return Task.FromResult(new IsValid(true, string.Empty));
+            }
+        ];
 
         var enabledEntry = await BoolDataEntryContext.CreateInstance();
         enabledEntry.Title = "Enabled";
@@ -94,11 +131,20 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             EnabledEntry = enabledEntry
         };
 
+        cronEntry.PropertyChanged += newContext.CronExpressionChanged;
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         await newContext.Setup(initialScriptJob);
 
+        newContext.UpdateCronNextRun();
+
         return newContext;
+    }
+
+    private void CronExpressionChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ScheduleEntry.UserValue)) UpdateCronExpressionInformation();
     }
 
     public async Task LoadData(ScriptJob toLoad)
@@ -126,6 +172,17 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     [BlockingCommand]
     public async Task Save()
     {
+        await SaveChanges(false);
+    }
+
+    [BlockingCommand]
+    public async Task SaveAndClose()
+    {
+        await SaveChanges(true);
+    }
+
+    public async Task SaveChanges(bool closeAfterSave)
+    {
         if (!HasChanges)
         {
             StatusContext.ToastError("No Changes to Save?");
@@ -142,9 +199,12 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         var db = await PowerShellRunnerContext.CreateInstance(DatabaseFile, false);
 
+        var newEntry = false;
+
         var toSave = db.ScriptJobs.SingleOrDefault(x => x.Id == DbEntry.Id);
         if (toSave == null)
         {
+            newEntry = true;
             toSave = new ScriptJob();
             db.ScriptJobs.Add(toSave);
         }
@@ -158,7 +218,30 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         await db.SaveChangesAsync();
 
+        DataNotifications.PublishDataNotification("Script Job Editor",
+            DataNotifications.DataNotificationContentType.ScriptJob,
+            newEntry
+                ? DataNotifications.DataNotificationUpdateType.New
+                : DataNotifications.DataNotificationUpdateType.Update, toSave.Id);
+
         await LoadData(toSave);
+
+        if (closeAfterSave) RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
+    }
+
+    [NonBlockingCommand]
+    public async Task ScriptToClipboard()
+    {
+        if (string.IsNullOrWhiteSpace(ScriptEntry.UserValue))
+        {
+            StatusContext.ToastError("No Script to Copy?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        Clipboard.SetText(ScriptEntry.UserValue);
+
+        StatusContext.ToastSuccess("Script Copied to Clipboard");
     }
 
     public async Task Setup(ScriptJob initialEntry)
@@ -169,5 +252,35 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             CheckForChangesAndValidationIssues);
 
         await LoadData(initialEntry);
+    }
+
+    private void UpdateCronExpressionInformation()
+    {
+        try
+        {
+            var expression = CronExpression.Parse(ScheduleEntry.UserValue);
+            var nextRun = expression.GetNextOccurrence(DateTimeOffset.Now, TimeZoneInfo.Local);
+            if (nextRun != null) CronNextRun = nextRun.Value.LocalDateTime;
+            CronDescription = ExpressionDescriptor.GetDescription(ScheduleEntry.UserValue);
+        }
+        catch (Exception)
+        {
+            CronNextRun = null;
+            CronDescription = string.Empty;
+        }
+    }
+
+    private async Task UpdateCronNextRun()
+    {
+        try
+        {
+            while (await _cronNextTimer.WaitForNextTickAsync())
+                if (!StatusContext.BlockUi)
+                    UpdateCronExpressionInformation();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }

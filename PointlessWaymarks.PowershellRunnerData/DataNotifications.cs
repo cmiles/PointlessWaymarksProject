@@ -63,7 +63,7 @@ public static class DataNotifications
         var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{id}");
+            $"PowershellData|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{id}");
     }
 
     public static void PublishPowershellProgressNotification(string sender, int scheduleId, int runId, string progress)

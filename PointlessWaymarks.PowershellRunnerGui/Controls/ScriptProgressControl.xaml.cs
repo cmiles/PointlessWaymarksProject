@@ -3,11 +3,11 @@ using System.Windows.Controls;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 /// <summary>
-///     Interaction logic for AllProgressControl.xaml
+///     Interaction logic for ScriptProgressControl.xaml
 /// </summary>
-public partial class AllProgressControl
+public partial class ScriptProgressControl
 {
-    public AllProgressControl()
+    public ScriptProgressControl()
     {
         InitializeComponent();
     }

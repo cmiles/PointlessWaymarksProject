@@ -23,10 +23,10 @@ public partial class ScriptJobListListItem
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ScriptJob DbEntry { get; set; }
-    public required ObservableCollection<IPowerShellProgress> Items { get; set; }
-    public ObservableCollection<ScriptJobRun> RecentRuns { get; set; } = [];
-    public ScriptProgressMessageItem? SelectedItem { get; set; }
-    public List<ScriptProgressMessageItem> SelectedItems { get; set; } = [];
+    public IPowerShellProgress? LastProgressItem { get; set; }
+    public required ObservableCollection<ScriptJobRun> Items { get; set; } = [];
+    public ScriptJobRun? SelectedItem { get; set; }
+    public List<ScriptJobRun> SelectedItems { get; set; } = [];
 
     public static async Task<ScriptJobListListItem> CreateInstance(ScriptJob dbEntry)
     {
@@ -43,8 +43,7 @@ public partial class ScriptJobListListItem
         return new ScriptJobListListItem
         {
             DbEntry = dbEntry,
-            RecentRuns = new ObservableCollection<ScriptJobRun>(recentRuns),
-            Items = []
+            Items = new ObservableCollection<ScriptJobRun>(recentRuns)
         };
     }
 
@@ -74,17 +73,11 @@ public partial class ScriptJobListListItem
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptProgressMessageItem()
+        LastProgressItem = new ScriptProgressMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId
-        });
-
-        if (Items.Count > 1200)
-        {
-            var toRemove = Items.OrderBy(x => x.ReceivedOn).Take(300).ToList();
-            toRemove.ForEach(x => Items.Remove(x));
-        }
+        };
     }
 
     private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)
@@ -93,10 +86,10 @@ public partial class ScriptJobListListItem
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptStateMessageItem()
+        LastProgressItem = new ScriptStateMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId, State = arg.State
-        });
+        };
     }
 }

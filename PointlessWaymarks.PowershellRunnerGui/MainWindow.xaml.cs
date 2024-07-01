@@ -61,7 +61,7 @@ public partial class MainWindow
 
     public ScriptJobListContext? JobListContext { get; set; }
 
-    public AllProgressContext? ProgressContext { get; set; }
+    public ScriptProgressContext? ProgressContext { get; set; }
 
     public AppSettingsContext? SettingsContext { get; set; }
 
@@ -120,7 +120,7 @@ public partial class MainWindow
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, settings.DatabaseFile);
         ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null);
-        ProgressContext = await AllProgressContext.CreateInstance(null);
+        ProgressContext = await ScriptProgressContext.CreateInstance(null);
         SettingsContext = await AppSettingsContext.CreateInstance(null);
         HelpContext = new HelpDisplayContext([
             HelpText,

@@ -10,23 +10,41 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
 [StaThreadConstructorGuard]
-public partial class AllProgressContext
+public partial class ScriptProgressContext
 {
-    public AllProgressContext()
+    public ScriptProgressContext()
     {
     }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<IPowerShellProgress> Items { get; set; }
+    public List<int> ScriptJobIdFilter { get; set; } = [];
+    public List<int> ScriptJobRunIdFilter { get; set; } = [];
     public IPowerShellProgress? SelectedItem { get; set; }
     public List<IPowerShellProgress> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
-    public static async Task<AllProgressContext> CreateInstance(StatusControlContext? statusContext)
+    public static async Task<ScriptProgressContext> CreateInstance(StatusControlContext? context,
+        List<int> jobIdFilter, List<int> runIdFilter)
+    {
+        var factoryContext = context ?? new StatusControlContext();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var toReturn = new ScriptProgressContext
+        {
+            StatusContext = factoryContext, Items = [], ScriptJobIdFilter = jobIdFilter,
+            ScriptJobRunIdFilter = runIdFilter
+        };
+
+        return toReturn;
+    }
+
+    public static async Task<ScriptProgressContext> CreateInstance(StatusControlContext? statusContext)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var toReturn = new AllProgressContext
+        var toReturn = new ScriptProgressContext
         {
             StatusContext = statusContext ?? new StatusControlContext(), Items = []
         };
@@ -68,6 +86,9 @@ public partial class AllProgressContext
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
+        if (ScriptJobIdFilter.Any() && !ScriptJobIdFilter.Contains(arg.ScriptJobId)) return;
+        if (ScriptJobRunIdFilter.Any() && !ScriptJobRunIdFilter.Contains(arg.ScriptJobRunId)) return;
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items.Add(new ScriptProgressMessageItem()

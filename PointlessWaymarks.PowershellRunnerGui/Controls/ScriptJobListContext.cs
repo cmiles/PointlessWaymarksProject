@@ -24,6 +24,30 @@ public partial class ScriptJobListContext
     public List<ScriptJobListListItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
+    public static async Task<ScriptJobListContext> CreateInstance(StatusControlContext? statusContext,
+        string currentDatabase)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newContext = new ScriptJobListContext
+        {
+            StatusContext = statusContext ?? new StatusControlContext(),
+            Items = [],
+            DatabaseFile = currentDatabase
+        };
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        newContext.BuildCommands();
+        await newContext.RefreshList();
+
+        newContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
+            { Processor = newContext.DataNotificationReceived };
+        DataNotifications.NewDataNotificationChannel().MessageReceived += newContext.OnDataNotificationReceived;
+
+        return newContext;
+    }
+
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -68,12 +92,15 @@ public partial class ScriptJobListContext
 
         var db = await PowerShellRunnerContext.CreateInstance();
         var currentItem = await db.ScriptJobs.SingleAsync(x => x.Id == toDelete.DbEntry.Id);
+        var currentId = currentItem.Id;
         var currentRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobId == currentItem.Id).ExecuteDeleteAsync();
 
         db.ScriptJobs.Remove(currentItem);
         await db.SaveChangesAsync();
 
-        await RefreshList();
+        DataNotifications.PublishDataNotification("Script Job List",
+            DataNotifications.DataNotificationContentType.ScriptJob,
+            DataNotifications.DataNotificationUpdateType.Delete, currentId);
     }
 
     [NonBlockingCommand]
@@ -133,20 +160,6 @@ public partial class ScriptJobListContext
         DataNotificationsProcessor?.Enqueue(e);
     }
 
-    [NonBlockingCommand]
-    public async Task RunSelectedJob()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItem == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Run?");
-            return;
-        }
-
-        await PowerShellRun.ExecuteJob(SelectedItem.DbEntry.Id, DatabaseFile);
-    }
-
     private async Task ProcessDataUpdateNotification(
         DataNotifications.InterProcessDataNotification interProcessUpdateNotification)
     {
@@ -157,69 +170,44 @@ public partial class ScriptJobListContext
                 ContentType: DataNotifications.DataNotificationContentType.ScriptJob,
                 UpdateType: DataNotifications.DataNotificationUpdateType.Delete
             })
-            Console.WriteLine(interProcessUpdateNotification);
 
-        //{
-        //    await ThreadSwitcher.ResumeForegroundAsync();
-
-        //    var toRemove = Items.Where(x => x.DbEntry.Id == interProcessUpdateNotification.Id)
-        //        .ToList();
-        //    toRemove.ForEach(x => Items.Remove(x));
-        //    return;
-        //}
-
-        //if (interProcessUpdateNotification is
-        //    {
-        //        ContentType: DataNotifications.DataNotificationContentType.ScriptJob,
-        //        UpdateType: DataNotifications.DataNotificationUpdateType.Update
-        //        or DataNotifications.DataNotificationUpdateType.New
-        //    })
-        //{
-        //    var listItem =
-        //        Items.SingleOrDefault(x => x.DbEntry.Id == interProcessUpdateNotification.Id);
-        //    var db = await PowerShellRunnerContext.CreateInstance();
-        //    var dbItem =
-        //        db.ScriptJobs.SingleOrDefault(x =>
-        //            x.Id == interProcessUpdateNotification.Id);
-
-        //    if (dbItem == null) return;
-
-        //    if (listItem != null)
-        //    {
-        //        listItem.DbEntry = dbItem;
-        //        return;
-        //    }
-
-        //    var toAdd = await ScriptJobListListItem.CreateInstance(dbItem);
-
-        //    await ThreadSwitcher.ResumeForegroundAsync();
-
-        //    Items.Add(toAdd);
-        //}
-    }
-
-    public static async Task<ScriptJobListContext> CreateInstance(StatusControlContext? statusContext, string currentDatabase)
-    {
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var newContext = new ScriptJobListContext
         {
-            StatusContext = statusContext ?? new StatusControlContext(),
-            Items = [],
-            DatabaseFile = currentDatabase
-        };
+            await ThreadSwitcher.ResumeForegroundAsync();
 
-        await ThreadSwitcher.ResumeBackgroundAsync();
+            var toRemove = Items.Where(x => x.DbEntry.Id == interProcessUpdateNotification.Id)
+                .ToList();
+            toRemove.ForEach(x => Items.Remove(x));
+            return;
+        }
 
-        newContext.BuildCommands();
-        await newContext.RefreshList();
+        if (interProcessUpdateNotification is
+            {
+                ContentType: DataNotifications.DataNotificationContentType.ScriptJob,
+                UpdateType: DataNotifications.DataNotificationUpdateType.Update
+                or DataNotifications.DataNotificationUpdateType.New
+            })
+        {
+            var listItem =
+                Items.SingleOrDefault(x => x.DbEntry.Id == interProcessUpdateNotification.Id);
+            var db = await PowerShellRunnerContext.CreateInstance();
+            var dbItem =
+                await db.ScriptJobs.SingleOrDefaultAsync(x =>
+                    x.Id == interProcessUpdateNotification.Id);
 
-        newContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
-            {Processor = newContext.DataNotificationReceived};
-        DataNotifications.NewDataNotificationChannel().MessageReceived += newContext.OnDataNotificationReceived;
+            if (dbItem == null) return;
 
-        return newContext;
+            if (listItem != null)
+            {
+                listItem.DbEntry = dbItem;
+                return;
+            }
+
+            var toAdd = await ScriptJobListListItem.CreateInstance(dbItem);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            Items.Add(toAdd);
+        }
     }
 
     [BlockingCommand]
@@ -240,5 +228,19 @@ public partial class ScriptJobListContext
         foreach (var x in jobs) Items.Add(await ScriptJobListListItem.CreateInstance(x));
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+    }
+
+    [NonBlockingCommand]
+    public async Task RunSelectedJob()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItem == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Run?");
+            return;
+        }
+
+        await PowerShellRun.ExecuteJob(SelectedItem.DbEntry.Id, DatabaseFile, "Run From PowerShell Runner Gui");
     }
 }

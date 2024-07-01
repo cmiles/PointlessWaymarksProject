@@ -22,7 +22,7 @@
                 <controls:ArbitraryScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
             </TabItem>
             <TabItem Header="All Progress">
-                <controls:AllProgressControl DataContext="{Binding ProgressContext}" />
+                <controls:ScriptProgressControl DataContext="{Binding ProgressContext}" />
             </TabItem>
             <TabItem Header="Help and Notes">
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />

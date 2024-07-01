@@ -22,7 +22,7 @@
                         <ColumnDefinition Width="Auto"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Center"
+                    <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Top"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
                              Opacity=".4">
                     </TextBox>
@@ -37,7 +37,7 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}"
-                             VerticalAlignment="Center"
+                             VerticalAlignment="Top"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
                              Opacity=".4">
                     </TextBox>
@@ -91,7 +91,7 @@
                         <ColumnDefinition Width="Auto"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Center"
+                    <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Top"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
                              Opacity=".4">
                     </TextBox>
@@ -105,8 +105,8 @@
                                                 StateTemplate="{StaticResource ProgressStateDataTemplate}">
             </local:ProgressDataTemplateSelector>
         </ResourceDictionary>
-        </UserControl.Resources>
-        <Grid>
+    </UserControl.Resources>
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -139,7 +139,7 @@
                                     <RowDefinition Height="Auto"></RowDefinition>
                                     <RowDefinition Height="Auto"></RowDefinition>
                                     <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="200"></RowDefinition>
+                                    <RowDefinition Height="80"></RowDefinition>
                                 </Grid.RowDefinitions>
                                 <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
                                          TextWrapping="Wrap">
@@ -160,20 +160,14 @@
                                         </MultiBinding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <TextBox Grid.Row="2" Margin="6,4,0,0" Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding DbEntry.Description}" TextWrapping="Wrap"></TextBox>
+                                <TextBox Grid.Row="2" Margin="6,4,0,0" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                         Text="{Binding DbEntry.Description}" TextWrapping="Wrap">
+                                </TextBox>
                                 <GroupBox Grid.Row="3" Margin="24,0,0,4"
-                                          Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
-                                    <ListBox
-                                        Style="{StaticResource ContentListListBoxStyle}"
-                                        ItemsSource="{Binding Items}"
-                                        SelectedItem="{Binding SelectedItem}"
-                                        behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
-                                        ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                        ItemTemplateSelector="{StaticResource ProgressSelectorTemplate}">
-                                        <b:Interaction.Behaviors>
-                                            <behaviors:ListBoxAutoScrollToEndBehaviour />
-                                        </b:Interaction.Behaviors>
-                                    </ListBox>
+                                          Header="Latest Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
+                                    <ContentControl ContentTemplateSelector="{StaticResource ProgressSelectorTemplate}"
+                                                    Content="{Binding LastProgressItem}">
+                                    </ContentControl>
                                 </GroupBox>
                             </Grid>
                         </Border>
