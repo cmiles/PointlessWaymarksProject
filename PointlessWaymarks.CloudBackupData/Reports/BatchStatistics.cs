@@ -5,7 +5,7 @@ using PointlessWaymarks.LlamaAspects;
 namespace PointlessWaymarks.CloudBackupData.Reports;
 
 [NotifyPropertyChanged]
-public class BatchStatistics
+public partial class BatchStatistics
 {
     public bool BasedOnNewCloudFileScan { get; set; }
     public required DateTime BatchCreatedOn { get; set; }
@@ -41,13 +41,13 @@ public class BatchStatistics
     public decimal UploadsSizeCompletedPercentage { get; set; }
     public int UploadsWithErrorNoteCount { get; set; }
     public long UploadsWithErrorNoteSize { get; set; }
-    
+
     public static async Task<BatchStatistics> CreateInstance(int batchId)
     {
         var context = await CloudBackupContext.CreateInstance();
-        
+
         var batch = context.CloudTransferBatches.Single(x => x.Id == batchId);
-        
+
         var toReturn = new BatchStatistics
         {
             BatchCreatedOn = batch.CreatedOn,
@@ -97,7 +97,8 @@ public class BatchStatistics
                 .Where(x => x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage))
                 .SumAsync(x => x.FileSize),
             DeletesCount = await context.CloudDeletions.CountAsync(x => x.CloudTransferBatchId == batch.Id),
-            DeletesSize = await context.CloudDeletions.Where(x => x.CloudTransferBatchId == batch.Id).SumAsync(x => x.FileSize),
+            DeletesSize = await context.CloudDeletions.Where(x => x.CloudTransferBatchId == batch.Id)
+                .SumAsync(x => x.FileSize),
             DeletesCompleteCount = await context.CloudDeletions.CountAsync(x =>
                 x.CloudTransferBatchId == batch.Id && x.DeletionCompletedSuccessfully),
             DeletesCompleteSize = await context.CloudDeletions
@@ -114,18 +115,18 @@ public class BatchStatistics
                 .Where(x => x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage))
                 .SumAsync(x => x.FileSize)
         };
-        
+
         toReturn.CopiesSizeCompletedPercentage = toReturn.CopiesSize == 0
             ? 1M
             : (decimal)toReturn.CopiesCompleteSize / toReturn.CopiesSize;
-        
+
         toReturn.UploadsSizeCompletedPercentage = toReturn.UploadSize == 0
             ? 1M
             : (decimal)toReturn.UploadsCompleteSize / toReturn.UploadSize;
-        
+
         return toReturn;
     }
-    
+
     public async Task Refresh()
     {
         var newStatistics = await CreateInstance(BatchId);
