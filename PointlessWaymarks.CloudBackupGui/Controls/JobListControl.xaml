@@ -331,16 +331,6 @@
                                     </TextBlock>
 
                                     <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.CopiesSizeCompletedPercentage, StringFormat='Copies Completed {0:P0}'}"
-                                               ToolTip="{StaticResource BatchCopiesStatisticsTooltip}">
-                                    </TextBlock>
-
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.CopiesNotCompletedSize, StringFormat='Remaining  {0}', Converter={StaticResource FileSizePresentation}}"
-                                               ToolTip="{StaticResource BatchCopiesStatisticsTooltip}">
-                                    </TextBlock>
-
-                                    <TextBlock TextWrapping="Wrap"
                                                Text="{Binding LatestBatch.UploadsSizeCompletedPercentage, StringFormat='Uploads Completed {0:P0}'}"
                                                ToolTip="{StaticResource BatchUploadStatisticsTooltip}">
                                     </TextBlock>
@@ -348,6 +338,16 @@
                                     <TextBlock TextWrapping="Wrap"
                                                Text="{Binding LatestBatch.UploadsNotCompletedSize, StringFormat='Remaining  {0}', Converter={StaticResource FileSizePresentation}}"
                                                ToolTip="{StaticResource BatchUploadStatisticsTooltip}">
+                                    </TextBlock>
+
+                                    <TextBlock TextWrapping="Wrap"
+                                               Text="{Binding LatestBatch.CopiesSizeCompletedPercentage, StringFormat='Copies Completed {0:P0}'}"
+                                               ToolTip="{StaticResource BatchCopiesStatisticsTooltip}">
+                                    </TextBlock>
+
+                                    <TextBlock TextWrapping="Wrap"
+                                               Text="{Binding LatestBatch.CopiesNotCompletedSize, StringFormat='Remaining  {0}', Converter={StaticResource FileSizePresentation}}"
+                                               ToolTip="{StaticResource BatchCopiesStatisticsTooltip}">
                                     </TextBlock>
 
                                     <TextBlock TextWrapping="Wrap"
