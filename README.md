@@ -263,6 +263,8 @@ I am incredibly grateful to the all the people and projects that make it possibl
  - [replaysMike/TypeSupport: A CSharp library that makes it easier to work with Types dynamically.](https://github.com/replaysMike/TypeSupport) - When working with generic and dynamic types I appreciate some of the extension methods provided by this library to handle details like .IsNumericType that often seem to descend into endless edge cases when you try to write it yourself. GPL-3.0 License.
  - [omuleanu/ValueInjecter: convention based mapper](https://github.com/omuleanu/ValueInjecter) - Quick mapping between objects without any setup needed. MIT License.
  - [Tyrrrz/CliWrap: Library for running command-line processes](https://github.com/Tyrrrz/CliWrap) - Improved options for running command line processes from .NET. MIT License.
+ - [HangfireIO/Cronos: A fully-featured .NET library for working with Cron expressions. Built with time zones in mind and intuitively handles daylight saving time transitions](https://github.com/HangfireIO/Cronos). MIT License.
+ - [bradymholt/cron-expression-descriptor: A .NET library that converts cron expressions into human readable descriptions.](https://github.com/bradymholt/cron-expression-descriptor). MIT License.
 
 **Testing:**
 - [GitHub - adobe/S3Mock: A simple mock implementation of the AWS S3 API startable as Docker image, TestContainer, JUnit 4 rule, JUnit Jupiter extension or TestNG listener](https://github.com/adobe/S3Mock#configuration) - One docker command to have a mock S3 server running and minimal configuration needed for simple cases!!! Apache License, Version 2.0.
