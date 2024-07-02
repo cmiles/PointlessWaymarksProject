@@ -1,0 +1,118 @@
+<Window x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.ScriptJobRunOutputDiffWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
+        xmlns:controls="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
+        xmlns:models="clr-namespace:PointlessWaymarks.PowerShellRunnerData.Models;assembly=PointlessWaymarks.PowerShellRunnerData"
+        mc:Ignorable="d"
+        Title="ScriptJobRunOutputDiffWindow" Height="450" Width="800"
+        d:DataContext="{d:DesignInstance local:ScriptJobRunOutputDiffWindow}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid Margin="4">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}" Header="Left Run">
+                <ListBox ItemsSource="{Binding LeftRuns}" SelectionMode="Single"
+                         SelectedItem="{Binding SelectedLeftRun}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:ScriptJobOutputDiffRunItem}">
+                            <Border BorderThickness="1" CornerRadius="2">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush" Value="LightGray"></Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Errors}" Value="True">
+                                                <Setter Property="BorderBrush" Value="Red"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel Margin="4">
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="Id {0}: {1} - {2}">
+                                                <Binding Path="Id" />
+                                                <Binding Path="StartedOn" />
+                                                <Binding Path="CompletedOn" FallbackValue="(Not Complete)" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding RunType}"></TextBlock>
+                                    <TextBlock Text="{Binding Errors, StringFormat='Has Errors: {0}'}">
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Grid.Row="0" Style="{StaticResource UiComponentGroupBoxStyle}"
+                      Header="Right Run">
+                <ListBox ItemsSource="{Binding RightRuns}" SelectionMode="Single"
+                         SelectedItem="{Binding SelectedRightRun}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:ScriptJobOutputDiffRunItem}">
+                            <Border BorderThickness="1" CornerRadius="2">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush" Value="LightGray"></Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Errors}" Value="True">
+                                                <Setter Property="BorderBrush" Value="Red"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel Margin="4">
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="Id {0}: {1} - {2}">
+                                            <Binding Path="Id" />
+                                            <Binding Path="StartedOn" />
+                                            <Binding Path="CompletedOn" FallbackValue="(Not Complete)" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock Text="{Binding RunType}"></TextBlock>
+                                <TextBlock Text="{Binding Errors, StringFormat='Has Errors: {0}'}">
+                                </TextBlock>
+                            </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+            <CheckBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" IsChecked="{Binding RemoveOutputTimeStamp}">Remove DateTime Stamps from Output</CheckBox>
+        </Grid>
+        <controls:DiffViewer x:Name="ScriptDiffView" Grid.Column="1" Grid.Row="0"
+                             OldText="{Binding SelectedLeftRun.TranslatedScript, FallbackValue=''}"
+                             NewText="{Binding SelectedRightRun.TranslatedScript, FallbackValue=''}" IsSideBySide="False" />
+
+        <controls:DiffViewer Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+                             OldText="{Binding SelectedLeftRun.TranslatedOutput, FallbackValue=''}"
+                             NewText="{Binding SelectedRightRun.TranslatedOutput, FallbackValue=''}" />
+    </Grid>
+</Window>

@@ -91,8 +91,10 @@ public class PowerShellRun
 
         pipeline.Error.DataReady += (sender, eventArgs) =>
         {
-            errorData = true;
             Collection<object> errorObjects = pipeline.Error.NonBlockingRead();
+            if(errorObjects.Count == 0) return;
+
+            errorData = true;
             foreach (var errorObject in errorObjects)
             {
                 var errorString = errorObject.ToString();

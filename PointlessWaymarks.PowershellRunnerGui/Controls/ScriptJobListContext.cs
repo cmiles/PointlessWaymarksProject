@@ -24,6 +24,31 @@ public partial class ScriptJobListContext
     public List<ScriptJobListListItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
+    [NonBlockingCommand]
+    public async Task DiffRunOutput(ScriptJobListListItem? toEdit)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var db = await PowerShellRunnerContext.CreateInstance();
+        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobId == toEdit.DbEntry.Id)
+            .OrderByDescending(x => x.CompletedOnUtc)
+            .FirstOrDefault();
+
+        if (topRun == null)
+        {
+            StatusContext.ToastWarning("No Runs to Compare?");
+            return;
+        }
+
+        await ScriptJobRunOutputDiffWindow.CreateInstance(topRun.Id, DatabaseFile);
+    }
+
     public static async Task<ScriptJobListContext> CreateInstance(StatusControlContext? statusContext,
         string currentDatabase)
     {
