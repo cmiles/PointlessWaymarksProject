@@ -35,7 +35,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        var db = await PowerShellRunnerContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance();
         var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobId == toEdit.DbEntry.Id)
             .OrderByDescending(x => x.CompletedOnUtc)
             .FirstOrDefault();
@@ -47,6 +47,31 @@ public partial class ScriptJobListContext
         }
 
         await ScriptJobRunOutputDiffWindow.CreateInstance(topRun.Id, DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ShowLastJobRun(ScriptJobListListItem? toEdit)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var db = await PowerShellRunnerDbContext.CreateInstance();
+        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobId == toEdit.DbEntry.Id)
+            .OrderByDescending(x => x.CompletedOnUtc)
+            .FirstOrDefault();
+
+        if (topRun == null)
+        {
+            StatusContext.ToastWarning("No Runs to Compare?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(topRun.Id, DatabaseFile);
     }
 
     public static async Task<ScriptJobListContext> CreateInstance(StatusControlContext? statusContext,
@@ -115,7 +140,7 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await PowerShellRunnerContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance();
         var currentItem = await db.ScriptJobs.SingleAsync(x => x.Id == toDelete.DbEntry.Id);
         var currentId = currentItem.Id;
         var currentRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobId == currentItem.Id).ExecuteDeleteAsync();
@@ -214,7 +239,7 @@ public partial class ScriptJobListContext
         {
             var listItem =
                 Items.SingleOrDefault(x => x.DbEntry.Id == interProcessUpdateNotification.Id);
-            var db = await PowerShellRunnerContext.CreateInstance();
+            var db = await PowerShellRunnerDbContext.CreateInstance();
             var dbItem =
                 await db.ScriptJobs.SingleOrDefaultAsync(x =>
                     x.Id == interProcessUpdateNotification.Id);
@@ -242,7 +267,7 @@ public partial class ScriptJobListContext
 
         DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
-        var db = await PowerShellRunnerContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance();
 
         var jobs = await db.ScriptJobs.ToListAsync();
 

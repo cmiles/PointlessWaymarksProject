@@ -124,6 +124,7 @@
                     <ContextMenu>
                         <MenuItem Header="Edit Job" Command="{Binding EditSelectedJobCommand}"></MenuItem>
                         <MenuItem Header="Diff" Command="{Binding DiffRunOutputCommand}" CommandParameter="{Binding SelectedItem}"></MenuItem>
+                        <MenuItem Header="Last Job" Command="{Binding ShowLastJobRunCommand}" CommandParameter="{Binding SelectedItem}"></MenuItem>
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>

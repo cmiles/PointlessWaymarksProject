@@ -8,34 +8,34 @@ using SQLitePCL;
 
 namespace PointlessWaymarks.PowerShellRunnerData;
 
-public class PowerShellRunnerContext(DbContextOptions<PowerShellRunnerContext> options) : DbContext(options)
+public class PowerShellRunnerDbContext(DbContextOptions<PowerShellRunnerDbContext> options) : DbContext(options)
 {
     public static string CurrentDatabaseFileName = string.Empty;
     public DbSet<PowerShellRunnerSetting> PowerShellRunnerSettings { get; set; } = null!;
     public DbSet<ScriptJobRun> ScriptJobRuns { get; set; } = null!;
     public DbSet<ScriptJob> ScriptJobs { get; set; } = null!;
 
-    public static async Task<PowerShellRunnerContext> CreateInstance()
+    public static async Task<PowerShellRunnerDbContext> CreateInstance()
     {
         return await CreateInstance(CurrentDatabaseFileName);
     }
 
-    public static Task<PowerShellRunnerContext> CreateInstance(string fileName, bool setFileNameAsCurrentDb = true)
+    public static Task<PowerShellRunnerDbContext> CreateInstance(string fileName, bool setFileNameAsCurrentDb = true)
     {
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         Batteries_V2.Init();
         raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
-        var optionsBuilder = new DbContextOptionsBuilder<PowerShellRunnerContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<PowerShellRunnerDbContext>();
 
         optionsBuilder.LogTo(message => Debug.WriteLine(message));
 
         if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 
-        return Task.FromResult(new PowerShellRunnerContext(optionsBuilder
+        return Task.FromResult(new PowerShellRunnerDbContext(optionsBuilder
             .UseSqlite($"Data Source={fileName}").Options));
     }
 
-    public static async Task<PowerShellRunnerContext> CreateInstanceWithEnsureCreated(string fileName,
+    public static async Task<PowerShellRunnerDbContext> CreateInstanceWithEnsureCreated(string fileName,
         bool setFileNameAsCurrentDb = true)
     {
         if (File.Exists(fileName))
@@ -44,7 +44,7 @@ public class PowerShellRunnerContext(DbContextOptions<PowerShellRunnerContext> o
                     rb.AddSQLite()
                         .WithGlobalConnectionString(
                             $"Data Source={fileName}")
-                        .ScanIn(typeof(PowerShellRunnerContext).Assembly).For.Migrations())
+                        .ScanIn(typeof(PowerShellRunnerDbContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
 
             // Instantiate the runner
@@ -67,7 +67,7 @@ public class PowerShellRunnerContext(DbContextOptions<PowerShellRunnerContext> o
     /// <param name="setFileNameAsCurrentDb"></param>
     /// <param name="createFileIfDoesNotExist"></param>
     /// <returns></returns>
-    public static async Task<(bool success, string message, PowerShellRunnerContext? context)> TryCreateInstance(
+    public static async Task<(bool success, string message, PowerShellRunnerDbContext? context)> TryCreateInstance(
         string fileName,
         bool setFileNameAsCurrentDb = true, bool createFileIfDoesNotExist = false)
     {
@@ -92,7 +92,7 @@ public class PowerShellRunnerContext(DbContextOptions<PowerShellRunnerContext> o
                     rb.AddSQLite()
                         .WithGlobalConnectionString(
                             $"Data Source={fileName}")
-                        .ScanIn(typeof(PowerShellRunnerContext).Assembly).For.Migrations())
+                        .ScanIn(typeof(PowerShellRunnerDbContext).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddSerilog()).BuildServiceProvider(false);
 
             using var scope = sc.CreateScope();
@@ -110,13 +110,13 @@ public class PowerShellRunnerContext(DbContextOptions<PowerShellRunnerContext> o
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         Batteries_V2.Init();
         raw.sqlite3_config(2 /*SQLITE_CONFIG_MULTITHREAD*/);
-        var optionsBuilder = new DbContextOptionsBuilder<PowerShellRunnerContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<PowerShellRunnerDbContext>();
 
-        PowerShellRunnerContext? db;
+        PowerShellRunnerDbContext? db;
 
         try
         {
-            db = new PowerShellRunnerContext(optionsBuilder.UseSqlite($"Data Source={fileName}")
+            db = new PowerShellRunnerDbContext(optionsBuilder.UseSqlite($"Data Source={fileName}")
                 .Options);
         }
         catch (Exception e)

@@ -27,7 +27,7 @@ public partial class ScriptProgressWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         string filterDescription;
-        var db = await PowerShellRunnerContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance();
 
         if (jobIdFilter.Count > 0)
         {

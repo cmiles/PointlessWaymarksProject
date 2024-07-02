@@ -8,14 +8,14 @@ public static class PowerShellRunnerDb
     public const string ObfuscationService = "https://pointlesswaymarks.powershellrunner.private";
     public const string ObfuscationServiceAccountKey = "ObfuscationServiceAccountKey";
 
-    public static async Task<string?> ObfuscationAccountName(this PowerShellRunnerContext context)
+    public static async Task<string?> ObfuscationAccountName(this PowerShellRunnerDbContext context)
     {
         var possibleEntry = await context.PowerShellRunnerSettings.FirstOrDefaultAsync(x => x.Key == ObfuscationServiceAccountKey);
 
         return possibleEntry?.Value;
     }
 
-    public static async Task<string> ObfuscationAccountNameWithCreateAsNeeded(this PowerShellRunnerContext context)
+    public static async Task<string> ObfuscationAccountNameWithCreateAsNeeded(this PowerShellRunnerDbContext context)
     {
         //Clear any invalid entries
         var invalidEntries =
@@ -38,7 +38,7 @@ public static class PowerShellRunnerDb
         return (await context.ObfuscationAccountName())!;
     }
 
-    private static async Task SetNewObfuscationAccountName(this PowerShellRunnerContext context)
+    private static async Task SetNewObfuscationAccountName(this PowerShellRunnerDbContext context)
     {
         await context.PowerShellRunnerSettings.Where(x => x.Key == "ObfuscationService").ExecuteDeleteAsync();
 

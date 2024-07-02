@@ -30,11 +30,11 @@ public partial class ScriptJobRunOutputDiffWindow
         PropertyChanged += OnPropertyChanged;
     }
 
-    public required ObservableCollection<ScriptJobOutputDiffRunItem> LeftRuns { get; set; }
+    public required ObservableCollection<ScriptJobRunGuiView> LeftRuns { get; set; }
     public bool RemoveOutputTimeStamp { get; set; } = true;
-    public required ObservableCollection<ScriptJobOutputDiffRunItem> RightRuns { get; set; }
-    public ScriptJobOutputDiffRunItem? SelectedLeftRun { get; set; }
-    public ScriptJobOutputDiffRunItem? SelectedRightRun { get; set; }
+    public required ObservableCollection<ScriptJobRunGuiView> RightRuns { get; set; }
+    public ScriptJobRunGuiView? SelectedLeftRun { get; set; }
+    public ScriptJobRunGuiView? SelectedRightRun { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task CreateInstance(int scriptJobRunId, string databaseFileName)
@@ -43,19 +43,19 @@ public partial class ScriptJobRunOutputDiffWindow
 
         _databaseFile = databaseFileName;
 
-        var db = await PowerShellRunnerContext.CreateInstance(_databaseFile, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile, false);
         _key = await ObfuscationKeyHelpers.GetObfuscationKey(_databaseFile);
         var run = await db.ScriptJobRuns.FindAsync(scriptJobRunId);
-        var runId = run?.ScriptJobId ?? -1;
+        var jobId = run?.ScriptJobId ?? -1;
 
-        var allRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobId == runId)
+        var allRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobId == jobId)
             .OrderByDescending(x => x.CompletedOnUtc).AsNoTracking().ToListAsync();
 
-        var allRunsTranslated = new List<ScriptJobOutputDiffRunItem>();
+        var allRunsTranslated = new List<ScriptJobRunGuiView>();
 
         foreach (var loopRun in allRuns)
         {
-            var toAdd = new ScriptJobOutputDiffRunItem
+            var toAdd = new ScriptJobRunGuiView
             {
                 Id = loopRun.Id,
                 CompletedOnUtc = loopRun.CompletedOnUtc,
@@ -80,11 +80,11 @@ public partial class ScriptJobRunOutputDiffWindow
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var factoryLeftRuns = new ObservableCollection<ScriptJobOutputDiffRunItem>(allRunsTranslated);
-        var factoryRightRuns = new ObservableCollection<ScriptJobOutputDiffRunItem>(allRunsTranslated);
+        var factoryLeftRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
+        var factoryRightRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
 
-        var factorySelectedLeftRun = factoryLeftRuns.FirstOrDefault(x => x.Id == runId);
-        var factorySelectedRightRun = factoryRightRuns.FirstOrDefault(x => x.Id == runId);
+        var factorySelectedLeftRun = factoryLeftRuns.FirstOrDefault(x => x.Id == jobId);
+        var factorySelectedRightRun = factoryRightRuns.FirstOrDefault(x => x.Id == jobId);
         if (factorySelectedRightRun != null)
         {
             var initialIndex = factoryRightRuns.IndexOf(factorySelectedRightRun);

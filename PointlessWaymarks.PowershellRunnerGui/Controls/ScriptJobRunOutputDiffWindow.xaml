@@ -6,6 +6,8 @@
         xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
         xmlns:controls="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
         xmlns:models="clr-namespace:PointlessWaymarks.PowerShellRunnerData.Models;assembly=PointlessWaymarks.PowerShellRunnerData"
+        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         Title="ScriptJobRunOutputDiffWindow" Height="450" Width="800"
         d:DataContext="{d:DesignInstance local:ScriptJobRunOutputDiffWindow}">
@@ -38,7 +40,7 @@
                 <ListBox ItemsSource="{Binding LeftRuns}" SelectionMode="Single"
                          SelectedItem="{Binding SelectedLeftRun}">
                     <ListBox.ItemTemplate>
-                        <DataTemplate DataType="{x:Type local:ScriptJobOutputDiffRunItem}">
+                        <DataTemplate DataType="{x:Type local:ScriptJobRunGuiView}">
                             <Border BorderThickness="1" CornerRadius="2">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -74,7 +76,7 @@
                 <ListBox ItemsSource="{Binding RightRuns}" SelectionMode="Single"
                          SelectedItem="{Binding SelectedRightRun}">
                     <ListBox.ItemTemplate>
-                        <DataTemplate DataType="{x:Type local:ScriptJobOutputDiffRunItem}">
+                        <DataTemplate DataType="{x:Type local:ScriptJobRunGuiView}">
                             <Border BorderThickness="1" CornerRadius="2">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -114,5 +116,21 @@
         <controls:DiffViewer Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
                              OldText="{Binding SelectedLeftRun.TranslatedOutput, FallbackValue=''}"
                              NewText="{Binding SelectedRightRun.TranslatedOutput, FallbackValue=''}" />
+        <status:StatusControl
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Grid.RowSpan="2"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            Margin="2,2,2,6"
+            Width="40"
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Grid.RowSpan="2"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom" />
     </Grid>
 </Window>

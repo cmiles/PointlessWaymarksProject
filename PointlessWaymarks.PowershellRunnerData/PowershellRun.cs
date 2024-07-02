@@ -13,7 +13,7 @@ public class PowerShellRun
 {
     public static async Task<ScriptJobRun?> ExecuteJob(int jobId, string databaseFile, string runType)
     {
-        var db = await PowerShellRunnerContext.CreateInstance(databaseFile, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile, false);
         var job = await db.ScriptJobs.FirstOrDefaultAsync(x => x.Id == jobId);
 
         if (job == null) return null;

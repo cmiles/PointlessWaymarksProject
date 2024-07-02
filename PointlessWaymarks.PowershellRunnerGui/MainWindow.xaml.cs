@@ -107,13 +107,13 @@ public partial class MainWindow
                 FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-PowerShellRunner.db");
             settings.DatabaseFile = newDb!.FullName;
 
-            await PowerShellRunnerContext.CreateInstanceWithEnsureCreated(newDb.FullName);
+            await PowerShellRunnerDbContext.CreateInstanceWithEnsureCreated(newDb.FullName);
 
             await PowerShellRunnerGuiSettingTools.WriteSettings(settings);
         }
         else
         {
-            await PowerShellRunnerContext.CreateInstance(settings.DatabaseFile);
+            await PowerShellRunnerDbContext.CreateInstance(settings.DatabaseFile);
         }
 
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext);

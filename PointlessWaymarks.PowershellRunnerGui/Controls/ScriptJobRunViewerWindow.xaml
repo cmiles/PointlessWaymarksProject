@@ -4,9 +4,28 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
+        xmlns:controls="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
+        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="ScriptJobRunViewerWindow" Height="450" Width="800">
+        Title="ScriptJobRunViewerWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance local:ScriptJobRunViewerWindow}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
-        
+        <local:ScriptJobRunViewerControl DataContext="{Binding JobRunContext}"></local:ScriptJobRunViewerControl>
+        <status:StatusControl
+            Grid.Row="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            Margin="2,2,2,6"
+            Width="40"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom" />
     </Grid>
 </Window>

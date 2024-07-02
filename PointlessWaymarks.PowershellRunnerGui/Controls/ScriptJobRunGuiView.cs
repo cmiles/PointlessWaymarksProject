@@ -3,7 +3,7 @@ using PointlessWaymarks.LlamaAspects;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
-public class ScriptJobOutputDiffRunItem
+public class ScriptJobRunGuiView
 {
     public DateTime? CompletedOn { get; set; }
     public DateTime? CompletedOnUtc { get; set; }

@@ -4,6 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:powerShellEditor="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.PowerShellEditor"
+             xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance local:ScriptJobRunViewerContext}">
@@ -16,47 +19,57 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel>
             <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding Job.Name, StringFormat='Job: {0}'}"></TextBox>
-            <WrapPanel>
+            <StackPanel>
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding Job.Description, StringFormat='Description: {0}'}">
+                         Text="{Binding Job.Description, StringFormat='Job: {0}'}">
                 </TextBox>
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding Job.Schedule, StringFormat='Schedule: {0}'}">
+                         Text="{Binding RunView.StartedOn, StringFormat='Started On: {0:G}'}">
                 </TextBox>
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding StartedOnLocal, StringFormat='Started On: {0:G}'}">
+                         Text="{Binding RunView.CompletedOn, FallbackValue='(Not ManipulationCompleted)', StringFormat='Completed: {0:G}'}">
                 </TextBox>
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding CompletedOnLocal, StringFormat='Completed: {0:G}'}">
+                         Text="{Binding RunView.Id, StringFormat='Job Id: {0}'}">
                 </TextBox>
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding Run.Id, StringFormat='Job Id: {0}'}">
+                         Text="{Binding RunView.RunType, StringFormat='Run Type: {0}'}">
                 </TextBox>
-                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding Run.RunType, StringFormat='Run Type: {0}'}">
+                <TextBox Text="{Binding RunView.Errors, StringFormat='Errors: {0}'}">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource ReadOnlyTextBoxStyle}" TargetType="TextBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding RunView.Errors}" Value="True">
+                                    <Setter Property="Foreground" Value="Red"></Setter>
+                                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
                 </TextBox>
-            </WrapPanel>
+            </StackPanel>
         </StackPanel>
         <Grid Grid.Row="1">
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" AcceptsReturn="True" TextWrapping="Wrap"
-                     Text="{Binding Run.Script}">
-            </TextBox>
+            <avalonedit:TextEditor
+                Name="TextEditor"
+                HorizontalScrollBarVisibility="Disabled"
+                SyntaxHighlighting="PowerShell"
+                IsReadOnly="True">
+                <b:Interaction.Behaviors>
+                    <powerShellEditor:AvalonEditRenderedStringBindingBehaviour
+                        RenderedText="{Binding RunView.TranslatedScript, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                </b:Interaction.Behaviors>
+            </avalonedit:TextEditor>
         </Grid>
         <Grid Grid.Row="2">
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" AcceptsReturn="True" TextWrapping="Wrap"
-                     Text="{Binding Run.Errors}">
-            </TextBox>
-        </Grid>
-        <Grid Grid.Row="3">
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" AcceptsReturn="True" TextWrapping="Wrap"
-                     Text="{Binding Run.Output}">
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" VerticalScrollBarVisibility="Visible" AcceptsReturn="True" TextWrapping="Wrap"
+                     Text="{Binding RunView.TranslatedOutput}">
             </TextBox>
         </Grid>
     </Grid>

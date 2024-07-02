@@ -197,7 +197,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         var obfuscationKey = await ObfuscationKeyHelpers.GetObfuscationKey(DatabaseFile);
 
-        var db = await PowerShellRunnerContext.CreateInstance(DatabaseFile, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(DatabaseFile, false);
 
         var newEntry = false;
 

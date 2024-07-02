@@ -32,7 +32,7 @@ public partial class ScriptJobListListItem
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var db = await PowerShellRunnerContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance();
         var recentRuns = await db.ScriptJobRuns
             .Where(x => x.ScriptJobId == dbEntry.Id)
             .OrderBy(x => x.CompletedOnUtc == null)
