@@ -36,7 +36,7 @@ public partial class ScriptJobListContext
         }
 
         var db = await PowerShellRunnerDbContext.CreateInstance();
-        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobId == toEdit.DbEntry.Id)
+        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toEdit.DbEntry.PersistentId)
             .OrderByDescending(x => x.CompletedOnUtc)
             .FirstOrDefault();
 
@@ -46,7 +46,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await ScriptJobRunOutputDiffWindow.CreateInstance(topRun.Id, DatabaseFile);
+        await ScriptJobRunOutputDiffWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
     }
 
     [NonBlockingCommand]
@@ -61,7 +61,7 @@ public partial class ScriptJobListContext
         }
 
         var db = await PowerShellRunnerDbContext.CreateInstance();
-        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobId == toEdit.DbEntry.Id)
+        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toEdit.DbEntry.PersistentId)
             .OrderByDescending(x => x.CompletedOnUtc)
             .FirstOrDefault();
 
@@ -71,7 +71,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await ScriptJobRunViewerWindow.CreateInstance(topRun.Id, DatabaseFile);
+        await ScriptJobRunViewerWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
     }
 
     public static async Task<ScriptJobListContext> CreateInstance(StatusControlContext? statusContext,
@@ -143,7 +143,7 @@ public partial class ScriptJobListContext
         var db = await PowerShellRunnerDbContext.CreateInstance();
         var currentItem = await db.ScriptJobs.SingleAsync(x => x.Id == toDelete.DbEntry.Id);
         var currentId = currentItem.Id;
-        var currentRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobId == currentItem.Id).ExecuteDeleteAsync();
+        var currentRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == currentItem.PersistentId).ExecuteDeleteAsync();
 
         db.ScriptJobs.Remove(currentItem);
         await db.SaveChangesAsync();
@@ -224,7 +224,7 @@ public partial class ScriptJobListContext
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var toRemove = Items.Where(x => x.DbEntry.Id == interProcessUpdateNotification.Id)
+            var toRemove = Items.Where(x => x.DbEntry.PersistentId == interProcessUpdateNotification.Id)
                 .ToList();
             toRemove.ForEach(x => Items.Remove(x));
             return;
@@ -238,11 +238,11 @@ public partial class ScriptJobListContext
             })
         {
             var listItem =
-                Items.SingleOrDefault(x => x.DbEntry.Id == interProcessUpdateNotification.Id);
+                Items.SingleOrDefault(x => x.DbEntry.PersistentId == interProcessUpdateNotification.Id);
             var db = await PowerShellRunnerDbContext.CreateInstance();
             var dbItem =
                 await db.ScriptJobs.SingleOrDefaultAsync(x =>
-                    x.Id == interProcessUpdateNotification.Id);
+                    x.PersistentId == interProcessUpdateNotification.Id);
 
             if (dbItem == null) return;
 
@@ -291,6 +291,6 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await PowerShellRun.ExecuteJob(SelectedItem.DbEntry.Id, DatabaseFile, "Run From PowerShell Runner Gui");
+        await PowerShellRun.ExecuteJob(SelectedItem.DbEntry.PersistentId, DatabaseFile, "Run From PowerShell Runner Gui");
     }
 }

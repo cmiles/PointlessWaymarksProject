@@ -18,8 +18,8 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [StaThreadConstructorGuard]
 public partial class ScriptJobRunOutputDiffWindow
 {
-    private static string _databaseFile = string.Empty;
-    private static string _key = string.Empty;
+    private string _databaseFile = string.Empty;
+    private string _key = string.Empty;
 
     public ScriptJobRunOutputDiffWindow()
     {
@@ -37,18 +37,16 @@ public partial class ScriptJobRunOutputDiffWindow
     public ScriptJobRunGuiView? SelectedRightRun { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
-    public static async Task CreateInstance(int scriptJobRunId, string databaseFileName)
+    public static async Task CreateInstance(Guid scriptJobRunId, string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        _databaseFile = databaseFileName;
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile, false);
+        var key = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
+        var run = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
+        var jobId = run?.ScriptJobPersistentId ?? Guid.Empty;
 
-        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile, false);
-        _key = await ObfuscationKeyHelpers.GetObfuscationKey(_databaseFile);
-        var run = await db.ScriptJobRuns.FindAsync(scriptJobRunId);
-        var jobId = run?.ScriptJobId ?? -1;
-
-        var allRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobId == jobId)
+        var allRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == jobId)
             .OrderByDescending(x => x.CompletedOnUtc).AsNoTracking().ToListAsync();
 
         var allRunsTranslated = new List<ScriptJobRunGuiView>();
@@ -62,13 +60,14 @@ public partial class ScriptJobRunOutputDiffWindow
                 CompletedOn = loopRun.CompletedOnUtc?.ToLocalTime(),
                 Errors = loopRun.Errors,
                 Output = loopRun.Output,
+                PersistentId = loopRun.PersistentId,
                 RunType = loopRun.RunType,
                 Script = loopRun.Script,
                 StartedOnUtc = loopRun.StartedOnUtc,
                 StartedOn = loopRun.StartedOnUtc.ToLocalTime(),
-                ScriptJobId = loopRun.ScriptJobId,
-                TranslatedOutput = loopRun.Output.Decrypt(_key),
-                TranslatedScript = loopRun.Script.Decrypt(_key)
+                ScriptJobId = loopRun.ScriptJobPersistentId,
+                TranslatedOutput = loopRun.Output.Decrypt(key),
+                TranslatedScript = loopRun.Script.Decrypt(key)
             };
 
             toAdd.TranslatedOutput = Regex.Replace(toAdd.TranslatedOutput,
@@ -83,8 +82,8 @@ public partial class ScriptJobRunOutputDiffWindow
         var factoryLeftRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
         var factoryRightRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
 
-        var factorySelectedLeftRun = factoryLeftRuns.FirstOrDefault(x => x.Id == jobId);
-        var factorySelectedRightRun = factoryRightRuns.FirstOrDefault(x => x.Id == jobId);
+        var factorySelectedLeftRun = factoryLeftRuns.FirstOrDefault(x => x.PersistentId == jobId);
+        var factorySelectedRightRun = factoryRightRuns.FirstOrDefault(x => x.PersistentId == jobId);
         if (factorySelectedRightRun != null)
         {
             var initialIndex = factoryRightRuns.IndexOf(factorySelectedRightRun);
@@ -101,7 +100,9 @@ public partial class ScriptJobRunOutputDiffWindow
             LeftRuns = factoryLeftRuns,
             RightRuns = factoryRightRuns,
             SelectedLeftRun = factorySelectedLeftRun,
-            SelectedRightRun = factorySelectedRightRun
+            SelectedRightRun = factorySelectedRightRun,
+            _key = key,
+            _databaseFile = databaseFile
         };
 
         await window.PositionWindowAndShowOnUiThread();

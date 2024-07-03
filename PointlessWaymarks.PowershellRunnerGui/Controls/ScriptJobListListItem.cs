@@ -34,7 +34,7 @@ public partial class ScriptJobListListItem
 
         var db = await PowerShellRunnerDbContext.CreateInstance();
         var recentRuns = await db.ScriptJobRuns
-            .Where(x => x.ScriptJobId == dbEntry.Id)
+            .Where(x => x.ScriptJobPersistentId == dbEntry.PersistentId)
             .OrderBy(x => x.CompletedOnUtc == null)
             .ThenByDescending(x => x.CompletedOnUtc)
             .Take(10)
@@ -69,27 +69,27 @@ public partial class ScriptJobListListItem
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
-        if (arg.ScriptJobId != DbEntry.Id) return;
+        if (arg.ScriptJobPersistentId != DbEntry.PersistentId) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         LastProgressItem = new ScriptProgressMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
         };
     }
 
     private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)
     {
-        if (arg.ScriptJobId != DbEntry.Id) return;
+        if (arg.ScriptJobId != DbEntry.PersistentId) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         LastProgressItem = new ScriptStateMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobId, ScriptJobRunPersistentId = arg.ScriptJobRunId, State = arg.State
         };
     }
 }

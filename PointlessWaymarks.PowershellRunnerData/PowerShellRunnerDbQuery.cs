@@ -3,7 +3,7 @@ using PointlessWaymarks.PowerShellRunnerData.Models;
 
 namespace PointlessWaymarks.PowerShellRunnerData;
 
-public static class PowerShellRunnerDb
+public static class PowerShellRunnerDbQuery
 {
     public const string ObfuscationService = "https://pointlesswaymarks.powershellrunner.private";
     public const string ObfuscationServiceAccountKey = "ObfuscationServiceAccountKey";

@@ -15,8 +15,8 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [GenerateStatusCommands]
 public partial class ArbitraryScriptRunnerContext
 {
-    private readonly int _scriptJobId = -888;
-    private readonly int _scriptRunId = -999;
+    private readonly Guid _scriptJobId = Guid.NewGuid();
+    private readonly Guid _scriptRunId = Guid.NewGuid();
 
     public ArbitraryScriptRunnerContext()
     {
@@ -48,7 +48,8 @@ public partial class ArbitraryScriptRunnerContext
 
         factoryContext.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = factoryContext.DataNotificationReceived };
+        factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
+            { Processor = factoryContext.DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += factoryContext.OnDataNotificationReceived;
 
         return factoryContext;
@@ -82,14 +83,14 @@ public partial class ArbitraryScriptRunnerContext
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
-        if (arg.ScriptJobId != _scriptJobId || arg.ScriptJobRunId != _scriptRunId) return;
+        if (arg.ScriptJobPersistentId != _scriptJobId || arg.ScriptJobRunPersistentId != _scriptRunId) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items.Add(new ScriptProgressMessageItem()
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
         });
 
         if (Items.Count > 1200)
@@ -108,7 +109,7 @@ public partial class ArbitraryScriptRunnerContext
         Items.Add(new ScriptStateMessageItem()
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobId, ScriptJobRunPersistentId = arg.ScriptJobRunId, State = arg.State
         });
     }
 
@@ -125,7 +126,8 @@ public partial class ArbitraryScriptRunnerContext
 
         try
         {
-            await PowerShellRun.ExecuteScript(UserScriptEntryContext.UserValue, _scriptJobId, _scriptRunId, "Arbitrary Script");
+            await PowerShellRun.ExecuteScript(UserScriptEntryContext.UserValue, _scriptJobId, _scriptRunId,
+                "Arbitrary Script");
         }
         catch (Exception e)
         {

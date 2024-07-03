@@ -6,8 +6,9 @@ public class ScriptJobRun
     public bool Errors { get; set; }
     public int Id { get; set; }
     public string Output { get; set; } = string.Empty;
+    public Guid PersistentId { get; set; }
     public string RunType { get; set; } = string.Empty;
     public string Script { get; set; } = string.Empty;
-    public int ScriptJobId { get; set; }
+    public Guid ScriptJobPersistentId { get; set; }
     public DateTime StartedOnUtc { get; set; }
 }

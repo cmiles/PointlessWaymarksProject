@@ -22,7 +22,7 @@ public partial class ScriptProgressWindow
     public ScriptProgressContext? ProgressContext { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
-    public async Task<ScriptProgressWindow> CreateInstance(List<int> jobIdFilter, List<int> runIdFilter)
+    public async Task<ScriptProgressWindow> CreateInstance(List<Guid> jobIdFilter, List<Guid> runIdFilter)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -31,13 +31,13 @@ public partial class ScriptProgressWindow
 
         if (jobIdFilter.Count > 0)
         {
-            var possibleJobs = await db.ScriptJobs.Where(x => jobIdFilter.Contains(x.Id)).ToListAsync();
+            var possibleJobs = await db.ScriptJobs.Where(x => jobIdFilter.Contains(x.PersistentId)).ToListAsync();
             filterDescription = string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name));
 
             if (runIdFilter.Count > 0)
             {
                 var possibleRuns = await db.ScriptJobRuns
-                    .Where(x => runIdFilter.Contains(x.Id) && jobIdFilter.Contains(x.ScriptJobId)).ToListAsync();
+                    .Where(x => runIdFilter.Contains(x.PersistentId) && jobIdFilter.Contains(x.ScriptJobPersistentId)).ToListAsync();
                 filterDescription += " - Runs " + string.Join(", ",
                     possibleRuns.OrderBy(x => x.StartedOnUtc).Select(x => $"Id {x.Id} Started {x.StartedOnUtc}"));
             }
@@ -52,7 +52,7 @@ public partial class ScriptProgressWindow
 
             if (runIdFilter.Count > 0)
             {
-                var possibleRuns = await db.ScriptJobRuns.Where(x => runIdFilter.Contains(x.Id)).ToListAsync();
+                var possibleRuns = await db.ScriptJobRuns.Where(x => runIdFilter.Contains(x.PersistentId)).ToListAsync();
                 filterDescription += " - Runs " + string.Join(", ",
                     possibleRuns.OrderBy(x => x.StartedOnUtc).Select(x => $"Id {x.Id} Started {x.StartedOnUtc}"));
             }

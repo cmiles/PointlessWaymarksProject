@@ -6,8 +6,8 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [NotifyPropertyChanged]
 public partial class ScriptProgressMessageItem : IPowerShellProgress
 {
-    public int ScriptJobId { get; set; }
-    public int ScriptJobRunId { get; set; }
+    public Guid ScriptJobPersistentId { get; set; }
+    public Guid ScriptJobRunPersistentId { get; set; }
     public string? Sender { get; set; }
     public string Message { get; set; } = string.Empty;
     public DateTime ReceivedOn { get; set; }
@@ -22,8 +22,8 @@ public interface IPowerShellProgress
 [NotifyPropertyChanged]
 public partial class ScriptStateMessageItem : IPowerShellProgress
 {
-    public int ScriptJobId { get; set; }
-    public int ScriptJobRunId { get; set; }
+    public Guid ScriptJobPersistentId { get; set; }
+    public Guid ScriptJobRunPersistentId { get; set; }
     public string? Sender { get; set; }
     public PipelineState State { get; set; }
     public string Message { get; set; } = string.Empty;

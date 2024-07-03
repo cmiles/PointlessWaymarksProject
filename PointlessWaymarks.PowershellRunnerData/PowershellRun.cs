@@ -11,14 +11,14 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 
 public class PowerShellRun
 {
-    public static async Task<ScriptJobRun?> ExecuteJob(int jobId, string databaseFile, string runType)
+    public static async Task<ScriptJobRun?> ExecuteJob(Guid jobId, string databaseFile, string runType)
     {
         var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile, false);
-        var job = await db.ScriptJobs.FirstOrDefaultAsync(x => x.Id == jobId);
+        var job = await db.ScriptJobs.FirstOrDefaultAsync(x => x.PersistentId == jobId);
 
         if (job == null) return null;
 
-        var run = new ScriptJobRun { ScriptJobId = job.Id, StartedOnUtc = DateTime.UtcNow, Script = job.Script, RunType = runType };
+        var run = new ScriptJobRun { ScriptJobPersistentId = job.PersistentId, PersistentId = Guid.NewGuid(), StartedOnUtc = DateTime.UtcNow, Script = job.Script, RunType = runType };
         var obfuscationKey = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
 
         db.ScriptJobRuns.Add(run);
@@ -28,7 +28,7 @@ public class PowerShellRun
 
         try
         {
-            result = await ExecuteScript(job.Script.Decrypt(obfuscationKey), job.Id, run.Id, job.Name);
+            result = await ExecuteScript(job.Script.Decrypt(obfuscationKey), job.PersistentId, run.PersistentId, job.Name);
 
             run.CompletedOnUtc = DateTime.UtcNow;
             run.Output = string.Join(Environment.NewLine, result.Value.runLog).Encrypt(obfuscationKey);
@@ -51,7 +51,7 @@ public class PowerShellRun
         return run;
     }
 
-    public static async Task<(bool errors, List<string> runLog)> ExecuteScript(string toInvoke, int jobId, int runId,
+    public static async Task<(bool errors, List<string> runLog)> ExecuteScript(string toInvoke, Guid jobId, Guid runId,
         string identifier)
     {
         // create Powershell runspace
@@ -68,7 +68,7 @@ public class PowerShellRun
         var returnLog = new ConcurrentBag<(DateTime, string)>();
         var errorData = false;
 
-        pipeline.Output.DataReady += (sender, eventArgs) =>
+        pipeline.Output.DataReady += (_, _) =>
         {
             Collection<PSObject> psObjects = pipeline.Output.NonBlockingRead();
             foreach (var psObject in psObjects)
@@ -79,7 +79,7 @@ public class PowerShellRun
             }
         };
 
-        pipeline.StateChanged += (sender, eventArgs) =>
+        pipeline.StateChanged += (_, eventArgs) =>
         {
             returnLog.Add((DateTime.UtcNow,
                 $"{DateTime.Now:G}>> State: {eventArgs.PipelineStateInfo.State} {eventArgs.PipelineStateInfo.Reason?.ToString() ?? string.Empty}"));
@@ -89,7 +89,7 @@ public class PowerShellRun
                 eventArgs.PipelineStateInfo.Reason?.ToString() ?? string.Empty);
         };
 
-        pipeline.Error.DataReady += (sender, eventArgs) =>
+        pipeline.Error.DataReady += (_, _) =>
         {
             Collection<object> errorObjects = pipeline.Error.NonBlockingRead();
             if(errorObjects.Count == 0) return;

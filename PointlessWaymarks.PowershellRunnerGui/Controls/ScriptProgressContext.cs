@@ -18,14 +18,14 @@ public partial class ScriptProgressContext
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<IPowerShellProgress> Items { get; set; }
-    public List<int> ScriptJobIdFilter { get; set; } = [];
-    public List<int> ScriptJobRunIdFilter { get; set; } = [];
+    public List<Guid> ScriptJobIdFilter { get; set; } = [];
+    public List<Guid> ScriptJobRunIdFilter { get; set; } = [];
     public IPowerShellProgress? SelectedItem { get; set; }
     public List<IPowerShellProgress> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<ScriptProgressContext> CreateInstance(StatusControlContext? context,
-        List<int> jobIdFilter, List<int> runIdFilter)
+        List<Guid> jobIdFilter, List<Guid> runIdFilter)
     {
         var factoryContext = context ?? new StatusControlContext();
 
@@ -86,15 +86,15 @@ public partial class ScriptProgressContext
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
-        if (ScriptJobIdFilter.Any() && !ScriptJobIdFilter.Contains(arg.ScriptJobId)) return;
-        if (ScriptJobRunIdFilter.Any() && !ScriptJobRunIdFilter.Contains(arg.ScriptJobRunId)) return;
+        if (ScriptJobIdFilter.Any() && !ScriptJobIdFilter.Contains(arg.ScriptJobPersistentId)) return;
+        if (ScriptJobRunIdFilter.Any() && !ScriptJobRunIdFilter.Contains(arg.ScriptJobRunPersistentId)) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items.Add(new ScriptProgressMessageItem()
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
         });
 
         if (Items.Count > 1200)
@@ -111,7 +111,7 @@ public partial class ScriptProgressContext
         Items.Add(new ScriptStateMessageItem()
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobId = arg.ScriptJobId, ScriptJobRunId = arg.ScriptJobRunId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobId, ScriptJobRunPersistentId = arg.ScriptJobRunId, State = arg.State
         });
     }
 }

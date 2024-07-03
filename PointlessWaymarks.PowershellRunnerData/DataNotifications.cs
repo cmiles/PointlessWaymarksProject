@@ -66,7 +66,8 @@ public static class DataNotifications
             $"PowershellData|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{id}");
     }
 
-    public static void PublishPowershellProgressNotification(string sender, int scheduleId, int runId, string progress)
+    public static void PublishPowershellProgressNotification(string sender, Guid scriptJobId, Guid runId,
+        string progress)
     {
         if (SuspendNotifications) return;
 
@@ -74,10 +75,11 @@ public static class DataNotifications
         var cleanedProgress = string.IsNullOrWhiteSpace(progress) ? "..." : progress.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"PowershellProgress|{cleanedSender.Replace("|", " ")}|{scheduleId}|{runId}|{cleanedProgress.Replace("|", " ")}");
+            $"PowershellProgress|{cleanedSender.Replace("|", " ")}|{scriptJobId}|{runId}|{cleanedProgress.Replace("|", " ")}");
     }
 
-    public static void PublishPowershellStateNotification(string sender, int scheduleId, int runId, PipelineState state,
+    public static void PublishPowershellStateNotification(string sender, Guid scriptJobId, Guid runId,
+        PipelineState state,
         string reason)
     {
         if (SuspendNotifications) return;
@@ -86,7 +88,7 @@ public static class DataNotifications
         var cleanedProgress = string.IsNullOrWhiteSpace(reason) ? string.Empty : reason.Trim();
 
         SendMessageQueue.Enqueue(
-            $"PowershellState|{cleanedSender.Replace("|", " ")}|{scheduleId}|{runId}|{state}|{cleanedProgress.Replace("|", " ")}");
+            $"PowershellState|{cleanedSender.Replace("|", " ")}|{scriptJobId}|{runId}|{state}|{cleanedProgress.Replace("|", " ")}");
     }
 
     public static OneOf<InterProcessDataNotification, InterProcessPowershellProgressNotification,
@@ -121,17 +123,19 @@ public static class DataNotifications
                     Sender = parsedString[1],
                     ContentType = (DataNotificationContentType)int.Parse(parsedString[2]),
                     UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[3]),
-                    Id = int.TryParse(parsedString[4], out var parsedBatchId) ? parsedBatchId : -1
+                    Id = Guid.TryParse(parsedString[4], out var parsedBatchId) ? parsedBatchId : Guid.Empty
                 };
 
             if (parsedString[0].Equals("PowershellProgress"))
                 return new InterProcessPowershellProgressNotification
                 {
                     Sender = parsedString[1],
-                    ScriptJobId = int.TryParse(parsedString[2], out var parsedRunScheduleId)
+                    ScriptJobPersistentId = Guid.TryParse(parsedString[2], out var parsedRunScheduleId)
                         ? parsedRunScheduleId
-                        : -1,
-                    ScriptJobRunId = int.TryParse(parsedString[3], out var parsedRunResultId) ? parsedRunResultId : -1,
+                        : Guid.Empty,
+                    ScriptJobRunPersistentId = Guid.TryParse(parsedString[3], out var parsedRunResultId)
+                        ? parsedRunResultId
+                        : Guid.Empty,
                     ProgressMessage = parsedString[4]
                 };
 
@@ -139,10 +143,12 @@ public static class DataNotifications
                 return new InterProcessPowershellStateNotification
                 {
                     Sender = parsedString[1],
-                    ScriptJobId = int.TryParse(parsedString[2], out var parsedRunScheduleId)
+                    ScriptJobId = Guid.TryParse(parsedString[2], out var parsedRunScheduleId)
                         ? parsedRunScheduleId
-                        : -1,
-                    ScriptJobRunId = int.TryParse(parsedString[3], out var parsedRunResultId) ? parsedRunResultId : -1,
+                        : Guid.Empty,
+                    ScriptJobRunId = Guid.TryParse(parsedString[3], out var parsedRunResultId)
+                        ? parsedRunResultId
+                        : Guid.Empty,
                     State = Enum.Parse<PipelineState>(parsedString[4]),
                     ProgressMessage = parsedString[5]
                 };
@@ -158,7 +164,7 @@ public static class DataNotifications
     public record InterProcessDataNotification
     {
         public DataNotificationContentType ContentType { get; init; }
-        public int Id { get; init; }
+        public Guid Id { get; init; }
         public string? Sender { get; init; }
         public DataNotificationUpdateType UpdateType { get; init; }
     }
@@ -171,16 +177,16 @@ public static class DataNotifications
     public record InterProcessPowershellProgressNotification
     {
         public string ProgressMessage { get; init; } = string.Empty;
-        public int ScriptJobId { get; init; }
-        public int ScriptJobRunId { get; init; }
+        public Guid ScriptJobPersistentId { get; init; }
+        public Guid ScriptJobRunPersistentId { get; init; }
         public string? Sender { get; init; }
     }
 
     public record InterProcessPowershellStateNotification
     {
         public string ProgressMessage { get; init; } = string.Empty;
-        public int ScriptJobId { get; init; }
-        public int ScriptJobRunId { get; init; }
+        public Guid ScriptJobId { get; init; }
+        public Guid ScriptJobRunId { get; init; }
         public string? Sender { get; init; }
         public PipelineState State { get; set; }
     }

@@ -15,7 +15,7 @@ public static class ObfuscationKeyHelpers
                 "No Obfuscation Account Name found in the database - cannot retrieve Obfuscation Key. Restart the program???");
 
         var store = CredentialManager.Create();
-        var obfuscationKey = store.Get(PowerShellRunnerDb.ObfuscationService, account);
+        var obfuscationKey = store.Get(PowerShellRunnerDbQuery.ObfuscationService, account);
 
         if (obfuscationKey == null || string.IsNullOrWhiteSpace(obfuscationKey.Password))
             throw new Exception(

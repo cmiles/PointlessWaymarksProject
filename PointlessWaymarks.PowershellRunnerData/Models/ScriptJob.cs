@@ -7,6 +7,7 @@ public class ScriptJob
     public int Id { get; set; }
     public DateTime LastEditOn { get; set; }
     public string Name { get; set; } = string.Empty;
+    public Guid PersistentId { get; set; }
     public bool ScheduleEnabled { get; set; }
     public string Script { get; set; } = string.Empty;
 }

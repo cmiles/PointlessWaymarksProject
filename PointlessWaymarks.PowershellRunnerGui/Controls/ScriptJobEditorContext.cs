@@ -205,7 +205,10 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         if (toSave == null)
         {
             newEntry = true;
-            toSave = new ScriptJob();
+            toSave = new ScriptJob
+            {
+                PersistentId = Guid.NewGuid()
+            };
             db.ScriptJobs.Add(toSave);
         }
 

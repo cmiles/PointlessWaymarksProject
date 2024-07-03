@@ -19,7 +19,7 @@ public static class ObfuscationKeyGuiHelpers
         var account = await db.ObfuscationAccountNameWithCreateAsNeeded();
 
         var store = CredentialManager.Create();
-        var obfuscationKey = store.Get(PowerShellRunnerDb.ObfuscationService, account);
+        var obfuscationKey = store.Get(PowerShellRunnerDbQuery.ObfuscationService, account);
 
         if (obfuscationKey == null || string.IsNullOrWhiteSpace(obfuscationKey.Password))
         {
@@ -32,7 +32,7 @@ public static class ObfuscationKeyGuiHelpers
                     "Please enter a non-blank key to use to obfuscate your PowerShell Scripts and Run Information in the database. This key is required for the program and you will need to remember this key - please consider entering it into your password manager...",
                     string.Empty);
 
-            store.AddOrUpdate(PowerShellRunnerDb.ObfuscationService, account, userObfuscationKeyResponse.Item2.Trim());
+            store.AddOrUpdate(PowerShellRunnerDbQuery.ObfuscationService, account, userObfuscationKeyResponse.Item2.Trim());
 
             return userObfuscationKeyResponse.Item2.Trim();
         }

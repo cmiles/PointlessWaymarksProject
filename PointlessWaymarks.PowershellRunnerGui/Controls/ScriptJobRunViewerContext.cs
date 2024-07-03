@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
@@ -10,28 +11,26 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [NotifyPropertyChanged]
 public partial class ScriptJobRunViewerContext
 {
-    private static string _databaseFile = string.Empty;
-    private static string _key = string.Empty;
+    private string _databaseFile = string.Empty;
+    private string _key = string.Empty;
     public ScriptJob? Job { get; set; }
     public ScriptJobRun? Run { get; set; }
     public ScriptJobRunGuiView? RunView { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<ScriptJobRunViewerContext> CreateInstance(StatusControlContext? statusContext,
-        int scriptJobRunId, string databaseFile)
+        Guid scriptJobRunId, string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        _databaseFile = databaseFile;
-
-        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile, false);
-        _key = await ObfuscationKeyHelpers.GetObfuscationKey(_databaseFile);
-        var run = await db.ScriptJobRuns.FindAsync(scriptJobRunId);
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile, false);
+        var key = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
+        var run = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
 
         if (run != null)
         {
-            var jobId = run.ScriptJobId;
-            var job = await db.ScriptJobs.FindAsync(jobId);
+            var jobId = run.ScriptJobPersistentId;
+            var job = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == jobId);
 
             var toAdd = new ScriptJobRunGuiView
             {
@@ -44,9 +43,9 @@ public partial class ScriptJobRunViewerContext
                 Script = run.Script,
                 StartedOnUtc = run.StartedOnUtc,
                 StartedOn = run.StartedOnUtc.ToLocalTime(),
-                ScriptJobId = run.ScriptJobId,
-                TranslatedOutput = run.Output.Decrypt(_key),
-                TranslatedScript = run.Script.Decrypt(_key)
+                ScriptJobId = run.ScriptJobPersistentId,
+                TranslatedOutput = run.Output.Decrypt(key),
+                TranslatedScript = run.Script.Decrypt(key)
             };
 
             var toReturn = new ScriptJobRunViewerContext
@@ -54,7 +53,9 @@ public partial class ScriptJobRunViewerContext
                 StatusContext = statusContext ?? new StatusControlContext(),
                 Run = run,
                 Job = job,
-                RunView = toAdd
+                RunView = toAdd,
+                _key = key,
+                _databaseFile = databaseFile
             };
 
             return toReturn;

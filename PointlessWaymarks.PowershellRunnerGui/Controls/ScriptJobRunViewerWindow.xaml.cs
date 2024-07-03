@@ -1,4 +1,5 @@
 using System.Windows;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
@@ -11,7 +12,7 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 ///     Interaction logic for ScriptJobRunViewerWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
-public partial class ScriptJobRunViewerWindow : Window
+public partial class ScriptJobRunViewerWindow
 {
     public ScriptJobRunViewerWindow()
     {
@@ -24,18 +25,18 @@ public partial class ScriptJobRunViewerWindow : Window
     public required StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; } = string.Empty;
 
-    public static async Task CreateInstance(int scriptJobRunId, string databaseFile)
+    public static async Task CreateInstance(Guid scriptJobRunId, string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await PowerShellRunnerDbContext.CreateInstance();
-        var jobRun = await db.ScriptJobRuns.FindAsync(scriptJobRunId);
+        var jobRun = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
 
         var windowTitle = "Script Job Run Viewer";
 
         if (jobRun != null)
         {
-            var job = await db.ScriptJobs.FindAsync(jobRun.ScriptJobId);
+            var job = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == jobRun.ScriptJobPersistentId);
             windowTitle = $"Job Script Run {jobRun.Id} - {jobRun.StartedOnUtc.ToLocalTime()} - Job: {job?.Name}";
         }
 
