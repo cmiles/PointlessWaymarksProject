@@ -5,12 +5,28 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 
 public static class PowerShellRunnerDbQuery
 {
+    public const string DbPersistentIdSettingsKey = "DbPersistentIdSettingsKey";
     public const string ObfuscationService = "https://pointlesswaymarks.powershellrunner.private";
-    public const string ObfuscationServiceAccountKey = "ObfuscationServiceAccountKey";
+    public const string ObfuscationServiceAccountSettingsKey = "ObfuscationServiceAccountSettingsKey";
+
+    public static async Task<Guid> DbId(this PowerShellRunnerDbContext context)
+    {
+        var keyValuePair = await context.PowerShellRunnerSettings.SingleAsync(x => x.Key == DbPersistentIdSettingsKey);
+
+        return Guid.Parse(keyValuePair.Value);
+    }
+
+    public static async Task<Guid> DbId(string dbFileName)
+    {
+        var db = await PowerShellRunnerDbContext.CreateInstance(dbFileName);
+        return await db.DbId();
+    }
 
     public static async Task<string?> ObfuscationAccountName(this PowerShellRunnerDbContext context)
     {
-        var possibleEntry = await context.PowerShellRunnerSettings.FirstOrDefaultAsync(x => x.Key == ObfuscationServiceAccountKey);
+        var possibleEntry =
+            await context.PowerShellRunnerSettings.FirstOrDefaultAsync(x =>
+                x.Key == ObfuscationServiceAccountSettingsKey);
 
         return possibleEntry?.Value;
     }
@@ -19,7 +35,8 @@ public static class PowerShellRunnerDbQuery
     {
         //Clear any invalid entries
         var invalidEntries =
-            context.PowerShellRunnerSettings.Where(x => x.Key == ObfuscationServiceAccountKey && string.IsNullOrWhiteSpace(x.Value));
+            context.PowerShellRunnerSettings.Where(x =>
+                x.Key == ObfuscationServiceAccountSettingsKey && string.IsNullOrWhiteSpace(x.Value));
 
         if (invalidEntries.Any())
         {
@@ -27,7 +44,9 @@ public static class PowerShellRunnerDbQuery
             await context.SaveChangesAsync();
         }
 
-        var currentSettings = await context.PowerShellRunnerSettings.Where(x => x.Key == ObfuscationServiceAccountKey).ToListAsync();
+        var currentSettings = await context.PowerShellRunnerSettings
+            .Where(x => x.Key == ObfuscationServiceAccountSettingsKey)
+            .ToListAsync();
 
         if (currentSettings.Count > 1) context.PowerShellRunnerSettings.RemoveRange(currentSettings.Skip(1));
 
@@ -40,11 +59,30 @@ public static class PowerShellRunnerDbQuery
 
     private static async Task SetNewObfuscationAccountName(this PowerShellRunnerDbContext context)
     {
-        await context.PowerShellRunnerSettings.Where(x => x.Key == "ObfuscationService").ExecuteDeleteAsync();
+        await context.PowerShellRunnerSettings.Where(x => x.Key == ObfuscationServiceAccountSettingsKey)
+            .ExecuteDeleteAsync();
 
         await context.PowerShellRunnerSettings.AddAsync(new PowerShellRunnerSetting()
         {
-            Key = ObfuscationServiceAccountKey,
+            Key = ObfuscationServiceAccountSettingsKey,
+            Value = Guid.NewGuid().ToString()
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task VerifyOrAddDbId(this PowerShellRunnerDbContext context)
+    {
+        var existingKey =
+            await context.PowerShellRunnerSettings.FirstOrDefaultAsync(x => x.Key == DbPersistentIdSettingsKey);
+
+        if (existingKey != null && Guid.TryParse(existingKey.Value, out var keyValue)) return;
+
+        await context.PowerShellRunnerSettings.Where(x => x.Key == DbPersistentIdSettingsKey).ExecuteDeleteAsync();
+
+        await context.PowerShellRunnerSettings.AddAsync(new PowerShellRunnerSetting()
+        {
+            Key = DbPersistentIdSettingsKey,
             Value = Guid.NewGuid().ToString()
         });
 

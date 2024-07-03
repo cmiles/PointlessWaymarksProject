@@ -7,7 +7,8 @@
         xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
         xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}" Height="450" Width="800" d:DataContext="{d:DesignInstance local:ScriptJobRunListWindow}">
+        Title="{Binding WindowTitle}" Height="450" Width="800"
+        d:DataContext="{d:DesignInstance local:ScriptJobRunListWindow}">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,7 +17,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <local:ScriptJobRunListControl DataContext="{Binding JobRunListContext}"></local:ScriptJobRunListControl>
+        <local:ScriptJobRunListControl DataContext="{Binding JobRunListContext}" />
         <status:StatusControl
             Grid.Row="0"
             d:IsHidden="true"

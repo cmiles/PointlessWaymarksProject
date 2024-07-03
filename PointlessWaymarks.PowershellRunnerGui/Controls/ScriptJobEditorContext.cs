@@ -22,6 +22,8 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
     private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(30));
+    private string _databaseFile = string.Empty;
+    private Guid _dbId = Guid.Empty;
 
     public ScriptJobEditorContext()
     {
@@ -97,12 +99,11 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             }
         ];
 
-
         var scriptEntry = StringDataEntryContext.CreateInstance();
         scriptEntry.Title = "Script";
         scriptEntry.HelpText =
             "A PowerShell script to run.";
-        scriptEntry.ValidationFunctions = 
+        scriptEntry.ValidationFunctions =
         [
             x =>
             {
@@ -117,6 +118,8 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         enabledEntry.HelpText =
             "If checked the job will run on schedule, if not it will only run on demand.";
 
+        var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newContext = new ScriptJobEditorContext
@@ -128,7 +131,9 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             DescriptionEntry = descriptionEntry,
             ScheduleEntry = cronEntry,
             ScriptEntry = scriptEntry,
-            EnabledEntry = enabledEntry
+            EnabledEntry = enabledEntry,
+            _databaseFile = databaseFile,
+            _dbId = dbId
         };
 
         cronEntry.PropertyChanged += newContext.CronExpressionChanged;
@@ -197,11 +202,11 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         var obfuscationKey = await ObfuscationKeyHelpers.GetObfuscationKey(DatabaseFile);
 
-        var db = await PowerShellRunnerDbContext.CreateInstance(DatabaseFile, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(DatabaseFile);
 
         var newEntry = false;
 
-        var toSave = db.ScriptJobs.SingleOrDefault(x => x.Id == DbEntry.Id);
+        var toSave = db.ScriptJobs.SingleOrDefault(x => x.PersistentId == DbEntry.PersistentId);
         if (toSave == null)
         {
             newEntry = true;
@@ -225,7 +230,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             DataNotifications.DataNotificationContentType.ScriptJob,
             newEntry
                 ? DataNotifications.DataNotificationUpdateType.New
-                : DataNotifications.DataNotificationUpdateType.Update, toSave.Id);
+                : DataNotifications.DataNotificationUpdateType.Update, _dbId, toSave.PersistentId);
 
         await LoadData(toSave);
 

@@ -56,17 +56,17 @@ public static class DataNotifications
     }
 
     public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
-        DataNotificationUpdateType updateType, int id)
+        DataNotificationUpdateType updateType, Guid databaseId, Guid persistentId)
     {
         if (SuspendNotifications) return;
 
         var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"PowershellData|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{id}");
+            $"{nameof(InterProcessDataNotification)}|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{databaseId}|{persistentId}");
     }
 
-    public static void PublishPowershellProgressNotification(string sender, Guid scriptJobId, Guid runId,
+    public static void PublishPowershellProgressNotification(string sender, Guid databaseId, Guid scriptJobId, Guid runId,
         string progress)
     {
         if (SuspendNotifications) return;
@@ -75,10 +75,10 @@ public static class DataNotifications
         var cleanedProgress = string.IsNullOrWhiteSpace(progress) ? "..." : progress.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"PowershellProgress|{cleanedSender.Replace("|", " ")}|{scriptJobId}|{runId}|{cleanedProgress.Replace("|", " ")}");
+            $"{nameof(InterProcessPowershellProgressNotification)}|{cleanedSender.Replace("|", " ")}|{databaseId}|{scriptJobId}|{runId}|{cleanedProgress.Replace("|", " ")}");
     }
 
-    public static void PublishPowershellStateNotification(string sender, Guid scriptJobId, Guid runId,
+    public static void PublishPowershellStateNotification(string sender, Guid databaseId, Guid scriptJobId, Guid runId,
         PipelineState state,
         string reason)
     {
@@ -88,45 +88,45 @@ public static class DataNotifications
         var cleanedProgress = string.IsNullOrWhiteSpace(reason) ? string.Empty : reason.Trim();
 
         SendMessageQueue.Enqueue(
-            $"PowershellState|{cleanedSender.Replace("|", " ")}|{scriptJobId}|{runId}|{state}|{cleanedProgress.Replace("|", " ")}");
+            $"{nameof(InterProcessPowershellStateNotification)}|{cleanedSender.Replace("|", " ")}|{databaseId}|{scriptJobId}|{runId}|{state}|{cleanedProgress.Replace("|", " ")}");
     }
 
     public static OneOf<InterProcessDataNotification, InterProcessPowershellProgressNotification,
-            InterProcessPowershellStateNotification, InterProcessError>
+            InterProcessPowershellStateNotification, InterProcessProcessingError>
         TranslateDataNotification(IReadOnlyList<byte>? received)
     {
         if (received == null || received.Count == 0)
-            return new InterProcessError { ErrorMessage = "No Data" };
+            return new InterProcessProcessingError { ErrorMessage = "No Data" };
 
         try
         {
             var asString = Encoding.UTF8.GetString(received.ToArray());
 
             if (string.IsNullOrWhiteSpace(asString))
-                return new InterProcessError { ErrorMessage = "Data is Blank" };
+                return new InterProcessProcessingError { ErrorMessage = "Data is Blank" };
 
             var parsedString = asString.Split("|").ToList();
 
             if (!parsedString.Any()
-                || !(parsedString.Count is 5 or 6)
-                || !(parsedString[0].Equals("PowershellData") || parsedString[0].Equals("PowershellProgress") ||
-                     parsedString[0].Equals("PowershellState"))
+                || !(parsedString.Count is 6 or 7)
+                || !(parsedString[0].Equals(nameof(InterProcessDataNotification)) || parsedString[0].Equals(nameof(InterProcessPowershellProgressNotification)) ||
+                     parsedString[0].Equals(nameof(InterProcessPowershellStateNotification)))
                )
-                return new InterProcessError
+                return new InterProcessProcessingError
                 {
                     ErrorMessage = $"Data appears to be in the wrong format - {asString}"
                 };
 
-            if (parsedString[0].Equals("PowershellData"))
+            if (parsedString[0].Equals(nameof(InterProcessDataNotification)))
                 return new InterProcessDataNotification
                 {
                     Sender = parsedString[1],
                     ContentType = (DataNotificationContentType)int.Parse(parsedString[2]),
                     UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[3]),
-                    Id = Guid.TryParse(parsedString[4], out var parsedBatchId) ? parsedBatchId : Guid.Empty
+                    PersistentId = Guid.TryParse(parsedString[4], out var parsedBatchId) ? parsedBatchId : Guid.Empty
                 };
 
-            if (parsedString[0].Equals("PowershellProgress"))
+            if (parsedString[0].Equals(nameof(InterProcessPowershellProgressNotification)))
                 return new InterProcessPowershellProgressNotification
                 {
                     Sender = parsedString[1],
@@ -139,7 +139,7 @@ public static class DataNotifications
                     ProgressMessage = parsedString[4]
                 };
 
-            if (parsedString[0].Equals("PowershellState"))
+            if (parsedString[0].Equals(nameof(InterProcessPowershellStateNotification)))
                 return new InterProcessPowershellStateNotification
                 {
                     Sender = parsedString[1],
@@ -155,27 +155,29 @@ public static class DataNotifications
         }
         catch (Exception e)
         {
-            return new InterProcessError { ErrorMessage = e.Message };
+            return new InterProcessProcessingError { ErrorMessage = e.Message };
         }
 
-        return new InterProcessError { ErrorMessage = "No processing occurred for this message?" };
+        return new InterProcessProcessingError { ErrorMessage = "No processing occurred for this message?" };
     }
 
     public record InterProcessDataNotification
     {
         public DataNotificationContentType ContentType { get; init; }
-        public Guid Id { get; init; }
+        public Guid DatabaseId { get; set; }
+        public Guid PersistentId { get; init; }
         public string? Sender { get; init; }
         public DataNotificationUpdateType UpdateType { get; init; }
     }
 
-    public record InterProcessError
+    public record InterProcessProcessingError
     {
         public string ErrorMessage = string.Empty;
     }
 
     public record InterProcessPowershellProgressNotification
     {
+        public Guid DatabaseId { get; set; }
         public string ProgressMessage { get; init; } = string.Empty;
         public Guid ScriptJobPersistentId { get; init; }
         public Guid ScriptJobRunPersistentId { get; init; }
@@ -184,6 +186,7 @@ public static class DataNotifications
 
     public record InterProcessPowershellStateNotification
     {
+        public Guid DatabaseId { get; set; }
         public string ProgressMessage { get; init; } = string.Empty;
         public Guid ScriptJobId { get; init; }
         public Guid ScriptJobRunId { get; init; }

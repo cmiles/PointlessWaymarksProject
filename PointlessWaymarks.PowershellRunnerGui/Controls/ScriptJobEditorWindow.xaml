@@ -10,7 +10,7 @@
         Title="Script Job Editor" Height="450" Width="800">
     <Grid>
         <Grid>
-            <local:ScriptJobEditorControl DataContext="{Binding  JobContext}"></local:ScriptJobEditorControl>
+            <local:ScriptJobEditorControl DataContext="{Binding  JobContext}" />
             <status:StatusControl
                 Grid.Row="0"
                 d:IsHidden="true"

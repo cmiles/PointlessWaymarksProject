@@ -13,13 +13,14 @@ public class PowerShellRun
 {
     public static async Task<ScriptJobRun?> ExecuteJob(Guid jobId, string databaseFile, string runType)
     {
-        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var job = await db.ScriptJobs.FirstOrDefaultAsync(x => x.PersistentId == jobId);
 
         if (job == null) return null;
 
         var run = new ScriptJobRun { ScriptJobPersistentId = job.PersistentId, PersistentId = Guid.NewGuid(), StartedOnUtc = DateTime.UtcNow, Script = job.Script, RunType = runType };
         var obfuscationKey = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
+        var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
         db.ScriptJobRuns.Add(run);
         await db.SaveChangesAsync();
@@ -28,7 +29,7 @@ public class PowerShellRun
 
         try
         {
-            result = await ExecuteScript(job.Script.Decrypt(obfuscationKey), job.PersistentId, run.PersistentId, job.Name);
+            result = await ExecuteScript(job.Script.Decrypt(obfuscationKey), dbId, job.PersistentId, run.PersistentId, job.Name);
 
             run.CompletedOnUtc = DateTime.UtcNow;
             run.Output = string.Join(Environment.NewLine, result.Value.runLog).Encrypt(obfuscationKey);
@@ -51,7 +52,7 @@ public class PowerShellRun
         return run;
     }
 
-    public static async Task<(bool errors, List<string> runLog)> ExecuteScript(string toInvoke, Guid jobId, Guid runId,
+    public static async Task<(bool errors, List<string> runLog)> ExecuteScript(string toInvoke, Guid databaseId, Guid jobId, Guid runId,
         string identifier)
     {
         // create Powershell runspace
@@ -74,7 +75,7 @@ public class PowerShellRun
             foreach (var psObject in psObjects)
             {
                 returnLog.Add((DateTime.UtcNow, $"{DateTime.Now:G}>> {psObject.ToString()}"));
-                DataNotifications.PublishPowershellProgressNotification(identifier, jobId, runId,
+                DataNotifications.PublishPowershellProgressNotification(identifier, databaseId, jobId, runId,
                     psObject.ToString());
             }
         };
@@ -84,7 +85,7 @@ public class PowerShellRun
             returnLog.Add((DateTime.UtcNow,
                 $"{DateTime.Now:G}>> State: {eventArgs.PipelineStateInfo.State} {eventArgs.PipelineStateInfo.Reason?.ToString() ?? string.Empty}"));
 
-            DataNotifications.PublishPowershellStateNotification(identifier, jobId, runId,
+            DataNotifications.PublishPowershellStateNotification(identifier, databaseId, jobId, runId,
                 eventArgs.PipelineStateInfo.State,
                 eventArgs.PipelineStateInfo.Reason?.ToString() ?? string.Empty);
         };
@@ -100,7 +101,7 @@ public class PowerShellRun
                 var errorString = errorObject.ToString();
                 returnLog.Add((DateTime.UtcNow, $"{DateTime.Now:G}>> Error: {errorString}"));
                 if (!string.IsNullOrWhiteSpace(errorString))
-                    DataNotifications.PublishPowershellProgressNotification(identifier, jobId, runId,
+                    DataNotifications.PublishPowershellProgressNotification(identifier, databaseId, jobId, runId,
                         errorString);
             }
         };

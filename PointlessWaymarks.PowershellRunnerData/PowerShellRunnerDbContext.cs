@@ -10,17 +10,11 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 
 public class PowerShellRunnerDbContext(DbContextOptions<PowerShellRunnerDbContext> options) : DbContext(options)
 {
-    public static string CurrentDatabaseFileName = string.Empty;
     public DbSet<PowerShellRunnerSetting> PowerShellRunnerSettings { get; set; } = null!;
     public DbSet<ScriptJobRun> ScriptJobRuns { get; set; } = null!;
     public DbSet<ScriptJob> ScriptJobs { get; set; } = null!;
 
-    public static async Task<PowerShellRunnerDbContext> CreateInstance()
-    {
-        return await CreateInstance(CurrentDatabaseFileName);
-    }
-
-    public static Task<PowerShellRunnerDbContext> CreateInstance(string fileName, bool setFileNameAsCurrentDb = true)
+    public static Task<PowerShellRunnerDbContext> CreateInstance(string fileName)
     {
         // https://github.com/aspnet/EntityFrameworkCore/issues/9994#issuecomment-508588678
         Batteries_V2.Init();
@@ -28,8 +22,6 @@ public class PowerShellRunnerDbContext(DbContextOptions<PowerShellRunnerDbContex
         var optionsBuilder = new DbContextOptionsBuilder<PowerShellRunnerDbContext>();
 
         optionsBuilder.LogTo(message => Debug.WriteLine(message));
-
-        if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 
         return Task.FromResult(new PowerShellRunnerDbContext(optionsBuilder
             .UseSqlite($"Data Source={fileName}").Options));
@@ -54,8 +46,9 @@ public class PowerShellRunnerDbContext(DbContextOptions<PowerShellRunnerDbContex
             runner.MigrateUp();
         }
 
-        var context = await CreateInstance(fileName, setFileNameAsCurrentDb);
+        var context = await CreateInstance(fileName);
         await context.Database.EnsureCreatedAsync();
+        await context.VerifyOrAddDbId();
 
         return context;
     }
@@ -64,20 +57,19 @@ public class PowerShellRunnerDbContext(DbContextOptions<PowerShellRunnerDbContex
     ///     Use TryCreateInstance to test whether an input file is a valid db.
     /// </summary>
     /// <param name="fileName"></param>
-    /// <param name="setFileNameAsCurrentDb"></param>
     /// <param name="createFileIfDoesNotExist"></param>
     /// <returns></returns>
     public static async Task<(bool success, string message, PowerShellRunnerDbContext? context)> TryCreateInstance(
-        string fileName,
-        bool setFileNameAsCurrentDb = true, bool createFileIfDoesNotExist = false)
+        string fileName, bool createFileIfDoesNotExist = false)
     {
         var newFileInfo = new FileInfo(fileName);
 
         if (!newFileInfo.Exists)
             if (createFileIfDoesNotExist)
             {
-                var createContext = await CreateInstance(fileName, setFileNameAsCurrentDb);
+                var createContext = await CreateInstance(fileName);
                 await createContext.Database.EnsureCreatedAsync();
+                await createContext.VerifyOrAddDbId();
                 await createContext.DisposeAsync();
             }
             else
@@ -123,8 +115,6 @@ public class PowerShellRunnerDbContext(DbContextOptions<PowerShellRunnerDbContex
         {
             return (false, e.Message, null);
         }
-
-        if (setFileNameAsCurrentDb) CurrentDatabaseFileName = fileName;
 
         return (true, string.Empty, db);
     }

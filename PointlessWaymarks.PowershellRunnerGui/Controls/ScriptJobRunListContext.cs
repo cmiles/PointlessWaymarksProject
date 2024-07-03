@@ -13,20 +13,20 @@ public partial class ScriptJobRunListContext
 {
     private string _databaseFile = string.Empty;
     private string _key = string.Empty;
+    public required string FilterDescription { get; set; }
 
     public required ObservableCollection<ScriptJobRunGuiView> Items { get; set; }
     public List<Guid> JobFilter { get; set; } = [];
     public ScriptJobRunGuiView? SelectedItem { get; set; }
     public List<ScriptJobRunGuiView> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
-    public required string FilterDescription { get; set; }
 
     public static async Task<ScriptJobRunListContext> CreateInstance(StatusControlContext? statusContext,
         List<Guid> jobFilter, string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var key = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
 
         var filteredRuns = jobFilter.Any()

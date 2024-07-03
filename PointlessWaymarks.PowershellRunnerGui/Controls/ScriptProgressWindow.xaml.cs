@@ -13,6 +13,9 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [StaThreadConstructorGuard]
 public partial class ScriptProgressWindow
 {
+    private string _databaseFile = string.Empty;
+    private Guid _dbId = Guid.Empty;
+
     public ScriptProgressWindow()
     {
         InitializeComponent();
@@ -22,12 +25,14 @@ public partial class ScriptProgressWindow
     public ScriptProgressContext? ProgressContext { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
-    public async Task<ScriptProgressWindow> CreateInstance(List<Guid> jobIdFilter, List<Guid> runIdFilter)
+    public async Task<ScriptProgressWindow> CreateInstance(List<Guid> jobIdFilter, List<Guid> runIdFilter,
+        string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         string filterDescription;
-        var db = await PowerShellRunnerDbContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
+        var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
         if (jobIdFilter.Count > 0)
         {
@@ -37,9 +42,11 @@ public partial class ScriptProgressWindow
             if (runIdFilter.Count > 0)
             {
                 var possibleRuns = await db.ScriptJobRuns
-                    .Where(x => runIdFilter.Contains(x.PersistentId) && jobIdFilter.Contains(x.ScriptJobPersistentId)).ToListAsync();
+                    .Where(x => runIdFilter.Contains(x.PersistentId) && jobIdFilter.Contains(x.ScriptJobPersistentId))
+                    .ToListAsync();
                 filterDescription += " - Runs " + string.Join(", ",
-                    possibleRuns.OrderBy(x => x.StartedOnUtc).Select(x => $"Id {x.Id} Started {x.StartedOnUtc}"));
+                    possibleRuns.OrderBy(x => x.StartedOnUtc)
+                        .Select(x => $"PersistentId {x.PersistentId} Started {x.StartedOnUtc}"));
             }
             else
             {
@@ -52,9 +59,11 @@ public partial class ScriptProgressWindow
 
             if (runIdFilter.Count > 0)
             {
-                var possibleRuns = await db.ScriptJobRuns.Where(x => runIdFilter.Contains(x.PersistentId)).ToListAsync();
+                var possibleRuns =
+                    await db.ScriptJobRuns.Where(x => runIdFilter.Contains(x.PersistentId)).ToListAsync();
                 filterDescription += " - Runs " + string.Join(", ",
-                    possibleRuns.OrderBy(x => x.StartedOnUtc).Select(x => $"Id {x.Id} Started {x.StartedOnUtc}"));
+                    possibleRuns.OrderBy(x => x.StartedOnUtc)
+                        .Select(x => $"PersistentId {x.PersistentId} Started {x.StartedOnUtc}"));
             }
             else
             {
@@ -65,12 +74,15 @@ public partial class ScriptProgressWindow
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new ScriptProgressWindow
-            { FilterDescription = filterDescription, StatusContext = new StatusControlContext() };
+        {
+            FilterDescription = filterDescription, StatusContext = new StatusControlContext(),
+            _databaseFile = databaseFile, _dbId = dbId
+        };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.ProgressContext =
-            await ScriptProgressContext.CreateInstance(window.StatusContext, jobIdFilter, runIdFilter);
+            await ScriptProgressContext.CreateInstance(window.StatusContext, jobIdFilter, runIdFilter, _databaseFile);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

@@ -1,5 +1,3 @@
-using System.Windows.Controls;
-
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 /// <summary>

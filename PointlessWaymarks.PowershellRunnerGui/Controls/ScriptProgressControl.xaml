@@ -24,17 +24,15 @@
             <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptProgressMessageItem}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Center"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4">
-                    </TextBox>
+                             Opacity=".4" />
                     <TextBox Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Text="{Binding Sender}"
-                             Style="{StaticResource ReadOnlyTextBoxStyle}" Opacity=".4">
-                    </TextBox>
+                             Style="{StaticResource ReadOnlyTextBoxStyle}" Opacity=".4" />
                     <TextBox Grid.Column="2" Margin="16,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
                              TextWrapping="Wrap" Text="{Binding Message}" />
                 </Grid>
@@ -42,19 +40,17 @@
             <DataTemplate x:Key="ProgressStateDataTemplate" DataType="{x:Type local:ScriptStateMessageItem}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}"
                              VerticalAlignment="Center"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4">
-                    </TextBox>
+                             Opacity=".4" />
                     <TextBox Grid.Row="0" Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center"
                              Text="{Binding Sender}"
-                             Style="{StaticResource ReadOnlyTextBoxStyle}" Opacity=".4">
-                    </TextBox>
+                             Style="{StaticResource ReadOnlyTextBoxStyle}" Opacity=".4" />
                     <StackPanel Orientation="Vertical" Grid.Column="2" Margin="16,2,0,2">
                         <TextBox Text="{Binding State}">
                             <TextBox.Style>
@@ -62,51 +58,52 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Completed}">
-                                            <Setter Property="Background" Value="Green"></Setter>
+                                            <Setter Property="Background" Value="Green" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Running}">
-                                            <Setter Property="Background" Value="GreenYellow"></Setter>
+                                            <Setter Property="Background" Value="GreenYellow" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Failed}">
-                                            <Setter Property="Background" Value="DarkRed"></Setter>
+                                            <Setter Property="Background" Value="DarkRed" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Disconnected}">
-                                            <Setter Property="Background" Value="Orange"></Setter>
+                                            <Setter Property="Background" Value="Orange" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.NotStarted}">
-                                            <Setter Property="Background" Value="OrangeRed"></Setter>
+                                            <Setter Property="Background" Value="OrangeRed" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Stopped}">
-                                            <Setter Property="Background" Value="OrangeRed"></Setter>
+                                            <Setter Property="Background" Value="OrangeRed" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Stopping}">
-                                            <Setter Property="Background" Value="Yellow"></Setter>
+                                            <Setter Property="Background" Value="Yellow" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </TextBox.Style>
                         </TextBox>
-                        <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Visibility="{Binding Message, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" Grid.Row="1" Text="{Binding Message}"></TextBox>
+                        <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                 Visibility="{Binding Message, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}"
+                                 Text="{Binding Message}" />
                     </StackPanel>
                 </Grid>
             </DataTemplate>
             <DataTemplate x:Key="ProgressErrorDataTemplate" DataType="{x:Type local:ScriptErrorMessageItem}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Center"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4">
-                    </TextBox>
+                             Opacity=".4" />
                     <TextBox Grid.Column="2" Margin="16,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
                              TextWrapping="Wrap" Text="{Binding Message}" Background="Red" />
                 </Grid>
@@ -114,8 +111,7 @@
             <local:ProgressDataTemplateSelector x:Key="ProgressSelectorTemplate"
                                                 ErrorTemplate="{StaticResource ProgressErrorDataTemplate }"
                                                 ProgressTemplate="{StaticResource ProgressMessageDataTemplate}"
-                                                StateTemplate="{StaticResource ProgressStateDataTemplate}">
-            </local:ProgressDataTemplateSelector>
+                                                StateTemplate="{StaticResource ProgressStateDataTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

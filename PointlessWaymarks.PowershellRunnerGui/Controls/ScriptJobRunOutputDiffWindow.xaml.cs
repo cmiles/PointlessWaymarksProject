@@ -19,6 +19,8 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 public partial class ScriptJobRunOutputDiffWindow
 {
     private string _databaseFile = string.Empty;
+
+    private Guid _dbId = Guid.Empty;
     private string _key = string.Empty;
 
     public ScriptJobRunOutputDiffWindow()
@@ -41,7 +43,8 @@ public partial class ScriptJobRunOutputDiffWindow
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
+        var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
         var key = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
         var run = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
         var jobId = run?.ScriptJobPersistentId ?? Guid.Empty;
@@ -102,7 +105,8 @@ public partial class ScriptJobRunOutputDiffWindow
             SelectedLeftRun = factorySelectedLeftRun,
             SelectedRightRun = factorySelectedRightRun,
             _key = key,
-            _databaseFile = databaseFile
+            _databaseFile = databaseFile,
+            _dbId = dbId
         };
 
         await window.PositionWindowAndShowOnUiThread();

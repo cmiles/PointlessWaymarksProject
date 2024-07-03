@@ -23,7 +23,7 @@ public partial class ScriptJobRunViewerContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var key = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
         var run = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
 
@@ -70,8 +70,8 @@ public partial class ScriptJobRunViewerContext
                 RunView = null
             };
 
-            toReturn.StatusContext.ShowMessageWithOkButton($"Script Job Run Id {scriptJobRunId} Not Found!",
-                $"A Script Job Run with Id {scriptJobRunId} was not found in {databaseFile}??");
+            toReturn.StatusContext.ShowMessageWithOkButton($"Script Job Run PersistentId {scriptJobRunId} Not Found!",
+                $"A Script Job Run with PersistentId {scriptJobRunId} was not found in {databaseFile}??");
 
             return toReturn;
         }

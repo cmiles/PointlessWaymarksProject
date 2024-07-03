@@ -6,7 +6,6 @@ using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using TinyIpc.Messaging;
-using TypeSupport.Extensions;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -14,6 +13,9 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [StaThreadConstructorGuard]
 public partial class ScriptJobListListItem
 {
+    public string _databaseFile = string.Empty;
+    public Guid _dbId = Guid.Empty;
+
     public ScriptJobListListItem()
     {
         DataNotificationsProcessor = new DataNotificationsWorkQueue
@@ -23,16 +25,20 @@ public partial class ScriptJobListListItem
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ScriptJob DbEntry { get; set; }
-    public IPowerShellProgress? LastProgressItem { get; set; }
     public required ObservableCollection<ScriptJobRun> Items { get; set; } = [];
+    public IPowerShellProgress? LastProgressItem { get; set; }
     public ScriptJobRun? SelectedItem { get; set; }
     public List<ScriptJobRun> SelectedItems { get; set; } = [];
 
-    public static async Task<ScriptJobListListItem> CreateInstance(ScriptJob dbEntry)
+    public static async Task<ScriptJobListListItem> CreateInstance(ScriptJob dbEntry, string databaseFile)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var db = await PowerShellRunnerDbContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var recentRuns = await db.ScriptJobRuns
             .Where(x => x.ScriptJobPersistentId == dbEntry.PersistentId)
             .OrderBy(x => x.CompletedOnUtc == null)
@@ -43,7 +49,9 @@ public partial class ScriptJobListListItem
         return new ScriptJobListListItem
         {
             DbEntry = dbEntry,
-            Items = new ObservableCollection<ScriptJobRun>(recentRuns)
+            Items = new ObservableCollection<ScriptJobRun>(recentRuns),
+            _databaseFile = databaseFile,
+            _dbId = dbId
         };
     }
 
@@ -53,7 +61,7 @@ public partial class ScriptJobListListItem
 
         var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
 
-        var toRun = translatedMessage.Match(_ => Task.CompletedTask, 
+        var toRun = translatedMessage.Match(_ => Task.CompletedTask,
             ProcessProgressNotification,
             ProcessStateNotification,
             null

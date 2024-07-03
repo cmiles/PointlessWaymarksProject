@@ -19,35 +19,30 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <StackPanel>
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding Job.Name, StringFormat='Job: {0}'}"></TextBox>
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding Job.Name, StringFormat='Job: {0}'}" />
             <StackPanel>
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding Job.Description, StringFormat='Job: {0}'}">
-                </TextBox>
+                         Text="{Binding Job.Description, StringFormat='Job: {0}'}" />
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding RunView.StartedOn, StringFormat='Started On: {0:G}'}">
-                </TextBox>
+                         Text="{Binding RunView.StartedOn, StringFormat='Started On: {0:G}'}" />
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding RunView.CompletedOn, FallbackValue='(Not ManipulationCompleted)', StringFormat='Completed: {0:G}'}">
-                </TextBox>
+                         Text="{Binding RunView.CompletedOn, FallbackValue='(Not ManipulationCompleted)', StringFormat='Completed: {0:G}'}" />
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding RunView.Id, StringFormat='Job Id: {0}'}">
-                </TextBox>
+                         Text="{Binding RunView.Id, StringFormat='Job Id: {0}'}" />
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding RunView.RunType, StringFormat='Run Type: {0}'}">
-                </TextBox>
+                         Text="{Binding RunView.RunType, StringFormat='Run Type: {0}'}" />
                 <TextBox Text="{Binding RunView.Errors, StringFormat='Errors: {0}'}">
                     <TextBox.Style>
                         <Style BasedOn="{StaticResource ReadOnlyTextBoxStyle}" TargetType="TextBox">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding RunView.Errors}" Value="True">
-                                    <Setter Property="Foreground" Value="Red"></Setter>
-                                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                                    <Setter Property="Foreground" Value="Red" />
+                                    <Setter Property="FontWeight" Value="Bold" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -68,9 +63,9 @@
             </avalonedit:TextEditor>
         </Grid>
         <Grid Grid.Row="2">
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" VerticalScrollBarVisibility="Visible" AcceptsReturn="True" TextWrapping="Wrap"
-                     Text="{Binding RunView.TranslatedOutput}">
-            </TextBox>
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" VerticalScrollBarVisibility="Visible"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     Text="{Binding RunView.TranslatedOutput}" />
         </Grid>
     </Grid>
 

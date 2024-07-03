@@ -16,18 +16,18 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Border>
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding FilterDescription}"></TextBox>
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding FilterDescription}" />
         </Border>
         <GroupBox Grid.Row="1" Header="Script Job Runs">
-            <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}" AutoGenerateColumns="True">
-
-            </DataGrid>
+            <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
+                      behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
+                      AutoGenerateColumns="True" />
         </GroupBox>
         <Border Grid.Row="2">
             <WrapPanel Orientation="Horizontal">

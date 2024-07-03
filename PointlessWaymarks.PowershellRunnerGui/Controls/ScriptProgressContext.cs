@@ -12,6 +12,9 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [StaThreadConstructorGuard]
 public partial class ScriptProgressContext
 {
+    private static string _databaseFile = string.Empty;
+    private static Guid _dbId = Guid.Empty;
+
     public ScriptProgressContext()
     {
     }
@@ -25,8 +28,15 @@ public partial class ScriptProgressContext
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<ScriptProgressContext> CreateInstance(StatusControlContext? context,
-        List<Guid> jobIdFilter, List<Guid> runIdFilter)
+        List<Guid> jobIdFilter, List<Guid> runIdFilter, string databaseFile)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        _databaseFile = databaseFile;
+        _dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         var factoryContext = context ?? new StatusControlContext();
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -36,21 +46,6 @@ public partial class ScriptProgressContext
             StatusContext = factoryContext, Items = [], ScriptJobIdFilter = jobIdFilter,
             ScriptJobRunIdFilter = runIdFilter
         };
-
-        return toReturn;
-    }
-
-    public static async Task<ScriptProgressContext> CreateInstance(StatusControlContext? statusContext)
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var toReturn = new ScriptProgressContext
-        {
-            StatusContext = statusContext ?? new StatusControlContext(), Items = []
-        };
-
-        toReturn.DataNotificationsProcessor = new DataNotificationsWorkQueue
-            { Processor = toReturn.DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += toReturn.OnDataNotificationReceived;
 
         return toReturn;
@@ -62,7 +57,7 @@ public partial class ScriptProgressContext
 
         var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
 
-        var toRun = translatedMessage.Match(null,
+        var toRun = translatedMessage.Match(_ => Task.CompletedTask,
             ProcessProgressNotification,
             ProcessStateNotification,
             ProcessErrorNotification
@@ -76,7 +71,7 @@ public partial class ScriptProgressContext
         DataNotificationsProcessor?.Enqueue(e);
     }
 
-    private async Task ProcessErrorNotification(DataNotifications.InterProcessError arg)
+    private async Task ProcessErrorNotification(DataNotifications.InterProcessProcessingError arg)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 

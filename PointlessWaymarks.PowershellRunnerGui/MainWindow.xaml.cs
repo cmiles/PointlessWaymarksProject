@@ -18,6 +18,8 @@ namespace PointlessWaymarks.PowerShellRunnerGui;
 [NotifyPropertyChanged]
 public partial class MainWindow
 {
+    private string _databaseFile = string.Empty;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -116,11 +118,13 @@ public partial class MainWindow
             await PowerShellRunnerDbContext.CreateInstance(settings.DatabaseFile);
         }
 
-        await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext);
+        _databaseFile = settings.DatabaseFile;
+
+        await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, _databaseFile);
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, settings.DatabaseFile);
-        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null);
-        ProgressContext = await ScriptProgressContext.CreateInstance(null);
+        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, _databaseFile);
+        ProgressContext = await ScriptProgressContext.CreateInstance(null, [],[], _databaseFile);
         SettingsContext = await AppSettingsContext.CreateInstance(null);
         HelpContext = new HelpDisplayContext([
             HelpText,

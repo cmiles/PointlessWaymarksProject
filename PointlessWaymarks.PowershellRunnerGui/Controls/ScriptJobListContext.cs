@@ -17,6 +17,8 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [GenerateStatusCommands]
 public partial class ScriptJobListContext
 {
+    private string _databaseFile = string.Empty;
+    private Guid _dbId = Guid.Empty;
     public required string DatabaseFile { get; set; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<ScriptJobListListItem> Items { get; set; }
@@ -24,66 +26,20 @@ public partial class ScriptJobListContext
     public List<ScriptJobListListItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
-    [NonBlockingCommand]
-    public async Task DiffRunOutput(ScriptJobListListItem? toEdit)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (toEdit == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
-        var db = await PowerShellRunnerDbContext.CreateInstance();
-        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toEdit.DbEntry.PersistentId)
-            .OrderByDescending(x => x.CompletedOnUtc)
-            .FirstOrDefault();
-
-        if (topRun == null)
-        {
-            StatusContext.ToastWarning("No Runs to Compare?");
-            return;
-        }
-
-        await ScriptJobRunOutputDiffWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
-    }
-
-    [NonBlockingCommand]
-    public async Task ShowLastJobRun(ScriptJobListListItem? toEdit)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (toEdit == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
-        var db = await PowerShellRunnerDbContext.CreateInstance();
-        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toEdit.DbEntry.PersistentId)
-            .OrderByDescending(x => x.CompletedOnUtc)
-            .FirstOrDefault();
-
-        if (topRun == null)
-        {
-            StatusContext.ToastWarning("No Runs to Compare?");
-            return;
-        }
-
-        await ScriptJobRunViewerWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
-    }
-
     public static async Task<ScriptJobListContext> CreateInstance(StatusControlContext? statusContext,
-        string currentDatabase)
+        string databaseFile)
     {
+        var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newContext = new ScriptJobListContext
         {
             StatusContext = statusContext ?? new StatusControlContext(),
             Items = [],
-            DatabaseFile = currentDatabase
+            DatabaseFile = databaseFile,
+            _databaseFile = databaseFile,
+            _dbId = dbId
         };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -110,7 +66,7 @@ public partial class ScriptJobListContext
             x =>
             {
                 StatusContext.ToastError(x.ErrorMessage);
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context PersistentId {1}",
                     x.ErrorMessage,
                     StatusContext.StatusControlContextId);
                 return Task.CompletedTask;
@@ -140,17 +96,43 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await PowerShellRunnerDbContext.CreateInstance();
-        var currentItem = await db.ScriptJobs.SingleAsync(x => x.Id == toDelete.DbEntry.Id);
-        var currentId = currentItem.Id;
-        var currentRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == currentItem.PersistentId).ExecuteDeleteAsync();
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var currentItem = await db.ScriptJobs.SingleAsync(x => x.PersistentId == toDelete.DbEntry.PersistentId);
+        var currentPersistentId = currentItem.PersistentId;
+        var currentRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == currentItem.PersistentId)
+            .ExecuteDeleteAsync();
 
         db.ScriptJobs.Remove(currentItem);
         await db.SaveChangesAsync();
 
         DataNotifications.PublishDataNotification("Script Job List",
             DataNotifications.DataNotificationContentType.ScriptJob,
-            DataNotifications.DataNotificationUpdateType.Delete, currentId);
+            DataNotifications.DataNotificationUpdateType.Delete, _dbId, currentPersistentId);
+    }
+
+    [NonBlockingCommand]
+    public async Task DiffRunOutput(ScriptJobListListItem? toEdit)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toEdit.DbEntry.PersistentId)
+            .OrderByDescending(x => x.CompletedOnUtc)
+            .FirstOrDefault();
+
+        if (topRun == null)
+        {
+            StatusContext.ToastWarning("No Runs to Compare?");
+            return;
+        }
+
+        await ScriptJobRunOutputDiffWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
     }
 
     [NonBlockingCommand]
@@ -224,7 +206,7 @@ public partial class ScriptJobListContext
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var toRemove = Items.Where(x => x.DbEntry.PersistentId == interProcessUpdateNotification.Id)
+            var toRemove = Items.Where(x => x.DbEntry.PersistentId == interProcessUpdateNotification.PersistentId)
                 .ToList();
             toRemove.ForEach(x => Items.Remove(x));
             return;
@@ -238,11 +220,11 @@ public partial class ScriptJobListContext
             })
         {
             var listItem =
-                Items.SingleOrDefault(x => x.DbEntry.PersistentId == interProcessUpdateNotification.Id);
-            var db = await PowerShellRunnerDbContext.CreateInstance();
+                Items.SingleOrDefault(x => x.DbEntry.PersistentId == interProcessUpdateNotification.PersistentId);
+            var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
             var dbItem =
                 await db.ScriptJobs.SingleOrDefaultAsync(x =>
-                    x.PersistentId == interProcessUpdateNotification.Id);
+                    x.PersistentId == interProcessUpdateNotification.PersistentId);
 
             if (dbItem == null) return;
 
@@ -252,7 +234,7 @@ public partial class ScriptJobListContext
                 return;
             }
 
-            var toAdd = await ScriptJobListListItem.CreateInstance(dbItem);
+            var toAdd = await ScriptJobListListItem.CreateInstance(dbItem, _databaseFile);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -267,7 +249,7 @@ public partial class ScriptJobListContext
 
         DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
 
-        var db = await PowerShellRunnerDbContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
 
         var jobs = await db.ScriptJobs.ToListAsync();
 
@@ -275,7 +257,7 @@ public partial class ScriptJobListContext
 
         Items.Clear();
 
-        foreach (var x in jobs) Items.Add(await ScriptJobListListItem.CreateInstance(x));
+        foreach (var x in jobs) Items.Add(await ScriptJobListListItem.CreateInstance(x, _databaseFile));
 
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
@@ -291,6 +273,32 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await PowerShellRun.ExecuteJob(SelectedItem.DbEntry.PersistentId, DatabaseFile, "Run From PowerShell Runner Gui");
+        await PowerShellRun.ExecuteJob(SelectedItem.DbEntry.PersistentId, DatabaseFile,
+            "Run From PowerShell Runner Gui");
+    }
+
+    [NonBlockingCommand]
+    public async Task ShowLastJobRun(ScriptJobListListItem? toEdit)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toEdit == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toEdit.DbEntry.PersistentId)
+            .OrderByDescending(x => x.CompletedOnUtc)
+            .FirstOrDefault();
+
+        if (topRun == null)
+        {
+            StatusContext.ToastWarning("No Runs to Compare?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
     }
 }

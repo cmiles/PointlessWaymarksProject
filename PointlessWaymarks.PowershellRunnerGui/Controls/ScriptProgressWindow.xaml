@@ -10,7 +10,7 @@
         Title="{Binding FilterDescription, StringFormat='Progress {0}'}" Height="450" Width="800"
         d:DataContext="{d:DesignInstance local:ScriptProgressWindow}">
     <Grid>
-        <local:ScriptProgressControl DataContext="{Binding ProgressContext}"></local:ScriptProgressControl>
+        <local:ScriptProgressControl DataContext="{Binding ProgressContext}" />
         <status:StatusControl
             Grid.Row="0"
             d:IsHidden="true"

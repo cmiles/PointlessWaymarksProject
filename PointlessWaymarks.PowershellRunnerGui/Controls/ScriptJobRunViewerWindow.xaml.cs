@@ -1,4 +1,3 @@
-using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
@@ -29,7 +28,7 @@ public partial class ScriptJobRunViewerWindow
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var db = await PowerShellRunnerDbContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var jobRun = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
 
         var windowTitle = "Script Job Run Viewer";
@@ -37,7 +36,8 @@ public partial class ScriptJobRunViewerWindow
         if (jobRun != null)
         {
             var job = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == jobRun.ScriptJobPersistentId);
-            windowTitle = $"Job Script Run {jobRun.Id} - {jobRun.StartedOnUtc.ToLocalTime()} - Job: {job?.Name}";
+            windowTitle =
+                $"Job Script Run {jobRun.PersistentId} - {jobRun.StartedOnUtc.ToLocalTime()} - Job: {job?.Name}";
         }
 
         var factoryContext = new StatusControlContext();

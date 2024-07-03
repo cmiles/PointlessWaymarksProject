@@ -6,7 +6,7 @@ public static class ObfuscationKeyHelpers
 {
     public static async Task<string> GetObfuscationKey(string dbFileName)
     {
-        var db = await PowerShellRunnerDbContext.CreateInstance(dbFileName, false);
+        var db = await PowerShellRunnerDbContext.CreateInstance(dbFileName);
 
         var account = await db.ObfuscationAccountName();
 

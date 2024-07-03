@@ -17,6 +17,8 @@ public partial class ArbitraryScriptRunnerContext
 {
     private readonly Guid _scriptJobId = Guid.NewGuid();
     private readonly Guid _scriptRunId = Guid.NewGuid();
+    private string _databaseFile = string.Empty;
+    private Guid _dbId = Guid.Empty;
 
     public ArbitraryScriptRunnerContext()
     {
@@ -30,8 +32,13 @@ public partial class ArbitraryScriptRunnerContext
     public required StatusControlContext StatusContext { get; set; }
     public required StringDataEntryNoIndicatorsContext UserScriptEntryContext { get; set; }
 
-    public static async Task<ArbitraryScriptRunnerContext> CreateInstance(StatusControlContext? statusContext)
+    public static async Task<ArbitraryScriptRunnerContext> CreateInstance(StatusControlContext? statusContext,
+        string databaseFile)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var factoryScriptEntry = StringDataEntryNoIndicatorsContext.CreateInstance();
@@ -43,7 +50,9 @@ public partial class ArbitraryScriptRunnerContext
         {
             StatusContext = statusContext ?? new StatusControlContext(),
             UserScriptEntryContext = factoryScriptEntry,
-            Items = []
+            Items = [],
+            _databaseFile = databaseFile,
+            _dbId = dbId
         };
 
         factoryContext.BuildCommands();
@@ -66,7 +75,7 @@ public partial class ArbitraryScriptRunnerContext
             ProcessStateNotification,
             x =>
             {
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context Id {1}",
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context PersistentId {1}",
                     x.ErrorMessage,
                     StatusContext.StatusControlContextId);
                 return Task.CompletedTask;
@@ -126,7 +135,7 @@ public partial class ArbitraryScriptRunnerContext
 
         try
         {
-            await PowerShellRun.ExecuteScript(UserScriptEntryContext.UserValue, _scriptJobId, _scriptRunId,
+            await PowerShellRun.ExecuteScript(UserScriptEntryContext.UserValue, _dbId, _scriptJobId, _scriptRunId,
                 "Arbitrary Script");
         }
         catch (Exception e)

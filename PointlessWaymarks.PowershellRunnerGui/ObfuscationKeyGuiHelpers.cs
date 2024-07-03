@@ -12,9 +12,9 @@ public static class ObfuscationKeyGuiHelpers
     /// </summary>
     /// <param name="statusContext"></param>
     /// <returns></returns>
-    public static async Task<string> GetObfuscationKeyWithUserCreateAsNeeded(StatusControlContext statusContext)
+    public static async Task<string> GetObfuscationKeyWithUserCreateAsNeeded(StatusControlContext statusContext, string databaseFile)
     {
-        var db = await PowerShellRunnerDbContext.CreateInstance();
+        var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
 
         var account = await db.ObfuscationAccountNameWithCreateAsNeeded();
 

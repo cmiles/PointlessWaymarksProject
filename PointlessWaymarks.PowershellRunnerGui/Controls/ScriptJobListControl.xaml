@@ -6,7 +6,6 @@
              xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
              xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:runspaces="clr-namespace:System.Management.Automation.Runspaces;assembly=System.Management.Automation"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ScriptJobListContext}">
@@ -19,13 +18,12 @@
             <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptProgressMessageItem}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Top"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4">
-                    </TextBox>
+                             Opacity=".4" />
                     <TextBox Grid.Column="1" Margin="16,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
                              TextWrapping="Wrap" Text="{Binding Message}" />
                 </Grid>
@@ -33,14 +31,13 @@
             <DataTemplate x:Key="ProgressStateDataTemplate" DataType="{x:Type local:ScriptStateMessageItem}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}"
                              VerticalAlignment="Top"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4">
-                    </TextBox>
+                             Opacity=".4" />
                     <StackPanel Orientation="Vertical" Grid.Column="1" Margin="16,2,0,2">
                         <TextBox Text="{Binding State}">
                             <TextBox.Style>
@@ -48,31 +45,31 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Completed}">
-                                            <Setter Property="Background" Value="Green"></Setter>
+                                            <Setter Property="Background" Value="Green" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Running}">
-                                            <Setter Property="Background" Value="GreenYellow"></Setter>
+                                            <Setter Property="Background" Value="GreenYellow" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Failed}">
-                                            <Setter Property="Background" Value="DarkRed"></Setter>
+                                            <Setter Property="Background" Value="DarkRed" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Disconnected}">
-                                            <Setter Property="Background" Value="Orange"></Setter>
+                                            <Setter Property="Background" Value="Orange" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.NotStarted}">
-                                            <Setter Property="Background" Value="OrangeRed"></Setter>
+                                            <Setter Property="Background" Value="OrangeRed" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Stopped}">
-                                            <Setter Property="Background" Value="OrangeRed"></Setter>
+                                            <Setter Property="Background" Value="OrangeRed" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding State}"
                                                      Value="{x:Static runspaces:PipelineState.Stopping}">
-                                            <Setter Property="Background" Value="Yellow"></Setter>
+                                            <Setter Property="Background" Value="Yellow" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -80,21 +77,19 @@
                         </TextBox>
                         <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
                                  Visibility="{Binding Message, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}"
-                                 Text="{Binding Message}">
-                        </TextBox>
+                                 Text="{Binding Message}" />
                     </StackPanel>
                 </Grid>
             </DataTemplate>
             <DataTemplate x:Key="ProgressErrorDataTemplate" DataType="{x:Type local:ScriptErrorMessageItem}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Top"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4">
-                    </TextBox>
+                             Opacity=".4" />
                     <TextBox Grid.Column="1" Margin="16,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
                              TextWrapping="Wrap" Text="{Binding Message}" Background="Red" />
                 </Grid>
@@ -102,14 +97,13 @@
             <local:ProgressDataTemplateSelector x:Key="ProgressSelectorTemplate"
                                                 ErrorTemplate="{StaticResource ProgressErrorDataTemplate }"
                                                 ProgressTemplate="{StaticResource ProgressMessageDataTemplate}"
-                                                StateTemplate="{StaticResource ProgressStateDataTemplate}">
-            </local:ProgressDataTemplateSelector>
+                                                StateTemplate="{StaticResource ProgressStateDataTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <GroupBox
             Margin="4,4,4,0"
@@ -122,9 +116,11 @@
                      behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}">
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Edit Job" Command="{Binding EditSelectedJobCommand}"></MenuItem>
-                        <MenuItem Header="Diff" Command="{Binding DiffRunOutputCommand}" CommandParameter="{Binding SelectedItem}"></MenuItem>
-                        <MenuItem Header="Last Job" Command="{Binding ShowLastJobRunCommand}" CommandParameter="{Binding SelectedItem}"></MenuItem>
+                        <MenuItem Header="Edit Job" Command="{Binding EditSelectedJobCommand}" />
+                        <MenuItem Header="Diff" Command="{Binding DiffRunOutputCommand}"
+                                  CommandParameter="{Binding SelectedItem}" />
+                        <MenuItem Header="Last Job" Command="{Binding ShowLastJobRunCommand}"
+                                  CommandParameter="{Binding SelectedItem}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -138,15 +134,15 @@
                             </Border.InputBindings>
                             <Grid Style="{StaticResource ContentListOuterGridStyle}">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="80"></RowDefinition>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="80" />
                                 </Grid.RowDefinitions>
                                 <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
                                          TextWrapping="Wrap">
                                     <TextBox.Text>
-                                        <MultiBinding StringFormat="{}{0} - Id {1}">
+                                        <MultiBinding StringFormat="{}{0} - PersistentId {1}">
                                             <Binding Path="DbEntry.Name" />
                                             <Binding Path="DbEntry.Id" />
                                         </MultiBinding>
@@ -163,13 +159,11 @@
                                     </TextBox.Text>
                                 </TextBox>
                                 <TextBox Grid.Row="2" Margin="6,4,0,0" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                         Text="{Binding DbEntry.Description}" TextWrapping="Wrap">
-                                </TextBox>
+                                         Text="{Binding DbEntry.Description}" TextWrapping="Wrap" />
                                 <GroupBox Grid.Row="3" Margin="24,0,0,4"
                                           Header="Latest Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
                                     <ContentControl ContentTemplateSelector="{StaticResource ProgressSelectorTemplate}"
-                                                    Content="{Binding LastProgressItem}">
-                                    </ContentControl>
+                                                    Content="{Binding LastProgressItem}" />
                                 </GroupBox>
                             </Grid>
                         </Border>
