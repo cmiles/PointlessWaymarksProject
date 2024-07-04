@@ -8,19 +8,23 @@ using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
+using Serilog;
+using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 /// <summary>
-///     Interaction logic for ScriptJobRunOutputDiffWindow.xaml
+///     Shows a script and output diff view with a selection list of Script Job Runs for the left and right side of the
+///     diff.
 /// </summary>
 [NotifyPropertyChanged]
 [StaThreadConstructorGuard]
+[GenerateStatusCommands]
 public partial class ScriptJobRunOutputDiffWindow
 {
     private string _databaseFile = string.Empty;
-
     private Guid _dbId = Guid.Empty;
+    private Guid _jobId = Guid.Empty;
     private string _key = string.Empty;
 
     public ScriptJobRunOutputDiffWindow()
@@ -32,6 +36,7 @@ public partial class ScriptJobRunOutputDiffWindow
         PropertyChanged += OnPropertyChanged;
     }
 
+    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<ScriptJobRunGuiView> LeftRuns { get; set; }
     public bool RemoveOutputTimeStamp { get; set; } = true;
     public required ObservableCollection<ScriptJobRunGuiView> RightRuns { get; set; }
@@ -39,15 +44,25 @@ public partial class ScriptJobRunOutputDiffWindow
     public ScriptJobRunGuiView? SelectedRightRun { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
-    public static async Task CreateInstance(Guid scriptJobRunId, string databaseFile)
+    /// <summary>
+    ///     The initial left script job run must be specified and will be used to identify the Script Job to use, a right job
+    ///     can
+    ///     be specified or left null (if null a right job will be auto-selected).
+    /// </summary>
+    /// <param name="initialLeftScriptJobRun"></param>
+    /// <param name="initialRightScript"></param>
+    /// <param name="databaseFile"></param>
+    /// <returns></returns>
+    public static async Task CreateInstance(Guid initialLeftScriptJobRun, Guid? initialRightScript, string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
         var key = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
-        var run = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
-        var jobId = run?.ScriptJobPersistentId ?? Guid.Empty;
+        var leftRun = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == initialLeftScriptJobRun);
+        var jobId = leftRun?.ScriptJobPersistentId ?? Guid.Empty;
+        var job = db.ScriptJobs.Single(x => x.PersistentId == jobId);
 
         var allRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == jobId)
             .OrderByDescending(x => x.CompletedOnUtc).AsNoTracking().ToListAsync();
@@ -68,9 +83,10 @@ public partial class ScriptJobRunOutputDiffWindow
                 Script = loopRun.Script,
                 StartedOnUtc = loopRun.StartedOnUtc,
                 StartedOn = loopRun.StartedOnUtc.ToLocalTime(),
-                ScriptJobId = loopRun.ScriptJobPersistentId,
+                ScriptJobPersistentId = loopRun.ScriptJobPersistentId,
                 TranslatedOutput = loopRun.Output.Decrypt(key),
-                TranslatedScript = loopRun.Script.Decrypt(key)
+                TranslatedScript = loopRun.Script.Decrypt(key),
+                Job = job
             };
 
             toAdd.TranslatedOutput = Regex.Replace(toAdd.TranslatedOutput,
@@ -85,19 +101,38 @@ public partial class ScriptJobRunOutputDiffWindow
         var factoryLeftRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
         var factoryRightRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
 
-        var factorySelectedLeftRun = factoryLeftRuns.FirstOrDefault(x => x.PersistentId == jobId);
-        var factorySelectedRightRun = factoryRightRuns.FirstOrDefault(x => x.PersistentId == jobId);
-        if (factorySelectedRightRun != null)
-        {
-            var initialIndex = factoryRightRuns.IndexOf(factorySelectedRightRun);
+        var factorySelectedLeftRun = leftRun != null
+            ? factoryLeftRuns.FirstOrDefault(x => x.PersistentId == leftRun.PersistentId)
+            : null;
 
-            if (factoryRightRuns.Count == 1) factorySelectedRightRun = factoryRightRuns.First();
-            else if (factorySelectedRightRun == factoryRightRuns.Last())
-                factorySelectedRightRun = factoryRightRuns[^1];
-            else factorySelectedRightRun = factoryRightRuns[initialIndex + 1];
+        ScriptJobRunGuiView? factorySelectedRightRun = null;
+        if (jobId == Guid.Empty || leftRun == null || !factoryRightRuns.Any()) factorySelectedRightRun = null;
+        if (factoryRightRuns.Count == 1)
+        {
+            factorySelectedRightRun = factoryRightRuns.First();
+        }
+        else if (initialRightScript is null)
+        {
+            var previousRun = factoryRightRuns.Where(x => x.StartedOnUtc < leftRun.StartedOnUtc)
+                .MaxBy(x => x.CompletedOnUtc);
+            if (previousRun != null)
+            {
+                factorySelectedRightRun = previousRun;
+            }
+            else
+            {
+                var nextRun = factoryRightRuns
+                    .Where(x => x.ScriptJobPersistentId == jobId && x.StartedOnUtc > leftRun.StartedOnUtc)
+                    .MinBy(x => x.CompletedOnUtc);
+                if (nextRun != null) factorySelectedRightRun = nextRun;
+            }
+        }
+        else
+        {
+            factorySelectedRightRun = factoryRightRuns.SingleOrDefault(x => x.PersistentId == initialRightScript);
         }
 
-        var window = new ScriptJobRunOutputDiffWindow
+        var factoryWindow = new ScriptJobRunOutputDiffWindow
         {
             StatusContext = new StatusControlContext(),
             LeftRuns = factoryLeftRuns,
@@ -106,10 +141,43 @@ public partial class ScriptJobRunOutputDiffWindow
             SelectedRightRun = factorySelectedRightRun,
             _key = key,
             _databaseFile = databaseFile,
-            _dbId = dbId
+            _dbId = dbId,
+            _jobId = jobId
         };
 
-        await window.PositionWindowAndShowOnUiThread();
+        factoryWindow.BuildCommands();
+
+        factoryWindow.DataNotificationsProcessor = new DataNotificationsWorkQueue
+            { Processor = factoryWindow.DataNotificationReceived };
+        DataNotifications.NewDataNotificationChannel().MessageReceived += factoryWindow.OnDataNotificationReceived;
+
+        await factoryWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
+
+        var toRun = translatedMessage.Match(ProcessDataUpdateNotification,
+            _ => Task.CompletedTask,
+            _ => Task.CompletedTask,
+            x =>
+            {
+                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context PersistentId {1}",
+                    x.ErrorMessage,
+                    StatusContext.StatusControlContextId);
+                return Task.CompletedTask;
+            }
+        );
+
+        if (toRun is not null) await toRun;
+    }
+
+    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
+    {
+        DataNotificationsProcessor?.Enqueue(e);
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -118,6 +186,18 @@ public partial class ScriptJobRunOutputDiffWindow
 
         if (e.PropertyName.Equals(nameof(RemoveOutputTimeStamp)))
             StatusContext.RunNonBlockingTask(ProcessTimeStampInclusionChange);
+    }
+
+    private async Task ProcessDataUpdateNotification(
+        DataNotifications.InterProcessDataNotification interProcessUpdateNotification)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (interProcessUpdateNotification.DatabaseId != _dbId ||
+            (interProcessUpdateNotification.ContentType == DataNotifications.DataNotificationContentType.ScriptJob &&
+             interProcessUpdateNotification.PersistentId != _jobId)) return;
+
+        //TODO: Process Data Update Notification
     }
 
     private async Task ProcessTimeStampInclusionChange()
@@ -141,5 +221,19 @@ public partial class ScriptJobRunOutputDiffWindow
                     @"^([1-9]|1[0-2])/([1-9]|1[0-2])/(1|2)\d\d\d ([1-9]|1[0-2]):([0-5])\d:([0-5])\d (AM|PM)>>",
                     string.Empty, RegexOptions.Multiline);
         }
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewRun(ScriptJobRunGuiView? toView)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toView == null)
+        {
+            StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(toView.PersistentId, _databaseFile);
     }
 }

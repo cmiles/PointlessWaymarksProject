@@ -90,14 +90,14 @@ public partial class ScriptJobListListItem
 
     private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)
     {
-        if (arg.ScriptJobId != DbEntry.PersistentId) return;
+        if (arg.ScriptJobPersistentId != DbEntry.PersistentId) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         LastProgressItem = new ScriptStateMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobPersistentId = arg.ScriptJobId, ScriptJobRunPersistentId = arg.ScriptJobRunId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId, State = arg.State
         };
     }
 }

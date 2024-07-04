@@ -137,6 +137,7 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                     <RowDefinition Height="80" />
                                 </Grid.RowDefinitions>
                                 <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
@@ -160,7 +161,14 @@
                                 </TextBox>
                                 <TextBox Grid.Row="2" Margin="6,4,0,0" Style="{StaticResource ReadOnlyTextBoxStyle}"
                                          Text="{Binding DbEntry.Description}" TextWrapping="Wrap" />
-                                <GroupBox Grid.Row="3" Margin="24,0,0,4"
+                                <WrapPanel Grid.Row="3"  Orientation="Horizontal">
+                                    <Button Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Edit</Button>
+                                    <Button Command="{Binding Data.DiffLastRunsCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Diff Last Runs</Button>
+                                    <Button Command="{Binding Data.ShowLastJobRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">View Last Run</Button>
+                                    <Button Command="{Binding Data.RunJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Run</Button>
+                                    <Button Command="{Binding Data.RunWithProgressWindowCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Run with Progress Window</Button>
+                                </WrapPanel>
+                                <GroupBox Grid.Row="4" Margin="24,0,0,4"
                                           Header="Latest Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
                                     <ContentControl ContentTemplateSelector="{StaticResource ProgressSelectorTemplate}"
                                                     Content="{Binding LastProgressItem}" />

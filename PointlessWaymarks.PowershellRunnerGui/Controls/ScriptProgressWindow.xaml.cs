@@ -19,13 +19,15 @@ public partial class ScriptProgressWindow
     public ScriptProgressWindow()
     {
         InitializeComponent();
+
+        DataContext = this;
     }
 
     public string FilterDescription { get; set; } = string.Empty;
     public ScriptProgressContext? ProgressContext { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
-    public async Task<ScriptProgressWindow> CreateInstance(List<Guid> jobIdFilter, List<Guid> runIdFilter,
+    public static async Task<ScriptProgressWindow> CreateInstance(List<Guid> jobIdFilter, List<Guid> runIdFilter,
         string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -82,7 +84,7 @@ public partial class ScriptProgressWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.ProgressContext =
-            await ScriptProgressContext.CreateInstance(window.StatusContext, jobIdFilter, runIdFilter, _databaseFile);
+            await ScriptProgressContext.CreateInstance(window.StatusContext, jobIdFilter, runIdFilter, window._databaseFile);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

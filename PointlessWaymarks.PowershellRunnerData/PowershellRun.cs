@@ -11,7 +11,7 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 
 public class PowerShellRun
 {
-    public static async Task<ScriptJobRun?> ExecuteJob(Guid jobId, string databaseFile, string runType)
+    public static async Task<ScriptJobRun?> ExecuteJob(Guid jobId, string databaseFile, string runType, Func<ScriptJobRun, Task>? callbackAfterJobFirstSave = null)
     {
         var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var job = await db.ScriptJobs.FirstOrDefaultAsync(x => x.PersistentId == jobId);
@@ -24,6 +24,8 @@ public class PowerShellRun
 
         db.ScriptJobRuns.Add(run);
         await db.SaveChangesAsync();
+
+        if (callbackAfterJobFirstSave != null) await callbackAfterJobFirstSave(run);
 
         (bool errors, List<string> runLog)? result = null;
 

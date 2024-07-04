@@ -70,7 +70,7 @@ public partial class ArbitraryScriptRunnerContext
 
         var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
 
-        var toRun = translatedMessage.Match(null,
+        var toRun = translatedMessage.Match(_ => Task.CompletedTask,
             ProcessProgressNotification,
             ProcessStateNotification,
             x =>
@@ -92,7 +92,10 @@ public partial class ArbitraryScriptRunnerContext
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
-        if (arg.ScriptJobPersistentId != _scriptJobId || arg.ScriptJobRunPersistentId != _scriptRunId) return;
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (arg.ScriptJobPersistentId != _scriptJobId || arg.ScriptJobRunPersistentId != _scriptRunId ||
+            arg.DatabaseId != _dbId) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -111,14 +114,14 @@ public partial class ArbitraryScriptRunnerContext
 
     private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)
     {
-        if (arg.ScriptJobId != _scriptJobId || arg.ScriptJobRunId != _scriptRunId) return;
+        if (arg.ScriptJobPersistentId != _scriptJobId || arg.ScriptJobRunPersistentId != _scriptRunId) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items.Add(new ScriptStateMessageItem()
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobPersistentId = arg.ScriptJobId, ScriptJobRunPersistentId = arg.ScriptJobRunId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId, State = arg.State
         });
     }
 

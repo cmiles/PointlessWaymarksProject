@@ -111,7 +111,7 @@ public partial class ScriptJobListContext
     }
 
     [NonBlockingCommand]
-    public async Task DiffRunOutput(ScriptJobListListItem? toEdit)
+    public async Task DiffLastRuns(ScriptJobListListItem? toEdit)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -132,7 +132,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await ScriptJobRunOutputDiffWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
+        await ScriptJobRunOutputDiffWindow.CreateInstance(topRun.PersistentId, null, DatabaseFile);
     }
 
     [NonBlockingCommand]
@@ -263,6 +263,21 @@ public partial class ScriptJobListContext
     }
 
     [NonBlockingCommand]
+    public async Task RunJob(ScriptJobListListItem? toRun)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toRun == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Run?");
+            return;
+        }
+
+        await PowerShellRun.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
+            "Run From PowerShell Runner Gui");
+    }
+
+    [NonBlockingCommand]
     public async Task RunSelectedJob()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -275,6 +290,27 @@ public partial class ScriptJobListContext
 
         await PowerShellRun.ExecuteJob(SelectedItem.DbEntry.PersistentId, DatabaseFile,
             "Run From PowerShell Runner Gui");
+    }
+
+    [NonBlockingCommand]
+    public async Task RunWithProgressWindow(ScriptJobListListItem? toRun)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toRun == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to Run?");
+            return;
+        }
+
+        await PowerShellRun.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
+            "Run From PowerShell Runner Gui",
+            async run =>
+            {
+                var window = await ScriptProgressWindow.CreateInstance(run.ScriptJobPersistentId.AsList(), run.PersistentId.AsList(),
+                    _databaseFile);
+                await window.PositionWindowAndShowOnUiThread();
+            });
     }
 
     [NonBlockingCommand]

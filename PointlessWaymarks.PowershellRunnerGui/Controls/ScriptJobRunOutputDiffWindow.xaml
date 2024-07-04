@@ -38,6 +38,13 @@
             <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}" Header="Left Run">
                 <ListBox ItemsSource="{Binding LeftRuns}" SelectionMode="Single"
                          SelectedItem="{Binding SelectedLeftRun}">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="View Selected Run" Command="{Binding ViewRunCommand}"
+                                      CommandParameter="{Binding SelectedLeftRun}">
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type local:ScriptJobRunGuiView}">
                             <Border BorderThickness="1" CornerRadius="2">
@@ -73,6 +80,13 @@
                       Header="Right Run">
                 <ListBox ItemsSource="{Binding RightRuns}" SelectionMode="Single"
                          SelectedItem="{Binding SelectedRightRun}">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="View Selected Run" Command="{Binding ViewRunCommand}"
+                                      CommandParameter="{Binding SelectedRightRun}">
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type local:ScriptJobRunGuiView}">
                             <Border BorderThickness="1" CornerRadius="2">

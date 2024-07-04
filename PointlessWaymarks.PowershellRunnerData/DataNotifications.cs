@@ -123,34 +123,37 @@ public static class DataNotifications
                     Sender = parsedString[1],
                     ContentType = (DataNotificationContentType)int.Parse(parsedString[2]),
                     UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[3]),
-                    PersistentId = Guid.TryParse(parsedString[4], out var parsedBatchId) ? parsedBatchId : Guid.Empty
+                    DatabaseId = Guid.TryParse(parsedString[4], out var parsedDbId) ? parsedDbId : Guid.Empty,
+                    PersistentId = Guid.TryParse(parsedString[5], out var parsedBatchId) ? parsedBatchId : Guid.Empty
                 };
 
             if (parsedString[0].Equals(nameof(InterProcessPowershellProgressNotification)))
                 return new InterProcessPowershellProgressNotification
                 {
                     Sender = parsedString[1],
-                    ScriptJobPersistentId = Guid.TryParse(parsedString[2], out var parsedRunScheduleId)
+                    DatabaseId = Guid.TryParse(parsedString[2], out var parsedDbId) ? parsedDbId : Guid.Empty,
+                    ScriptJobPersistentId = Guid.TryParse(parsedString[3], out var parsedRunScheduleId)
                         ? parsedRunScheduleId
                         : Guid.Empty,
-                    ScriptJobRunPersistentId = Guid.TryParse(parsedString[3], out var parsedRunResultId)
+                    ScriptJobRunPersistentId = Guid.TryParse(parsedString[4], out var parsedRunResultId)
                         ? parsedRunResultId
                         : Guid.Empty,
-                    ProgressMessage = parsedString[4]
+                    ProgressMessage = parsedString[5]
                 };
 
             if (parsedString[0].Equals(nameof(InterProcessPowershellStateNotification)))
                 return new InterProcessPowershellStateNotification
                 {
                     Sender = parsedString[1],
-                    ScriptJobId = Guid.TryParse(parsedString[2], out var parsedRunScheduleId)
+                    DatabaseId = Guid.TryParse(parsedString[2], out var parsedDbId) ? parsedDbId : Guid.Empty,
+                    ScriptJobPersistentId = Guid.TryParse(parsedString[3], out var parsedRunScheduleId)
                         ? parsedRunScheduleId
                         : Guid.Empty,
-                    ScriptJobRunId = Guid.TryParse(parsedString[3], out var parsedRunResultId)
+                    ScriptJobRunPersistentId = Guid.TryParse(parsedString[4], out var parsedRunResultId)
                         ? parsedRunResultId
                         : Guid.Empty,
-                    State = Enum.Parse<PipelineState>(parsedString[4]),
-                    ProgressMessage = parsedString[5]
+                    State = Enum.Parse<PipelineState>(parsedString[5]),
+                    ProgressMessage = parsedString[6]
                 };
         }
         catch (Exception e)
@@ -188,8 +191,8 @@ public static class DataNotifications
     {
         public Guid DatabaseId { get; set; }
         public string ProgressMessage { get; init; } = string.Empty;
-        public Guid ScriptJobId { get; init; }
-        public Guid ScriptJobRunId { get; init; }
+        public Guid ScriptJobPersistentId { get; init; }
+        public Guid ScriptJobRunPersistentId { get; init; }
         public string? Sender { get; init; }
         public PipelineState State { get; set; }
     }

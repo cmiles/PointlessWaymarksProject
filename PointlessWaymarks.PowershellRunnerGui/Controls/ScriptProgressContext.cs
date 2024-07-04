@@ -37,18 +37,21 @@ public partial class ScriptProgressContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var factoryContext = context ?? new StatusControlContext();
+        var factoryStatusContext = context ?? new StatusControlContext();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var toReturn = new ScriptProgressContext
+        var factoryContext = new ScriptProgressContext
         {
-            StatusContext = factoryContext, Items = [], ScriptJobIdFilter = jobIdFilter,
+            StatusContext = factoryStatusContext, Items = [], ScriptJobIdFilter = jobIdFilter,
             ScriptJobRunIdFilter = runIdFilter
         };
-        DataNotifications.NewDataNotificationChannel().MessageReceived += toReturn.OnDataNotificationReceived;
 
-        return toReturn;
+        factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
+            { Processor = factoryContext.DataNotificationReceived };
+        DataNotifications.NewDataNotificationChannel().MessageReceived += factoryContext.OnDataNotificationReceived;
+
+        return factoryContext;
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
@@ -81,6 +84,9 @@ public partial class ScriptProgressContext
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (arg.DatabaseId != _dbId) return;
         if (ScriptJobIdFilter.Any() && !ScriptJobIdFilter.Contains(arg.ScriptJobPersistentId)) return;
         if (ScriptJobRunIdFilter.Any() && !ScriptJobRunIdFilter.Contains(arg.ScriptJobRunPersistentId)) return;
 
@@ -101,12 +107,18 @@ public partial class ScriptProgressContext
 
     private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (arg.DatabaseId != _dbId) return;
+        if (ScriptJobIdFilter.Any() && !ScriptJobIdFilter.Contains(arg.ScriptJobPersistentId)) return;
+        if (ScriptJobRunIdFilter.Any() && !ScriptJobRunIdFilter.Contains(arg.ScriptJobRunPersistentId)) return;
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items.Add(new ScriptStateMessageItem()
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobPersistentId = arg.ScriptJobId, ScriptJobRunPersistentId = arg.ScriptJobRunId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId, State = arg.State
         });
     }
 }
