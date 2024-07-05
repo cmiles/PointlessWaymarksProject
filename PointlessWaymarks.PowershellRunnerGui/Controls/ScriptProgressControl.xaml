@@ -8,6 +8,7 @@
              xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:runspaces="clr-namespace:System.Management.Automation.Runspaces;assembly=System.Management.Automation"
+             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ScriptProgressContext}">
     <UserControl.Resources>
@@ -15,6 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
             <CollectionViewSource x:Key="SortedProgressItems" Source="{Binding Items}"
                                   xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
                 <CollectionViewSource.SortDescriptions>
@@ -23,6 +25,11 @@
             </CollectionViewSource>
             <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptProgressMessageItem}">
                 <Grid>
+                    <Grid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="View Run" Command="{Binding Data.ViewScriptRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding ScriptJobRunPersistentId}"></MenuItem>
+                        </ContextMenu>
+                    </Grid.ContextMenu>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -114,7 +121,7 @@
                                                 StateTemplate="{StaticResource ProgressStateDataTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
+    <Grid Margin="4">
         <GroupBox Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Style="{StaticResource ContentListListBoxStyle}"

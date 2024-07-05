@@ -11,11 +11,18 @@ using TinyIpc.Messaging;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
+[GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class ScriptJobRunListContext
 {
     private string _databaseFile = string.Empty;
     private Guid _dbId = Guid.Empty;
     private string _key = string.Empty;
+
+    public ScriptJobRunListContext()
+    {
+    }
+
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required string FilterDescription { get; set; }
     public required ObservableCollection<ScriptJobRunGuiView> Items { get; set; }
@@ -42,7 +49,7 @@ public partial class ScriptJobRunListContext
 
         string filterDescription;
         if (jobFilter.Any())
-            filterDescription = string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name));
+            filterDescription = $"Jobs: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}";
         else
             filterDescription = "All Jobs";
 
@@ -84,6 +91,8 @@ public partial class ScriptJobRunListContext
             _dbId = dbId
         };
 
+        factoryContext.BuildCommands();
+
         factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
             { Processor = factoryContext.DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += factoryContext.OnDataNotificationReceived;
@@ -110,6 +119,33 @@ public partial class ScriptJobRunListContext
         );
 
         if (toRun is not null) await toRun;
+    }
+
+    [NonBlockingCommand]
+    public async Task DiffSelectedRun()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        if (SelectedItems.Count > 2)
+        {
+            StatusContext.ToastError($"Selected 2 Runs to Diff - {SelectedItems.Count} Selected?");
+            return;
+        }
+
+        if (SelectedItems.Count == 2)
+        {
+            await ScriptJobRunOutputDiffWindow.CreateInstance(SelectedItems[0].PersistentId,
+                SelectedItems[1].PersistentId, _databaseFile);
+            return;
+        }
+
+        await ScriptJobRunOutputDiffWindow.CreateInstance(SelectedItems[0].PersistentId, null, _databaseFile);
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
@@ -212,5 +248,33 @@ public partial class ScriptJobRunListContext
 
             Items.Add(toAdd);
         }
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewRun(Guid? persistentGuid)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (persistentGuid == null)
+        {
+            StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(persistentGuid.Value, _databaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewSelectedRun()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItem == null)
+        {
+            StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(SelectedItem.PersistentId, _databaseFile);
     }
 }

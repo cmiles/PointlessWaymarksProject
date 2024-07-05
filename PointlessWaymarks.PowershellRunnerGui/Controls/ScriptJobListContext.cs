@@ -148,8 +148,7 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await ScriptJobEditorWindow.CreateInstance(toEdit.DbEntry, DatabaseFile);
-        window.PositionWindowAndShow();
+        await ScriptJobEditorWindow.CreateInstance(toEdit.DbEntry, DatabaseFile);
     }
 
 
@@ -166,8 +165,7 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await ScriptJobEditorWindow.CreateInstance(SelectedItem.DbEntry, DatabaseFile);
-        window.PositionWindowAndShow();
+        await ScriptJobEditorWindow.CreateInstance(SelectedItem.DbEntry, DatabaseFile);
     }
 
     [NonBlockingCommand]
@@ -183,8 +181,7 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = await ScriptJobEditorWindow.CreateInstance(newJob, DatabaseFile);
-        window.PositionWindowAndShow();
+        await ScriptJobEditorWindow.CreateInstance(newJob, DatabaseFile);
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
@@ -273,7 +270,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await PowerShellRun.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
+        await PowerShellRunner.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
             "Run From PowerShell Runner Gui");
     }
 
@@ -288,7 +285,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await PowerShellRun.ExecuteJob(SelectedItem.DbEntry.PersistentId, DatabaseFile,
+        await PowerShellRunner.ExecuteJob(SelectedItem.DbEntry.PersistentId, DatabaseFile,
             "Run From PowerShell Runner Gui");
     }
 
@@ -303,29 +300,28 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await PowerShellRun.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
+        await PowerShellRunner.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
             "Run From PowerShell Runner Gui",
             async run =>
             {
-                var window = await ScriptProgressWindow.CreateInstance(run.ScriptJobPersistentId.AsList(), run.PersistentId.AsList(),
+                await ScriptProgressWindow.CreateInstance(run.ScriptJobPersistentId.AsList(), run.PersistentId.AsList(),
                     _databaseFile);
-                await window.PositionWindowAndShowOnUiThread();
             });
     }
 
     [NonBlockingCommand]
-    public async Task ShowLastJobRun(ScriptJobListListItem? toEdit)
+    public async Task ShowLastJobRun(ScriptJobListListItem? toShow)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (toEdit == null)
+        if (toShow == null)
         {
             StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
         var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
-        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toEdit.DbEntry.PersistentId)
+        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toShow.DbEntry.PersistentId)
             .OrderByDescending(x => x.CompletedOnUtc)
             .FirstOrDefault();
 
@@ -336,5 +332,19 @@ public partial class ScriptJobListContext
         }
 
         await ScriptJobRunViewerWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ShowRunList(ScriptJobListListItem? toShow)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toShow == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        await ScriptJobRunListWindow.CreateInstance(toShow.DbEntry.PersistentId.AsList(), DatabaseFile);
     }
 }

@@ -9,6 +9,7 @@ using TinyIpc.Messaging;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
+[GenerateStatusCommands]
 [StaThreadConstructorGuard]
 public partial class ScriptProgressContext
 {
@@ -46,6 +47,8 @@ public partial class ScriptProgressContext
             StatusContext = factoryStatusContext, Items = [], ScriptJobIdFilter = jobIdFilter,
             ScriptJobRunIdFilter = runIdFilter
         };
+
+        factoryContext.BuildCommands();
 
         factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
             { Processor = factoryContext.DataNotificationReceived };
@@ -118,7 +121,22 @@ public partial class ScriptProgressContext
         Items.Add(new ScriptStateMessageItem()
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId,
+            State = arg.State
         });
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewScriptRun(Guid? runPersistentId)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (runPersistentId == null)
+        {
+            StatusContext.ToastError("No Run Id Provided?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(runPersistentId.Value, _databaseFile);
     }
 }

@@ -3,6 +3,7 @@ using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -30,7 +31,7 @@ public partial class ScriptJobEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<ScriptJobEditorWindow> CreateInstance(ScriptJob toLoad, string databaseFile)
+    public static async Task CreateInstance(ScriptJob toLoad, string databaseFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -47,6 +48,6 @@ public partial class ScriptJobEditorWindow
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        return window;
+        await window.PositionWindowAndShowOnUiThread();
     }
 }

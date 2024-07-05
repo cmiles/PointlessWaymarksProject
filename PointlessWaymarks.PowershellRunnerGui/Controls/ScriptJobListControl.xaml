@@ -165,6 +165,7 @@
                                     <Button Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Edit</Button>
                                     <Button Command="{Binding Data.DiffLastRunsCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Diff Last Runs</Button>
                                     <Button Command="{Binding Data.ShowLastJobRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">View Last Run</Button>
+                                    <Button Command="{Binding Data.ShowRunListCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">View Run List</Button>
                                     <Button Command="{Binding Data.RunJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Run</Button>
                                     <Button Command="{Binding Data.RunWithProgressWindowCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Run with Progress Window</Button>
                                 </WrapPanel>

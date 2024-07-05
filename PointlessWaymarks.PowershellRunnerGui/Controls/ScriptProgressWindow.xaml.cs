@@ -3,6 +3,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -27,7 +28,7 @@ public partial class ScriptProgressWindow
     public ScriptProgressContext? ProgressContext { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
-    public static async Task<ScriptProgressWindow> CreateInstance(List<Guid> jobIdFilter, List<Guid> runIdFilter,
+    public static async Task CreateInstance(List<Guid> jobIdFilter, List<Guid> runIdFilter,
         string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -86,8 +87,6 @@ public partial class ScriptProgressWindow
         window.ProgressContext =
             await ScriptProgressContext.CreateInstance(window.StatusContext, jobIdFilter, runIdFilter, window._databaseFile);
 
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        return window;
+        await window.PositionWindowAndShowOnUiThread();
     }
 }

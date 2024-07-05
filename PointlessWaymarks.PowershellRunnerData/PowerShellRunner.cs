@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
@@ -9,7 +10,7 @@ using Serilog;
 
 namespace PointlessWaymarks.PowerShellRunnerData;
 
-public class PowerShellRun
+public class PowerShellRunner
 {
     public static async Task<ScriptJobRun?> ExecuteJob(Guid jobId, string databaseFile, string runType, Func<ScriptJobRun, Task>? callbackAfterJobFirstSave = null)
     {
