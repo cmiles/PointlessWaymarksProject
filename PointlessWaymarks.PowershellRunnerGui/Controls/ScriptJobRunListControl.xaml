@@ -7,6 +7,7 @@
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:filterDataGrid="http://filterdatagrid.control.com/2021"
              xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:powerShellEditor="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.PowerShellEditor"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ScriptJobRunListContext}">
     <UserControl.Resources>
@@ -14,50 +15,93 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <CollectionViewSource x:Key="SortedItems" Source="{Binding Items}"
+                                  xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
+                <CollectionViewSource.SortDescriptions>
+                    <scm:SortDescription PropertyName="StartedOn" Direction="Descending" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
+    <Grid Margin="4">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Border>
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding FilterDescription}" />
+            <TextBox Margin="16,6,4,6" FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                     Text="{Binding FilterDescription}" />
         </Border>
-        <GroupBox Grid.Row="1" Header="Script Job Runs">
-            <filterDataGrid:FilterDataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
-                      behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
-                      Margin="4,0,4,4"
-                      AlternatingRowBackground="Gainsboro"
-                      AlternationCount="1"
-                      AutoGenerateColumns="False"
-                      CanUserAddRows="False"
-                      CanUserResizeColumns="True"
-                      IsReadOnly="True"
-                      ShowStatusBar="True"
-                      DateFormatString="G">
+        <GroupBox Grid.Row="1" Header="Script Job Runs" Margin="4">
+            <filterDataGrid:FilterDataGrid ItemsSource="{Binding Source={StaticResource SortedItems}}" SelectedItem="{Binding SelectedItem}"
+                                           behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
+                                           Margin="4,3,4,4"
+                                           AlternatingRowBackground="Gainsboro"
+                                           AlternationCount="1"
+                                           AutoGenerateColumns="False"
+                                           CanUserAddRows="False"
+                                           CanUserResizeColumns="True"
+                                           IsReadOnly="True"
+                                           ShowStatusBar="True"
+                                           DateFormatString="G">
                 <filterDataGrid:FilterDataGrid.Columns>
-                    <filterDataGrid:DataGridTextColumn Binding="{Binding StartedOn}" FieldName="StartedOn" Header="Started On" IsColumnFiltered="True"></filterDataGrid:DataGridTextColumn>
-                    <filterDataGrid:DataGridTextColumn Binding="{Binding CompletedOn}" FieldName="CompletedOn" Header="Completed On"  IsColumnFiltered="True"></filterDataGrid:DataGridTextColumn>
-                    <filterDataGrid:DataGridTextColumn Binding="{Binding Errors}" FieldName="Errors" Header="Errors" IsColumnFiltered="True"></filterDataGrid:DataGridTextColumn>
-                    <filterDataGrid:DataGridTextColumn Binding="{Binding RunType}" FieldName="RunType" Header="Run Type" IsColumnFiltered="True"></filterDataGrid:DataGridTextColumn>
-                    <filterDataGrid:DataGridTextColumn Binding="{Binding PersistentId}" FieldName="PersistentId" Header="Id" IsColumnFiltered="True"></filterDataGrid:DataGridTextColumn>
+                    <filterDataGrid:DataGridTextColumn Binding="{Binding StartedOn}" FieldName="StartedOn"
+                                                       Header="Started On" IsColumnFiltered="True">
+                    </filterDataGrid:DataGridTextColumn>
+                    <filterDataGrid:DataGridTextColumn Binding="{Binding CompletedOn}" FieldName="CompletedOn"
+                                                       Header="Completed On" IsColumnFiltered="True">
+                    </filterDataGrid:DataGridTextColumn>
+                    <filterDataGrid:DataGridTextColumn Binding="{Binding Errors}" FieldName="Errors" Header="Errors"
+                                                       IsColumnFiltered="True">
+                        <filterDataGrid:DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="FontWeight" Value="Normal" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Errors}" Value="true">
+                                        <Setter Property="Foreground" Value="Red" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </filterDataGrid:DataGridTextColumn.CellStyle>
+                    </filterDataGrid:DataGridTextColumn>
+                    <filterDataGrid:DataGridTextColumn Binding="{Binding RunType}" FieldName="RunType"
+                                                       Header="Run Type" IsColumnFiltered="True">
+                    </filterDataGrid:DataGridTextColumn>
+                    <filterDataGrid:DataGridTextColumn Binding="{Binding PersistentId}" FieldName="PersistentId"
+                                                       Header="Id" IsColumnFiltered="True">
+                    </filterDataGrid:DataGridTextColumn>
                     <filterDataGrid:DataGridTemplateColumn IsColumnFiltered="False" FieldName="View Job">
                         <filterDataGrid:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Command="{Binding Data.ViewRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding PersistentId}">View</Button>
+                                <Button Margin="2,1,2,1" Padding="4,0,4,0"
+                                        Command="{Binding Data.ViewRunCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding PersistentId}">
+                                    View
+                                </Button>
                             </DataTemplate>
                         </filterDataGrid:DataGridTemplateColumn.CellTemplate>
                     </filterDataGrid:DataGridTemplateColumn>
                 </filterDataGrid:FilterDataGrid.Columns>
             </filterDataGrid:FilterDataGrid>
         </GroupBox>
-        <Border Grid.Row="2">
-            <WrapPanel Orientation="Horizontal">
-                <Button Command="{Binding ViewSelectedRunCommand}">View Selected</Button>
-                <Button Command="{Binding DiffSelectedRunCommand}">Diff Selected</Button>
+        <Grid Grid.Row="2" Margin="4,0,4,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
+                <ColumnDefinition Width="3*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <powerShellEditor:PowerShellEditorControl DataContext="{Binding ScriptViewerContext}"></powerShellEditor:PowerShellEditorControl>
+            <GroupBox Grid.Column="1" Margin="8,0,0,0" Header="Output">
+                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap" Text="{Binding SelectedItem.TranslatedOutput}"></TextBox>
+            </GroupBox>
+        </Grid>
+        <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Command="{Binding ViewSelectedRunCommand}" Style="{StaticResource ActionPanelButtonStyle}">View Selected</Button>
+                <Button Command="{Binding DiffSelectedRunCommand}" Style="{StaticResource ActionPanelButtonStyle}">Diff Selected</Button>
             </WrapPanel>
         </Border>
     </Grid>

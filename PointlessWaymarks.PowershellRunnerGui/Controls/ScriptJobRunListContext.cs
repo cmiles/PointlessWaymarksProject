@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 using Serilog;
 using TinyIpc.Messaging;
 
@@ -21,12 +23,14 @@ public partial class ScriptJobRunListContext
 
     public ScriptJobRunListContext()
     {
+        PropertyChanged += OnPropertyChanged;
     }
 
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public required string FilterDescription { get; set; }
     public required ObservableCollection<ScriptJobRunGuiView> Items { get; set; }
     public List<Guid> JobFilter { get; set; } = [];
+    public StringDataEntryNoIndicatorsContext ScriptViewerContext { get; set; }
     public ScriptJobRunGuiView? SelectedItem { get; set; }
     public List<ScriptJobRunGuiView> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
@@ -49,7 +53,7 @@ public partial class ScriptJobRunListContext
 
         string filterDescription;
         if (jobFilter.Any())
-            filterDescription = $"Jobs: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}";
+            filterDescription = $"Job{(possibleJobs.Count > 1 ? "s" : "")}: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}";
         else
             filterDescription = "All Jobs";
 
@@ -78,6 +82,9 @@ public partial class ScriptJobRunListContext
             runList.Add(toAdd);
         }
 
+        var factoryScriptViewerContext = StringDataEntryNoIndicatorsContext.CreateInstance();
+        factoryScriptViewerContext.Title = "Script";
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var factoryContext = new ScriptJobRunListContext
@@ -86,6 +93,7 @@ public partial class ScriptJobRunListContext
             Items = new ObservableCollection<ScriptJobRunGuiView>(runList),
             JobFilter = jobFilter,
             FilterDescription = filterDescription,
+            ScriptViewerContext = factoryScriptViewerContext,
             _key = key,
             _databaseFile = databaseFile,
             _dbId = dbId
@@ -151,6 +159,13 @@ public partial class ScriptJobRunListContext
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor?.Enqueue(e);
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+        if (e.PropertyName.Equals(nameof(SelectedItem)))
+            ScriptViewerContext.UserValue = SelectedItem?.TranslatedScript ?? string.Empty;
     }
 
     private async Task ProcessDataUpdateNotification(
