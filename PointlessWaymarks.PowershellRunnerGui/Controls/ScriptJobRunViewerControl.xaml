@@ -20,52 +20,59 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <StackPanel>
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding Job.Name, StringFormat='Job: {0}'}" />
-            <StackPanel>
-                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding Job.Description, StringFormat='Job: {0}'}" />
-                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding RunView.StartedOn, StringFormat='Started On: {0:G}'}" />
-                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding RunView.CompletedOn, FallbackValue='(Not ManipulationCompleted)', StringFormat='Completed: {0:G}'}" />
-                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding RunView.Id, StringFormat='Job Id: {0}'}" />
-                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                         Text="{Binding RunView.RunType, StringFormat='Run Type: {0}'}" />
-                <TextBox Text="{Binding RunView.Errors, StringFormat='Errors: {0}'}">
-                    <TextBox.Style>
-                        <Style BasedOn="{StaticResource ReadOnlyTextBoxStyle}" TargetType="TextBox">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding RunView.Errors}" Value="True">
-                                    <Setter Property="Foreground" Value="Red" />
-                                    <Setter Property="FontWeight" Value="Bold" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBox.Style>
-                </TextBox>
-            </StackPanel>
+        <StackPanel Margin="4">
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Margin="4" FontWeight="Bold"
+                     Text="{Binding Job.Name}" />
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                     Text="{Binding Job.Description}" Margin="12,0,4,0" />
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                     Text="{Binding RunView.StartedOn, StringFormat='Started On: {0:G}'}" Margin="12,8,4,0" />
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                     Text="{Binding RunView.CompletedOn, FallbackValue='(Not ManipulationCompleted)', StringFormat='Completed: {0:G}'}"
+                     Margin="12,2,4,0" />
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                     Text="{Binding RunView.RunType, StringFormat='Run Type: {0}'}" Margin="12,8,4,0" />
+            <TextBox Text="{Binding RunView.Errors, StringFormat='Errors: {0}'}" Margin="12,2,4,0">
+                <TextBox.Style>
+                    <Style BasedOn="{StaticResource ReadOnlyTextBoxStyle}" TargetType="TextBox">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RunView.Errors}" Value="True">
+                                <Setter Property="Foreground" Value="Red" />
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                     Text="{Binding RunView.ScriptJobPersistentId, StringFormat='Job Id: {0}'}" Margin="12,8,4,0" />
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                     Text="{Binding RunView.PersistentId, StringFormat='Run Id: {0}'}" Margin="12,2,4,0" />
         </StackPanel>
-        <Grid Grid.Row="1">
-            <avalonedit:TextEditor
-                Name="TextEditor"
-                HorizontalScrollBarVisibility="Disabled"
-                SyntaxHighlighting="PowerShell"
-                IsReadOnly="True">
-                <b:Interaction.Behaviors>
-                    <powerShellEditor:AvalonEditRenderedStringBindingBehaviour
-                        RenderedText="{Binding RunView.TranslatedScript, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-                </b:Interaction.Behaviors>
-            </avalonedit:TextEditor>
-        </Grid>
-        <Grid Grid.Row="2">
-            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" VerticalScrollBarVisibility="Visible"
-                     AcceptsReturn="True" TextWrapping="Wrap"
-                     Text="{Binding RunView.TranslatedOutput}" />
+        <Grid Grid.Row="1" Margin="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" MaxHeight="250"/>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <GroupBox Header="Script" Margin="4">
+                <avalonedit:TextEditor
+                    Name="TextEditor"
+                    HorizontalScrollBarVisibility="Disabled"
+                    SyntaxHighlighting="PowerShell"
+                    IsReadOnly="True">
+                    <b:Interaction.Behaviors>
+                        <powerShellEditor:AvalonEditRenderedStringBindingBehaviour
+                            RenderedText="{Binding RunView.TranslatedScript, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </b:Interaction.Behaviors>
+                </avalonedit:TextEditor>
+            </GroupBox>
+            <GroupBox Grid.Row="1" Header="Output" Margin="4">
+                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" VerticalScrollBarVisibility="Visible"
+                         AcceptsReturn="True" TextWrapping="Wrap"
+                         Text="{Binding RunView.TranslatedOutput}" />
+            </GroupBox>
         </Grid>
     </Grid>
 

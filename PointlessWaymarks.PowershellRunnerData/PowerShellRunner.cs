@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
@@ -12,21 +11,27 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 
 public class PowerShellRunner
 {
-    public static async Task<ScriptJobRun?> ExecuteJob(Guid jobId, string databaseFile, string runType, Func<ScriptJobRun, Task>? callbackAfterJobFirstSave = null)
+    public static async Task<ScriptJobRun?> ExecuteJob(Guid jobId, string databaseFile, string runType,
+        Func<ScriptJobRun, Task>? callbackAfterJobFirstSave = null)
     {
         var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var job = await db.ScriptJobs.FirstOrDefaultAsync(x => x.PersistentId == jobId);
 
         if (job == null) return null;
 
-        var run = new ScriptJobRun { ScriptJobPersistentId = job.PersistentId, PersistentId = Guid.NewGuid(), StartedOnUtc = DateTime.UtcNow, Script = job.Script, RunType = runType };
+        var run = new ScriptJobRun
+        {
+            ScriptJobPersistentId = job.PersistentId, PersistentId = Guid.NewGuid(), StartedOnUtc = DateTime.UtcNow,
+            Script = job.Script, RunType = runType
+        };
         var obfuscationKey = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
         db.ScriptJobRuns.Add(run);
         await db.SaveChangesAsync();
 
-        DataNotifications.PublishRunDataNotification(nameof(ExecuteJob), DataNotifications.DataNotificationUpdateType.New, dbId, run.ScriptJobPersistentId, run.PersistentId);
+        DataNotifications.PublishRunDataNotification(nameof(ExecuteJob),
+            DataNotifications.DataNotificationUpdateType.New, dbId, run.ScriptJobPersistentId, run.PersistentId);
 
         if (callbackAfterJobFirstSave != null) await callbackAfterJobFirstSave(run);
 
@@ -34,7 +39,8 @@ public class PowerShellRunner
 
         try
         {
-            result = await ExecuteScript(job.Script.Decrypt(obfuscationKey), dbId, job.PersistentId, run.PersistentId, job.Name);
+            result = await ExecuteScript(job.Script.Decrypt(obfuscationKey), dbId, job.PersistentId, run.PersistentId,
+                job.Name);
 
             run.CompletedOnUtc = DateTime.UtcNow;
             run.Output = string.Join(Environment.NewLine, result.Value.runLog).Encrypt(obfuscationKey);
@@ -43,7 +49,9 @@ public class PowerShellRunner
         catch (Exception e)
         {
             run.CompletedOnUtc = DateTime.UtcNow;
-            run.Output = string.Join(Environment.NewLine, result?.runLog ?? "Null result - no output available".AsList()).Encrypt(obfuscationKey);
+            run.Output = string
+                .Join(Environment.NewLine, result?.runLog ?? "Null result - no output available".AsList())
+                .Encrypt(obfuscationKey);
             run.Errors = true;
 
             Console.WriteLine(e);
@@ -53,13 +61,15 @@ public class PowerShellRunner
         {
             await db.SaveChangesAsync();
 
-            DataNotifications.PublishRunDataNotification(nameof(ExecuteJob), DataNotifications.DataNotificationUpdateType.Update, dbId, run.ScriptJobPersistentId, run.PersistentId);
+            DataNotifications.PublishRunDataNotification(nameof(ExecuteJob),
+                DataNotifications.DataNotificationUpdateType.Update, dbId, run.ScriptJobPersistentId, run.PersistentId);
         }
 
         return run;
     }
 
-    public static async Task<(bool errors, List<string> runLog)> ExecuteScript(string toInvoke, Guid databaseId, Guid jobId, Guid runId,
+    public static async Task<(bool errors, List<string> runLog)> ExecuteScript(string toInvoke, Guid databaseId,
+        Guid jobId, Guid runId,
         string identifier)
     {
         // create Powershell runspace
@@ -100,7 +110,7 @@ public class PowerShellRunner
         pipeline.Error.DataReady += (_, _) =>
         {
             Collection<object> errorObjects = pipeline.Error.NonBlockingRead();
-            if(errorObjects.Count == 0) return;
+            if (errorObjects.Count == 0) return;
 
             errorData = true;
             foreach (var errorObject in errorObjects)

@@ -1,11 +1,9 @@
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
-using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -13,67 +11,27 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [StaThreadConstructorGuard]
 public partial class ScriptJobListListItem
 {
+    private readonly int _numberOfRunsToShow = 5;
     public string _databaseFile = string.Empty;
     public Guid _dbId = Guid.Empty;
-    private readonly int _numberOfRunsToShow = 5;
 
     public ScriptJobListListItem()
     {
-        IpcNotifications = new NotificationCatcher {RunDataNotification = ProcessRunDataNotification, JobDataNotification = ProcessJobDataNotification, ProgressNotification = ProcessProgressNotification, StateNotification = ProcessStateNotification};
-        
-    }
-
-    private async Task ProcessJobDataNotification(DataNotifications.InterProcessJobDataNotification arg)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (arg.DatabaseId != _dbId || arg.JobPersistentId != DbEntry.PersistentId) return;
-
-        if (arg.UpdateType == DataNotifications.DataNotificationUpdateType.Delete) return;
-
-        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
-        var newDbEntry = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == DbEntry.PersistentId);
-
-        if (newDbEntry is null) return;
-
-        DbEntry = newDbEntry;
-    }
-
-    private async Task ProcessRunDataNotification(DataNotifications.InterProcessRunDataNotification arg)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if(arg.DatabaseId != _dbId || arg.JobPersistentId != DbEntry.PersistentId) return;
-
-        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
-        var newDbEntry = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == DbEntry.PersistentId);
-
-        if (newDbEntry is null) return;
-
-        if (Items.Count < _numberOfRunsToShow)
+        IpcNotifications = new NotificationCatcher
         {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            Items.Add(newDbEntry);
-            return;
-        }
-
-        var currentMin = Items.MinBy(x => x.StartedOnUtc);
-        if(newDbEntry.StartedOnUtc > currentMin!.StartedOnUtc)
-        {
-            await ThreadSwitcher.ResumeForegroundAsync();
-            Items.Remove(currentMin);
-            Items.Add(newDbEntry);
-        }
+            RunDataNotification = ProcessRunDataNotification, JobDataNotification = ProcessJobDataNotification,
+            ProgressNotification = ProcessProgressNotification, StateNotification = ProcessStateNotification
+        };
     }
 
     public string CronDescription { get; set; } = string.Empty;
     public required ScriptJob DbEntry { get; set; }
+    public NotificationCatcher IpcNotifications { get; set; }
     public required ObservableCollection<ScriptJobRun> Items { get; set; } = [];
     public IPowerShellProgress? LastProgressItem { get; set; }
     public DateTime? NextRun { get; set; }
     public ScriptJobRun? SelectedItem { get; set; }
     public List<ScriptJobRun> SelectedItems { get; set; } = [];
-    public NotificationCatcher IpcNotifications { get; set; }
 
     public static async Task<ScriptJobListListItem> CreateInstance(ScriptJob dbEntry, string databaseFile)
     {
@@ -100,6 +58,22 @@ public partial class ScriptJobListListItem
         };
     }
 
+    private async Task ProcessJobDataNotification(DataNotifications.InterProcessJobDataNotification arg)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (arg.DatabaseId != _dbId || arg.JobPersistentId != DbEntry.PersistentId) return;
+
+        if (arg.UpdateType == DataNotifications.DataNotificationUpdateType.Delete) return;
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var newDbEntry = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == DbEntry.PersistentId);
+
+        if (newDbEntry is null) return;
+
+        DbEntry = newDbEntry;
+    }
+
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
         if (arg.ScriptJobPersistentId != DbEntry.PersistentId) return;
@@ -111,6 +85,33 @@ public partial class ScriptJobListListItem
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
         };
+    }
+
+    private async Task ProcessRunDataNotification(DataNotifications.InterProcessRunDataNotification arg)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (arg.DatabaseId != _dbId || arg.JobPersistentId != DbEntry.PersistentId) return;
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var newDbEntry = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == DbEntry.PersistentId);
+
+        if (newDbEntry is null) return;
+
+        if (Items.Count < _numberOfRunsToShow)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            Items.Add(newDbEntry);
+            return;
+        }
+
+        var currentMin = Items.MinBy(x => x.StartedOnUtc);
+        if (newDbEntry.StartedOnUtc > currentMin!.StartedOnUtc)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            Items.Remove(currentMin);
+            Items.Add(newDbEntry);
+        }
     }
 
     private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)

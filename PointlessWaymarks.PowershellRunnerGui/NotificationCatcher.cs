@@ -15,15 +15,7 @@ public class NotificationCatcher
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
-    public Guid? DbId { get; set; } = Guid.Empty;
-
-    public Func<DataNotifications.InterProcessJobDataNotification, Task> JobDataNotification { get; set; } =
-        _ => Task.CompletedTask;
-
-    public Func<DataNotifications.InterProcessRunDataNotification, Task> RunDataNotification { get; set; } =
-        _ => Task.CompletedTask;
-
-    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    private DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
 
     public Func<DataNotifications.InterProcessProcessingError, Task> ErrorNotification { get; set; } = x =>
     {
@@ -32,7 +24,13 @@ public class NotificationCatcher
         return Task.CompletedTask;
     };
 
+    public Func<DataNotifications.InterProcessJobDataNotification, Task> JobDataNotification { get; set; } =
+        _ => Task.CompletedTask;
+
     public Func<DataNotifications.InterProcessPowershellProgressNotification, Task> ProgressNotification { get; set; } =
+        _ => Task.CompletedTask;
+
+    public Func<DataNotifications.InterProcessRunDataNotification, Task> RunDataNotification { get; set; } =
         _ => Task.CompletedTask;
 
     public Func<DataNotifications.InterProcessPowershellStateNotification, Task> StateNotification { get; set; } =

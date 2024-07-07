@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Windows;
 using CronExpressionDescriptor;
 using Cronos;
 using Microsoft.EntityFrameworkCore;
@@ -72,18 +71,25 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        if (MessageBox.Show(
-                "Deleting a Script Job is permanent - Continue?",
-                "Delete Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
-            return;
+        if ((await StatusContext.ShowMessageWithYesNoButton($"Delete Confirmation - Job: {toDelete.DbEntry.Name}",
+                $"Deletes are permanent - this program does have a 'recycle bin' or save any information about a Deleted Job (all job run information will also be deleted!) - are you sure you want to delete {toDelete.DbEntry.Name}?"))
+            .Equals("no", StringComparison.OrdinalIgnoreCase)) return;
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
         var currentItem = await db.ScriptJobs.SingleAsync(x => x.PersistentId == toDelete.DbEntry.PersistentId);
         var currentPersistentId = currentItem.PersistentId;
+
         var currentRuns = await db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == currentItem.PersistentId)
-            .ExecuteDeleteAsync();
+            .ToListAsync();
+        db.ScriptJobRuns.RemoveRange(currentRuns);
+        await db.SaveChangesAsync();
+
+        foreach (var loopScriptJobs in currentRuns)
+            DataNotifications.PublishRunDataNotification("Script Job Run List",
+                DataNotifications.DataNotificationUpdateType.Delete, _dbId, loopScriptJobs.ScriptJobPersistentId,
+                loopScriptJobs.PersistentId);
 
         db.ScriptJobs.Remove(currentItem);
         await db.SaveChangesAsync();
@@ -135,22 +141,6 @@ public partial class ScriptJobListContext
 
 
     [NonBlockingCommand]
-    public async Task EditSelectedJob()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItem == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
-            return;
-        }
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        await ScriptJobEditorWindow.CreateInstance(SelectedItem.DbEntry, DatabaseFile);
-    }
-
-    [NonBlockingCommand]
     public async Task NewJob()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -171,7 +161,7 @@ public partial class ScriptJobListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if(interProcessUpdateNotification.DatabaseId != _dbId) return;
+        if (interProcessUpdateNotification.DatabaseId != _dbId) return;
 
         if (interProcessUpdateNotification is
             {
@@ -244,21 +234,6 @@ public partial class ScriptJobListContext
         }
 
         await PowerShellRunner.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
-            "Run From PowerShell Runner Gui");
-    }
-
-    [NonBlockingCommand]
-    public async Task RunSelectedJob()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItem == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected to Run?");
-            return;
-        }
-
-        await PowerShellRunner.ExecuteJob(SelectedItem.DbEntry.PersistentId, DatabaseFile,
             "Run From PowerShell Runner Gui");
     }
 

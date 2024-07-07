@@ -10,6 +10,7 @@ public partial class ScriptJobRunGuiView
     public DateTime? CompletedOnUtc { get; set; }
     public bool Errors { get; set; }
     public int Id { get; set; }
+    public required ScriptJob Job { get; set; }
     public string Output { get; set; } = string.Empty;
     public required Guid PersistentId { get; set; }
     public string RunType { get; set; } = string.Empty;
@@ -19,5 +20,4 @@ public partial class ScriptJobRunGuiView
     public required DateTime StartedOnUtc { get; set; }
     public string TranslatedOutput { get; set; } = string.Empty;
     public string TranslatedScript { get; set; } = string.Empty;
-    public required ScriptJob Job { get; set; }
 }
