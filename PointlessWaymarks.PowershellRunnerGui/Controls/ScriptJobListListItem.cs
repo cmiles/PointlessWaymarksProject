@@ -15,20 +15,65 @@ public partial class ScriptJobListListItem
 {
     public string _databaseFile = string.Empty;
     public Guid _dbId = Guid.Empty;
+    private readonly int _numberOfRunsToShow = 5;
 
     public ScriptJobListListItem()
     {
-        DataNotificationsProcessor = new DataNotificationsWorkQueue
-            { Processor = DataNotificationReceived };
-        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
+        IpcNotifications = new NotificationCatcher {RunDataNotification = ProcessRunDataNotification, JobDataNotification = ProcessJobDataNotification, ProgressNotification = ProcessProgressNotification, StateNotification = ProcessStateNotification};
+        
     }
 
-    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    private async Task ProcessJobDataNotification(DataNotifications.InterProcessJobDataNotification arg)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (arg.DatabaseId != _dbId || arg.JobPersistentId != DbEntry.PersistentId) return;
+
+        if (arg.UpdateType == DataNotifications.DataNotificationUpdateType.Delete) return;
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var newDbEntry = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == DbEntry.PersistentId);
+
+        if (newDbEntry is null) return;
+
+        DbEntry = newDbEntry;
+    }
+
+    private async Task ProcessRunDataNotification(DataNotifications.InterProcessRunDataNotification arg)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if(arg.DatabaseId != _dbId || arg.JobPersistentId != DbEntry.PersistentId) return;
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var newDbEntry = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == DbEntry.PersistentId);
+
+        if (newDbEntry is null) return;
+
+        if (Items.Count < _numberOfRunsToShow)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            Items.Add(newDbEntry);
+            return;
+        }
+
+        var currentMin = Items.MinBy(x => x.StartedOnUtc);
+        if(newDbEntry.StartedOnUtc > currentMin!.StartedOnUtc)
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            Items.Remove(currentMin);
+            Items.Add(newDbEntry);
+        }
+    }
+
+    public string CronDescription { get; set; } = string.Empty;
     public required ScriptJob DbEntry { get; set; }
     public required ObservableCollection<ScriptJobRun> Items { get; set; } = [];
     public IPowerShellProgress? LastProgressItem { get; set; }
+    public DateTime? NextRun { get; set; }
     public ScriptJobRun? SelectedItem { get; set; }
     public List<ScriptJobRun> SelectedItems { get; set; } = [];
+    public NotificationCatcher IpcNotifications { get; set; }
 
     public static async Task<ScriptJobListListItem> CreateInstance(ScriptJob dbEntry, string databaseFile)
     {
@@ -43,7 +88,7 @@ public partial class ScriptJobListListItem
             .Where(x => x.ScriptJobPersistentId == dbEntry.PersistentId)
             .OrderBy(x => x.CompletedOnUtc == null)
             .ThenByDescending(x => x.CompletedOnUtc)
-            .Take(10)
+            .Take(5)
             .ToListAsync();
 
         return new ScriptJobListListItem
@@ -53,26 +98,6 @@ public partial class ScriptJobListListItem
             _databaseFile = databaseFile,
             _dbId = dbId
         };
-    }
-
-    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
-
-        var toRun = translatedMessage.Match(_ => Task.CompletedTask,
-            ProcessProgressNotification,
-            ProcessStateNotification,
-            null
-        );
-
-        if (toRun is not null) await toRun;
-    }
-
-    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
-    {
-        DataNotificationsProcessor?.Enqueue(e);
     }
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
@@ -97,7 +122,8 @@ public partial class ScriptJobListListItem
         LastProgressItem = new ScriptStateMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId,
+            State = arg.State
         };
     }
 }

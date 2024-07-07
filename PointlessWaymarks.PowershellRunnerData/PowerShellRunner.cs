@@ -26,7 +26,7 @@ public class PowerShellRunner
         db.ScriptJobRuns.Add(run);
         await db.SaveChangesAsync();
 
-        DataNotifications.PublishDataNotification(nameof(ExecuteJob), DataNotifications.DataNotificationContentType.ScriptJobRun, DataNotifications.DataNotificationUpdateType.New, dbId, run.PersistentId);
+        DataNotifications.PublishRunDataNotification(nameof(ExecuteJob), DataNotifications.DataNotificationUpdateType.New, dbId, run.ScriptJobPersistentId, run.PersistentId);
 
         if (callbackAfterJobFirstSave != null) await callbackAfterJobFirstSave(run);
 
@@ -53,7 +53,7 @@ public class PowerShellRunner
         {
             await db.SaveChangesAsync();
 
-            DataNotifications.PublishDataNotification(nameof(ExecuteJob), DataNotifications.DataNotificationContentType.ScriptJobRun, DataNotifications.DataNotificationUpdateType.Update, dbId, run.PersistentId);
+            DataNotifications.PublishRunDataNotification(nameof(ExecuteJob), DataNotifications.DataNotificationUpdateType.Update, dbId, run.ScriptJobPersistentId, run.PersistentId);
         }
 
         return run;

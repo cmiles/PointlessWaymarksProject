@@ -85,7 +85,8 @@ public partial class ScriptProgressWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.ProgressContext =
-            await ScriptProgressContext.CreateInstance(window.StatusContext, jobIdFilter, runIdFilter, window._databaseFile);
+            await ScriptProgressContext.CreateInstance(window.StatusContext, jobIdFilter, runIdFilter,
+                window._databaseFile);
 
         await window.PositionWindowAndShowOnUiThread();
     }

@@ -226,8 +226,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         await db.SaveChangesAsync();
 
-        DataNotifications.PublishDataNotification("Script Job Editor",
-            DataNotifications.DataNotificationContentType.ScriptJob,
+        DataNotifications.PublishJobDataNotification("Script Job Editor",
             newEntry
                 ? DataNotifications.DataNotificationUpdateType.New
                 : DataNotifications.DataNotificationUpdateType.Update, _dbId, toSave.PersistentId);

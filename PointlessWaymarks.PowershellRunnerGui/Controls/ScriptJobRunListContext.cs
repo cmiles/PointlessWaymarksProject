@@ -7,8 +7,6 @@ using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
-using Serilog;
-using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -26,7 +24,7 @@ public partial class ScriptJobRunListContext
         PropertyChanged += OnPropertyChanged;
     }
 
-    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public required string FilterDescription { get; set; }
     public required ObservableCollection<ScriptJobRunGuiView> Items { get; set; }
     public List<Guid> JobFilter { get; set; } = [];
@@ -53,7 +51,8 @@ public partial class ScriptJobRunListContext
 
         string filterDescription;
         if (jobFilter.Any())
-            filterDescription = $"Job{(possibleJobs.Count > 1 ? "s" : "")}: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}";
+            filterDescription =
+                $"Job{(possibleJobs.Count > 1 ? "s" : "")}: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}";
         else
             filterDescription = "All Jobs";
 
@@ -101,32 +100,13 @@ public partial class ScriptJobRunListContext
 
         factoryContext.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
-            { Processor = factoryContext.DataNotificationReceived };
-        DataNotifications.NewDataNotificationChannel().MessageReceived += factoryContext.OnDataNotificationReceived;
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
+        {
+            JobDataNotification = factoryContext.ProcessJobUpdateNotification,
+            RunDataNotification = factoryContext.ProcessRunUpdateNotification
+        };
 
         return factoryContext;
-    }
-
-    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
-
-        var toRun = translatedMessage.Match(ProcessDataUpdateNotification,
-            _ => Task.CompletedTask,
-            _ => Task.CompletedTask,
-            x =>
-            {
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context PersistentId {1}",
-                    x.ErrorMessage,
-                    StatusContext.StatusControlContextId);
-                return Task.CompletedTask;
-            }
-        );
-
-        if (toRun is not null) await toRun;
     }
 
     [NonBlockingCommand]
@@ -156,11 +136,6 @@ public partial class ScriptJobRunListContext
         await ScriptJobRunOutputDiffWindow.CreateInstance(SelectedItems[0].PersistentId, null, _databaseFile);
     }
 
-    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
-    {
-        DataNotificationsProcessor?.Enqueue(e);
-    }
-
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -168,101 +143,102 @@ public partial class ScriptJobRunListContext
             ScriptViewerContext.UserValue = SelectedItem?.TranslatedScript ?? string.Empty;
     }
 
-    private async Task ProcessDataUpdateNotification(
-        DataNotifications.InterProcessDataNotification interProcessUpdateNotification)
+
+    private async Task ProcessJobUpdateNotification(
+        DataNotifications.InterProcessJobDataNotification interProcessUpdateNotification)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (interProcessUpdateNotification.DatabaseId != _dbId ||
-            (interProcessUpdateNotification.ContentType == DataNotifications.DataNotificationContentType.ScriptJob &&
-             !JobFilter.Contains(interProcessUpdateNotification.PersistentId))) return;
+            !JobFilter.Contains(interProcessUpdateNotification.JobPersistentId)) return;
 
-        if (interProcessUpdateNotification is
-            {
-                ContentType: DataNotifications.DataNotificationContentType.ScriptJob
-            })
+        //New or Deletes should be covered by the related notifications on runs
+        if (interProcessUpdateNotification.UpdateType !=
+            DataNotifications.DataNotificationUpdateType.Update) return;
+
+        var updatedJob = await (await PowerShellRunnerDbContext.CreateInstance(_databaseFile))
+            .ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
+        if (updatedJob == null) return;
+
+        var toUpdate = Items.Where(x => x.ScriptJobPersistentId == interProcessUpdateNotification.JobPersistentId)
+            .ToList();
+        toUpdate.ForEach(x => x.Job = updatedJob);
+    }
+
+    private async Task ProcessRunUpdateNotification(
+        DataNotifications.InterProcessRunDataNotification interProcessUpdateNotification)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (interProcessUpdateNotification.DatabaseId != _dbId ||
+            !JobFilter.Contains(interProcessUpdateNotification.JobPersistentId)) return;
+
+        if (interProcessUpdateNotification.UpdateType ==
+            DataNotifications.DataNotificationUpdateType.Delete)
         {
-            //New or Deletes should be covered by the related notifications on runs
-            if (interProcessUpdateNotification.UpdateType !=
-                DataNotifications.DataNotificationUpdateType.Update) return;
+            var toRemove =
+                Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.RunPersistentId);
 
-            var updatedJob = await (await PowerShellRunnerDbContext.CreateInstance(_databaseFile))
-                .ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == interProcessUpdateNotification.PersistentId);
-            if (updatedJob == null) return;
-
-            var toUpdate = Items.Where(x => x.ScriptJobPersistentId == interProcessUpdateNotification.PersistentId)
-                .ToList();
-            toUpdate.ForEach(x => x.Job = updatedJob);
+            if (toRemove != null)
+            {
+                await ThreadSwitcher.ResumeForegroundAsync();
+                Items.Remove(toRemove);
+            }
 
             return;
         }
 
-        if (interProcessUpdateNotification is
-            {
-                ContentType: DataNotifications.DataNotificationContentType.ScriptJobRun
-            })
+        var listItem =
+            Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.RunPersistentId);
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var dbRun =
+            await db.ScriptJobRuns.SingleOrDefaultAsync(x =>
+                x.PersistentId == interProcessUpdateNotification.RunPersistentId);
+
+        if (dbRun == null) return;
+
+        var dbJob = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == dbRun.ScriptJobPersistentId);
+
+        if (dbJob == null) return;
+
+        if (listItem != null)
         {
-            if (interProcessUpdateNotification.UpdateType ==
-                DataNotifications.DataNotificationUpdateType.Delete)
-            {
-                var toRemove =
-                    Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.PersistentId);
-                if (toRemove != null) Items.Remove(toRemove);
-                return;
-            }
-
-            var listItem =
-                Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.PersistentId);
-            var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
-            var dbRun =
-                await db.ScriptJobRuns.SingleOrDefaultAsync(x =>
-                    x.PersistentId == interProcessUpdateNotification.PersistentId);
-
-            if (dbRun == null) return;
-
-            var dbJob = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == dbRun.ScriptJobPersistentId);
-
-            if (dbJob == null) return;
-
-            if (listItem != null)
-            {
-                listItem.Id = dbRun.Id;
-                listItem.CompletedOnUtc = dbRun.CompletedOnUtc;
-                listItem.CompletedOn = dbRun.CompletedOnUtc?.ToLocalTime();
-                listItem.Errors = dbRun.Errors;
-                listItem.Output = dbRun.Output;
-                listItem.RunType = dbRun.RunType;
-                listItem.Script = dbRun.Script;
-                listItem.StartedOnUtc = dbRun.StartedOnUtc;
-                listItem.StartedOn = dbRun.StartedOnUtc.ToLocalTime();
-                listItem.ScriptJobPersistentId = dbRun.ScriptJobPersistentId;
-                listItem.TranslatedOutput = dbRun.Output.Decrypt(_key);
-                listItem.TranslatedScript = dbRun.Script.Decrypt(_key);
-                return;
-            }
-
-            var toAdd = new ScriptJobRunGuiView
-            {
-                Id = dbRun.Id,
-                CompletedOnUtc = dbRun.CompletedOnUtc,
-                CompletedOn = dbRun.CompletedOnUtc?.ToLocalTime(),
-                Errors = dbRun.Errors,
-                Output = dbRun.Output,
-                RunType = dbRun.RunType,
-                Script = dbRun.Script,
-                StartedOnUtc = dbRun.StartedOnUtc,
-                StartedOn = dbRun.StartedOnUtc.ToLocalTime(),
-                ScriptJobPersistentId = dbRun.ScriptJobPersistentId,
-                TranslatedOutput = dbRun.Output.Decrypt(_key),
-                TranslatedScript = dbRun.Script.Decrypt(_key),
-                PersistentId = dbRun.PersistentId,
-                Job = dbJob
-            };
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            Items.Add(toAdd);
+            listItem.Id = dbRun.Id;
+            listItem.CompletedOnUtc = dbRun.CompletedOnUtc;
+            listItem.CompletedOn = dbRun.CompletedOnUtc?.ToLocalTime();
+            listItem.Errors = dbRun.Errors;
+            listItem.Output = dbRun.Output;
+            listItem.RunType = dbRun.RunType;
+            listItem.Script = dbRun.Script;
+            listItem.StartedOnUtc = dbRun.StartedOnUtc;
+            listItem.StartedOn = dbRun.StartedOnUtc.ToLocalTime();
+            listItem.ScriptJobPersistentId = dbRun.ScriptJobPersistentId;
+            listItem.TranslatedOutput = dbRun.Output.Decrypt(_key);
+            listItem.TranslatedScript = dbRun.Script.Decrypt(_key);
+            return;
         }
+
+        var toAdd = new ScriptJobRunGuiView
+        {
+            Id = dbRun.Id,
+            CompletedOnUtc = dbRun.CompletedOnUtc,
+            CompletedOn = dbRun.CompletedOnUtc?.ToLocalTime(),
+            Errors = dbRun.Errors,
+            Output = dbRun.Output,
+            RunType = dbRun.RunType,
+            Script = dbRun.Script,
+            StartedOnUtc = dbRun.StartedOnUtc,
+            StartedOn = dbRun.StartedOnUtc.ToLocalTime(),
+            ScriptJobPersistentId = dbRun.ScriptJobPersistentId,
+            TranslatedOutput = dbRun.Output.Decrypt(_key),
+            TranslatedScript = dbRun.Script.Decrypt(_key),
+            PersistentId = dbRun.PersistentId,
+            Job = dbJob
+        };
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Items.Add(toAdd);
     }
 
     [NonBlockingCommand]

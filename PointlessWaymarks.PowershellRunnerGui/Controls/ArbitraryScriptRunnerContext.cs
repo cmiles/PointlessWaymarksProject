@@ -1,12 +1,9 @@
 using System.Collections.ObjectModel;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
-using Serilog;
-using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -15,8 +12,6 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [GenerateStatusCommands]
 public partial class ArbitraryScriptRunnerContext
 {
-    private readonly Guid _scriptJobId = Guid.NewGuid();
-    private readonly Guid _scriptRunId = Guid.NewGuid();
     private string _databaseFile = string.Empty;
     private Guid _dbId = Guid.Empty;
 
@@ -24,13 +19,26 @@ public partial class ArbitraryScriptRunnerContext
     {
     }
 
-    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<IPowerShellProgress> Items { get; set; }
+    public required Guid ScriptJobId { get; set; }
+    public required Guid ScriptJobRunId { get; set; }
     public bool ScriptRunning { get; set; }
     public IPowerShellProgress? SelectedItem { get; set; }
     public List<IPowerShellProgress> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
     public required StringDataEntryNoIndicatorsContext UserScriptEntryContext { get; set; }
+
+    public static Guid ArbitraryScriptRunnerIdGuid()
+    {
+        var guidString = Guid.NewGuid().ToString("N");
+        var modifiedGuidString = new string('0', 12) + guidString.Substring(12);
+        var formattedGuidString =
+            $"{modifiedGuidString.Substring(0, 8)}-{modifiedGuidString.Substring(8, 4)}-{modifiedGuidString.Substring(12, 4)}-{modifiedGuidString.Substring(16, 4)}-{modifiedGuidString.Substring(20, 12)}";
+
+        var modifiedGuid = Guid.Parse(formattedGuidString);
+        return modifiedGuid;
+    }
 
     public static async Task<ArbitraryScriptRunnerContext> CreateInstance(StatusControlContext? statusContext,
         string databaseFile)
@@ -52,49 +60,27 @@ public partial class ArbitraryScriptRunnerContext
             UserScriptEntryContext = factoryScriptEntry,
             Items = [],
             _databaseFile = databaseFile,
-            _dbId = dbId
+            _dbId = dbId,
+            ScriptJobId = ArbitraryScriptRunnerIdGuid(),
+            ScriptJobRunId = ArbitraryScriptRunnerIdGuid()
         };
 
         factoryContext.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
-            { Processor = factoryContext.DataNotificationReceived };
-        DataNotifications.NewDataNotificationChannel().MessageReceived += factoryContext.OnDataNotificationReceived;
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+        {
+            ProgressNotification = factoryContext.ProcessProgressNotification,
+            StateNotification = factoryContext.ProcessStateNotification
+        };
 
         return factoryContext;
-    }
-
-    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
-
-        var toRun = translatedMessage.Match(_ => Task.CompletedTask,
-            ProcessProgressNotification,
-            ProcessStateNotification,
-            x =>
-            {
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context PersistentId {1}",
-                    x.ErrorMessage,
-                    StatusContext.StatusControlContextId);
-                return Task.CompletedTask;
-            }
-        );
-
-        if (toRun is not null) await toRun;
-    }
-
-    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
-    {
-        DataNotificationsProcessor?.Enqueue(e);
     }
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (arg.ScriptJobPersistentId != _scriptJobId || arg.ScriptJobRunPersistentId != _scriptRunId ||
+        if (arg.ScriptJobPersistentId != ScriptJobId || arg.ScriptJobRunPersistentId != ScriptJobRunId ||
             arg.DatabaseId != _dbId) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -114,14 +100,15 @@ public partial class ArbitraryScriptRunnerContext
 
     private async Task ProcessStateNotification(DataNotifications.InterProcessPowershellStateNotification arg)
     {
-        if (arg.ScriptJobPersistentId != _scriptJobId || arg.ScriptJobRunPersistentId != _scriptRunId) return;
+        if (arg.ScriptJobPersistentId != ScriptJobId || arg.ScriptJobRunPersistentId != ScriptJobRunId) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         Items.Add(new ScriptStateMessageItem()
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
-            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId, State = arg.State
+            ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId,
+            State = arg.State
         });
     }
 
@@ -138,7 +125,7 @@ public partial class ArbitraryScriptRunnerContext
 
         try
         {
-            await PowerShellRunner.ExecuteScript(UserScriptEntryContext.UserValue, _dbId, _scriptJobId, _scriptRunId,
+            await PowerShellRunner.ExecuteScript(UserScriptEntryContext.UserValue, _dbId, ScriptJobId, ScriptJobRunId,
                 "Arbitrary Script");
         }
         catch (Exception e)

@@ -30,7 +30,7 @@
             <TextBox Margin="16,6,4,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
                      Text="{Binding CronDescription, StringFormat='Description: {0}'}" />
             <TextBox Margin="16,2,4,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                     Text="{Binding CronNextRun, StringFormat='Next Run: {0}'}" />
+                     Text="{Binding CronNextRun, StringFormat='Next Run: {0:g}'}" />
             <boolDataEntry:BoolDataEntryControl Margin="6,10,4,0" DataContext="{Binding EnabledEntry}" />
         </StackPanel>
         <powerShellEditor:PowerShellEditorControl Margin="2,4,6,12" DataContext="{Binding ScriptEntry}" Grid.Row="1" />

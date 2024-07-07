@@ -7,6 +7,7 @@
              xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:runspaces="clr-namespace:System.Management.Automation.Runspaces;assembly=System.Management.Automation"
+             xmlns:models="clr-namespace:PointlessWaymarks.PowerShellRunnerData.Models;assembly=PointlessWaymarks.PowerShellRunnerData"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ScriptJobListContext}">
     <UserControl.Resources>
@@ -140,39 +141,86 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="80" />
                                 </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="240"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
                                 <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
                                          TextWrapping="Wrap">
                                     <TextBox.Text>
-                                        <MultiBinding StringFormat="{}{0} - PersistentId {1}">
+                                        <MultiBinding StringFormat="{}{0} - Id  {1}">
                                             <Binding Path="DbEntry.Name" />
-                                            <Binding Path="DbEntry.Id" />
+                                            <Binding Path="DbEntry.PersistentId" />
                                         </MultiBinding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <TextBox Grid.Row="1" Margin="6,4,0,0"
-                                         Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap"
-                                         VerticalAlignment="Top">
-                                    <TextBox.Text>
-                                        <MultiBinding StringFormat="{}{0} - Enabled: {1}">
-                                            <Binding Path="DbEntry.CronExpression" />
-                                            <Binding Path="DbEntry.ScheduleEnabled" />
-                                        </MultiBinding>
-                                    </TextBox.Text>
-                                </TextBox>
-                                <TextBox Grid.Row="2" Margin="6,4,0,0" Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                <TextBox Grid.Row="1" Margin="6,4,4,0" Style="{StaticResource ReadOnlyTextBoxStyle}"
                                          Text="{Binding DbEntry.Description}" TextWrapping="Wrap" />
-                                <WrapPanel Grid.Row="3"  Orientation="Horizontal">
-                                    <Button Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Edit</Button>
-                                    <Button Command="{Binding Data.DiffLastRunsCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Diff Last Runs</Button>
-                                    <Button Command="{Binding Data.ShowLastJobRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">View Last Run</Button>
-                                    <Button Command="{Binding Data.ShowRunListCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">View Run List</Button>
-                                    <Button Command="{Binding Data.RunJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Run</Button>
-                                    <Button Command="{Binding Data.RunWithProgressWindowCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Run with Progress Window</Button>
+                                <TextBox Grid.Row="2" Margin="12,6,4,0"
+                                         Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap"
+                                         VerticalAlignment="Top"
+                                         Visibility="{Binding DbEntry.CronExpression, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
+                                    <TextBox.Text>
+                                        <MultiBinding StringFormat="{}{0} ({1}) - Enabled: {2} - Next Run: {3:g}">
+                                            <Binding Path="DbEntry.CronExpression" />
+                                            <Binding Path="CronDescription" />
+                                            <Binding Path="DbEntry.ScheduleEnabled" />
+                                            <Binding Path="NextRun" />
+                                        </MultiBinding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <WrapPanel Grid.Row="3" Orientation="Horizontal" Margin="6,10,4,0">
+                                    <WrapPanel.Resources>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Margin" Value="2"></Setter>
+                                            <Setter Property="Padding" Value="10,4,8,4"></Setter>
+                                        </Style>
+                                    </WrapPanel.Resources>
+                                    <Button Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding .}">
+                                        Edit
+                                    </Button>
+                                    <Button Command="{Binding Data.DiffLastRunsCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding .}">
+                                        Diff Last Runs
+                                    </Button>
+                                    <Button
+                                        Command="{Binding Data.ShowLastJobRunCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding .}">
+                                        View Last Run
+                                    </Button>
+                                    <Button Command="{Binding Data.ShowRunListCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding .}">
+                                        View Run List
+                                    </Button>
+                                    <Button Command="{Binding Data.RunJobCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding .}">
+                                        Run
+                                    </Button>
+                                    <Button
+                                        Command="{Binding Data.RunWithProgressWindowCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding .}">
+                                        Run with Progress Window
+                                    </Button>
                                 </WrapPanel>
-                                <GroupBox Grid.Row="4" Margin="24,0,0,4"
+                                <GroupBox Grid.Row="4" Grid.Column="0" Margin="6,8,0,4"
                                           Header="Latest Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
                                     <ContentControl ContentTemplateSelector="{StaticResource ProgressSelectorTemplate}"
                                                     Content="{Binding LastProgressItem}" />
+                                </GroupBox>
+                                <GroupBox Header="Recent Runs" Grid.Column="1" Grid.RowSpan="5" Grid.Row="0" Margin="6,4,2,4" MaxHeight="300" VerticalAlignment="Top">
+                                    <ListBox ItemsSource="{Binding Items}" SelectionMode="Single"
+                                             SelectedItem="{Binding SelectedItem}" BorderThickness="0">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type models:ScriptJobRun}">
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock Text="{Binding StartedOnUtc, StringFormat='{}{0:g}'}"></TextBlock>
+                                                    <TextBlock Text="{Binding CompletedOnUtc, StringFormat='{}{0:g}'}"></TextBlock>
+                                                    <TextBlock Text="{Binding Errors}"></TextBlock>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
                                 </GroupBox>
                             </Grid>
                         </Border>

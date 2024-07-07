@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using CronExpressionDescriptor;
+using Cronos;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -7,9 +9,6 @@ using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using PointlessWaymarks.WpfCommon.Utility;
-using Serilog;
-using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -17,10 +16,11 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [GenerateStatusCommands]
 public partial class ScriptJobListContext
 {
+    private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(30));
     private string _databaseFile = string.Empty;
     private Guid _dbId = Guid.Empty;
     public required string DatabaseFile { get; set; }
-    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<ScriptJobListListItem> Items { get; set; }
     public ScriptJobListListItem? SelectedItem { get; set; }
     public List<ScriptJobListListItem> SelectedItems { get; set; } = [];
@@ -33,7 +33,7 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContext = new ScriptJobListContext
+        var factoryContext = new ScriptJobListContext
         {
             StatusContext = statusContext ?? new StatusControlContext(),
             Items = [],
@@ -44,36 +44,19 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        newContext.BuildCommands();
-        await newContext.RefreshList();
+        factoryContext.BuildCommands();
+        await factoryContext.RefreshList();
 
-        newContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
-            { Processor = newContext.DataNotificationReceived };
-        DataNotifications.NewDataNotificationChannel().MessageReceived += newContext.OnDataNotificationReceived;
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+        {
+            JobDataNotification = factoryContext.ProcessJobDataUpdateNotification
+        };
 
-        return newContext;
-    }
+        factoryContext.UpdateCronExpressionInformation();
 
-    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        factoryContext.UpdateCronNextRun();
 
-        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
-
-        var toRun = translatedMessage.Match(ProcessDataUpdateNotification,
-            _ => Task.CompletedTask,
-            _ => Task.CompletedTask,
-            x =>
-            {
-                StatusContext.ToastError(x.ErrorMessage);
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context PersistentId {1}",
-                    x.ErrorMessage,
-                    StatusContext.StatusControlContextId);
-                return Task.CompletedTask;
-            }
-        );
-
-        if (toRun is not null) await toRun;
+        return factoryContext;
     }
 
     [BlockingCommand]
@@ -105,8 +88,7 @@ public partial class ScriptJobListContext
         db.ScriptJobs.Remove(currentItem);
         await db.SaveChangesAsync();
 
-        DataNotifications.PublishDataNotification("Script Job List",
-            DataNotifications.DataNotificationContentType.ScriptJob,
+        DataNotifications.PublishJobDataNotification("Script Job List",
             DataNotifications.DataNotificationUpdateType.Delete, _dbId, currentPersistentId);
     }
 
@@ -184,26 +166,22 @@ public partial class ScriptJobListContext
         await ScriptJobEditorWindow.CreateInstance(newJob, DatabaseFile);
     }
 
-    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
-    {
-        DataNotificationsProcessor?.Enqueue(e);
-    }
-
-    private async Task ProcessDataUpdateNotification(
-        DataNotifications.InterProcessDataNotification interProcessUpdateNotification)
+    private async Task ProcessJobDataUpdateNotification(
+        DataNotifications.InterProcessJobDataNotification interProcessUpdateNotification)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
+        if(interProcessUpdateNotification.DatabaseId != _dbId) return;
+
         if (interProcessUpdateNotification is
             {
-                ContentType: DataNotifications.DataNotificationContentType.ScriptJob,
                 UpdateType: DataNotifications.DataNotificationUpdateType.Delete
             })
 
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            var toRemove = Items.Where(x => x.DbEntry.PersistentId == interProcessUpdateNotification.PersistentId)
+            var toRemove = Items.Where(x => x.DbEntry.PersistentId == interProcessUpdateNotification.JobPersistentId)
                 .ToList();
             toRemove.ForEach(x => Items.Remove(x));
             return;
@@ -211,17 +189,16 @@ public partial class ScriptJobListContext
 
         if (interProcessUpdateNotification is
             {
-                ContentType: DataNotifications.DataNotificationContentType.ScriptJob,
                 UpdateType: DataNotifications.DataNotificationUpdateType.Update
                 or DataNotifications.DataNotificationUpdateType.New
             })
         {
             var listItem =
-                Items.SingleOrDefault(x => x.DbEntry.PersistentId == interProcessUpdateNotification.PersistentId);
+                Items.SingleOrDefault(x => x.DbEntry.PersistentId == interProcessUpdateNotification.JobPersistentId);
             var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
             var dbItem =
                 await db.ScriptJobs.SingleOrDefaultAsync(x =>
-                    x.PersistentId == interProcessUpdateNotification.PersistentId);
+                    x.PersistentId == interProcessUpdateNotification.JobPersistentId);
 
             if (dbItem == null) return;
 
@@ -244,8 +221,6 @@ public partial class ScriptJobListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        DataNotifications.NewDataNotificationChannel().MessageReceived -= OnDataNotificationReceived;
-
         var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
 
         var jobs = await db.ScriptJobs.ToListAsync();
@@ -255,8 +230,6 @@ public partial class ScriptJobListContext
         Items.Clear();
 
         foreach (var x in jobs) Items.Add(await ScriptJobListListItem.CreateInstance(x, _databaseFile));
-
-        DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
     [NonBlockingCommand]
@@ -346,5 +319,43 @@ public partial class ScriptJobListContext
         }
 
         await ScriptJobRunListWindow.CreateInstance(toShow.DbEntry.PersistentId.AsList(), DatabaseFile);
+    }
+
+    private void UpdateCronExpressionInformation()
+    {
+        var jobs = Items.ToList();
+
+        foreach (var loopJobs in jobs)
+        {
+            if (!loopJobs.DbEntry.ScheduleEnabled || string.IsNullOrWhiteSpace(loopJobs.DbEntry.CronExpression))
+                loopJobs.NextRun = null;
+
+            try
+            {
+                var expression = CronExpression.Parse(loopJobs.DbEntry.CronExpression);
+                var nextRun = expression.GetNextOccurrence(DateTimeOffset.Now, TimeZoneInfo.Local);
+                if (nextRun != null) loopJobs.NextRun = nextRun.Value.LocalDateTime;
+                loopJobs.CronDescription = ExpressionDescriptor.GetDescription(loopJobs.DbEntry.CronExpression);
+            }
+            catch (Exception)
+            {
+                loopJobs.NextRun = null;
+                loopJobs.CronDescription = string.Empty;
+            }
+        }
+    }
+
+    private async Task UpdateCronNextRun()
+    {
+        try
+        {
+            while (await _cronNextTimer.WaitForNextTickAsync())
+                if (!StatusContext.BlockUi)
+                    UpdateCronExpressionInformation();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }

@@ -1,10 +1,8 @@
 using System.Collections.ObjectModel;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -20,7 +18,7 @@ public partial class ScriptProgressContext
     {
     }
 
-    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<IPowerShellProgress> Items { get; set; }
     public List<Guid> ScriptJobIdFilter { get; set; } = [];
     public List<Guid> ScriptJobRunIdFilter { get; set; } = [];
@@ -50,31 +48,14 @@ public partial class ScriptProgressContext
 
         factoryContext.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
-            { Processor = factoryContext.DataNotificationReceived };
-        DataNotifications.NewDataNotificationChannel().MessageReceived += factoryContext.OnDataNotificationReceived;
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+        {
+            ProgressNotification = factoryContext.ProcessProgressNotification,
+            StateNotification = factoryContext.ProcessStateNotification,
+            ErrorNotification = factoryContext.ProcessErrorNotification
+        };
 
         return factoryContext;
-    }
-
-    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
-
-        var toRun = translatedMessage.Match(_ => Task.CompletedTask,
-            ProcessProgressNotification,
-            ProcessStateNotification,
-            ProcessErrorNotification
-        );
-
-        if (toRun is not null) await toRun;
-    }
-
-    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
-    {
-        DataNotificationsProcessor?.Enqueue(e);
     }
 
     private async Task ProcessErrorNotification(DataNotifications.InterProcessProcessingError arg)

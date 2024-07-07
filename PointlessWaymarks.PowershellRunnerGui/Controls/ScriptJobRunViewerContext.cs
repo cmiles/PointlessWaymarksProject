@@ -5,8 +5,6 @@ using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
-using Serilog;
-using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -16,7 +14,7 @@ public partial class ScriptJobRunViewerContext
     private string _databaseFile = string.Empty;
     public Guid _dbId = Guid.Empty;
     private string _key = string.Empty;
-    public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public ScriptJob? Job { get; set; }
     public ScriptJobRun? Run { get; set; }
     public ScriptJobRunGuiView? RunView { get; set; }
@@ -66,9 +64,11 @@ public partial class ScriptJobRunViewerContext
                 _dbId = dbId
             };
 
-            factoryContext.DataNotificationsProcessor = new DataNotificationsWorkQueue
-                { Processor = factoryContext.DataNotificationReceived };
-            DataNotifications.NewDataNotificationChannel().MessageReceived += factoryContext.OnDataNotificationReceived;
+            factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+            {
+                JobDataNotification = factoryContext.ProcessJobDataUpdateNotification,
+                RunDataNotification = factoryContext.ProcessRunDataUpdateNotification
+            };
 
             return factoryContext;
         }
@@ -89,43 +89,56 @@ public partial class ScriptJobRunViewerContext
         }
     }
 
-    private async Task DataNotificationReceived(TinyMessageReceivedEventArgs eventArgs)
+    private async Task ProcessJobDataUpdateNotification(
+        DataNotifications.InterProcessJobDataNotification interProcessUpdateNotification)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
+        if (interProcessUpdateNotification.DatabaseId != _dbId ||
+            interProcessUpdateNotification.JobPersistentId != Job?.PersistentId ||
+            interProcessUpdateNotification.UpdateType == DataNotifications.DataNotificationUpdateType.Delete)
+            return;
 
-        var toRun = translatedMessage.Match(ProcessDataUpdateNotification,
-            _ => Task.CompletedTask,
-            _ => Task.CompletedTask,
-            x =>
-            {
-                Log.Error("Data Notification Failure. Error Note {0}. Status Control Context PersistentId {1}",
-                    x.ErrorMessage,
-                    StatusContext.StatusControlContextId);
-                return Task.CompletedTask;
-            }
-        );
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var updatedJob =
+            await db.ScriptJobs.SingleOrDefaultAsync(x =>
+                x.PersistentId == interProcessUpdateNotification.JobPersistentId);
 
-        if (toRun is not null) await toRun;
+        if (updatedJob is null) return;
+
+        Job = updatedJob;
     }
 
-    private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
-    {
-        DataNotificationsProcessor?.Enqueue(e);
-    }
-
-    private async Task ProcessDataUpdateNotification(
-        DataNotifications.InterProcessDataNotification interProcessUpdateNotification)
+    private async Task ProcessRunDataUpdateNotification(
+        DataNotifications.InterProcessRunDataNotification interProcessUpdateNotification)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (interProcessUpdateNotification.DatabaseId != _dbId) return;
-        if (interProcessUpdateNotification.ContentType == DataNotifications.DataNotificationContentType.ScriptJob &&
-            interProcessUpdateNotification.PersistentId != RunView?.ScriptJobPersistentId) return;
-        if (interProcessUpdateNotification.ContentType == DataNotifications.DataNotificationContentType.ScriptJobRun &&
-            interProcessUpdateNotification.PersistentId != RunView?.PersistentId) return;
+        if (interProcessUpdateNotification.DatabaseId != _dbId ||
+            interProcessUpdateNotification.JobPersistentId != Job?.PersistentId ||
+            interProcessUpdateNotification.RunPersistentId == Run?.PersistentId ||
+            interProcessUpdateNotification.UpdateType == DataNotifications.DataNotificationUpdateType.Delete)
+            return;
 
-        //TODO: Process Data Update Notification
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var updatedJob =
+            await db.ScriptJobRuns.SingleOrDefaultAsync(x =>
+                x.PersistentId == interProcessUpdateNotification.RunPersistentId);
+
+        if (updatedJob is null) return;
+
+        RunView!.Id = updatedJob.Id;
+        RunView.CompletedOnUtc = updatedJob.CompletedOnUtc;
+        RunView.CompletedOn = updatedJob.CompletedOnUtc?.ToLocalTime();
+        RunView.Errors = updatedJob.Errors;
+        RunView.Output = updatedJob.Output;
+        RunView.RunType = updatedJob.RunType;
+        RunView.Script = updatedJob.Script;
+        RunView.StartedOnUtc = updatedJob.StartedOnUtc;
+        RunView.StartedOn = updatedJob.StartedOnUtc.ToLocalTime();
+        RunView.ScriptJobPersistentId = updatedJob.ScriptJobPersistentId;
+        RunView.TranslatedOutput = updatedJob.Output.Decrypt(_key);
+        RunView.TranslatedScript = updatedJob.Script.Decrypt(_key);
+        RunView.PersistentId = updatedJob.PersistentId;
     }
 }
