@@ -45,6 +45,7 @@ if (args.Length == 0 || (args.Length == 1 && (args[0].Equals("help") || args[0].
 var cleanedSettingsFile = args[0].Trim();
 
 var interactive = !args.Any(x => x.Contains("-notinteractive", StringComparison.OrdinalIgnoreCase));
+var promptAsIfNewFile = args.Any(x => x.Contains("-redo", StringComparison.OrdinalIgnoreCase));
 
 var msLogger = new SerilogLoggerFactory(Log.Logger)
     .CreateLogger<ObfuscatedSettingsConsoleSetup<GarminConnectGpxImportSettings>>();
@@ -57,6 +58,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<GarminConnectGp
     SettingsFileIdentifier = GarminConnectGpxImportSettings.SettingsTypeIdentifier(),
     VaultServiceIdentifier = vaultService,
     Interactive = interactive,
+    PromptAsIfNewFile = promptAsIfNewFile,
     SettingsFileProperties =
     [
         new SettingsFileProperty<GarminConnectGpxImportSettings>

@@ -38,6 +38,7 @@ if (args.Length == 0 || (args.Length == 1 && (args[0].Equals("help") || args[0].
 var cleanedSettingsFile = args[0].Trim();
 
 var interactive = !args.Any(x => x.Contains("-notinteractive", StringComparison.OrdinalIgnoreCase));
+var promptAsIfNewFile = args.Any(x => x.Contains("-redo", StringComparison.OrdinalIgnoreCase));
 
 var msLogger = new SerilogLoggerFactory(Log.Logger)
     .CreateLogger<ObfuscatedSettingsConsoleSetup<MemoriesSmtpEmailFromWebSettings>>();
@@ -50,6 +51,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEma
     SettingsFileIdentifier = MemoriesSmtpEmailFromWebSettings.SettingsTypeIdentifier(),
     VaultServiceIdentifier = vaultService,
     Interactive = interactive,
+    PromptAsIfNewFile = promptAsIfNewFile,
     SettingsFileProperties =
     [
         new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
@@ -124,7 +126,11 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEma
                 ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
                     x.SiteUrl),
             UserEntryIsValid = ObfuscatedSettingsHelpers.UserEntryIsValidIfNotNullOrWhiteSpace(),
-            SetValue = (settings, userEntry) => settings.SiteUrl = userEntry.Trim(),
+            SetValue = (settings, userEntry) =>
+            {
+                if(userEntry.EndsWith("/")) userEntry = userEntry.Substring(0, userEntry.Length - 1);
+                settings.SiteUrl = userEntry.Trim();
+            },
             GetCurrentStringValue = x => x.SiteUrl
         },
         new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
@@ -151,7 +157,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEma
         new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
         {
             PropertyDisplayName = "To Address List",
-            PropertyEntryHelp = "A comma separated list of email addresses to send the email to.",
+            PropertyEntryHelp = "A semicolon separated list of email addresses to send the email to.",
             PropertyIsValid =
                 ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
                     x.ToAddressList),

@@ -259,8 +259,8 @@ public class MemoriesSmtpEmailFromWeb
         message.Subject = subject;
 
         var text = $"""
-                    
-                                <mjml>
+
+                    <mjml>
                         <mj-head>
                             <mj-title>
                                 {(string.IsNullOrWhiteSpace(siteTitle) ? settings.SiteUrl : siteTitle)} Content from {yearTextList} Year{(yearTextList.Equals("1") ? "" : "s")} Ago...</mj-title>
