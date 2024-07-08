@@ -4,4 +4,5 @@ $ErrorActionPreference = "Stop"
 .\Publish-SiteViewer.ps1
 .\Publish-CloudBackup.ps1
 .\Publish-FeedReader.ps1
+.\Publish-PowerShellRunner.ps1
 .\Publish-Tasks.ps1
