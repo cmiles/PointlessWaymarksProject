@@ -4,7 +4,7 @@ if (-not ("BuildTools\PointlessWaymarks.PublishReadmeHelper.exe" | Test-Path)) {
 	
 	$vsWhere = "{0}\Microsoft Visual Studio\Installer\vswhere.exe" -f ${env:ProgramFiles(x86)}
 
-	$msBuild = & $vsWhere -latest -prerelease -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+	$msBuild = & $vsWhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
 
 	dotnet clean .\PointlessWaymarks.PublishReadmeHelper\PointlessWaymarks.PublishReadmeHelper.csproj -property:Configuration=Release -property:Platform=x64 -verbosity:minimal
 
