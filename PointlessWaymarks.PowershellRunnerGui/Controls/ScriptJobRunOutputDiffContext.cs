@@ -236,23 +236,7 @@ public class ScriptJobRunOutputDiffContext
     private static ScriptJobRunGuiView ScriptJobRunToGuiView(ScriptJobRun loopRun, string key, ScriptJob job,
         bool removeOutputTimeStamp)
     {
-        var toAdd = new ScriptJobRunGuiView
-        {
-            Id = loopRun.Id,
-            CompletedOnUtc = loopRun.CompletedOnUtc,
-            CompletedOn = loopRun.CompletedOnUtc?.ToLocalTime(),
-            Errors = loopRun.Errors,
-            Output = loopRun.Output,
-            PersistentId = loopRun.PersistentId,
-            RunType = loopRun.RunType,
-            Script = loopRun.Script,
-            StartedOnUtc = loopRun.StartedOnUtc,
-            StartedOn = loopRun.StartedOnUtc.ToLocalTime(),
-            ScriptJobPersistentId = loopRun.ScriptJobPersistentId,
-            TranslatedOutput = loopRun.Output.Decrypt(key),
-            TranslatedScript = loopRun.Script.Decrypt(key),
-            Job = job
-        };
+        var toAdd = ScriptJobRunGuiView.CreateInstance(loopRun, job, key);
 
         if (removeOutputTimeStamp)
             toAdd.TranslatedOutput = Regex.Replace(toAdd.TranslatedOutput,

@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 using CronExpressionDescriptor;
 using Cronos;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
@@ -18,12 +21,21 @@ public partial class ScriptJobListContext
     private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(30));
     private string _databaseFile = string.Empty;
     private Guid _dbId = Guid.Empty;
+
+    public ScriptJobListContext()
+    {
+        PropertyChanged += OnPropertyChanged;
+    }
+
     public required string DatabaseFile { get; set; }
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<ScriptJobListListItem> Items { get; set; }
     public ScriptJobListListItem? SelectedItem { get; set; }
     public List<ScriptJobListListItem> SelectedItems { get; set; } = [];
+    public ListSortDirection SortDirection { get; set; } = ListSortDirection.Ascending;
     public required StatusControlContext StatusContext { get; set; }
+
+    public string? UserFilterText { get; set; }
 
     public static async Task<ScriptJobListContext> CreateInstance(StatusControlContext? statusContext,
         string databaseFile)
@@ -54,6 +66,9 @@ public partial class ScriptJobListContext
         factoryContext.UpdateCronExpressionInformation();
 
         factoryContext.UpdateCronNextRun();
+
+        await ListContextSortHelpers.SortList(
+            new SortDescription("DbEntry.Name", ListSortDirection.Ascending).AsList(), factoryContext.Items);
 
         return factoryContext;
     }
@@ -139,6 +154,29 @@ public partial class ScriptJobListContext
         await ScriptJobEditorWindow.CreateInstance(toEdit.DbEntry, DatabaseFile);
     }
 
+    private async Task FilterList()
+    {
+        if (!Items.Any()) return;
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        if (string.IsNullOrWhiteSpace(UserFilterText))
+        {
+            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
+            return;
+        }
+
+        var cleanedFilterText = UserFilterText.Trim();
+
+        ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
+        {
+            if (o is not ScriptJobListListItem toFilter) return false;
+
+            return toFilter.DbEntry.Name.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
+                || toFilter.DbEntry.PersistentId.ToString().Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase);
+        };
+    }
+
 
     [NonBlockingCommand]
     public async Task NewJob()
@@ -154,6 +192,13 @@ public partial class ScriptJobListContext
         await ThreadSwitcher.ResumeForegroundAsync();
 
         await ScriptJobEditorWindow.CreateInstance(newJob, DatabaseFile);
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+        if (e.PropertyName.Equals(nameof(UserFilterText)))
+            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
     private async Task ProcessJobDataUpdateNotification(
@@ -220,6 +265,8 @@ public partial class ScriptJobListContext
         Items.Clear();
 
         foreach (var x in jobs) Items.Add(await ScriptJobListListItem.CreateInstance(x, _databaseFile));
+
+        await FilterList();
     }
 
     [NonBlockingCommand]
@@ -294,6 +341,17 @@ public partial class ScriptJobListContext
         }
 
         await ScriptJobRunListWindow.CreateInstance(toShow.DbEntry.PersistentId.AsList(), DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    private async Task ToggleSort()
+    {
+        SortDirection = SortDirection == ListSortDirection.Ascending
+            ? ListSortDirection.Descending
+            : ListSortDirection.Ascending;
+
+        await ListContextSortHelpers.SortList(
+            new SortDescription("DbEntry.Name", SortDirection).AsList(), Items);
     }
 
     private void UpdateCronExpressionInformation()

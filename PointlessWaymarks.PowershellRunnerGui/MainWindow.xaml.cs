@@ -21,8 +21,8 @@ public partial class MainWindow
 {
     private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(60));
     private string _databaseFile = string.Empty;
-    private DateTime? _mainTimerTickUtcTime;
-    private DateTime? _mostRecentScheduleCheckUtcTime;
+    private DateTime? _mainTimerLastCheck;
+    private DateTime? _mostRecentScheduleCheckTime;
 
     public MainWindow()
     {
@@ -77,27 +77,29 @@ public partial class MainWindow
 
     private void CheckAndRunJobsBasedOnCronExpression()
     {
-        var frozenUtcNow = DateTime.UtcNow;
-        if (frozenUtcNow <= _mostRecentScheduleCheckUtcTime) return;
-        else _mostRecentScheduleCheckUtcTime = frozenUtcNow;
+        var frozenNow = DateTime.Now;
+        if (frozenNow <= _mostRecentScheduleCheckTime) return;
+        else _mostRecentScheduleCheckTime = frozenNow;
 
         //No main timer tick yet - set it and wait
-        if (_mainTimerTickUtcTime is null)
+        if (_mainTimerLastCheck is null)
         {
-            _mainTimerTickUtcTime = frozenUtcNow;
+            _mainTimerLastCheck = frozenNow;
             return;
         }
 
         //We are behind the main tick? Don't worry about it and wait for the next tick...
-        if (frozenUtcNow <= _mainTimerTickUtcTime) return;
-        if (frozenUtcNow.Year == _mainTimerTickUtcTime.Value.Year &&
-            frozenUtcNow.Month == _mainTimerTickUtcTime.Value.Month &&
-            frozenUtcNow.Day == _mainTimerTickUtcTime.Value.Day &&
-            frozenUtcNow.Hour == _mainTimerTickUtcTime.Value.Hour &&
-            frozenUtcNow.Minute == _mainTimerTickUtcTime.Value.Minute) return;
+        if (frozenNow <= _mainTimerLastCheck) return;
+        if (frozenNow.Year == _mainTimerLastCheck.Value.Year &&
+            frozenNow.Month == _mainTimerLastCheck.Value.Month &&
+            frozenNow.Day == _mainTimerLastCheck.Value.Day &&
+            frozenNow.Hour == _mainTimerLastCheck.Value.Hour &&
+            frozenNow.Minute == _mainTimerLastCheck.Value.Minute) return;
 
         if (JobListContext is null) return;
         var jobs = JobListContext.Items.ToList();
+
+        var frozenUtcOffset = new DateTimeOffset(frozenNow.AddMinutes(-1));
 
         foreach (var loopJobs in jobs)
         {
@@ -107,12 +109,13 @@ public partial class MainWindow
             try
             {
                 var expression = CronExpression.Parse(loopJobs.DbEntry.CronExpression);
-                var nextRuns = expression.GetOccurrences(_mainTimerTickUtcTime.Value, frozenUtcNow.AddMinutes(1))
-                    .ToList();
-                if (!nextRuns.Any()) continue;
-                if (nextRuns.Any(x =>
-                        x.Year == frozenUtcNow.Year && x.Month == frozenUtcNow.Month && x.Day == frozenUtcNow.Day &&
-                        x.Hour == frozenUtcNow.Hour && x.Minute == frozenUtcNow.Minute))
+                var nextRun = expression.GetNextOccurrence(frozenUtcOffset, TimeZoneInfo.Local);
+                if (nextRun is null) continue;
+                var nextRunDateTime = nextRun.Value.DateTime;
+
+                if (nextRunDateTime.Year == frozenNow.Year && nextRunDateTime.Month == frozenNow.Month &&
+                    nextRunDateTime.Day == frozenNow.Day &&
+                    nextRunDateTime.Hour == frozenNow.Hour && nextRunDateTime.Minute == frozenNow.Minute)
                     StatusContext.RunFireAndForgetNonBlockingTask(() =>
                         PowerShellRunner.ExecuteJob(loopJobs.DbEntry.PersistentId, _databaseFile,
                             "Main Program Timer"));
@@ -182,7 +185,7 @@ public partial class MainWindow
         }
         else
         {
-            await PowerShellRunnerDbContext.CreateInstance(settings.DatabaseFile);
+            await PowerShellRunnerDbContext.CreateInstanceWithEnsureCreated(settings.DatabaseFile);
         }
 
         _databaseFile = settings.DatabaseFile;

@@ -22,6 +22,10 @@
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+            <Style x:Key="CellTextRight" TargetType="{x:Type TextBlock}" >
+                <Setter Property="TextAlignment" Value="Right" />
+                <Setter Property="Padding" Value="2,0,4,0" />
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -36,7 +40,8 @@
                      Text="{Binding FilterDescription}" />
         </Border>
         <GroupBox Grid.Row="1" Header="Script Job Runs" Margin="4">
-            <filterDataGrid:FilterDataGrid ItemsSource="{Binding Source={StaticResource SortedItems}}" SelectedItem="{Binding SelectedItem}"
+            <filterDataGrid:FilterDataGrid ItemsSource="{Binding Source={StaticResource SortedItems}}"
+                                           SelectedItem="{Binding SelectedItem}"
                                            behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
                                            Margin="4,3,4,4"
                                            AlternatingRowBackground="Gainsboro"
@@ -53,6 +58,10 @@
                     </filterDataGrid:DataGridTextColumn>
                     <filterDataGrid:DataGridTextColumn Binding="{Binding CompletedOn}" FieldName="CompletedOn"
                                                        Header="Completed On" IsColumnFiltered="True">
+                    </filterDataGrid:DataGridTextColumn>
+                    <filterDataGrid:DataGridTextColumn Binding="{Binding HumanReadableLength}"
+                                                       FieldName="HumanReadableLength"
+                                                       Header="Length" IsColumnFiltered="True" ElementStyle="{StaticResource CellTextRight}">
                     </filterDataGrid:DataGridTextColumn>
                     <filterDataGrid:DataGridTextColumn Binding="{Binding Errors}" FieldName="Errors" Header="Errors"
                                                        IsColumnFiltered="True">
@@ -95,7 +104,9 @@
             </Grid.ColumnDefinitions>
             <powerShellEditor:PowerShellEditorControl DataContext="{Binding ScriptViewerContext}"></powerShellEditor:PowerShellEditorControl>
             <GroupBox Grid.Column="1" Margin="8,0,0,0" Header="Output">
-                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap" Text="{Binding SelectedItem.TranslatedOutput}"></TextBox>
+                <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap"
+                         Text="{Binding SelectedItem.TranslatedOutput}">
+                </TextBox>
             </GroupBox>
         </Grid>
         <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">

@@ -8,6 +8,9 @@
              xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              xmlns:runspaces="clr-namespace:System.Management.Automation.Runspaces;assembly=System.Management.Automation"
              xmlns:models="clr-namespace:PointlessWaymarks.PowerShellRunnerData.Models;assembly=PointlessWaymarks.PowerShellRunnerData"
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ScriptJobListContext}">
     <UserControl.Resources>
@@ -16,12 +19,10 @@
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-            <CollectionViewSource x:Key="SortedItems" Source="{Binding Items}"
-                                  xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
-                <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="DbEntry.Name" Direction="Ascending" />
-                </CollectionViewSource.SortDescriptions>
-            </CollectionViewSource>
+            <columnSort:AscendingListSortIsVisibleConverter x:Key="AscendingListSortIsVisible" />
+            <columnSort:DescendingListSortIsVisibleConverter x:Key="DescendingListSortIsVisible" />
+            <local:LengthInSecondsToHumanReadableConverter x:Key="LengthInSecondsToHumanReadable" />
+            <local:UtcTimeToLocalTimeConverter x:Key="UtcTimeToLocalTime" />
             <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptProgressMessageItem}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -115,16 +116,50 @@
         <GroupBox
             Margin="4,4,4,0"
             Grid.Row="0"
-            Style="{StaticResource UiComponentGroupBoxStyle}"
-            Header="Backup Jobs">
-            <ListBox ItemsSource="{Binding Source={StaticResource SortedItems}}"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox.Header>
+                <Grid Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,16,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock FontWeight="Bold" Margin="6,0,18,2" VerticalAlignment="Center">Jobs</TextBlock>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding UserFilterText, Delay=400, UpdateSourceTrigger=PropertyChanged}"
+                             Width="180">
+                    </TextBox>
+                    <Button Grid.Column="2" Command="{Binding ToggleSortCommand}">
+                        <Grid>
+                            <Image ToolTip="A to Z Sorting"
+                                   Margin="2"
+                                   VerticalAlignment="Center"
+                                   Source="{svgc:SvgImage Source=/Icons/arrow-up.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                   Width="12"
+                                   Visibility="{Binding SortDirection, Converter={StaticResource AscendingListSortIsVisible}}">
+                            </Image>
+                            <Image ToolTip="Z to A Sorting"
+                                   Margin="2"
+                                   VerticalAlignment="Center"
+                                   Source="{svgc:SvgImage Source=/Icons/arrow-down.svg, AppName=PointlessWaymarks.WpfCommon}"
+                                   Width="12"
+                                   Visibility="{Binding SortDirection, Converter={StaticResource DescendingListSortIsVisible}}">
+                            </Image>
+                        </Grid>
+                    </Button>
+                </Grid>
+            </GroupBox.Header>
+            <ListBox ItemsSource="{Binding Items}"
                      Style="{StaticResource ContentListListBoxStyle}"
                      SelectedItem="{Binding SelectedItem}"
-                     behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}">
+                     behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
+                     Margin="0,4,0,0">
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Edit" Command="{Binding EditJobCommand}" CommandParameter="{Binding SelectedItem}"/>
-                        <MenuItem Header="Delete" Command="{Binding DeleteJobCommand}" CommandParameter="{Binding SelectedItem}"/>
+                        <MenuItem Header="Edit" Command="{Binding EditJobCommand}"
+                                  CommandParameter="{Binding SelectedItem}" />
+                        <MenuItem Header="Delete" Command="{Binding DeleteJobCommand}"
+                                  CommandParameter="{Binding SelectedItem}" />
                         <MenuItem Header="Diff Latest Runs" Command="{Binding DiffRunOutputCommand}"
                                   CommandParameter="{Binding SelectedItem}" />
                         <MenuItem Header="View Latest Run" Command="{Binding ShowLastJobRunCommand}"
@@ -167,10 +202,17 @@
                                                 <Binding Path="DbEntry.PersistentId" />
                                             </MultiBinding>
                                         </TextBox.Text>
+                                        <b:Interaction.Behaviors>
+                                            <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
+                                        </b:Interaction.Behaviors>
                                     </TextBox>
                                     <TextBox Grid.Row="1" Margin="6,4,4,0"
                                              Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                             Text="{Binding DbEntry.Description}" TextWrapping="Wrap" />
+                                             Text="{Binding DbEntry.Description}" TextWrapping="Wrap">
+                                        <b:Interaction.Behaviors>
+                                            <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
+                                        </b:Interaction.Behaviors>
+                                    </TextBox>
                                     <TextBox Grid.Row="2" Margin="12,6,4,0"
                                              Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap"
                                              VerticalAlignment="Top"
@@ -183,6 +225,9 @@
                                                 <Binding Path="NextRun" />
                                             </MultiBinding>
                                         </TextBox.Text>
+                                        <b:Interaction.Behaviors>
+                                            <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
+                                        </b:Interaction.Behaviors>
                                     </TextBox>
                                     <WrapPanel Grid.Row="3" Orientation="Horizontal" Margin="6,10,4,0">
                                         <WrapPanel.Resources>
@@ -236,16 +281,44 @@
                                              HorizontalContentAlignment="Stretch">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate DataType="{x:Type models:ScriptJobRun}">
-                                                <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="2">
+                                                <Border BorderThickness="1" CornerRadius="2">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="BorderBrush" Value="LightGray" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Errors}" Value="True">
+                                                                    <Setter Property="BorderBrush" Value="Red" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
                                                     <Grid>
                                                         <StackPanel Orientation="Vertical">
                                                             <TextBlock Margin="2,0,2,0"
-                                                                Text="{Binding StartedOnUtc, StringFormat='{}{0:g}'}">
+                                                                       Text="{Binding StartedOnUtc, StringFormat='{}{0:g}', Converter={StaticResource UtcTimeToLocalTime}}">
                                                             </TextBlock>
-                                                            <TextBlock Margin="16,2,2,0"
-                                                                Text="{Binding CompletedOnUtc, StringFormat='{}{0:g}'}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Margin="16,2,2,0"
+                                                                           Text="{Binding CompletedOnUtc, StringFormat='{}{0:g}', FallbackValue='(Not Complete)', Converter={StaticResource UtcTimeToLocalTime}}">
+                                                                </TextBlock>
+                                                                <TextBlock Margin="8,2,2,0"
+                                                                           Text="{Binding LengthInSeconds, Converter={StaticResource LengthInSecondsToHumanReadable}}">
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <TextBlock Margin="32,2,2,0"
+                                                                       Text="{Binding Errors, StringFormat='Errors: {0}'}">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Errors}"
+                                                                                Value="True">
+                                                                                <Setter Property="Foreground"
+                                                                                    Value="Red" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
                                                             </TextBlock>
-                                                            <TextBlock Margin="32,2,2,0" Text="{Binding Errors, StringFormat='Errors: {0}'}"></TextBlock>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -267,7 +340,8 @@
                     Command="{Binding RefreshListCommand}" />
                 <Button
                     Content="_Edit"
-                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditJobCommand}" CommandParameter="{Binding SelectedItem}"/>
+                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditJobCommand}"
+                    CommandParameter="{Binding SelectedItem}" />
                 <Button
                     Content="_New"
                     Style="{StaticResource ActionPanelButtonStyle}"

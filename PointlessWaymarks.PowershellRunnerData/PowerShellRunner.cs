@@ -59,6 +59,9 @@ public class PowerShellRunner
         }
         finally
         {
+            run.LengthInSeconds = (int)(run.CompletedOnUtc!.Value - run.StartedOnUtc).TotalSeconds;
+            if(run.LengthInSeconds == 0) run.LengthInSeconds = 1;
+
             await db.SaveChangesAsync();
 
             DataNotifications.PublishRunDataNotification(nameof(ExecuteJob),

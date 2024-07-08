@@ -30,7 +30,10 @@
             <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
                      Text="{Binding RunView.StartedOn, StringFormat='Started On: {0:G}'}" Margin="12,8,4,0" />
             <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                     Text="{Binding RunView.CompletedOn, FallbackValue='(Not ManipulationCompleted)', StringFormat='Completed: {0:G}'}"
+                     Text="{Binding RunView.CompletedOn, FallbackValue='(Not Completed)', StringFormat='Completed: {0:G}'}"
+                     Margin="12,2,4,0" />
+            <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                     Text="{Binding RunView.HumanReadableLength, StringFormat='Length: {0}'}"
                      Margin="12,2,4,0" />
             <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
                      Text="{Binding RunView.RunType, StringFormat='Run Type: {0}'}" Margin="12,8,4,0" />

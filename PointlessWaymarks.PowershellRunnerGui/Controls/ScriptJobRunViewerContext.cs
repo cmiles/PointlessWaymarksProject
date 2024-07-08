@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
@@ -35,23 +34,7 @@ public partial class ScriptJobRunViewerContext
             var jobId = run.ScriptJobPersistentId;
             var job = await db.ScriptJobs.SingleAsync(x => x.PersistentId == jobId);
 
-            var toAdd = new ScriptJobRunGuiView
-            {
-                Id = run.Id,
-                CompletedOnUtc = run.CompletedOnUtc,
-                CompletedOn = run.CompletedOnUtc?.ToLocalTime(),
-                Errors = run.Errors,
-                Output = run.Output,
-                RunType = run.RunType,
-                Script = run.Script,
-                StartedOnUtc = run.StartedOnUtc,
-                StartedOn = run.StartedOnUtc.ToLocalTime(),
-                ScriptJobPersistentId = run.ScriptJobPersistentId,
-                TranslatedOutput = run.Output.Decrypt(key),
-                TranslatedScript = run.Script.Decrypt(key),
-                PersistentId = run.PersistentId,
-                Job = job
-            };
+            var toAdd = ScriptJobRunGuiView.CreateInstance(run, job, key);
 
             var factoryContext = new ScriptJobRunViewerContext
             {
@@ -82,7 +65,8 @@ public partial class ScriptJobRunViewerContext
                 RunView = null
             };
 
-            toReturn.StatusContext.ShowMessageWithOkButton($"Script Job Run PersistentId {scriptJobRunId} Not Found!",
+            await toReturn.StatusContext.ShowMessageWithOkButton(
+                $"Script Job Run PersistentId {scriptJobRunId} Not Found!",
                 $"A Script Job Run with PersistentId {scriptJobRunId} was not found in {databaseFile}??");
 
             return toReturn;
@@ -107,6 +91,8 @@ public partial class ScriptJobRunViewerContext
         if (updatedJob is null) return;
 
         Job = updatedJob;
+
+        if (RunView != null) RunView.Job = updatedJob;
     }
 
     private async Task ProcessRunDataUpdateNotification(
@@ -121,24 +107,13 @@ public partial class ScriptJobRunViewerContext
             return;
 
         var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
-        var updatedJob =
+        var updatedRun =
             await db.ScriptJobRuns.SingleOrDefaultAsync(x =>
                 x.PersistentId == interProcessUpdateNotification.RunPersistentId);
 
-        if (updatedJob is null) return;
+        if (updatedRun is null) return;
 
-        RunView!.Id = updatedJob.Id;
-        RunView.CompletedOnUtc = updatedJob.CompletedOnUtc;
-        RunView.CompletedOn = updatedJob.CompletedOnUtc?.ToLocalTime();
-        RunView.Errors = updatedJob.Errors;
-        RunView.Output = updatedJob.Output;
-        RunView.RunType = updatedJob.RunType;
-        RunView.Script = updatedJob.Script;
-        RunView.StartedOnUtc = updatedJob.StartedOnUtc;
-        RunView.StartedOn = updatedJob.StartedOnUtc.ToLocalTime();
-        RunView.ScriptJobPersistentId = updatedJob.ScriptJobPersistentId;
-        RunView.TranslatedOutput = updatedJob.Output.Decrypt(_key);
-        RunView.TranslatedScript = updatedJob.Script.Decrypt(_key);
-        RunView.PersistentId = updatedJob.PersistentId;
+        if (RunView is null) RunView = ScriptJobRunGuiView.CreateInstance(updatedRun, Job, _key);
+        else RunView.Update(updatedRun, RunView.Job, _key);
     }
 }

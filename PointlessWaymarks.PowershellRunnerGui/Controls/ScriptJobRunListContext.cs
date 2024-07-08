@@ -28,7 +28,7 @@ public partial class ScriptJobRunListContext
     public required string FilterDescription { get; set; }
     public required ObservableCollection<ScriptJobRunGuiView> Items { get; set; }
     public List<Guid> JobFilter { get; set; } = [];
-    public StringDataEntryNoIndicatorsContext ScriptViewerContext { get; set; }
+    public required StringDataEntryNoIndicatorsContext ScriptViewerContext { get; set; }
     public ScriptJobRunGuiView? SelectedItem { get; set; }
     public List<ScriptJobRunGuiView> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
@@ -60,25 +60,7 @@ public partial class ScriptJobRunListContext
 
         foreach (var loopRun in filteredRuns)
         {
-            var toAdd = new ScriptJobRunGuiView
-            {
-                Id = loopRun.Id,
-                CompletedOnUtc = loopRun.CompletedOnUtc,
-                CompletedOn = loopRun.CompletedOnUtc?.ToLocalTime(),
-                Errors = loopRun.Errors,
-                Output = loopRun.Output,
-                RunType = loopRun.RunType,
-                Script = loopRun.Script,
-                StartedOnUtc = loopRun.StartedOnUtc,
-                StartedOn = loopRun.StartedOnUtc.ToLocalTime(),
-                ScriptJobPersistentId = loopRun.ScriptJobPersistentId,
-                TranslatedOutput = loopRun.Output.Decrypt(key),
-                TranslatedScript = loopRun.Script.Decrypt(key),
-                PersistentId = loopRun.PersistentId,
-                Job = possibleJobs.Single(x => x.PersistentId == loopRun.ScriptJobPersistentId)
-            };
-
-            runList.Add(toAdd);
+            runList.Add(ScriptJobRunGuiView.CreateInstance(loopRun, possibleJobs.Single(x => x.PersistentId == loopRun.ScriptJobPersistentId), key));
         }
 
         var factoryScriptViewerContext = StringDataEntryNoIndicatorsContext.CreateInstance();
@@ -203,38 +185,11 @@ public partial class ScriptJobRunListContext
 
         if (listItem != null)
         {
-            listItem.Id = dbRun.Id;
-            listItem.CompletedOnUtc = dbRun.CompletedOnUtc;
-            listItem.CompletedOn = dbRun.CompletedOnUtc?.ToLocalTime();
-            listItem.Errors = dbRun.Errors;
-            listItem.Output = dbRun.Output;
-            listItem.RunType = dbRun.RunType;
-            listItem.Script = dbRun.Script;
-            listItem.StartedOnUtc = dbRun.StartedOnUtc;
-            listItem.StartedOn = dbRun.StartedOnUtc.ToLocalTime();
-            listItem.ScriptJobPersistentId = dbRun.ScriptJobPersistentId;
-            listItem.TranslatedOutput = dbRun.Output.Decrypt(_key);
-            listItem.TranslatedScript = dbRun.Script.Decrypt(_key);
+            listItem.Update(dbRun, dbJob, _key);
             return;
         }
 
-        var toAdd = new ScriptJobRunGuiView
-        {
-            Id = dbRun.Id,
-            CompletedOnUtc = dbRun.CompletedOnUtc,
-            CompletedOn = dbRun.CompletedOnUtc?.ToLocalTime(),
-            Errors = dbRun.Errors,
-            Output = dbRun.Output,
-            RunType = dbRun.RunType,
-            Script = dbRun.Script,
-            StartedOnUtc = dbRun.StartedOnUtc,
-            StartedOn = dbRun.StartedOnUtc.ToLocalTime(),
-            ScriptJobPersistentId = dbRun.ScriptJobPersistentId,
-            TranslatedOutput = dbRun.Output.Decrypt(_key),
-            TranslatedScript = dbRun.Script.Decrypt(_key),
-            PersistentId = dbRun.PersistentId,
-            Job = dbJob
-        };
+        var toAdd = ScriptJobRunGuiView.CreateInstance(dbRun, dbJob, _key);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
