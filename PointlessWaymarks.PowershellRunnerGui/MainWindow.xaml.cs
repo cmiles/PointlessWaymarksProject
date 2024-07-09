@@ -139,7 +139,7 @@ public partial class MainWindow
 
         var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
             settings.ProgramUpdateDirectory,
-            "PointlessWaymarksPowerShellSetup");
+            "PointlessWaymarksPowerShellRunnerSetup");
 
         Log.Information(
             $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
