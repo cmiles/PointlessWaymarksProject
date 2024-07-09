@@ -30,9 +30,9 @@ public partial class ScriptJobListContext
     public required string DatabaseFile { get; set; }
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<ScriptJobListListItem> Items { get; set; }
+    public required ColumnSortControlContext ListSort { get; set; }
     public ScriptJobListListItem? SelectedItem { get; set; }
     public List<ScriptJobListListItem> SelectedItems { get; set; } = [];
-    public ListSortDirection SortDirection { get; set; } = ListSortDirection.Ascending;
     public required StatusControlContext StatusContext { get; set; }
 
     public string? UserFilterText { get; set; }
@@ -49,6 +49,26 @@ public partial class ScriptJobListContext
             StatusContext = statusContext ?? new StatusControlContext(),
             Items = [],
             DatabaseFile = databaseFile,
+            ListSort = new ColumnSortControlContext
+            {
+                Items =
+                [
+                    new ColumnSortControlSortItem
+                    {
+                        DisplayName = "Name",
+                        ColumnName = "DbEntry.Name",
+                        Order = 1,
+                        DefaultSortDirection = ListSortDirection.Ascending
+                    },
+
+                    new ColumnSortControlSortItem
+                    {
+                        DisplayName = "Next Run",
+                        ColumnName = "NextRun",
+                        DefaultSortDirection = ListSortDirection.Descending
+                    }
+                ]
+            },
             _databaseFile = databaseFile,
             _dbId = dbId
         };
@@ -68,7 +88,10 @@ public partial class ScriptJobListContext
         factoryContext.UpdateCronNextRun();
 
         await ListContextSortHelpers.SortList(
-            new SortDescription("DbEntry.Name", ListSortDirection.Ascending).AsList(), factoryContext.Items);
+            factoryContext.ListSort.SortDescriptions(), factoryContext.Items);
+
+        factoryContext.ListSort.SortUpdated += (_, list) =>
+            factoryContext.StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, factoryContext.Items));
 
         return factoryContext;
     }
@@ -321,17 +344,6 @@ public partial class ScriptJobListContext
                 await ScriptProgressWindow.CreateInstance(run.ScriptJobPersistentId.AsList(), run.PersistentId.AsList(),
                     _databaseFile);
             });
-    }
-
-    [NonBlockingCommand]
-    private async Task ToggleSort()
-    {
-        SortDirection = SortDirection == ListSortDirection.Ascending
-            ? ListSortDirection.Descending
-            : ListSortDirection.Ascending;
-
-        await ListContextSortHelpers.SortList(
-            new SortDescription("DbEntry.Name", SortDirection).AsList(), Items);
     }
 
     private void UpdateCronExpressionInformation()
