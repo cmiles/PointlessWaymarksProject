@@ -126,7 +126,10 @@ public partial class ScriptJobListContext
         db.ScriptJobRuns.RemoveRange(currentRuns);
         await db.SaveChangesAsync();
 
-        Log.ForContext("JobPersistentId", currentItem.PersistentId).ForContext(nameof(currentRuns), currentRuns.SafeObjectDump()).Information("Deleting {0} ScriptJobRuns from '{1}' as part of Deleting the Job List GUI.", currentRuns.Count, currentItem.Name);
+        Log.ForContext("JobPersistentId", currentItem.PersistentId)
+            .ForContext(nameof(currentRuns), currentRuns.SafeObjectDump()).Information(
+                "Deleting {0} ScriptJobRuns from '{1}' as part of Deleting the Job List GUI.", currentRuns.Count,
+                currentItem.Name);
 
         foreach (var loopScriptJobs in currentRuns)
             DataNotifications.PublishRunDataNotification("Script Job Run List",
@@ -297,6 +300,11 @@ public partial class ScriptJobListContext
         foreach (var x in jobs) Items.Add(await ScriptJobListListItem.CreateInstance(x, _databaseFile));
 
         await FilterList();
+
+        UpdateCronExpressionInformation();
+
+        await ListContextSortHelpers.SortList(
+            ListSort.SortDescriptions(), Items);
     }
 
     [NonBlockingCommand]
