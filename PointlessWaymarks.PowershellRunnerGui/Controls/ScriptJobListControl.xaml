@@ -158,13 +158,15 @@
                     <ContextMenu>
                         <MenuItem Header="Edit" Command="{Binding EditJobCommand}"
                                   CommandParameter="{Binding SelectedItem}" />
+                        <MenuItem Header="View Script" Command="{Binding ViewScriptCommand}"
+                                  CommandParameter="{Binding SelectedItem}" />
                         <MenuItem Header="Delete" Command="{Binding DeleteJobCommand}"
                                   CommandParameter="{Binding SelectedItem}" />
-                        <MenuItem Header="Diff Latest Runs" Command="{Binding DiffRunOutputCommand}"
+                        <MenuItem Header="Diff Latest Runs" Command="{Binding Diff}"
                                   CommandParameter="{Binding SelectedItem}" />
-                        <MenuItem Header="View Latest Run" Command="{Binding ShowLastJobRunCommand}"
+                        <MenuItem Header="View Latest Run" Command="{Binding ViewLatestJobRunCommand}"
                                   CommandParameter="{Binding SelectedItem}" />
-                        <MenuItem Header="View Run List" Command="{Binding ShowRunListCommand}"
+                        <MenuItem Header="View Run List" Command="{Binding ViewRunListCommand}"
                                   CommandParameter="{Binding SelectedItem}" />
                         <MenuItem Header="Run" Command="{Binding RunJobCommand}"
                                   CommandParameter="{Binding SelectedItem}" />
@@ -195,13 +197,19 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                             TextWrapping="Wrap">
+                                             TextWrapping="Wrap" ToolTip="{Binding TranslatedScript}">
                                         <TextBox.Text>
                                             <MultiBinding StringFormat="{}{0} - Id  {1}">
                                                 <Binding Path="DbEntry.Name" />
                                                 <Binding Path="DbEntry.PersistentId" />
                                             </MultiBinding>
                                         </TextBox.Text>
+                                        <TextBox.InputBindings>
+                                            <MouseBinding
+                                                Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding .}"
+                                                Gesture="Shift+LeftDoubleClick" />
+                                        </TextBox.InputBindings>
                                         <b:Interaction.Behaviors>
                                             <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                         </b:Interaction.Behaviors>
@@ -209,6 +217,12 @@
                                     <TextBox Grid.Row="1" Margin="6,4,4,0"
                                              Style="{StaticResource ReadOnlyTextBoxStyle}"
                                              Text="{Binding DbEntry.Description}" TextWrapping="Wrap">
+                                        <TextBox.InputBindings>
+                                            <MouseBinding
+                                                Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding .}"
+                                                Gesture="Shift+LeftDoubleClick" />
+                                        </TextBox.InputBindings>
                                         <b:Interaction.Behaviors>
                                             <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                         </b:Interaction.Behaviors>
@@ -225,6 +239,12 @@
                                                 <Binding Path="NextRun" />
                                             </MultiBinding>
                                         </TextBox.Text>
+                                        <TextBox.InputBindings>
+                                            <MouseBinding
+                                                Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding .}"
+                                                Gesture="Shift+LeftDoubleClick" />
+                                        </TextBox.InputBindings>
                                         <b:Interaction.Behaviors>
                                             <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
                                         </b:Interaction.Behaviors>
@@ -240,18 +260,22 @@
                                                 CommandParameter="{Binding .}">
                                             Edit
                                         </Button>
+                                        <Button Command="{Binding Data.ViewScriptCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding .}">
+                                            View Script
+                                        </Button>
                                         <Button
-                                            Command="{Binding Data.DiffLastRunsCommand, Source={StaticResource Proxy}}"
+                                            Command="{Binding Data.DiffLatestRunsCommand, Source={StaticResource Proxy}}"
                                             CommandParameter="{Binding .}">
                                             Diff Latest Runs
                                         </Button>
                                         <Button
-                                            Command="{Binding Data.ShowLastJobRunCommand, Source={StaticResource Proxy}}"
+                                            Command="{Binding Data.ViewLatestJobRunCommand, Source={StaticResource Proxy}}"
                                             CommandParameter="{Binding .}">
                                             View Latest Run
                                         </Button>
                                         <Button
-                                            Command="{Binding Data.ShowRunListCommand, Source={StaticResource Proxy}}"
+                                            Command="{Binding Data.ViewRunListCommand, Source={StaticResource Proxy}}"
                                             CommandParameter="{Binding .}">
                                             View Run List
                                         </Button>
@@ -275,10 +299,23 @@
                                 </Grid>
                                 <GroupBox Header="Recent Runs" Grid.Column="1" Grid.Row="0" Margin="6,4,2,4"
                                           MaxHeight="300" VerticalAlignment="Top" Height="180">
-                                    <ListBox ItemsSource="{Binding Items}" SelectionMode="Single"
+                                    <GroupBox.Resources>
+                                        <CollectionViewSource x:Key="SortedRunItems" Source="{Binding Items}"
+                                                              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
+                                            <CollectionViewSource.SortDescriptions>
+                                                <scm:SortDescription PropertyName="StartedOnUtc" Direction="Descending" />
+                                            </CollectionViewSource.SortDescriptions>
+                                        </CollectionViewSource>
+                                    </GroupBox.Resources>
+                                    <ListBox ItemsSource="{Binding Source={StaticResource SortedRunItems}}" SelectionMode="Single"
                                              SelectedItem="{Binding SelectedItem}" BorderThickness="0"
                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
                                              HorizontalContentAlignment="Stretch">
+                                        <ListBox.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="View Run" Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding SelectedItem}"></MenuItem>
+                                            </ContextMenu>
+                                        </ListBox.ContextMenu>
                                         <ListBox.ItemTemplate>
                                             <DataTemplate DataType="{x:Type models:ScriptJobRun}">
                                                 <Border BorderThickness="1" CornerRadius="2">
@@ -347,9 +384,13 @@
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding NewJobCommand}" />
                 <Button
-                    Content="Run with Progress"
+                    Content="View Runs"
                     Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding RunWithProgressWindowCommand}" CommandParameter="{Binding SelectedItem}" />
+                    Command="{Binding ViewRunListFromSelectedItemsCommand}" />
+                <Button
+                    Content="Run Selected"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding RunJobsFromSelectedItemsCommand}" />
             </WrapPanel>
         </Border>
     </Grid>

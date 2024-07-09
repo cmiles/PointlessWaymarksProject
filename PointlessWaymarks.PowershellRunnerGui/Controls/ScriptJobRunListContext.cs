@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
@@ -49,19 +48,15 @@ public partial class ScriptJobRunListContext
 
         var possibleJobs = await db.ScriptJobs.Where(x => jobFilter.Contains(x.PersistentId)).ToListAsync();
 
-        string filterDescription;
-        if (jobFilter.Any())
-            filterDescription =
-                $"Job{(possibleJobs.Count > 1 ? "s" : "")}: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}";
-        else
-            filterDescription = "All Jobs";
+        var filterDescription = jobFilter.Any()
+            ? $"Job{(possibleJobs.Count > 1 ? "s" : "")}: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}"
+            : "All Jobs";
 
         var runList = new List<ScriptJobRunGuiView>();
 
         foreach (var loopRun in filteredRuns)
-        {
-            runList.Add(ScriptJobRunGuiView.CreateInstance(loopRun, possibleJobs.Single(x => x.PersistentId == loopRun.ScriptJobPersistentId), key));
-        }
+            runList.Add(ScriptJobRunGuiView.CreateInstance(loopRun,
+                possibleJobs.Single(x => x.PersistentId == loopRun.ScriptJobPersistentId), key));
 
         var factoryScriptViewerContext = StringDataEntryNoIndicatorsContext.CreateInstance();
         factoryScriptViewerContext.Title = "Script";

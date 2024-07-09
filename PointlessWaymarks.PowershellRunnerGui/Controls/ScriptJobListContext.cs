@@ -114,7 +114,7 @@ public partial class ScriptJobListContext
     }
 
     [NonBlockingCommand]
-    public async Task DiffLastRuns(ScriptJobListListItem? toEdit)
+    public async Task DiffLatestRuns(ScriptJobListListItem? toEdit)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -173,7 +173,8 @@ public partial class ScriptJobListContext
             if (o is not ScriptJobListListItem toFilter) return false;
 
             return toFilter.DbEntry.Name.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
-                || toFilter.DbEntry.PersistentId.ToString().Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase);
+                   || toFilter.DbEntry.PersistentId.ToString()
+                       .Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase);
         };
     }
 
@@ -285,6 +286,24 @@ public partial class ScriptJobListContext
     }
 
     [NonBlockingCommand]
+    public async Task RunJobsFromSelectedItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var currentSelection = SelectedItems;
+
+        if (!currentSelection.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected to Run?");
+            return;
+        }
+
+        foreach (var loopSelected in currentSelection)
+            await PowerShellRunner.ExecuteJob(loopSelected.DbEntry.PersistentId, DatabaseFile,
+                "Run From PowerShell Runner Gui");
+    }
+
+    [NonBlockingCommand]
     public async Task RunWithProgressWindow(ScriptJobListListItem? toRun)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -302,45 +321,6 @@ public partial class ScriptJobListContext
                 await ScriptProgressWindow.CreateInstance(run.ScriptJobPersistentId.AsList(), run.PersistentId.AsList(),
                     _databaseFile);
             });
-    }
-
-    [NonBlockingCommand]
-    public async Task ShowLastJobRun(ScriptJobListListItem? toShow)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (toShow == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
-        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
-        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toShow.DbEntry.PersistentId)
-            .OrderByDescending(x => x.CompletedOnUtc)
-            .FirstOrDefault();
-
-        if (topRun == null)
-        {
-            StatusContext.ToastWarning("No Runs to Compare?");
-            return;
-        }
-
-        await ScriptJobRunViewerWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
-    }
-
-    [NonBlockingCommand]
-    public async Task ShowRunList(ScriptJobListListItem? toShow)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (toShow == null)
-        {
-            StatusContext.ToastWarning("Nothing Selected?");
-            return;
-        }
-
-        await ScriptJobRunListWindow.CreateInstance(toShow.DbEntry.PersistentId.AsList(), DatabaseFile);
     }
 
     [NonBlockingCommand]
@@ -390,5 +370,87 @@ public partial class ScriptJobListContext
         {
             Console.WriteLine(e);
         }
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewJobRun(ScriptJobRun? toShow)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toShow == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(toShow.PersistentId, DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewLatestJobRun(ScriptJobListListItem? toShow)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toShow == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var topRun = db.ScriptJobRuns.Where(x => x.ScriptJobPersistentId == toShow.DbEntry.PersistentId)
+            .OrderByDescending(x => x.CompletedOnUtc)
+            .FirstOrDefault();
+
+        if (topRun == null)
+        {
+            StatusContext.ToastWarning("No Runs to Compare?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewRunList(ScriptJobListListItem? toShow)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toShow == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        await ScriptJobRunListWindow.CreateInstance(toShow.DbEntry.PersistentId.AsList(), DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewRunListFromSelectedItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        await ScriptJobRunListWindow.CreateInstance(SelectedItems.Select(x => x.DbEntry.PersistentId).ToList(),
+            DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewScript(ScriptJobListListItem? toRun)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (toRun == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected to View?");
+            return;
+        }
+
+        await ScriptViewWindow.CreateInstance(toRun.DbEntry.PersistentId, DatabaseFile);
     }
 }

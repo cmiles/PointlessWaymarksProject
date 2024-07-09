@@ -1,0 +1,38 @@
+<UserControl x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.ScriptViewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
+             xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             xmlns:powerShellEditor="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.PowerShellEditor"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:ScriptViewContext}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBox Margin="6,4,0,12" Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding DbEntry.Name}" FontWeight="Bold"></TextBox>
+        <GroupBox Grid.Row="1" Header="Script">
+            <avalonedit:TextEditor
+                Name="TextEditor"
+                HorizontalScrollBarVisibility="Disabled"
+                SyntaxHighlighting="PowerShell"
+                IsReadOnly="True">
+                <b:Interaction.Behaviors>
+                    <powerShellEditor:AvalonEditRenderedStringBindingBehaviour
+                        RenderedText="{Binding TranslatedScript, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                </b:Interaction.Behaviors>
+            </avalonedit:TextEditor>
+        </GroupBox>
+    </Grid>
+</UserControl>

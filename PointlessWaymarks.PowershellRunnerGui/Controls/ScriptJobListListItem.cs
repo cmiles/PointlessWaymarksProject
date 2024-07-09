@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
@@ -12,8 +13,9 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 public partial class ScriptJobListListItem
 {
     private readonly int _numberOfRunsToShow = 5;
-    public string _databaseFile = string.Empty;
-    public Guid _dbId = Guid.Empty;
+    public string DatabaseFile = string.Empty;
+    public Guid DbId = Guid.Empty;
+    public required string Key = string.Empty;
 
     public ScriptJobListListItem()
     {
@@ -32,12 +34,14 @@ public partial class ScriptJobListListItem
     public DateTime? NextRun { get; set; }
     public ScriptJobRun? SelectedItem { get; set; }
     public List<ScriptJobRun> SelectedItems { get; set; } = [];
+    public required string TranslatedScript { get; set; }
 
     public static async Task<ScriptJobListListItem> CreateInstance(ScriptJob dbEntry, string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
+        var key = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -53,8 +57,10 @@ public partial class ScriptJobListListItem
         {
             DbEntry = dbEntry,
             Items = new ObservableCollection<ScriptJobRun>(recentRuns),
-            _databaseFile = databaseFile,
-            _dbId = dbId
+            DatabaseFile = databaseFile,
+            DbId = dbId,
+            Key = key,
+            TranslatedScript = dbEntry.Script.Decrypt(key)
         };
     }
 
@@ -62,11 +68,11 @@ public partial class ScriptJobListListItem
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (arg.DatabaseId != _dbId || arg.JobPersistentId != DbEntry.PersistentId) return;
+        if (arg.DatabaseId != DbId || arg.JobPersistentId != DbEntry.PersistentId) return;
 
         if (arg.UpdateType == DataNotifications.DataNotificationUpdateType.Delete) return;
 
-        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var db = await PowerShellRunnerDbContext.CreateInstance(DatabaseFile);
         var newDbEntry = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == DbEntry.PersistentId);
 
         if (newDbEntry is null) return;
@@ -91,12 +97,24 @@ public partial class ScriptJobListListItem
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (arg.DatabaseId != _dbId || arg.JobPersistentId != DbEntry.PersistentId) return;
+        if (arg.DatabaseId != DbId || arg.JobPersistentId != DbEntry.PersistentId) return;
 
-        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
-        var newDbEntry = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == DbEntry.PersistentId);
+        var db = await PowerShellRunnerDbContext.CreateInstance(DatabaseFile);
+        var newDbEntry = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == arg.RunPersistentId);
 
         if (newDbEntry is null) return;
+
+        if (Items.Any(x => x.PersistentId == newDbEntry.PersistentId))
+        {
+            var listItemToUpdate = Items.First(x => x.PersistentId == newDbEntry.PersistentId);
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            var index = Items.IndexOf(listItemToUpdate);
+            Items[index] = newDbEntry;
+
+            return;
+        }
 
         if (Items.Count < _numberOfRunsToShow)
         {

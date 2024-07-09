@@ -44,4 +44,13 @@
       </Resource>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="PowerShellRunnerInstallerTopRightImage.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="PowerShellRunnerLeftInstallerImage.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

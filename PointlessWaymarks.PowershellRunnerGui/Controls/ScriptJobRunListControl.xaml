@@ -53,6 +53,9 @@
                                            ShowStatusBar="True"
                                            DateFormatString="G">
                 <filterDataGrid:FilterDataGrid.Columns>
+                    <filterDataGrid:DataGridTextColumn Binding="{Binding Job.Name}" FieldName="Job.Name"
+                                                       Header="Job Name" IsColumnFiltered="True">
+                    </filterDataGrid:DataGridTextColumn>
                     <filterDataGrid:DataGridTextColumn Binding="{Binding StartedOn}" FieldName="StartedOn"
                                                        Header="Started On" IsColumnFiltered="True">
                     </filterDataGrid:DataGridTextColumn>

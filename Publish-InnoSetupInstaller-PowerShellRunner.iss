@@ -31,7 +31,9 @@ OutputDir={#MyAppOutputDir}
 OutputBaseFilename={#MyAppOutputBaseFilename}{#Version}
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
+WizardSmallImageFile="M:\PointlessWaymarksPublications\PointlessWaymarks.PowerShellRunnerGui\PowerShellRunnerInstallerTopRightImage.bmp"
+WizardImageFile="M:\PointlessWaymarksPublications\PointlessWaymarks.PowerShellRunnerGui\PowerShellRunnerLeftInstallerImage.bmp"
 
 [Files]
 Source: {#MyAppFilesSource}; DestDir: "{app}\"; Flags: recursesubdirs ignoreversion; AfterInstall:PublishVersionAfterInstall;
