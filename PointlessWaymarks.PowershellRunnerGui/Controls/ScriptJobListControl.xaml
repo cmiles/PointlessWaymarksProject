@@ -215,8 +215,14 @@
                                         </b:Interaction.Behaviors>
                                     </TextBox>
                                     <TextBox Grid.Row="1" Margin="6,4,4,0"
-                                             Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                             Text="{Binding DbEntry.Description}" TextWrapping="Wrap">
+                                             Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
+                                        <TextBox.Text>
+                                            <MultiBinding
+                                                StringFormat="{}{0} ---Script Job Run information is automatically deleted after {1} months.">
+                                                <Binding Path="DbEntry.Description" />
+                                                <Binding Path="DbEntry.DeleteScriptJobRunsAfterMonths" />
+                                            </MultiBinding>
+                                        </TextBox.Text>
                                         <TextBox.InputBindings>
                                             <MouseBinding
                                                 Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
@@ -260,8 +266,9 @@
                                                 CommandParameter="{Binding .}">
                                             Edit
                                         </Button>
-                                        <Button Command="{Binding Data.ViewScriptCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding .}">
+                                        <Button
+                                            Command="{Binding Data.ViewScriptCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding .}">
                                             View Script
                                         </Button>
                                         <Button
@@ -307,13 +314,17 @@
                                             </CollectionViewSource.SortDescriptions>
                                         </CollectionViewSource>
                                     </GroupBox.Resources>
-                                    <ListBox ItemsSource="{Binding Source={StaticResource SortedRunItems}}" SelectionMode="Single"
+                                    <ListBox ItemsSource="{Binding Source={StaticResource SortedRunItems}}"
+                                             SelectionMode="Single"
                                              SelectedItem="{Binding SelectedItem}" BorderThickness="0"
                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
                                              HorizontalContentAlignment="Stretch">
                                         <ListBox.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="View Run" Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding SelectedItem}"></MenuItem>
+                                                <MenuItem Header="View Run"
+                                                          Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                          CommandParameter="{Binding SelectedItem}">
+                                                </MenuItem>
                                             </ContextMenu>
                                         </ListBox.ContextMenu>
                                         <ListBox.ItemTemplate>

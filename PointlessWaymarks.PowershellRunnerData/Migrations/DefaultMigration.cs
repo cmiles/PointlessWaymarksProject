@@ -1,6 +1,6 @@
 using FluentMigrator;
 
-namespace PointlessWaymarks.CloudBackupData.Migrations;
+namespace PointlessWaymarks.PowerShellRunnerData.Migrations;
 
 [Migration(202406170000)]
 public class DefaultMigration : Migration

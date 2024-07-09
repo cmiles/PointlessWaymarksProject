@@ -99,6 +99,20 @@ public partial class ScriptJobListListItem
 
         if (arg.DatabaseId != DbId || arg.JobPersistentId != DbEntry.PersistentId) return;
 
+        if(arg.UpdateType == DataNotifications.DataNotificationUpdateType.Delete)
+        {
+            var toRemove = Items.Where(x => x.PersistentId == arg.RunPersistentId).ToList();
+
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            foreach (var loopDeletes in toRemove)
+            {
+                Items.Remove(loopDeletes);
+            }
+
+            return;
+        }
+
         var db = await PowerShellRunnerDbContext.CreateInstance(DatabaseFile);
         var newDbEntry = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == arg.RunPersistentId);
 

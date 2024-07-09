@@ -203,5 +203,9 @@ public partial class MainWindow
         ]);
 
         MainTimerCheckForNewRuns();
+
+        StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            await PowerShellRunnerDbQuery
+                .DeleteScriptJobRunsBasedOnDeleteScriptJobRunsAfterMonthsSetting(_databaseFile));
     }
 }

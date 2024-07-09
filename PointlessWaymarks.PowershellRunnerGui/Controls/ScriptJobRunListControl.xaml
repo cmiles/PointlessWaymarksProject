@@ -114,6 +114,7 @@
         </Grid>
         <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Command="{Binding DeleteSelectedRunsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Delete Selected</Button>
                 <Button Command="{Binding ViewSelectedRunCommand}" Style="{StaticResource ActionPanelButtonStyle}">View Selected</Button>
                 <Button Command="{Binding DiffSelectedRunCommand}" Style="{StaticResource ActionPanelButtonStyle}">Diff Selected</Button>
             </WrapPanel>

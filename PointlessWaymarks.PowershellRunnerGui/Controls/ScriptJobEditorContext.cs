@@ -9,6 +9,7 @@ using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
+using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
 using Console = System.Console;
@@ -33,6 +34,8 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     public DateTime? CronNextRun { get; set; }
     public required string DatabaseFile { get; set; }
     public required ScriptJob DbEntry { get; set; }
+
+    public required ConversionDataEntryContext<int> DeleteRunsAfterMonthsEntry { get; set; }
     public required StringDataEntryContext DescriptionEntry { get; set; }
     public required BoolDataEntryContext EnabledEntry { get; set; }
     public required StringDataEntryContext NameEntry { get; set; }
@@ -70,6 +73,13 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
                 return Task.FromResult(new IsValid(true, string.Empty));
             }
         ];
+
+        var deleteAfterEntry =
+            await ConversionDataEntryContext<int>.CreateInstance(
+                ConversionDataEntryHelpers.IntGreaterThanZeroConversion);
+        deleteAfterEntry.Title = "Delete Script Job Run Information After ______ Months";
+        deleteAfterEntry.HelpText =
+            "A name for this Scheduled Job.";
 
         var descriptionEntry = StringDataEntryContext.CreateInstance();
         descriptionEntry.Title = "Description";
@@ -126,6 +136,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         {
             DatabaseFile = databaseFile,
             DbEntry = initialScriptJob,
+            DeleteRunsAfterMonthsEntry = deleteAfterEntry,
             StatusContext = statusContext ?? new StatusControlContext(),
             NameEntry = nameEntry,
             DescriptionEntry = descriptionEntry,
@@ -166,6 +177,9 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         ScheduleEntry.ReferenceValue = toLoad.CronExpression;
         ScheduleEntry.UserValue = toLoad.CronExpression;
+
+        DeleteRunsAfterMonthsEntry.ReferenceValue = toLoad.DeleteScriptJobRunsAfterMonths;
+        DeleteRunsAfterMonthsEntry.UserText = toLoad.DeleteScriptJobRunsAfterMonths.ToString();
 
         ScriptEntry.ReferenceValue = toLoad.Script.Decrypt(obfuscationKey);
         ScriptEntry.UserValue = toLoad.Script.Decrypt(obfuscationKey);
@@ -220,6 +234,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         toSave.Name = NameEntry.UserValue;
         toSave.Description = DescriptionEntry.UserValue;
         toSave.CronExpression = ScheduleEntry.UserValue;
+        toSave.DeleteScriptJobRunsAfterMonths = DeleteRunsAfterMonthsEntry.UserValue;
         toSave.Script = ScriptEntry.UserValue.Encrypt(obfuscationKey);
         toSave.ScheduleEnabled = EnabledEntry.UserValue;
         toSave.LastEditOn = DateTime.Now;

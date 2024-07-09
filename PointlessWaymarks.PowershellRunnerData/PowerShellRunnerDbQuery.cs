@@ -22,6 +22,34 @@ public static class PowerShellRunnerDbQuery
         return await db.DbId();
     }
 
+    public static async Task DeleteScriptJobRunsBasedOnDeleteScriptJobRunsAfterMonthsSetting(string dbFileName)
+    {
+        var db = await PowerShellRunnerDbContext.CreateInstance(dbFileName);
+        var dbId = await DbId(dbFileName);
+        var allJob = await db.ScriptJobs.OrderByDescending(x => x.Name).ToListAsync();
+
+        var frozenUtcNow = DateTime.UtcNow;
+
+        foreach (var loopJobs in allJob)
+        {
+            var deleteBefore = frozenUtcNow.AddMonths(-Math.Abs(loopJobs.DeleteScriptJobRunsAfterMonths));
+
+            var runsToDelete = await db.ScriptJobRuns
+                .Where(x => x.ScriptJobPersistentId == loopJobs.PersistentId &&
+                            ((x.StartedOnUtc < deleteBefore && x.CompletedOnUtc == null) ||
+                             (x.StartedOnUtc < deleteBefore && x.CompletedOnUtc < deleteBefore)))
+                .ToListAsync();
+
+            db.ScriptJobRuns.RemoveRange(runsToDelete);
+            await db.SaveChangesAsync();
+
+            foreach (var loopDeleteRuns in runsToDelete)
+                DataNotifications.PublishRunDataNotification($"Automated Deletes for Runs Before {deleteBefore:G}",
+                    DataNotifications.DataNotificationUpdateType.Delete, dbId, loopJobs.PersistentId,
+                    loopDeleteRuns.PersistentId);
+        }
+    }
+
     public static async Task<string?> ObfuscationAccountName(this PowerShellRunnerDbContext context)
     {
         var possibleEntry =

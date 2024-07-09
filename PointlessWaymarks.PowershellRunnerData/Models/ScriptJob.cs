@@ -3,6 +3,7 @@ namespace PointlessWaymarks.PowerShellRunnerData.Models;
 public class ScriptJob
 {
     public string CronExpression { get; set; } = string.Empty;
+    public int DeleteScriptJobRunsAfterMonths { get; set; } = 12;
     public string Description { get; set; } = string.Empty;
     public int Id { get; set; }
     public DateTime LastEditOn { get; set; }

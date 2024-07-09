@@ -86,6 +86,37 @@ public partial class ScriptJobRunListContext
         return factoryContext;
     }
 
+    [BlockingCommand]
+    public async Task DeleteSelectedRuns()
+    {
+        if (!SelectedItems.Any())
+        {
+            StatusContext.ToastError("No Runs Selected to Delete?");
+            return;
+        }
+
+        var selectedToDelete = SelectedItems.Select(x => x.PersistentId).ToList();
+
+        if (selectedToDelete.Count > 1)
+            if ((await StatusContext.ShowMessageWithYesNoButton("Confirm Delete",
+                    $"Runs are permanently deleted without any ability to restore later - do you really want to delete {SelectedItems.Count} Items?"))
+                .Equals("no", StringComparison.OrdinalIgnoreCase))
+                return;
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+
+        var toDelete = await db.ScriptJobRuns.Where(x => selectedToDelete.Contains(x.PersistentId))
+            .ToListAsync();
+
+        db.ScriptJobRuns.RemoveRange(toDelete);
+        await db.SaveChangesAsync();
+
+        foreach (var loopDelete in toDelete)
+            DataNotifications.PublishRunDataNotification("Run List",
+                DataNotifications.DataNotificationUpdateType.Delete,
+                _dbId, loopDelete.ScriptJobPersistentId, loopDelete.PersistentId);
+    }
+
     [NonBlockingCommand]
     public async Task DiffSelectedRun()
     {
@@ -153,13 +184,13 @@ public partial class ScriptJobRunListContext
         if (interProcessUpdateNotification.UpdateType ==
             DataNotifications.DataNotificationUpdateType.Delete)
         {
-            var toRemove =
-                Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.RunPersistentId);
+            var toRemove = Items.Where(x => x.PersistentId == interProcessUpdateNotification.RunPersistentId).ToList();
 
-            if (toRemove != null)
+            await ThreadSwitcher.ResumeForegroundAsync();
+
+            foreach (var loopDeletes in toRemove)
             {
-                await ThreadSwitcher.ResumeForegroundAsync();
-                Items.Remove(toRemove);
+                Items.Remove(loopDeletes);
             }
 
             return;
