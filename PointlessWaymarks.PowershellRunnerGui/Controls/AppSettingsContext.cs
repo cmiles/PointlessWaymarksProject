@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.IO;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
@@ -5,20 +7,58 @@ using PointlessWaymarks.WpfCommon.Status;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 public partial class AppSettingsContext
 {
-    public AppSettingsContext(StatusControlContext statusContext)
+    public AppSettingsContext()
     {
-        StatusContext = statusContext;
+        PropertyChanged += AppSettingsContext_PropertyChanged;
     }
 
-    public StatusControlContext StatusContext { get; set; }
+    public required string ProgramUpdateLocation { get; set; }
+    public required PowerShellRunnerGuiSettings Settings { get; set; }
+    public bool ShowUpdateLocationExistsWarning { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
 
-    public static async Task<AppSettingsContext> CreateInstance(StatusControlContext? statusContext)
+
+    private void AppSettingsContext_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
-        return new AppSettingsContext(statusContext ?? new StatusControlContext());
+        if (nameof(ProgramUpdateLocation).Equals(e.PropertyName))
+        {
+            ValidateProgramUpdateLocation();
+
+            Settings.ProgramUpdateDirectory = ProgramUpdateLocation;
+#pragma warning disable CS4014
+            if (!ShowUpdateLocationExistsWarning)
+                //Allow call to continue without waiting and write settings
+                PowerShellRunnerGuiSettingTools.WriteSettings(Settings);
+#pragma warning restore CS4014
+        }
+    }
+
+    public static async Task<AppSettingsContext> CreateInstance(StatusControlContext statusContext)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factorySettings = PowerShellRunnerGuiSettingTools.ReadSettings();
+
+        var factoryContext = new AppSettingsContext
+        {
+            StatusContext = statusContext,
+            Settings = factorySettings,
+            ProgramUpdateLocation = factorySettings.ProgramUpdateDirectory
+        };
+
+        factoryContext.ValidateProgramUpdateLocation();
+
+        return factoryContext;
+    }
+
+    private void ValidateProgramUpdateLocation()
+    {
+        if (string.IsNullOrWhiteSpace(ProgramUpdateLocation)) ShowUpdateLocationExistsWarning = false;
+
+        ShowUpdateLocationExistsWarning = !Directory.Exists(ProgramUpdateLocation);
     }
 }

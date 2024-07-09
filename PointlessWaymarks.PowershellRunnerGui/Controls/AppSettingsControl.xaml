@@ -5,5 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid />
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+    </UserControl.Resources>
+    <Grid>
+        <GroupBox Header="Program Update Location">
+            <Grid Margin="4">
+                <StackPanel Orientation="Vertical">
+                    <TextBox Text="{Binding  ProgramUpdateLocation, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Margin="8,4,4,4" FontWeight="Bold"
+                               Visibility="{Binding ShowUpdateLocationExistsWarning, Converter={StaticResource BooleanToVisibility}}">
+                        ! The Directory Does Not Exist !
+                    </TextBlock>
+                    <TextBlock Margin="8,4,4,4" TextWrapping="Wrap">
+                        The Program Update Location is
+                        the Directory where the program will look for an updated installer/setup file.
+                        There is no requirement to set this - blank is ok, but the program will not check for
+                        updates...
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+    </Grid>
 </UserControl>
