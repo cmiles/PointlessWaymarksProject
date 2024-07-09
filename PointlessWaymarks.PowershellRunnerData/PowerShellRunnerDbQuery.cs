@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.PowerShellRunnerData.Models;
+using Serilog;
 
 namespace PointlessWaymarks.PowerShellRunnerData;
 
@@ -42,6 +44,8 @@ public static class PowerShellRunnerDbQuery
 
             db.ScriptJobRuns.RemoveRange(runsToDelete);
             await db.SaveChangesAsync();
+
+            Log.ForContext("JobPersistentId", loopJobs.PersistentId).ForContext(nameof(runsToDelete), runsToDelete.SafeObjectDump()).Information("Deleting {0} ScriptJobRuns from '{1}' because they are older than {2} (UTC)", runsToDelete.Count, loopJobs.Name, deleteBefore);
 
             foreach (var loopDeleteRuns in runsToDelete)
                 DataNotifications.PublishRunDataNotification($"Automated Deletes for Runs Before {deleteBefore:G}",

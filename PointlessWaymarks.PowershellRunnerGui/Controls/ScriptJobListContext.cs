@@ -11,6 +11,7 @@ using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
+using Serilog;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -91,7 +92,8 @@ public partial class ScriptJobListContext
             factoryContext.ListSort.SortDescriptions(), factoryContext.Items);
 
         factoryContext.ListSort.SortUpdated += (_, list) =>
-            factoryContext.StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, factoryContext.Items));
+            factoryContext.StatusContext.RunFireAndForgetNonBlockingTask(() =>
+                ListContextSortHelpers.SortList(list, factoryContext.Items));
 
         return factoryContext;
     }
@@ -124,6 +126,8 @@ public partial class ScriptJobListContext
         db.ScriptJobRuns.RemoveRange(currentRuns);
         await db.SaveChangesAsync();
 
+        Log.ForContext("JobPersistentId", currentItem.PersistentId).ForContext(nameof(currentRuns), currentRuns.SafeObjectDump()).Information("Deleting {0} ScriptJobRuns from '{1}' as part of Deleting the Job List GUI.", currentRuns.Count, currentItem.Name);
+
         foreach (var loopScriptJobs in currentRuns)
             DataNotifications.PublishRunDataNotification("Script Job Run List",
                 DataNotifications.DataNotificationUpdateType.Delete, _dbId, loopScriptJobs.ScriptJobPersistentId,
@@ -131,6 +135,8 @@ public partial class ScriptJobListContext
 
         db.ScriptJobs.Remove(currentItem);
         await db.SaveChangesAsync();
+
+        Log.Information("Deleted Script Job {Name} - {PersistentId}", currentItem.Name, currentPersistentId);
 
         DataNotifications.PublishJobDataNotification("Script Job List",
             DataNotifications.DataNotificationUpdateType.Delete, _dbId, currentPersistentId);
