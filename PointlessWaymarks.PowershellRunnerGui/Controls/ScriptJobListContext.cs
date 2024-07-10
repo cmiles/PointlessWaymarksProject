@@ -127,6 +127,8 @@ public partial class ScriptJobListContext
         await db.SaveChangesAsync();
 
         Log.ForContext("JobPersistentId", currentItem.PersistentId)
+            .ForContext(nameof(_dbId), _dbId)
+            .ForContext(nameof(_databaseFile), _databaseFile)
             .ForContext(nameof(currentRuns), currentRuns.SafeObjectDump()).Information(
                 "Deleting {0} ScriptJobRuns from '{1}' as part of Deleting the Job List GUI.", currentRuns.Count,
                 currentItem.Name);
@@ -139,7 +141,9 @@ public partial class ScriptJobListContext
         db.ScriptJobs.Remove(currentItem);
         await db.SaveChangesAsync();
 
-        Log.Information("Deleted Script Job {Name} - {PersistentId}", currentItem.Name, currentPersistentId);
+        Log.ForContext(nameof(_dbId), _dbId)
+            .ForContext(nameof(_databaseFile), _databaseFile)
+            .Information("Deleted Script Job {Name} - {PersistentId}", currentItem.Name, currentPersistentId);
 
         DataNotifications.PublishJobDataNotification("Script Job List",
             DataNotifications.DataNotificationUpdateType.Delete, _dbId, currentPersistentId);

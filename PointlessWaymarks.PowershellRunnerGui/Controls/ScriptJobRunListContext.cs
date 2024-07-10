@@ -1,11 +1,13 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
+using Serilog;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -95,9 +97,9 @@ public partial class ScriptJobRunListContext
             return;
         }
 
-        var selectedToDelete = SelectedItems.Select(x => x.PersistentId).ToList();
+        var selectedIdsToDelete = SelectedItems.Select(x => x.PersistentId).ToList();
 
-        if (selectedToDelete.Count > 1)
+        if (selectedIdsToDelete.Count > 1)
             if ((await StatusContext.ShowMessageWithYesNoButton("Confirm Delete",
                     $"Runs are permanently deleted without any ability to restore later - do you really want to delete {SelectedItems.Count} Items?"))
                 .Equals("no", StringComparison.OrdinalIgnoreCase))
@@ -105,11 +107,16 @@ public partial class ScriptJobRunListContext
 
         var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
 
-        var toDelete = await db.ScriptJobRuns.Where(x => selectedToDelete.Contains(x.PersistentId))
+        var toDelete = await db.ScriptJobRuns.Where(x => selectedIdsToDelete.Contains(x.PersistentId))
             .ToListAsync();
 
         db.ScriptJobRuns.RemoveRange(toDelete);
         await db.SaveChangesAsync();
+
+        Log.ForContext("JobPersistentIds",
+                toDelete.Select(x => x.ScriptJobPersistentId).Distinct().ToList().SafeObjectDump())
+            .ForContext(nameof(selectedIdsToDelete), selectedIdsToDelete.SafeObjectDump())
+            .Information("Deleting {0} ScriptJobRuns manually from the Run List", selectedIdsToDelete.Count);
 
         foreach (var loopDelete in toDelete)
             DataNotifications.PublishRunDataNotification("Run List",
@@ -188,10 +195,7 @@ public partial class ScriptJobRunListContext
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            foreach (var loopDeletes in toRemove)
-            {
-                Items.Remove(loopDeletes);
-            }
+            foreach (var loopDeletes in toRemove) Items.Remove(loopDeletes);
 
             return;
         }
