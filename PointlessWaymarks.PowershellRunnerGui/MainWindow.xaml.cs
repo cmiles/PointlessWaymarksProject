@@ -1,10 +1,12 @@
 using System.IO;
 using System.Windows;
 using Cronos;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerGui.Controls;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
 using PointlessWaymarks.WpfCommon.Status;
@@ -17,10 +19,10 @@ namespace PointlessWaymarks.PowerShellRunnerGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[GenerateStatusCommands]
 public partial class MainWindow
 {
     private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(60));
-    private string _databaseFile = string.Empty;
     private DateTime? _mainTimerLastCheck;
     private DateTime? _mostRecentScheduleCheckTime;
 
@@ -49,10 +51,13 @@ public partial class MainWindow
 
         UpdateMessageContext = new ProgramUpdateMessageContext();
 
+        BuildCommands();
+
         StatusContext.RunFireAndForgetBlockingTask(async () => { await CheckForProgramUpdate(currentDateVersion); });
     }
 
     public ArbitraryScriptRunnerContext? ArbitraryRunnerContext { get; set; }
+    public string CurrentDatabase { get; set; } = string.Empty;
 
     public HelpDisplayContext? HelpContext { get; set; }
 
@@ -117,7 +122,7 @@ public partial class MainWindow
                     nextRunDateTime.Day == frozenNow.Day &&
                     nextRunDateTime.Hour == frozenNow.Hour && nextRunDateTime.Minute == frozenNow.Minute)
                     StatusContext.RunFireAndForgetNonBlockingTask(() =>
-                        PowerShellRunner.ExecuteJob(loopJobs.DbEntry.PersistentId, _databaseFile,
+                        PowerShellRunner.ExecuteJob(loopJobs.DbEntry.PersistentId, CurrentDatabase,
                             "Main Program Timer"));
             }
             catch (Exception e)
@@ -151,6 +156,63 @@ public partial class MainWindow
         await UpdateMessageContext.LoadData(currentDateVersion, dateString, setupFile);
     }
 
+    [BlockingCommand]
+    public async Task ChooseCurrentDb()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var initialDirectoryString = PowerShellRunnerGuiSettingTools.ReadSettings().LastDirectory;
+
+        DirectoryInfo? initialDirectory = null;
+
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(initialDirectoryString))
+                initialDirectory = new DirectoryInfo(initialDirectoryString);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        StatusContext.Progress("Starting File Chooser");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var filePicker = new VistaOpenFileDialog
+            { Filter = "db files (*.db)|*.db|All files (*.*)|*.*" };
+
+        if (initialDirectory != null) filePicker.FileName = $"{initialDirectory.FullName}\\";
+
+        var result = filePicker.ShowDialog();
+
+        if (!result ?? false) return;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        StatusContext.Progress("Checking that file exists");
+
+        var possibleFile = new FileInfo(filePicker.FileName);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!possibleFile.Exists) return;
+
+        var currentSettings = PowerShellRunnerGuiSettingTools.ReadSettings();
+        if (!string.IsNullOrWhiteSpace(possibleFile.Directory?.Parent?.FullName))
+            currentSettings.LastDirectory = possibleFile.Directory?.Parent?.FullName;
+        currentSettings.DatabaseFile = possibleFile.FullName;
+        await PowerShellRunnerGuiSettingTools.WriteSettings(currentSettings);
+        CurrentDatabase = possibleFile.FullName;
+
+        JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
+        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
+        SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
+    }
+
     private async Task MainTimerCheckForNewRuns()
     {
         try
@@ -167,6 +229,81 @@ public partial class MainWindow
     private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
         StatusContext.RunFireAndForgetWithToastOnError(Setup);
+    }
+
+    [BlockingCommand]
+    public async Task NewDatabase()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var initialDirectoryString = PowerShellRunnerGuiSettingTools.ReadSettings().LastDirectory;
+
+        DirectoryInfo? initialDirectory = null;
+
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(initialDirectoryString))
+                initialDirectory = new DirectoryInfo(initialDirectoryString);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        StatusContext.Progress("Starting File Chooser");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var userFilePicker = new VistaSaveFileDialog
+            { OverwritePrompt = true, CheckPathExists = true, Filter = "db files (*.db)|*.db|All files (*.*)|*.*" };
+
+        if (initialDirectory != null) userFilePicker.FileName = $"{initialDirectory.FullName}\\";
+
+        if (!userFilePicker.ShowDialog() ?? false) return;
+
+        var userChoice = userFilePicker.FileName;
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (string.IsNullOrWhiteSpace(userChoice))
+        {
+            StatusContext.ToastWarning("No File Selected? New Db Cancelled...");
+            return;
+        }
+
+        if (!Path.HasExtension(userChoice)) userChoice += ".db";
+
+        var userDatabaseFile = new FileInfo(userChoice);
+
+        if (!userDatabaseFile.Directory?.Exists ?? false)
+        {
+            StatusContext.ToastError("Directory for New Database Doesn't Exist?");
+            return;
+        }
+
+        var result = await PowerShellRunnerDbContext.TryCreateInstance(userDatabaseFile.FullName, true);
+
+        if (!result.success)
+        {
+            StatusContext.ToastError($"Trouble Creating New Database - {result.message}");
+            return;
+        }
+
+        var currentSettings = PowerShellRunnerGuiSettingTools.ReadSettings();
+        if (!string.IsNullOrWhiteSpace(userDatabaseFile.Directory?.Parent?.FullName))
+            currentSettings.LastDirectory = userDatabaseFile.Directory?.Parent?.FullName;
+        currentSettings.DatabaseFile = userDatabaseFile.FullName;
+        await PowerShellRunnerGuiSettingTools.WriteSettings(currentSettings);
+        CurrentDatabase = userDatabaseFile.FullName;
+
+        await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
+
+        JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
+        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
+        SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
     }
 
     public async Task Setup()
@@ -188,14 +325,14 @@ public partial class MainWindow
             await PowerShellRunnerDbContext.CreateInstanceWithEnsureCreated(settings.DatabaseFile);
         }
 
-        _databaseFile = settings.DatabaseFile;
+        CurrentDatabase = settings.DatabaseFile;
 
-        await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, _databaseFile);
+        await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
 
-        JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, settings.DatabaseFile);
-        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, _databaseFile);
-        ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], _databaseFile);
-        SettingsContext = await AppSettingsContext.CreateInstance(null);
+        JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
+        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
+        SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
         HelpContext = new HelpDisplayContext([
             HelpText,
             HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
@@ -206,6 +343,6 @@ public partial class MainWindow
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             await PowerShellRunnerDbQuery
-                .DeleteScriptJobRunsBasedOnDeleteScriptJobRunsAfterMonthsSetting(_databaseFile));
+                .DeleteScriptJobRunsBasedOnDeleteScriptJobRunsAfterMonthsSetting(CurrentDatabase));
     }
 }

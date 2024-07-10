@@ -13,6 +13,13 @@
         Loaded="MainWindow_OnLoaded"
         Title="{Binding InfoTitle}" Height="450" Width="800"
         d:DataContext="{d:DesignInstance powershellRunnerGui:MainWindow }">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="Job List">
@@ -31,6 +38,17 @@
                 <controls:AppSettingsControl DataContext="{Binding SettingsContext}"></controls:AppSettingsControl>
             </TabItem>
         </TabControl>
+        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="400,2,4,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+
+            </Grid.ColumnDefinitions>
+            <Button Padding="2,0,2,0" Command="{Binding NewDatabaseCommand}">New Database</Button>
+            <Button Grid.Column="1" Padding="2,0,2,0" Command="{Binding ChooseCurrentDbCommand}">Open Database</Button>
+            <TextBox Grid.Column="2" Text="{Binding CurrentDatabase}" ToolTip="{Binding CurrentDatabase}" Style="{StaticResource ReadOnlyTextBoxStyle}"></TextBox>
+        </Grid>
         <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"
                                                           Width="400" DataContext="{Binding UpdateMessageContext}" />
         <status:StatusControl
