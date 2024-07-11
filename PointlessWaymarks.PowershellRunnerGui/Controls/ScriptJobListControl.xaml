@@ -125,7 +125,7 @@
                         <ColumnDefinition Width="Auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBlock FontWeight="Bold" Margin="6,0,18,2" VerticalAlignment="Center">Jobs</TextBlock>
-                    <TextBox Grid.Column="1"
+                    <TextBox Grid.Column="1" VerticalContentAlignment="Center"
                              Text="{Binding UserFilterText, Delay=400, UpdateSourceTrigger=PropertyChanged}"
                              Width="180">
                     </TextBox>
@@ -323,17 +323,47 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
+                                                    <Border.InputBindings>
+                                                        <MouseBinding
+                                                            Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                            CommandParameter="{Binding}"
+                                                            Gesture="LeftDoubleClick" />
+                                                    </Border.InputBindings>
                                                     <Grid>
+                                                        <Grid.InputBindings>
+                                                            <MouseBinding
+                                                                Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                                CommandParameter="{Binding}"
+                                                                Gesture="LeftDoubleClick" />
+                                                        </Grid.InputBindings>
                                                         <StackPanel Orientation="Vertical">
                                                             <TextBlock Margin="2,0,2,0"
                                                                        Text="{Binding StartedOnUtc, StringFormat='{}{0:g}', Converter={StaticResource UtcTimeToLocalTime}}">
+                                                                <TextBlock.InputBindings>
+                                                                    <MouseBinding
+                                                                        Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                                        CommandParameter="{Binding}"
+                                                                        Gesture="LeftDoubleClick" />
+                                                                </TextBlock.InputBindings>
                                                             </TextBlock>
                                                             <StackPanel Orientation="Horizontal">
                                                                 <TextBlock Margin="16,2,2,0"
                                                                            Text="{Binding CompletedOnUtc, StringFormat='{}{0:g}', FallbackValue='(Not Complete)', Converter={StaticResource UtcTimeToLocalTime}}">
+                                                                    <TextBlock.InputBindings>
+                                                                        <MouseBinding
+                                                                            Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                                            CommandParameter="{Binding}"
+                                                                            Gesture="LeftDoubleClick" />
+                                                                    </TextBlock.InputBindings>
                                                                 </TextBlock>
                                                                 <TextBlock Margin="8,2,2,0"
                                                                            Text="{Binding LengthInSeconds, Converter={StaticResource LengthInSecondsToHumanReadable}}">
+                                                                    <TextBlock.InputBindings>
+                                                                        <MouseBinding
+                                                                            Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                                            CommandParameter="{Binding}"
+                                                                            Gesture="LeftDoubleClick" />
+                                                                    </TextBlock.InputBindings>
                                                                 </TextBlock>
                                                             </StackPanel>
                                                             <TextBlock Margin="32,2,2,0"
@@ -349,6 +379,12 @@
                                                                         </Style.Triggers>
                                                                     </Style>
                                                                 </TextBlock.Style>
+                                                                <TextBlock.InputBindings>
+                                                                    <MouseBinding
+                                                                        Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                                        CommandParameter="{Binding}"
+                                                                        Gesture="LeftDoubleClick" />
+                                                                </TextBlock.InputBindings>
                                                             </TextBlock>
                                                         </StackPanel>
                                                     </Grid>
@@ -370,15 +406,15 @@
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding RefreshListCommand}" />
                 <Button
-                    Content="_Edit"
-                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditJobCommand}"
-                    CommandParameter="{Binding SelectedItem}" />
-                <Button
                     Content="_New"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding NewJobCommand}" />
                 <Button
-                    Content="View Runs"
+                    Content="_View Runs - All"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Command="{Binding ViewRunListForAllItemsCommand}" />
+                <Button
+                    Content="View Runs - Selected"
                     Style="{StaticResource ActionPanelButtonStyle}"
                     Command="{Binding ViewRunListFromSelectedItemsCommand}" />
                 <Button

@@ -456,6 +456,21 @@ public partial class ScriptJobListContext
     }
 
     [NonBlockingCommand]
+    public async Task ViewRunListForAllItems()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (!Items.Any())
+        {
+            StatusContext.ToastWarning("Nothing to Show?");
+            return;
+        }
+
+        await ScriptJobRunListWindow.CreateInstance(Items.Select(x => x.DbEntry.PersistentId).ToList(),
+            DatabaseFile);
+    }
+
+    [NonBlockingCommand]
     public async Task ViewRunListFromSelectedItems()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();

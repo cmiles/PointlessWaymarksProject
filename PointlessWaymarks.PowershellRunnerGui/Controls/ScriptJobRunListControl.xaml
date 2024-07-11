@@ -37,7 +37,7 @@
         </Grid.RowDefinitions>
         <Border>
             <TextBox Margin="16,6,4,6" FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                     Text="{Binding FilterDescription}" />
+                     Text="{Binding FilterDescription}" ToolTip="{Binding FilterDescription}" TextWrapping="Wrap"/>
         </Border>
         <GroupBox Grid.Row="1" Header="Script Job Runs" Margin="4">
             <filterDataGrid:FilterDataGrid ItemsSource="{Binding Source={StaticResource SortedItems}}"
@@ -108,7 +108,7 @@
             <powerShellEditor:PowerShellEditorControl DataContext="{Binding ScriptViewerContext}"></powerShellEditor:PowerShellEditorControl>
             <GroupBox Grid.Column="1" Margin="8,0,0,0" Header="Output">
                 <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap"
-                         Text="{Binding SelectedItem.TranslatedOutput}">
+                         Text="{Binding SelectedItem.TranslatedOutput}" VerticalScrollBarVisibility="Visible">
                 </TextBox>
             </GroupBox>
         </Grid>
