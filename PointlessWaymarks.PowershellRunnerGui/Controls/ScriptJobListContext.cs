@@ -267,18 +267,16 @@ public partial class ScriptJobListContext
         {
             var listItem =
                 Items.SingleOrDefault(x => x.DbEntry.PersistentId == interProcessUpdateNotification.JobPersistentId);
+
+            //List items catch their own job update notifications - just handle new items.
+            if (listItem != null) return;
+
             var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
             var dbItem =
                 await db.ScriptJobs.SingleOrDefaultAsync(x =>
                     x.PersistentId == interProcessUpdateNotification.JobPersistentId);
 
             if (dbItem == null) return;
-
-            if (listItem != null)
-            {
-                listItem.DbEntry = dbItem;
-                return;
-            }
 
             var toAdd = await ScriptJobListListItem.CreateInstance(dbItem, _databaseFile);
 

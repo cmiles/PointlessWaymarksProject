@@ -78,6 +78,7 @@ public partial class ScriptJobListListItem
         if (newDbEntry is null) return;
 
         DbEntry = newDbEntry;
+        TranslatedScript = DbEntry.Script.Decrypt(Key);
     }
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
@@ -99,16 +100,13 @@ public partial class ScriptJobListListItem
 
         if (arg.DatabaseId != DbId || arg.JobPersistentId != DbEntry.PersistentId) return;
 
-        if(arg.UpdateType == DataNotifications.DataNotificationUpdateType.Delete)
+        if (arg.UpdateType == DataNotifications.DataNotificationUpdateType.Delete)
         {
             var toRemove = Items.Where(x => x.PersistentId == arg.RunPersistentId).ToList();
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            foreach (var loopDeletes in toRemove)
-            {
-                Items.Remove(loopDeletes);
-            }
+            foreach (var loopDeletes in toRemove) Items.Remove(loopDeletes);
 
             return;
         }
