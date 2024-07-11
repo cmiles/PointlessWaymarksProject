@@ -320,12 +320,12 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
         if (e.PropertyName.Equals(nameof(SelectedItem)))
         {
             if (SelectedItem is { DbItem: { MarkedRead: false, KeepUnread: false } } && AutoMarkRead)
-                StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+                StatusContext.RunNonBlockingTask(async () =>
                 {
                     await ContextDb.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true);
                 });
 
-            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            StatusContext.RunNonBlockingTask(async () =>
             {
                 try
                 {
@@ -344,7 +344,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                         DisplayBasicAuthPassword = string.Empty;
                     }
 
-                    StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+                    StatusContext.RunNonBlockingTask(async () =>
                         await ComposeFeedDisplayHtml(SelectedItem));
                     DisplayUrl = string.IsNullOrWhiteSpace(SelectedItem?.DbItem.Link)
                         ? "about:blank"
