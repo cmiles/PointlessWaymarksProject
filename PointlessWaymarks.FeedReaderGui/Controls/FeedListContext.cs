@@ -376,7 +376,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
         }
 
         if (interProcessUpdateNotification.ContentType == DataNotificationContentType.FeedItem)
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
                 await UpdateReadCount(interProcessUpdateNotification.ContentIds));
     }
 

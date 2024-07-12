@@ -67,7 +67,7 @@ public partial class MainWindow
             HelpMarkdown.SoftwareUsedBlock
         ]);
 
-        StatusContext.RunFireAndForgetBlockingTask(async () =>
+        StatusContext.RunFireAndForgetNonBlockingTask(async () =>
         {
             await CheckForProgramUpdate(currentDateVersion);
 
@@ -80,7 +80,6 @@ public partial class MainWindow
     public FeedListContext? FeedListTabContext { get; set; }
     public HelpDisplayContext HelpTabContext { get; set; }
     public string InfoTitle { get; set; }
-
     public SavedFeedItemListContext SavedFeedItemListTabContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }

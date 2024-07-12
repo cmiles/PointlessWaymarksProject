@@ -180,8 +180,8 @@
                         x:Name="BodyContentWebView"
                         CoreWebView2InitializationCompleted="BodyContentWebView_OnCoreWebView2InitializationCompleted"
                         NavigationStarting="BodyContentWebView_OnNavigationStarting"
-                        Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
-                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}"
+                        Source="{Binding DisplayUrl, TargetNullValue='about:blank'}" />
                 </TabItem>
                 <TabItem Header="Feed Content">
                     <wpf:WebView2
