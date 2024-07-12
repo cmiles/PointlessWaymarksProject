@@ -20,7 +20,7 @@ public partial class BatchStatistics
     public decimal CopiesSizeCompletedPercentage { get; set; }
     public int CopiesWithErrorNoteCount { get; set; }
     public long CopiesWithErrorNoteSize { get; set; }
-    public int CopyCount { get; set; }
+    public int CopiesCount { get; set; }
     public int DeletesCompleteCount { get; set; }
     public long DeletesCompleteSize { get; set; }
     public int DeletesCount { get; set; }
@@ -32,7 +32,7 @@ public partial class BatchStatistics
     public int JobId { get; set; }
     public int LocalFileCount { get; set; }
     public long LocalFileSize { get; set; }
-    public int UploadCount { get; set; }
+    public int UploadsCount { get; set; }
     public int UploadsCompleteCount { get; set; }
     public long UploadsCompleteSize { get; set; }
     public long UploadSize { get; set; }
@@ -60,7 +60,7 @@ public partial class BatchStatistics
             CloudFileCount = await context.CloudFiles.CountAsync(x => x.CloudTransferBatchId == batch.Id),
             CloudFileSize = await context.CloudFiles.Where(x => x.CloudTransferBatchId == batch.Id)
                 .SumAsync(x => x.FileSize),
-            UploadCount = await context.CloudUploads.CountAsync(x => x.CloudTransferBatchId == batch.Id),
+            UploadsCount = await context.CloudUploads.CountAsync(x => x.CloudTransferBatchId == batch.Id),
             UploadSize = await context.CloudUploads.Where(x => x.CloudTransferBatchId == batch.Id)
                 .SumAsync(x => x.FileSize),
             UploadsCompleteCount = await context.CloudUploads.CountAsync(x =>
@@ -78,7 +78,7 @@ public partial class BatchStatistics
             UploadsWithErrorNoteSize = await context.CloudUploads
                 .Where(x => x.CloudTransferBatchId == batch.Id && !string.IsNullOrWhiteSpace(x.ErrorMessage))
                 .SumAsync(x => x.FileSize),
-            CopyCount = await context.CloudCopies.CountAsync(x => x.CloudTransferBatchId == batch.Id),
+            CopiesCount = await context.CloudCopies.CountAsync(x => x.CloudTransferBatchId == batch.Id),
             CopiesSize = await context.CloudCopies.Where(x => x.CloudTransferBatchId == batch.Id)
                 .SumAsync(x => x.FileSize),
             CopiesCompleteCount = await context.CloudCopies.CountAsync(x =>

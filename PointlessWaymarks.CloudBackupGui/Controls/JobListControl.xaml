@@ -38,7 +38,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Total Upload Count</Label>
-                        <TextBlock Text="{Binding LatestBatch.UploadCount, StringFormat={}{0:N0}}" />
+                        <TextBlock Text="{Binding LatestBatch.UploadsCount, StringFormat={}{0:N0}}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Total Upload Size</Label>
@@ -92,7 +92,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Total Copy Count</Label>
-                        <TextBlock Text="{Binding LatestBatch.CopyCount, StringFormat={}{0:N0}}" />
+                        <TextBlock Text="{Binding LatestBatch.CopiesCount, StringFormat={}{0:N0}}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Total Copy Size</Label>

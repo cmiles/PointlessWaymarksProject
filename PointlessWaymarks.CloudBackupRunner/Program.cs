@@ -254,16 +254,11 @@ public static class Program
                 backupJob.Batches.Any(x => x.CreatedOn > DateTime.Now.AddDays(-14)))
             {
                 var mostRecentBatch = backupJob.Batches.MaxBy(x => x.CreatedOn)!;
-                var totalActions = mostRecentBatch.CloudCopies.Count + mostRecentBatch.CloudUploads.Count +
-                                   mostRecentBatch.CloudDeletions.Count;
+                var batchStatistics = await BatchStatistics.CreateInstance(mostRecentBatch.Id);
+                var totalActions = batchStatistics.CopiesCount + batchStatistics.UploadsCount + batchStatistics.DeletesCount;
                 
-                var successfulActions = mostRecentBatch.CloudCopies.Count(x => x.CopyCompletedSuccessfully) +
-                                        mostRecentBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully) +
-                                        mostRecentBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully);
-                var errorActions =
-                    mostRecentBatch.CloudCopies.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) +
-                    mostRecentBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) +
-                    mostRecentBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage));
+                var successfulActions = batchStatistics.CopiesCompleteCount + batchStatistics.UploadsCompleteCount + batchStatistics.DeletesCompleteCount;
+                var errorActions = batchStatistics.CopiesWithErrorNoteCount + batchStatistics.UploadsWithErrorNoteCount + batchStatistics.DeletesWithErrorNoteCount;
                 var percentSuccess = totalActions == 0 ? 1 : successfulActions / (decimal)totalActions;
                 var percentError = totalActions == 0 ? 0 : errorActions / (decimal)totalActions;
                 var highPercentSuccess = percentSuccess > .95M;

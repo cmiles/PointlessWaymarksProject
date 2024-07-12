@@ -82,7 +82,7 @@
                                                     <TextBlock.Text>
                                                         <MultiBinding
                                                             StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
-                                                            <Binding Path="Statistics.CopyCount" />
+                                                            <Binding Path="Statistics.CopiesCount" />
                                                             <Binding Path="Statistics.CopiesCompleteCount" />
                                                             <Binding Path="Statistics.CopiesNotCompletedCount" />
                                                             <Binding Path="Statistics.CopiesWithErrorNoteCount" />
@@ -116,7 +116,7 @@
                                                     <TextBlock.Text>
                                                         <MultiBinding
                                                             StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
-                                                            <Binding Path="Statistics.UploadCount" />
+                                                            <Binding Path="Statistics.UploadsCount" />
                                                             <Binding Path="Statistics.UploadsCompleteCount" />
                                                             <Binding Path="Statistics.UploadsNotCompletedCount" />
                                                             <Binding Path="Statistics.UploadsWithErrorNoteCount" />
