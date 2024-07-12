@@ -300,10 +300,10 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
 
         if (e.PropertyName == nameof(UserFilterText))
-            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
+            StatusContext.RunNonBlockingTask(FilterList);
 
         if (e.PropertyName == nameof(AutoMarkRead))
-            StatusContext.RunFireAndForgetBlockingTask(async () =>
+            StatusContext.RunNonBlockingTask(async () =>
             {
                 try
                 {
@@ -451,13 +451,13 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
         await FilterList();
 
         ListSort.SortUpdated += (_, list) =>
-            StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
+            StatusContext.RunNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
 
         PropertyChanged += OnPropertyChanged;
         DataNotificationsProcessor = new DataNotificationsWorkQueue { Processor = DataNotificationReceived };
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
 
-        StatusContext.RunFireAndForgetNonBlockingTask(async () => { await RefreshFeedItems(); });
+        StatusContext.RunNonBlockingTask(async () => { await RefreshFeedItems(); });
 
         JobManager.Initialize();
 
@@ -601,7 +601,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
 
         if (SelectedItem != null && toUpdate.Contains(SelectedItem.DbItem.PersistentId))
             if (SelectedItem.DbItem is { KeepUnread: false, MarkedRead: false } && AutoMarkRead)
-                StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+                StatusContext.RunNonBlockingTask(async () =>
                     await ContextDb.ItemRead(SelectedItem.DbItem.PersistentId.AsList(), true));
     }
 
