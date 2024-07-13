@@ -366,19 +366,7 @@
                                                                     </TextBlock.InputBindings>
                                                                 </TextBlock>
                                                             </StackPanel>
-                                                            <TextBlock Margin="32,2,2,0"
-                                                                       Text="{Binding Errors, StringFormat='Errors: {0}'}">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding Errors}"
-                                                                                Value="True">
-                                                                                <Setter Property="Foreground"
-                                                                                    Value="Red" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
+                                                            <TextBlock Margin="32,2,2,0" Foreground="Red" FontWeight="Bold" Visibility="{Binding Errors, Converter={StaticResource BooleanToVisibility}}">Errors
                                                                 <TextBlock.InputBindings>
                                                                     <MouseBinding
                                                                         Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
