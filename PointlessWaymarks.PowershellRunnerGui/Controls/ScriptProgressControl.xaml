@@ -46,6 +46,11 @@
             </DataTemplate>
             <DataTemplate x:Key="ProgressStateDataTemplate" DataType="{x:Type local:ScriptStateMessageItem}">
                 <Grid>
+                    <Grid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="View Run" Command="{Binding Data.ViewScriptRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding ScriptJobRunPersistentId}"></MenuItem>
+                        </ContextMenu>
+                    </Grid.ContextMenu>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />

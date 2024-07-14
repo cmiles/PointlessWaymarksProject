@@ -42,7 +42,7 @@ public partial class ScriptViewContext
             _dbId = dbId
         };
 
-        factoryContext.IpcNotifications = new NotificationCatcher()
+        factoryContext.IpcNotifications = new NotificationCatcher
         {
             JobDataNotification = factoryContext.ProcessJobDataUpdateNotification
         };

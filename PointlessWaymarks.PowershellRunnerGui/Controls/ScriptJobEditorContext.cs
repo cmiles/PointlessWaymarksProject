@@ -30,11 +30,11 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     {
     }
 
+    public BoolDataEntryContext AllowSimultaneousRunsEntry { get; set; }
     public string? CronDescription { get; set; }
     public DateTime? CronNextRun { get; set; }
     public required string DatabaseFile { get; set; }
     public required ScriptJob DbEntry { get; set; }
-
     public required ConversionDataEntryContext<int> DeleteRunsAfterMonthsEntry { get; set; }
     public required StringDataEntryContext DescriptionEntry { get; set; }
     public required BoolDataEntryContext EnabledEntry { get; set; }
@@ -84,7 +84,12 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         var descriptionEntry = StringDataEntryContext.CreateInstance();
         descriptionEntry.Title = "Description";
         descriptionEntry.HelpText =
-            "Description, notes or other information about the  Job.";
+            "Description, notes or other information about the Job.";
+
+        var allowSimultaneousRunsEntry = await BoolDataEntryContext.CreateInstance();
+        allowSimultaneousRunsEntry.Title = "Allow Simultaneous Run Entry";
+        descriptionEntry.HelpText =
+            "If set multiple instances of this job may run at the same time.";
 
         var cronEntry = StringDataEntryContext.CreateInstance();
         cronEntry.Title = "Schedule (Cron Expression)";
@@ -140,6 +145,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             StatusContext = statusContext ?? new StatusControlContext(),
             NameEntry = nameEntry,
             DescriptionEntry = descriptionEntry,
+            AllowSimultaneousRunsEntry = allowSimultaneousRunsEntry,
             ScheduleEntry = cronEntry,
             ScriptEntry = scriptEntry,
             EnabledEntry = enabledEntry,
@@ -180,6 +186,9 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         DeleteRunsAfterMonthsEntry.ReferenceValue = toLoad.DeleteScriptJobRunsAfterMonths;
         DeleteRunsAfterMonthsEntry.UserText = toLoad.DeleteScriptJobRunsAfterMonths.ToString();
+
+        AllowSimultaneousRunsEntry.ReferenceValue = toLoad.AllowSimultaneousRuns;
+        AllowSimultaneousRunsEntry.UserValue = toLoad.AllowSimultaneousRuns;
 
         ScriptEntry.ReferenceValue = toLoad.Script.Decrypt(obfuscationKey);
         ScriptEntry.UserValue = toLoad.Script.Decrypt(obfuscationKey);
@@ -235,6 +244,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         toSave.Description = DescriptionEntry.UserValue;
         toSave.CronExpression = ScheduleEntry.UserValue;
         toSave.DeleteScriptJobRunsAfterMonths = DeleteRunsAfterMonthsEntry.UserValue;
+        toSave.AllowSimultaneousRuns = AllowSimultaneousRunsEntry.UserValue;
         toSave.Script = ScriptEntry.UserValue.Encrypt(obfuscationKey);
         toSave.ScheduleEnabled = EnabledEntry.UserValue;
         toSave.LastEditOn = DateTime.Now;

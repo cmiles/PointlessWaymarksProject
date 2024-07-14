@@ -35,7 +35,7 @@ public partial class ScriptViewWindow
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new ScriptViewWindow()
+        var window = new ScriptViewWindow
         {
             StatusContext = factoryContext,
             ScriptContext = factoryJobRunContext,

@@ -33,7 +33,7 @@ public partial class ScriptJobRunGuiView
     public DateTime? CompletedOnUtc { get; set; }
     public bool Errors { get; set; }
     public int Id { get; set; }
-    public required ScriptJob Job { get; set; }
+    public required ScriptJob? Job { get; set; }
     public int? LengthInSeconds { get; set; }
     public string HumanReadableLength { get; set; } = string.Empty;
     public string Output { get; set; } = string.Empty;
@@ -46,7 +46,7 @@ public partial class ScriptJobRunGuiView
     public string TranslatedOutput { get; set; } = string.Empty;
     public string TranslatedScript { get; set; } = string.Empty;
 
-    public static ScriptJobRunGuiView CreateInstance(ScriptJobRun run, ScriptJob job, string key)
+    public static ScriptJobRunGuiView CreateInstance(ScriptJobRun run, ScriptJob? job, string key)
     {
         var newView = new ScriptJobRunGuiView
         {
@@ -70,7 +70,7 @@ public partial class ScriptJobRunGuiView
         return newView;
     }
 
-    public void Update(ScriptJobRun run, ScriptJob job, string key)
+    public void Update(ScriptJobRun run, ScriptJob? job, string key)
     {
         CompletedOn = run.CompletedOnUtc?.ToLocalTime();
         CompletedOnUtc = run.CompletedOnUtc;

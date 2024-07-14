@@ -30,6 +30,9 @@ public class NotificationCatcher
     public Func<DataNotifications.InterProcessPowershellProgressNotification, Task> ProgressNotification { get; set; } =
         _ => Task.CompletedTask;
 
+    public Func<DataNotifications.InterProcessRunCancelRequest, Task> RunCancelRequestNotification { get; set; } =
+        _ => Task.CompletedTask;
+
     public Func<DataNotifications.InterProcessRunDataNotification, Task> RunDataNotification { get; set; } =
         _ => Task.CompletedTask;
 
@@ -46,7 +49,8 @@ public class NotificationCatcher
             RunDataNotification,
             ProgressNotification,
             StateNotification,
-            ErrorNotification
+            ErrorNotification,
+            RunCancelRequestNotification
         );
 
         if (toRun is not null) await toRun;

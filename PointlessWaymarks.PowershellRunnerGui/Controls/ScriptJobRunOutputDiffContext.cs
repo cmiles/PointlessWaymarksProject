@@ -119,7 +119,7 @@ public class ScriptJobRunOutputDiffContext
 
         factoryContext.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
         {
             JobDataNotification = factoryContext.ProcessJobDataUpdateNotification,
             RunDataNotification = factoryContext.ProcessRunDataUpdateNotification

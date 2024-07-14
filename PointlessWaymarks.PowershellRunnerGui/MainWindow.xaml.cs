@@ -73,6 +73,7 @@ public partial class MainWindow
     public ScriptJobListContext? JobListContext { get; set; }
 
     public ScriptProgressContext? ProgressContext { get; set; }
+    public ScriptJobRunListContext? RunListContext { get; set; }
 
     public AppSettingsContext? SettingsContext { get; set; }
 
@@ -122,7 +123,8 @@ public partial class MainWindow
                     nextRunDateTime.Day == frozenNow.Day &&
                     nextRunDateTime.Hour == frozenNow.Hour && nextRunDateTime.Minute == frozenNow.Minute)
                     StatusContext.RunFireAndForgetNonBlockingTask(() =>
-                        PowerShellRunner.ExecuteJob(loopJobs.DbEntry.PersistentId, CurrentDatabase,
+                        PowerShellRunner.ExecuteJob(loopJobs.DbEntry.PersistentId,
+                            loopJobs.DbEntry.AllowSimultaneousRuns, CurrentDatabase,
                             "Main Program Timer"));
             }
             catch (Exception e)
@@ -208,6 +210,7 @@ public partial class MainWindow
         CurrentDatabase = possibleFile.FullName;
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
+        RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
         ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
@@ -301,6 +304,7 @@ public partial class MainWindow
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
+        RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
         ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
@@ -330,6 +334,7 @@ public partial class MainWindow
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
+        RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
         ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);

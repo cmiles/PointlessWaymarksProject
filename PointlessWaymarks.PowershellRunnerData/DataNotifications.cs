@@ -92,6 +92,17 @@ public static class DataNotifications
             $"{nameof(InterProcessPowershellStateNotification)}|{cleanedSender.Replace("|", " ")}|{databaseId}|{scriptJobId}|{runId}|{state}|{cleanedProgress.Replace("|", " ")}");
     }
 
+    public static void PublishRunCancelRequest(string sender, Guid databaseId,
+        Guid runPersistentId)
+    {
+        if (SuspendNotifications) return;
+
+        var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
+
+        SendMessageQueue.Enqueue(
+            $"{nameof(InterProcessRunCancelRequest)}|{cleanedSender.Replace("|", " ")}|{databaseId}|{runPersistentId}");
+    }
+
     public static void PublishRunDataNotification(string sender, DataNotificationUpdateType updateType, Guid databaseId,
         Guid jobPersistentId, Guid runPersistentId)
     {
@@ -105,7 +116,7 @@ public static class DataNotifications
 
     public static OneOf<InterProcessJobDataNotification, InterProcessRunDataNotification,
             InterProcessPowershellProgressNotification,
-            InterProcessPowershellStateNotification, InterProcessProcessingError>
+            InterProcessPowershellStateNotification, InterProcessProcessingError, InterProcessRunCancelRequest>
         TranslateDataNotification(IReadOnlyList<byte>? received)
     {
         if (received == null || received.Count == 0)
@@ -121,11 +132,12 @@ public static class DataNotifications
             var parsedString = asString.Split("|").ToList();
 
             if (!parsedString.Any()
-                || !(parsedString.Count is 5 or 6 or 7)
+                || !(parsedString.Count is 4 or 5 or 6 or 7)
                 || !(parsedString[0].Equals(nameof(InterProcessJobDataNotification)) ||
                      parsedString[0].Equals(nameof(InterProcessRunDataNotification)) ||
                      parsedString[0].Equals(nameof(InterProcessPowershellProgressNotification)) ||
-                     parsedString[0].Equals(nameof(InterProcessPowershellStateNotification)))
+                     parsedString[0].Equals(nameof(InterProcessPowershellStateNotification)) ||
+                     parsedString[0].Equals(nameof(InterProcessRunCancelRequest)))
                )
                 return new InterProcessProcessingError
                 {
@@ -146,6 +158,14 @@ public static class DataNotifications
                 {
                     Sender = parsedString[1],
                     UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[2]),
+                    DatabaseId = Guid.TryParse(parsedString[3], out var parsedDbId) ? parsedDbId : Guid.Empty,
+                    RunPersistentId = Guid.TryParse(parsedString[5], out var parsedRunId) ? parsedRunId : Guid.Empty
+                };
+
+            if (parsedString[0].Equals(nameof(InterProcessRunCancelRequest)))
+                return new InterProcessRunCancelRequest
+                {
+                    Sender = parsedString[1],
                     DatabaseId = Guid.TryParse(parsedString[3], out var parsedDbId) ? parsedDbId : Guid.Empty,
                     JobPersistentId = Guid.TryParse(parsedString[4], out var parsedJobId) ? parsedJobId : Guid.Empty,
                     RunPersistentId = Guid.TryParse(parsedString[5], out var parsedRunId) ? parsedRunId : Guid.Empty
@@ -220,10 +240,17 @@ public static class DataNotifications
         public string ErrorMessage = string.Empty;
     }
 
-    public record InterProcessRunDataNotification
+    public record InterProcessRunCancelRequest
     {
         public Guid DatabaseId { get; set; }
         public Guid JobPersistentId { get; set; }
+        public Guid RunPersistentId { get; set; }
+        public string? Sender { get; init; }
+    }
+
+    public record InterProcessRunDataNotification
+    {
+        public Guid DatabaseId { get; set; }
         public Guid RunPersistentId { get; set; }
         public string? Sender { get; init; }
         public DataNotificationUpdateType UpdateType { get; init; }

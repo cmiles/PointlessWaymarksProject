@@ -151,6 +151,8 @@
                                   CommandParameter="{Binding SelectedItem}" />
                         <MenuItem Header="View Run List" Command="{Binding ViewRunListCommand}"
                                   CommandParameter="{Binding SelectedItem}" />
+                        <MenuItem Header="Progress Window" Command="{Binding ViewProgressWindowCommand}"
+                                  CommandParameter="{Binding SelectedItem}" />
                         <MenuItem Header="Run" Command="{Binding RunJobCommand}"
                                   CommandParameter="{Binding SelectedItem}" />
                         <MenuItem Header="Run with Progress Window" Command="{Binding RunWithProgressWindowCommand}"
@@ -201,8 +203,9 @@
                                              Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap">
                                         <TextBox.Text>
                                             <MultiBinding
-                                                StringFormat="{}{0} ---Script Job Run information is automatically deleted after {1} months.">
+                                                StringFormat="{}{0} --Simultaneous Runs Allowed: {1} --Script Job Run information  automatically deleted after {2} months.">
                                                 <Binding Path="DbEntry.Description" />
+                                                <Binding Path="DbEntry.AllowSimultaneousRuns" />
                                                 <Binding Path="DbEntry.DeleteScriptJobRunsAfterMonths" />
                                             </MultiBinding>
                                         </TextBox.Text>
@@ -268,6 +271,10 @@
                                             Command="{Binding Data.ViewRunListCommand, Source={StaticResource Proxy}}"
                                             CommandParameter="{Binding .}">
                                             View Run List
+                                        </Button>
+                                        <Button Command="{Binding Data.ViewProgressWindowCommand, Source={StaticResource Proxy}}"
+                                                CommandParameter="{Binding .}">
+                                            Progress Window
                                         </Button>
                                         <Button Command="{Binding Data.RunJobCommand, Source={StaticResource Proxy}}"
                                                 CommandParameter="{Binding .}">

@@ -48,7 +48,7 @@ public partial class ScriptProgressContext
 
         factoryContext.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
         {
             ProgressNotification = factoryContext.ProcessProgressNotification,
             StateNotification = factoryContext.ProcessStateNotification,
@@ -62,8 +62,7 @@ public partial class ScriptProgressContext
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptErrorMessageItem()
-            { ReceivedOn = DateTime.Now, Message = arg.ErrorMessage });
+        Items.Add(new ScriptErrorMessageItem { ReceivedOn = DateTime.Now, Message = arg.ErrorMessage });
     }
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
@@ -76,7 +75,7 @@ public partial class ScriptProgressContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptProgressMessageItem()
+        Items.Add(new ScriptProgressMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
@@ -99,7 +98,7 @@ public partial class ScriptProgressContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptStateMessageItem()
+        Items.Add(new ScriptStateMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId,
@@ -115,6 +114,12 @@ public partial class ScriptProgressContext
         if (runPersistentId == null)
         {
             StatusContext.ToastError("No Run Id Provided?");
+            return;
+        }
+
+        if (runPersistentId.Value.ToString("N").StartsWith("000000000000"))
+        {
+            StatusContext.ToastError("Progress from Arbitrary Script Run - No Run/Job to Show.");
             return;
         }
 

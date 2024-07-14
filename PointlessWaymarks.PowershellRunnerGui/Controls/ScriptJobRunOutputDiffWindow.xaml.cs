@@ -47,7 +47,7 @@ public partial class ScriptJobRunOutputDiffWindow
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new ScriptJobRunOutputDiffWindow()
+        var window = new ScriptJobRunOutputDiffWindow
         {
             StatusContext = factoryContext,
             DiffContext = factoryDiffContext,

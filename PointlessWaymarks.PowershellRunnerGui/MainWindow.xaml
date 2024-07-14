@@ -25,6 +25,10 @@
             <TabItem Header="Job List">
                 <controls:ScriptJobListControl DataContext="{Binding JobListContext}" />
             </TabItem>
+            <TabItem Header="Run List">
+                <controls:ScriptJobRunListControl DataContext="{Binding RunListContext}"></controls:ScriptJobRunListControl>
+            </TabItem>
+
             <TabItem Header="Custom Script">
                 <controls:ArbitraryScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
             </TabItem>
@@ -38,7 +42,7 @@
                 <controls:AppSettingsControl DataContext="{Binding SettingsContext}"></controls:AppSettingsControl>
             </TabItem>
         </TabControl>
-        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="400,2,4,0">
+        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="448,2,4,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>

@@ -47,7 +47,7 @@ public partial class ScriptJobRunViewerContext
                 _dbId = dbId
             };
 
-            factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+            factoryContext.DataNotificationsProcessor = new NotificationCatcher
             {
                 JobDataNotification = factoryContext.ProcessJobDataUpdateNotification,
                 RunDataNotification = factoryContext.ProcessRunDataUpdateNotification

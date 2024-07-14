@@ -67,7 +67,7 @@ public partial class ArbitraryScriptRunnerContext
 
         factoryContext.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
         {
             ProgressNotification = factoryContext.ProcessProgressNotification,
             StateNotification = factoryContext.ProcessStateNotification
@@ -85,7 +85,7 @@ public partial class ArbitraryScriptRunnerContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptProgressMessageItem()
+        Items.Add(new ScriptProgressMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
@@ -104,7 +104,7 @@ public partial class ArbitraryScriptRunnerContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptStateMessageItem()
+        Items.Add(new ScriptStateMessageItem
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId,

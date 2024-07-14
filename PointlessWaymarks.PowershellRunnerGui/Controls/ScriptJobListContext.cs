@@ -79,7 +79,7 @@ public partial class ScriptJobListContext
         factoryContext.BuildCommands();
         await factoryContext.RefreshList();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher()
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
         {
             JobDataNotification = factoryContext.ProcessJobDataUpdateNotification
         };
@@ -220,7 +220,7 @@ public partial class ScriptJobListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newJob = new ScriptJob()
+        var newJob = new ScriptJob
         {
             Name = "New Script Job",
             LastEditOn = DateTime.Now
@@ -320,7 +320,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await PowerShellRunner.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
+        await PowerShellRunner.ExecuteJob(toRun.DbEntry.PersistentId, toRun.DbEntry.AllowSimultaneousRuns, DatabaseFile,
             "Run From PowerShell Runner Gui");
     }
 
@@ -338,7 +338,7 @@ public partial class ScriptJobListContext
         }
 
         foreach (var loopSelected in currentSelection)
-            await PowerShellRunner.ExecuteJob(loopSelected.DbEntry.PersistentId, DatabaseFile,
+            await PowerShellRunner.ExecuteJob(loopSelected.DbEntry.PersistentId, loopSelected.DbEntry.AllowSimultaneousRuns, DatabaseFile,
                 "Run From PowerShell Runner Gui");
     }
 
@@ -353,7 +353,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        await PowerShellRunner.ExecuteJob(toRun.DbEntry.PersistentId, DatabaseFile,
+        await PowerShellRunner.ExecuteJob(toRun.DbEntry.PersistentId, toRun.DbEntry.AllowSimultaneousRuns, DatabaseFile,
             "Run From PowerShell Runner Gui",
             async run =>
             {
@@ -437,6 +437,21 @@ public partial class ScriptJobListContext
         }
 
         await ScriptJobRunViewerWindow.CreateInstance(topRun.PersistentId, DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewProgressWindow(ScriptJobListListItem? job)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (job == null)
+        {
+            StatusContext.ToastWarning("Nothing Selected?");
+            return;
+        }
+
+        await ScriptProgressWindow.CreateInstance(job.DbEntry.PersistentId.AsList(), [],
+            _databaseFile);
     }
 
     [NonBlockingCommand]

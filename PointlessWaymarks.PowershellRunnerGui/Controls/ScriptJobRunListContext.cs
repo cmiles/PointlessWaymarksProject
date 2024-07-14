@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Management.Automation;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -48,7 +49,9 @@ public partial class ScriptJobRunListContext
                 .OrderByDescending(x => x.StartedOnUtc).AsNoTracking().ToListAsync()
             : await db.ScriptJobRuns.OrderByDescending(x => x.StartedOnUtc).AsNoTracking().ToListAsync();
 
-        var possibleJobs = await db.ScriptJobs.Where(x => jobFilter.Contains(x.PersistentId)).ToListAsync();
+        var possibleJobs = jobFilter.Any()
+            ? await db.ScriptJobs.Where(x => jobFilter.Contains(x.PersistentId)).ToListAsync()
+            : await db.ScriptJobs.ToListAsync();
 
         var filterDescription = jobFilter.Any()
             ? $"Job{(possibleJobs.Count > 1 ? "s" : "")}: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}"
@@ -58,7 +61,7 @@ public partial class ScriptJobRunListContext
 
         foreach (var loopRun in filteredRuns)
             runList.Add(ScriptJobRunGuiView.CreateInstance(loopRun,
-                possibleJobs.Single(x => x.PersistentId == loopRun.ScriptJobPersistentId), key));
+                possibleJobs.SingleOrDefault(x => x.PersistentId == loopRun.ScriptJobPersistentId), key));
 
         var factoryScriptViewerContext = StringDataEntryNoIndicatorsContext.CreateInstance();
         factoryScriptViewerContext.Title = "Script";
@@ -240,6 +243,8 @@ public partial class ScriptJobRunListContext
         await ScriptJobRunViewerWindow.CreateInstance(persistentGuid.Value, _databaseFile);
     }
 
+
+
     [NonBlockingCommand]
     public async Task ViewSelectedRun()
     {
@@ -252,5 +257,19 @@ public partial class ScriptJobRunListContext
         }
 
         await ScriptJobRunViewerWindow.CreateInstance(SelectedItem.PersistentId, _databaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewProgressWindowForSelectedRun()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItem == null)
+        {
+            StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        await ScriptProgressWindow.CreateInstance(SelectedItem.ScriptJobPersistentId.AsList(), SelectedItem.PersistentId.AsList(), _databaseFile);
     }
 }

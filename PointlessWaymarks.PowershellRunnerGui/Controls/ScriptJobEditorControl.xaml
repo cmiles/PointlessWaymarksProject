@@ -29,17 +29,18 @@
         <StackPanel Orientation="Vertical" Margin="2">
             <stringDataEntry:StringDataEntryControl DataContext="{Binding NameEntry}" />
             <stringDataEntry:StringDataEntryControl DataContext="{Binding DescriptionEntry}" />
-            <stringDataEntry:StringDataEntryControl DataContext="{Binding ScheduleEntry}" />
             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding DeleteRunsAfterMonthsEntry}">
                 <b:Interaction.Behaviors>
                     <behaviors:DataEntryControlTextBoxWidthBindingBehavior WidthBinding="100" HorizontalAlignmentBinding="Left" />
                 </b:Interaction.Behaviors>
             </conversionDataEntry:ConversionDataEntryControl>
+            <stringDataEntry:StringDataEntryControl DataContext="{Binding ScheduleEntry}" />
             <TextBox Margin="16,6,4,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
                      Text="{Binding CronDescription, StringFormat='Description: {0}'}" />
             <TextBox Margin="16,2,4,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
                      Text="{Binding CronNextRun, StringFormat='Next Run: {0:g}'}" />
             <boolDataEntry:BoolDataEntryControl Margin="6,10,4,0" DataContext="{Binding EnabledEntry}" />
+            <boolDataEntry:BoolDataEntryControl Margin="6,10,4,0" DataContext="{Binding AllowSimultaneousRunsEntry}" />
         </StackPanel>
         <powerShellEditor:PowerShellEditorControl Margin="2,4,6,12" DataContext="{Binding ScriptEntry}" Grid.Row="1" />
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
