@@ -159,6 +159,7 @@ public static class DataNotifications
                     Sender = parsedString[1],
                     UpdateType = (DataNotificationUpdateType)int.Parse(parsedString[2]),
                     DatabaseId = Guid.TryParse(parsedString[3], out var parsedDbId) ? parsedDbId : Guid.Empty,
+                    JobPersistentId = Guid.TryParse(parsedString[4], out var parsedJobId) ? parsedJobId : Guid.Empty,
                     RunPersistentId = Guid.TryParse(parsedString[5], out var parsedRunId) ? parsedRunId : Guid.Empty
                 };
 
@@ -166,9 +167,8 @@ public static class DataNotifications
                 return new InterProcessRunCancelRequest
                 {
                     Sender = parsedString[1],
-                    DatabaseId = Guid.TryParse(parsedString[3], out var parsedDbId) ? parsedDbId : Guid.Empty,
-                    JobPersistentId = Guid.TryParse(parsedString[4], out var parsedJobId) ? parsedJobId : Guid.Empty,
-                    RunPersistentId = Guid.TryParse(parsedString[5], out var parsedRunId) ? parsedRunId : Guid.Empty
+                    DatabaseId = Guid.TryParse(parsedString[2], out var parsedDbId) ? parsedDbId : Guid.Empty,
+                    RunPersistentId = Guid.TryParse(parsedString[3], out var parsedRunId) ? parsedRunId : Guid.Empty
                 };
 
             if (parsedString[0].Equals(nameof(InterProcessPowershellProgressNotification)))
@@ -243,7 +243,6 @@ public static class DataNotifications
     public record InterProcessRunCancelRequest
     {
         public Guid DatabaseId { get; set; }
-        public Guid JobPersistentId { get; set; }
         public Guid RunPersistentId { get; set; }
         public string? Sender { get; init; }
     }
@@ -251,6 +250,7 @@ public static class DataNotifications
     public record InterProcessRunDataNotification
     {
         public Guid DatabaseId { get; set; }
+        public Guid JobPersistentId { get; set; }
         public Guid RunPersistentId { get; set; }
         public string? Sender { get; init; }
         public DataNotificationUpdateType UpdateType { get; init; }
