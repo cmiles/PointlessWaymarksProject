@@ -46,7 +46,11 @@
                              VerticalAlignment="Top"
                              Style="{StaticResource ReadOnlyTextBoxStyle}"
                              Opacity=".4" />
-                    <StackPanel Orientation="Vertical" Grid.Column="1" Margin="16,2,0,2">
+                    <Grid Grid.Column="1" Margin="16,2,0,2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
                         <TextBox Text="{Binding State}">
                             <TextBox.Style>
                                 <Style TargetType="TextBox" BasedOn="{StaticResource ReadOnlyTextBoxStyle}">
@@ -83,10 +87,10 @@
                                 </Style>
                             </TextBox.Style>
                         </TextBox>
-                        <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        <TextBox Grid.Row="1" Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap"
                                  Visibility="{Binding Message, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}"
-                                 Text="{Binding Message}" />
-                    </StackPanel>
+                                 Text="{Binding Message}" VerticalScrollBarVisibility="Visible"/>
+                    </Grid>
                 </Grid>
             </DataTemplate>
             <DataTemplate x:Key="ProgressErrorDataTemplate" DataType="{x:Type local:ScriptErrorMessageItem}">
@@ -287,15 +291,15 @@
                                         </Button>
                                     </WrapPanel>
                                     <GroupBox Grid.Row="4" Grid.Column="0" Margin="6,8,0,4"
-                                              Header="Latest Progress"
+                                              Header="Latest Progress" MaxHeight="200"
                                               Style="{StaticResource UiComponentGroupBoxStyle}">
-                                        <ContentControl
+                                        <ContentControl ScrollViewer.VerticalScrollBarVisibility="Visible"
                                             ContentTemplateSelector="{StaticResource ProgressSelectorTemplate}"
                                             Content="{Binding LastProgressItem}" />
                                     </GroupBox>
                                 </Grid>
                                 <GroupBox Header="Recent Runs" Grid.Column="1" Grid.Row="0" Margin="6,4,2,4"
-                                          MaxHeight="300" VerticalAlignment="Top" Height="180">
+                                           VerticalAlignment="Top">
                                     <GroupBox.Resources>
                                         <CollectionViewSource x:Key="SortedRunItems" Source="{Binding Items}"
                                                               xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
