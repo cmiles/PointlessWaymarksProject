@@ -10,12 +10,12 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [NotifyPropertyChanged]
 [StaThreadConstructorGuard]
 [GenerateStatusCommands]
-public partial class ArbitraryScriptRunnerContext
+public partial class CustomScriptRunnerContext
 {
     private string _databaseFile = string.Empty;
     private Guid _dbId = Guid.Empty;
 
-    public ArbitraryScriptRunnerContext()
+    public CustomScriptRunnerContext()
     {
     }
 
@@ -40,7 +40,7 @@ public partial class ArbitraryScriptRunnerContext
         return modifiedGuid;
     }
 
-    public static async Task<ArbitraryScriptRunnerContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<CustomScriptRunnerContext> CreateInstance(StatusControlContext? statusContext,
         string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -54,7 +54,7 @@ public partial class ArbitraryScriptRunnerContext
         factoryScriptEntry.HelpText =
             "Enter a PowerShell Script to run.";
 
-        var factoryContext = new ArbitraryScriptRunnerContext
+        var factoryContext = new CustomScriptRunnerContext
         {
             StatusContext = statusContext ?? new StatusControlContext(),
             UserScriptEntryContext = factoryScriptEntry,
@@ -113,8 +113,18 @@ public partial class ArbitraryScriptRunnerContext
     }
 
     [NonBlockingCommand]
+    public async Task CancelScript()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        DataNotifications.PublishRunCancelRequest("Custom Script Runner", _dbId, ScriptJobRunId);
+    }
+
+    [NonBlockingCommand]
     public async Task RunScript()
     {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         if (string.IsNullOrWhiteSpace(UserScriptEntryContext.UserValue))
         {
             StatusContext.ToastError("No Script to Run?");
@@ -126,7 +136,7 @@ public partial class ArbitraryScriptRunnerContext
         try
         {
             await PowerShellRunner.ExecuteScript(UserScriptEntryContext.UserValue, _dbId, ScriptJobId, ScriptJobRunId,
-                "Arbitrary Script");
+                "Custom Script Runner");
         }
         catch (Exception e)
         {

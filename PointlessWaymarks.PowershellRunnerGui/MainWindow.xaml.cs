@@ -1,6 +1,8 @@
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using Cronos;
+using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -25,6 +27,7 @@ public partial class MainWindow
     private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(60));
     private DateTime? _mainTimerLastCheck;
     private DateTime? _mostRecentScheduleCheckTime;
+    private bool _windowCloseOk;
 
     public MainWindow()
     {
@@ -56,7 +59,7 @@ public partial class MainWindow
         StatusContext.RunFireAndForgetBlockingTask(async () => { await CheckForProgramUpdate(currentDateVersion); });
     }
 
-    public ArbitraryScriptRunnerContext? ArbitraryRunnerContext { get; set; }
+    public CustomScriptRunnerContext? ArbitraryRunnerContext { get; set; }
     public string CurrentDatabase { get; set; } = string.Empty;
 
     public HelpDisplayContext? HelpContext { get; set; }
@@ -211,7 +214,7 @@ public partial class MainWindow
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
         RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
-        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
     }
@@ -226,6 +229,15 @@ public partial class MainWindow
         catch (Exception e)
         {
             Console.WriteLine(e);
+        }
+    }
+
+    private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        if (!_windowCloseOk)
+        {
+            e.Cancel = true;
+            StatusContext.RunBlockingTask(OnCloseRequested);
         }
     }
 
@@ -305,9 +317,50 @@ public partial class MainWindow
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
         RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
-        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
+    }
+
+    private async Task OnCloseRequested()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(CurrentDatabase);
+
+        var openRuns = await db.ScriptJobRuns.Where(x => x.CompletedOnUtc == null).ToListAsync();
+
+        if (!openRuns.Any())
+        {
+            await ThreadSwitcher.ResumeForegroundAsync();
+            _windowCloseOk = true;
+            Close();
+        }
+
+        var openJobIds = openRuns.Select(x => x.ScriptJobPersistentId).Distinct().ToList();
+        var openJobs = db.ScriptJobs.Where(x => openJobIds.Contains(x.PersistentId)).Select(x => x.Name).Distinct()
+            .ToList();
+        if (openJobIds.Any(x => x.ToString("N").StartsWith("000000000000"))) openJobs.Add("Custom Script");
+
+        var continueClose = await StatusContext.ShowMessageWithYesNoButton("Running Jobs - Cancel and Close?",
+            $"{openRuns.Count} Run{(openRuns.Count > 1 ? "s" : "")} still running - Job{(openRuns.Count > 1 ? "s" : "")}: {string.Join(", ", openJobs.OrderBy(x => x))}. {Environment.NewLine} {Environment.NewLine} Cancel Running Jobs and Close Window?");
+
+        if (continueClose.Equals("no", StringComparison.OrdinalIgnoreCase)) return;
+
+        var dbId = await db.DbId();
+
+        foreach (var scriptJobRun in openRuns)
+        {
+            DataNotifications.PublishRunCancelRequest("Main Window Close", dbId, scriptJobRun.PersistentId);
+            StatusContext.Progress($"Sending Cancel Message to {scriptJobRun.PersistentId}");
+        }
+
+        StatusContext.Progress("Waiting 5 seconds for Runs to stop...");
+        await Task.Delay(5000);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+        _windowCloseOk = true;
+        Close();
     }
 
     public async Task Setup()
@@ -331,11 +384,15 @@ public partial class MainWindow
 
         CurrentDatabase = settings.DatabaseFile;
 
+        var dbId = await PowerShellRunnerDbQuery.DbId(CurrentDatabase);
+
+        _ = PowerShellRunner.CleanUpOrphanRuns(CurrentDatabase, dbId);
+
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
         RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
-        ArbitraryRunnerContext = await ArbitraryScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
         HelpContext = new HelpDisplayContext([

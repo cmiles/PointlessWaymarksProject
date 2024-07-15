@@ -66,6 +66,27 @@ public static class DataNotifications
             $"{nameof(InterProcessJobDataNotification)}|{cleanedSender.Replace("|", " ")}|{(int)updateType}|{databaseId}|{jobPersistentId}");
     }
 
+    public static void PublishOpenJobsRequest(string sender, Guid databaseId)
+    {
+        if (SuspendNotifications) return;
+
+        var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
+
+        SendMessageQueue.Enqueue(
+            $"{nameof(InterProcessOpenRunsRequest)}|{cleanedSender.Replace("|", " ")}|{databaseId}");
+    }
+
+    public static void PublishOpenJobsResponse(string sender, Guid databaseId,
+        Guid runPersistentId)
+    {
+        if (SuspendNotifications) return;
+
+        var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
+
+        SendMessageQueue.Enqueue(
+            $"{nameof(InterProcessOpenRunsResponse)}|{cleanedSender.Replace("|", " ")}|{databaseId}|{runPersistentId}");
+    }
+
     public static void PublishPowershellProgressNotification(string sender, Guid databaseId, Guid scriptJobId,
         Guid runId,
         string progress)
@@ -116,7 +137,8 @@ public static class DataNotifications
 
     public static OneOf<InterProcessJobDataNotification, InterProcessRunDataNotification,
             InterProcessPowershellProgressNotification,
-            InterProcessPowershellStateNotification, InterProcessProcessingError, InterProcessRunCancelRequest>
+            InterProcessPowershellStateNotification, InterProcessProcessingError, InterProcessRunCancelRequest,
+            InterProcessOpenRunsRequest, InterProcessOpenRunsResponse>
         TranslateDataNotification(IReadOnlyList<byte>? received)
     {
         if (received == null || received.Count == 0)
@@ -132,12 +154,15 @@ public static class DataNotifications
             var parsedString = asString.Split("|").ToList();
 
             if (!parsedString.Any()
-                || !(parsedString.Count is 4 or 5 or 6 or 7)
+                || !(parsedString.Count is > 1 and < 8)
                 || !(parsedString[0].Equals(nameof(InterProcessJobDataNotification)) ||
                      parsedString[0].Equals(nameof(InterProcessRunDataNotification)) ||
                      parsedString[0].Equals(nameof(InterProcessPowershellProgressNotification)) ||
                      parsedString[0].Equals(nameof(InterProcessPowershellStateNotification)) ||
-                     parsedString[0].Equals(nameof(InterProcessRunCancelRequest)))
+                     parsedString[0].Equals(nameof(InterProcessRunCancelRequest)) ||
+                     parsedString[0].Equals(nameof(InterProcessOpenRunsRequest)) ||
+                     parsedString[0].Equals(nameof(InterProcessOpenRunsResponse))
+                    )
                )
                 return new InterProcessProcessingError
                 {
@@ -165,6 +190,21 @@ public static class DataNotifications
 
             if (parsedString[0].Equals(nameof(InterProcessRunCancelRequest)))
                 return new InterProcessRunCancelRequest
+                {
+                    Sender = parsedString[1],
+                    DatabaseId = Guid.TryParse(parsedString[2], out var parsedDbId) ? parsedDbId : Guid.Empty,
+                    RunPersistentId = Guid.TryParse(parsedString[3], out var parsedRunId) ? parsedRunId : Guid.Empty
+                };
+
+            if (parsedString[0].Equals(nameof(InterProcessOpenRunsRequest)))
+                return new InterProcessOpenRunsRequest
+                {
+                    Sender = parsedString[1],
+                    DatabaseId = Guid.TryParse(parsedString[2], out var parsedDbId) ? parsedDbId : Guid.Empty
+                };
+
+            if (parsedString[0].Equals(nameof(InterProcessOpenRunsResponse)))
+                return new InterProcessOpenRunsResponse
                 {
                     Sender = parsedString[1],
                     DatabaseId = Guid.TryParse(parsedString[2], out var parsedDbId) ? parsedDbId : Guid.Empty,
@@ -214,6 +254,19 @@ public static class DataNotifications
         public Guid JobPersistentId { get; set; }
         public string? Sender { get; init; }
         public DataNotificationUpdateType UpdateType { get; init; }
+    }
+
+    public record InterProcessOpenRunsRequest
+    {
+        public Guid DatabaseId { get; set; }
+        public string? Sender { get; init; }
+    }
+
+    public record InterProcessOpenRunsResponse
+    {
+        public Guid DatabaseId { get; set; }
+        public Guid RunPersistentId { get; set; }
+        public string? Sender { get; init; }
     }
 
     public record InterProcessPowershellProgressNotification

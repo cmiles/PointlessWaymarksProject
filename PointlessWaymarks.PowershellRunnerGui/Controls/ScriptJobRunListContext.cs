@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Management.Automation;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -100,6 +99,12 @@ public partial class ScriptJobRunListContext
             return;
         }
 
+        if (SelectedItems.Any(x => x.CompletedOnUtc == null))
+        {
+            await StatusContext.ShowMessageWithOkButton("Delete Includes Active Runs",
+                "You can only delete runs that are completed - Cancel any active runs before deleting them.");
+            return;
+        }
         var selectedIdsToDelete = SelectedItems.Select(x => x.PersistentId).ToList();
 
         if (selectedIdsToDelete.Count > 1)
@@ -161,14 +166,13 @@ public partial class ScriptJobRunListContext
             ScriptViewerContext.UserValue = SelectedItem?.TranslatedScript ?? string.Empty;
     }
 
-
     private async Task ProcessJobUpdateNotification(
         DataNotifications.InterProcessJobDataNotification interProcessUpdateNotification)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (interProcessUpdateNotification.DatabaseId != _dbId ||
-            !JobFilter.Contains(interProcessUpdateNotification.JobPersistentId)) return;
+            (JobFilter.Any() && !JobFilter.Contains(interProcessUpdateNotification.JobPersistentId))) return;
 
         //New or Deletes should be covered by the related notifications on runs
         if (interProcessUpdateNotification.UpdateType !=
@@ -189,7 +193,7 @@ public partial class ScriptJobRunListContext
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (interProcessUpdateNotification.DatabaseId != _dbId ||
-            !JobFilter.Contains(interProcessUpdateNotification.JobPersistentId)) return;
+            (JobFilter.Any() && !JobFilter.Contains(interProcessUpdateNotification.JobPersistentId))) return;
 
         if (interProcessUpdateNotification.UpdateType ==
             DataNotifications.DataNotificationUpdateType.Delete)
@@ -230,33 +234,25 @@ public partial class ScriptJobRunListContext
     }
 
     [NonBlockingCommand]
-    public async Task ViewRun(Guid? persistentGuid)
+    public async Task SendRunCancelMessage(ScriptJobRunGuiView? selectedRun)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (persistentGuid == null)
+        if (selectedRun == null)
         {
             StatusContext.ToastError("No Run Selected?");
             return;
         }
 
-        await ScriptJobRunViewerWindow.CreateInstance(persistentGuid.Value, _databaseFile);
-    }
-
-
-
-    [NonBlockingCommand]
-    public async Task ViewSelectedRun()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (SelectedItem == null)
+        if (selectedRun.CompletedOnUtc is not null)
         {
-            StatusContext.ToastError("No Run Selected?");
+            StatusContext.ToastError("Cancel Request Not Sent - Run already Finished...");
             return;
         }
 
-        await ScriptJobRunViewerWindow.CreateInstance(SelectedItem.PersistentId, _databaseFile);
+        DataNotifications.PublishRunCancelRequest("Run List", _dbId, selectedRun.PersistentId);
+
+        StatusContext.ToastSuccess("Sent Cancel Request, Run may take some time to stop...");
     }
 
     [NonBlockingCommand]
@@ -270,6 +266,35 @@ public partial class ScriptJobRunListContext
             return;
         }
 
-        await ScriptProgressWindow.CreateInstance(SelectedItem.ScriptJobPersistentId.AsList(), SelectedItem.PersistentId.AsList(), _databaseFile);
+        await ScriptProgressWindow.CreateInstance(SelectedItem.ScriptJobPersistentId.AsList(),
+            SelectedItem.PersistentId.AsList(), _databaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewRun(Guid? persistentGuid)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (persistentGuid == null)
+        {
+            StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(persistentGuid.Value, _databaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewSelectedRun()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItem == null)
+        {
+            StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        await ScriptJobRunViewerWindow.CreateInstance(SelectedItem.PersistentId, _databaseFile);
     }
 }

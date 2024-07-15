@@ -11,6 +11,7 @@
         xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
         mc:Ignorable="d"
         Loaded="MainWindow_OnLoaded"
+        Closing="MainWindow_OnClosing"
         Title="{Binding InfoTitle}" Height="450" Width="800"
         d:DataContext="{d:DesignInstance powershellRunnerGui:MainWindow }">
     <Window.Resources>
@@ -28,9 +29,8 @@
             <TabItem Header="Run List">
                 <controls:ScriptJobRunListControl DataContext="{Binding RunListContext}"></controls:ScriptJobRunListControl>
             </TabItem>
-
             <TabItem Header="Custom Script">
-                <controls:ArbitraryScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
+                <controls:CustomScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
             </TabItem>
             <TabItem Header="All Progress">
                 <controls:ScriptProgressControl DataContext="{Binding ProgressContext}" />

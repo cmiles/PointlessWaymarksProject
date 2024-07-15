@@ -26,8 +26,6 @@
                 <Setter Property="TextAlignment" Value="Right" />
                 <Setter Property="Padding" Value="2,0,4,0" />
             </Style>
-            <local:ScriptJobRunGuiViewShowProgressViewConverter x:Key="ScriptJobRunGuiViewShowProgressView" />
-
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -101,8 +99,19 @@
                             <DataTemplate>
                                 <Button Margin="2,1,2,1" Padding="4,0,4,0"
                                         Command="{Binding Data.ViewProgressWindowForSelectedRunCommand, Source={StaticResource Proxy}}"
-                                        CommandParameter="{Binding PersistentId}" Visibility="{Binding ., Converter={StaticResource ScriptJobRunGuiViewShowProgressView}}">
+                                        CommandParameter="{Binding PersistentId}" Visibility="{Binding CompletedOn, Converter={StaticResource NotNullToCollapsedVisibility}}">
                                     View Progress
+                                </Button>
+                            </DataTemplate>
+                        </filterDataGrid:DataGridTemplateColumn.CellTemplate>
+                    </filterDataGrid:DataGridTemplateColumn>
+                    <filterDataGrid:DataGridTemplateColumn IsColumnFiltered="False">
+                        <filterDataGrid:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Margin="2,1,2,1" Padding="4,0,4,0"
+                                        Command="{Binding Data.SendRunCancelMessageCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding .}" Visibility="{Binding CompletedOn, Converter={StaticResource NotNullToCollapsedVisibility}}">
+                                    Cancel
                                 </Button>
                             </DataTemplate>
                         </filterDataGrid:DataGridTemplateColumn.CellTemplate>

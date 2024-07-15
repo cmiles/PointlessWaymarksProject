@@ -94,7 +94,7 @@ public static class PowerShellRunnerDbQuery
         await context.PowerShellRunnerSettings.Where(x => x.Key == ObfuscationServiceAccountSettingsKey)
             .ExecuteDeleteAsync();
 
-        await context.PowerShellRunnerSettings.AddAsync(new PowerShellRunnerSetting()
+        await context.PowerShellRunnerSettings.AddAsync(new PowerShellRunnerSetting
         {
             Key = ObfuscationServiceAccountSettingsKey,
             Value = Guid.NewGuid().ToString()
@@ -112,7 +112,7 @@ public static class PowerShellRunnerDbQuery
 
         await context.PowerShellRunnerSettings.Where(x => x.Key == DbPersistentIdSettingsKey).ExecuteDeleteAsync();
 
-        await context.PowerShellRunnerSettings.AddAsync(new PowerShellRunnerSetting()
+        await context.PowerShellRunnerSettings.AddAsync(new PowerShellRunnerSetting
         {
             Key = DbPersistentIdSettingsKey,
             Value = Guid.NewGuid().ToString()

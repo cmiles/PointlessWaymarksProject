@@ -63,8 +63,8 @@ public partial class ScriptJobRunGuiView
             ScriptJobPersistentId = run.ScriptJobPersistentId,
             StartedOn = run.StartedOnUtc.ToLocalTime(),
             StartedOnUtc = run.StartedOnUtc,
-            TranslatedOutput = run.Output.Decrypt(key),
-            TranslatedScript = run.Script.Decrypt(key)
+            TranslatedOutput = run.Output.TryDecrypt(key),
+            TranslatedScript = run.Script.TryDecrypt(key)
         };
 
         return newView;

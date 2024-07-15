@@ -27,6 +27,12 @@ public class NotificationCatcher
     public Func<DataNotifications.InterProcessJobDataNotification, Task> JobDataNotification { get; set; } =
         _ => Task.CompletedTask;
 
+    public Func<DataNotifications.InterProcessOpenRunsRequest, Task> OpenRunsRequest { get; set; } =
+        _ => Task.CompletedTask;
+
+    public Func<DataNotifications.InterProcessOpenRunsResponse, Task> OpenRunsResponse { get; set; } =
+        _ => Task.CompletedTask;
+
     public Func<DataNotifications.InterProcessPowershellProgressNotification, Task> ProgressNotification { get; set; } =
         _ => Task.CompletedTask;
 
@@ -50,7 +56,9 @@ public class NotificationCatcher
             ProgressNotification,
             StateNotification,
             ErrorNotification,
-            RunCancelRequestNotification
+            RunCancelRequestNotification,
+            OpenRunsRequest,
+            OpenRunsResponse
         );
 
         if (toRun is not null) await toRun;
