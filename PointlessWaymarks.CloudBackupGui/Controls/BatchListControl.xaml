@@ -66,10 +66,11 @@
                                                  TextWrapping="Wrap">
                                             <TextBox.Text>
                                                 <MultiBinding
-                                                    StringFormat="Created {0} - Id {1} - Uploads {2:P0} Complete - Based On New Cloud File Scan: {3}">
-                                                    <Binding Path="Statistics.BatchCreatedOn" />
+                                                    StringFormat="Latest Cloud Activity {0} - Id {1} - Uploads {2:P0} Complete - Created {3} - Based On New Cloud File Scan: {4}">
+                                                    <Binding Path="Statistics.LatestCloudActivity" />
                                                     <Binding Path="Statistics.BatchId" />
                                                     <Binding Path="Statistics.UploadsSizeCompletedPercentage" />
+                                                    <Binding Path="Statistics.BatchCreatedOn" />
                                                     <Binding Path="Statistics.BasedOnNewCloudFileScan" />
                                                 </MultiBinding>
                                             </TextBox.Text>

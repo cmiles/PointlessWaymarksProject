@@ -41,14 +41,14 @@ public static class DataNotifications
     }
 
     public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
-        DataNotificationUpdateType updateType, Guid jobPersistentId, int? batchPersistentId)
+        DataNotificationUpdateType updateType, Guid jobPersistentId, int? batchId)
     {
         if (SuspendNotifications) return;
 
         var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
         SendMessageQueue.Enqueue(
-            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{jobPersistentId}|{batchPersistentId}");
+            $"Data|{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{jobPersistentId}|{batchId}");
     }
 
     public static void PublishProgressNotification(string sender, int processId, string progress, Guid jobPersistentId,
@@ -153,6 +153,9 @@ public enum DataNotificationContentType
     ExcludedDirectory,
     ExcludedDirectoryNamePattern,
     ExcludedFileNamePattern,
+    CloudCopy,
+    CloudDelete,
+    CloudUpload,
     Unknown,
     Progress
 }

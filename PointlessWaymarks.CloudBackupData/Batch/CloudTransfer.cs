@@ -88,6 +88,7 @@ public static class CloudTransfer
                     cacheEntry.FileSystemDateTime = localMetadata.UploadMetadata.LastWriteTime;
                     
                     await context.SaveChangesAsync();
+                    DataNotifications.PublishDataNotification(nameof(CloudTransfer), DataNotificationContentType.CloudCopy, DataNotificationUpdateType.Update, batch.Job.PersistentId, batch.Id);
                     
                     var elapsed = DateTime.Now.Subtract(copyStartTime);
                     totalCopiedSeconds += elapsed.TotalSeconds;
@@ -97,7 +98,8 @@ public static class CloudTransfer
                 {
                     copy.ErrorMessage += $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Copy Failed - {e.Message};";
                     await context.SaveChangesAsync();
-                    
+                    DataNotifications.PublishDataNotification(nameof(CloudTransfer), DataNotificationContentType.CloudCopy, DataNotificationUpdateType.Update, batch.Job.PersistentId, batch.Id);
+
                     progress?.Report($"Copy Failed - {e.Message}");
                     
                     copyErrorCount++;
@@ -243,7 +245,8 @@ public static class CloudTransfer
                     cacheEntry.FileSystemDateTime = localMetadata.UploadMetadata.LastWriteTime;
                     
                     await context.SaveChangesAsync();
-                    
+                    DataNotifications.PublishDataNotification(nameof(CloudTransfer), DataNotificationContentType.CloudCopy, DataNotificationUpdateType.Update, batch.Job.PersistentId, batch.Id);
+
                     var elapsed = DateTime.Now.Subtract(copyStartTime);
                     totalCopiedLength += copyUploadLength;
                     totalCopiedSeconds += elapsed.TotalSeconds;
@@ -252,7 +255,8 @@ public static class CloudTransfer
                 {
                     copyUpload.ErrorMessage += $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Upload Failed - {e.Message};";
                     await context.SaveChangesAsync();
-                    
+                    DataNotifications.PublishDataNotification(nameof(CloudTransfer), DataNotificationContentType.CloudCopy, DataNotificationUpdateType.Update, batch.Job.PersistentId, batch.Id);
+
                     progress?.Report($"Copy Upload Failed - {e.Message}");
                     
                     copyErrorCount++;
@@ -395,7 +399,8 @@ public static class CloudTransfer
                 cacheEntry.FileSystemDateTime = localMetadata.UploadMetadata.LastWriteTime;
                 
                 await context.SaveChangesAsync();
-                
+                DataNotifications.PublishDataNotification(nameof(CloudTransfer), DataNotificationContentType.CloudUpload, DataNotificationUpdateType.Update, batch.Job.PersistentId, batch.Id);
+
                 var elapsed = DateTime.Now.Subtract(uploadStartTime);
                 totalUploadedLength += uploadLength;
                 totalUploadedSeconds += elapsed.TotalSeconds;
@@ -404,7 +409,8 @@ public static class CloudTransfer
             {
                 upload.ErrorMessage += $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Upload Failed - {e.Message};";
                 await context.SaveChangesAsync();
-                
+                DataNotifications.PublishDataNotification(nameof(CloudTransfer), DataNotificationContentType.CloudUpload, DataNotificationUpdateType.Update, batch.Job.PersistentId, batch.Id);
+
                 progress?.Report($"Upload Failed - {e.Message}");
                 
                 uploadErrorCount++;
@@ -464,6 +470,7 @@ public static class CloudTransfer
                 if (cacheEntry != null) context.CloudCacheFiles.Remove(cacheEntry);
                 
                 await context.SaveChangesAsync();
+                DataNotifications.PublishDataNotification(nameof(CloudTransfer), DataNotificationContentType.CloudDelete, DataNotificationUpdateType.Update, batch.Job.PersistentId, batch.Id);
             }
             catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -475,7 +482,8 @@ public static class CloudTransfer
             {
                 delete.ErrorMessage += $"{DateTime.Now:yyyy-MM-dd--hh:mm}: Delete Failed - {e.Message};";
                 await context.SaveChangesAsync();
-                
+                DataNotifications.PublishDataNotification(nameof(CloudTransfer), DataNotificationContentType.CloudDelete, DataNotificationUpdateType.Update, batch.Job.PersistentId, batch.Id);
+
                 progress?.Report($"Delete Failed - {e.Message}");
                 
                 deleteErrorCount++;

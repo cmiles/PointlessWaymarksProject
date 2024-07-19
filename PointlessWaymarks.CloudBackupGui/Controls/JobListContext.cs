@@ -157,6 +157,11 @@ public partial class JobListContext
                         ColumnName = "DbJob.Name",
                         Order = 1,
                         DefaultSortDirection = ListSortDirection.Ascending
+                    },
+                    new ColumnSortControlSortItem
+                    {
+                        DisplayName = "Cloud",
+                        ColumnName = "LatestBatch.LatestCloudActivity"
                     }
                 ]
             }
@@ -467,12 +472,6 @@ public partial class JobListContext
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Items.Add(toAdd);
-        }
-
-        if (interProcessUpdateNotification is { ContentType: DataNotificationContentType.CloudTransferBatch })
-        {
-            var listItem = Items.SingleOrDefault(x => x.PersistentId == interProcessUpdateNotification.JobPersistentId);
-            if (listItem is not null) await listItem.RefreshLatestBatch();
         }
     }
 

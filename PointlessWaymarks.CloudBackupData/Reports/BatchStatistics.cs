@@ -14,13 +14,13 @@ public partial class BatchStatistics
     public long CloudFileSize { get; set; }
     public int CopiesCompleteCount { get; set; }
     public long CopiesCompleteSize { get; set; }
+    public int CopiesCount { get; set; }
     public int CopiesNotCompletedCount { get; set; }
     public long CopiesNotCompletedSize { get; set; }
     public long CopiesSize { get; set; }
     public decimal CopiesSizeCompletedPercentage { get; set; }
     public int CopiesWithErrorNoteCount { get; set; }
     public long CopiesWithErrorNoteSize { get; set; }
-    public int CopiesCount { get; set; }
     public int DeletesCompleteCount { get; set; }
     public long DeletesCompleteSize { get; set; }
     public int DeletesCount { get; set; }
@@ -30,11 +30,13 @@ public partial class BatchStatistics
     public int DeletesWithErrorNoteCount { get; set; }
     public long DeletesWithErrorNoteSize { get; set; }
     public int JobId { get; set; }
+    public Guid? JobPersistentId { get; set; }
+    public DateTime? LatestCloudActivity { get; set; }
     public int LocalFileCount { get; set; }
     public long LocalFileSize { get; set; }
-    public int UploadsCount { get; set; }
     public int UploadsCompleteCount { get; set; }
     public long UploadsCompleteSize { get; set; }
+    public int UploadsCount { get; set; }
     public long UploadSize { get; set; }
     public int UploadsNotCompletedCount { get; set; }
     public long UploadsNotCompletedSize { get; set; }
@@ -46,13 +48,28 @@ public partial class BatchStatistics
     {
         var context = await CloudBackupContext.CreateInstance();
 
-        var batch = context.CloudTransferBatches.Single(x => x.Id == batchId);
+        var batch = context.CloudTransferBatches.Include(cloudTransferBatch => cloudTransferBatch.Job)
+            .Single(x => x.Id == batchId);
+
+        var latestUpload =
+            (await context.CloudUploads.Where(x => x.CloudTransferBatchId == batch.Id)
+                .OrderByDescending(x => x.LastUpdatedOn).FirstOrDefaultAsync())?.LastUpdatedOn;
+        var latestCopy =
+            (await context.CloudCopies.Where(x => x.CloudTransferBatchId == batch.Id)
+                .OrderByDescending(x => x.LastUpdatedOn).FirstOrDefaultAsync())?.LastUpdatedOn;
+        var latestDelete =
+            (await context.CloudDeletions.Where(x => x.CloudTransferBatchId == batch.Id)
+                .OrderByDescending(x => x.LastUpdatedOn).FirstOrDefaultAsync())?.LastUpdatedOn;
+
+        var latestCloudActivity = new List<DateTime?> { latestUpload, latestCopy, latestDelete }.Max();
 
         var toReturn = new BatchStatistics
         {
+            LatestCloudActivity = latestCloudActivity,
             BatchCreatedOn = batch.CreatedOn,
             BatchId = batch.Id,
             JobId = batch.BackupJobId,
+            JobPersistentId = batch.Job?.PersistentId,
             BasedOnNewCloudFileScan = batch.BasedOnNewCloudFileScan,
             LocalFileCount = await context.FileSystemFiles.CountAsync(x => x.CloudTransferBatchId == batch.Id),
             LocalFileSize = await context.FileSystemFiles.Where(x => x.CloudTransferBatchId == batch.Id)

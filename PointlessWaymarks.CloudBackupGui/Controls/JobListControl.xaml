@@ -333,7 +333,7 @@
                                         </Style>
                                     </WrapPanel.Resources>
                                     <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.BatchCreatedOn, StringFormat='Latest Batch Created {0}'}">
+                                               Text="{Binding LatestBatch.LatestCloudActivity, StringFormat='Latest Cloud Activity {0}'}">
                                     </TextBlock>
                                     <TextBlock TextWrapping="Wrap"
                                                Text="{Binding LatestBatch.LocalFileSize, StringFormat='Local Files {0}', Converter={StaticResource FileSizePresentation}}">
@@ -368,6 +368,9 @@
                                     </TextBlock>
                                     <TextBlock TextWrapping="Wrap"
                                                Text="{Binding DbJob.MaximumRunTimeInHours, StringFormat='Max Runtime: {0:N0} Hours'}">
+                                    </TextBlock>
+                                    <TextBlock TextWrapping="Wrap"
+                                               Text="{Binding LatestBatch.BatchCreatedOn, StringFormat='Latest Batch Created {0}'}">
                                     </TextBlock>
                                 </WrapPanel>
                             </Grid>
