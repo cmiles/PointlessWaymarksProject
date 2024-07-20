@@ -448,7 +448,7 @@ public static class CreationTools
     public static async Task<CloudTransferBatchInformation> WriteChangesToDatabase(FileListAndChangeData changes,
         IProgress<string> progress)
     {
-        var frozenNow = DateTime.Now.ToUniversalTime();
+        var frozenNow = DateTime.Now;
         var db = await CloudBackupContext.CreateInstance();
         
         progress.Report($"Creating a new Cloud Transfer Batch - {frozenNow}");
