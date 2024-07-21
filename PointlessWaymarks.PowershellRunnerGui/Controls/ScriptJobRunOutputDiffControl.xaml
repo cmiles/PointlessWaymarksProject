@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
              xmlns:controls="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance local:ScriptJobRunOutputDiffContext}">
@@ -71,7 +73,11 @@
             <GroupBox Header="Left Run" Margin="4,0,4,0">
                 <ListBox ItemsSource="{Binding Source={StaticResource LeftSortedItems}}" SelectionMode="Single"
                          SelectedItem="{Binding SelectedLeftRun}" HorizontalContentAlignment="Stretch"
-                         ItemTemplate="{StaticResource RunListDataTemplate}" BorderThickness="0">
+                         ItemTemplate="{StaticResource RunListDataTemplate}" BorderThickness="0"
+                         >
+                    <b:Interaction.Behaviors>
+                        <behaviors:ScrollToItemBehavior ScrollRequestItem="{Binding LeftScrollItem}"></behaviors:ScrollToItemBehavior>
+                    </b:Interaction.Behaviors>
                     <ListBox.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="View Selected Run" Command="{Binding ViewRunCommand}"
@@ -84,6 +90,9 @@
                 <ListBox ItemsSource="{Binding Source={StaticResource RightSortedItems}}" SelectionMode="Single"
                          SelectedItem="{Binding SelectedRightRun}" HorizontalContentAlignment="Stretch"
                          ItemTemplate="{StaticResource RunListDataTemplate}" BorderThickness="0">
+                    <b:Interaction.Behaviors>
+                        <behaviors:ScrollToItemBehavior ScrollRequestItem="{Binding RightScrollItem}"></behaviors:ScrollToItemBehavior>
+                    </b:Interaction.Behaviors>
                     <ListBox.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="View Selected Run" Command="{Binding ViewRunCommand}"

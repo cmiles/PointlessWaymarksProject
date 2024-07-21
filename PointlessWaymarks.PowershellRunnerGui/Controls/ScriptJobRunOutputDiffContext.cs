@@ -16,6 +16,9 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [GenerateStatusCommands]
 public class ScriptJobRunOutputDiffContext
 {
+    private const string _regexRemoveDateTimeStamp =
+        @"^([1-9]|1[0-2])/([1-9]|[1-3]\d)/(1|2)\d\d\d ([1-9]|1[0-2]):([0-5])\d:([0-5])\d (AM|PM)>>";
+
     private string _databaseFile = string.Empty;
     private Guid _dbId = Guid.Empty;
     private Guid _jobId = Guid.Empty;
@@ -28,8 +31,10 @@ public class ScriptJobRunOutputDiffContext
 
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public required ObservableCollection<ScriptJobRunGuiView> LeftRuns { get; set; }
+    public object? LeftScrollItem { get; set; }
     public bool RemoveOutputTimeStamp { get; set; } = true;
     public required ObservableCollection<ScriptJobRunGuiView> RightRuns { get; set; }
+    public object? RightScrollItem { get; set; }
     public ScriptJobRunGuiView? SelectedLeftRun { get; set; }
     public ScriptJobRunGuiView? SelectedRightRun { get; set; }
     public required StatusControlContext StatusContext { get; set; }
@@ -125,6 +130,9 @@ public class ScriptJobRunOutputDiffContext
             RunDataNotification = factoryContext.ProcessRunDataUpdateNotification
         };
 
+        factoryContext.LeftScrollItem = factorySelectedLeftRun;
+        factoryContext.RightScrollItem = factorySelectedRightRun;
+
         return factoryContext;
     }
 
@@ -218,8 +226,7 @@ public class ScriptJobRunOutputDiffContext
         {
             loopRun.TranslatedOutput = loopRun.Output.Decrypt(_key);
             if (RemoveOutputTimeStamp)
-                loopRun.TranslatedOutput = Regex.Replace(loopRun.TranslatedOutput,
-                    @"^([1-9]|1[0-2])/([1-9]|1[0-2])/(1|2)\d\d\d ([1-9]|1[0-2]):([0-5])\d:([0-5])\d (AM|PM)>>",
+                loopRun.TranslatedOutput = Regex.Replace(loopRun.TranslatedOutput, _regexRemoveDateTimeStamp,
                     string.Empty, RegexOptions.Multiline);
         }
 
@@ -227,8 +234,7 @@ public class ScriptJobRunOutputDiffContext
         {
             loopRun.TranslatedOutput = loopRun.Output.Decrypt(_key);
             if (RemoveOutputTimeStamp)
-                loopRun.TranslatedOutput = Regex.Replace(loopRun.TranslatedOutput,
-                    @"^([1-9]|1[0-2])/([1-9]|1[0-2])/(1|2)\d\d\d ([1-9]|1[0-2]):([0-5])\d:([0-5])\d (AM|PM)>>",
+                loopRun.TranslatedOutput = Regex.Replace(loopRun.TranslatedOutput, _regexRemoveDateTimeStamp,
                     string.Empty, RegexOptions.Multiline);
         }
     }
@@ -239,8 +245,7 @@ public class ScriptJobRunOutputDiffContext
         var toAdd = ScriptJobRunGuiView.CreateInstance(loopRun, job, key);
 
         if (removeOutputTimeStamp)
-            toAdd.TranslatedOutput = Regex.Replace(toAdd.TranslatedOutput,
-                @"^([1-9]|1[0-2])/([1-9]|1[0-2])/(1|2)\d\d\d ([1-9]|1[0-2]):([0-5])\d:([0-5])\d (AM|PM)>>",
+            toAdd.TranslatedOutput = Regex.Replace(toAdd.TranslatedOutput, _regexRemoveDateTimeStamp,
                 string.Empty, RegexOptions.Multiline);
 
         return toAdd;
