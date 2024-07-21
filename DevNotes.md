@@ -14,6 +14,30 @@
 
 ## Notes
 
+7/21/2024
+
+For the past month I've worked on the PowerShell Runner addition to this project. For me this is a replacement for the Windows Task Scheduler. Most of the reasons, details and features are in the Readmes but here in the DevNotes it seems worth talking about the 'scope' of the project or: why writing custom software works...
+
+At work I maintain a large codebase that stretches back decades - some days this causes me some pain and sadness (the state of some of the code, missed opportunities, workload) but most days it is an incredible learning opportunity and beautiful challenge.
+
+One of the details that I think constantly about is 'scope' - I don't have any deep revelations to share but I also don't always see it articulated how incredibly effective it can be to write custom software when the scope of the software you are writing is small compared to your resources.
+
+Of course plenty of time and words is devoted to financials, decision making and software so easy enough to have a vastly different impression about what gets discussed, but we can probably agree that this would be an incredibly uncommon response if you talk to a company about their software products:
+
+    'Wow, your use case is so simple your in house people could probably just write a lightweight solution that runs on an decommissioned desktop in a few weeks - in addition to cost it looks like you could probably add a few really specific and valuable customizations for your business that would be impossible to implement in our software!'
+
+A parallel example for me is Footwear insoles - I have talked to quite a few insole companies over the years and none of them have ever shared a great strategy for identifying customers who are really doing just fine and maybe don't need special insoles - they always focus on 'finding the best insole for the customer'... (Probably easy to identify examples of this in any industry - it just happens for many years purchasing insoles was my job.)
+
+So... All the way back around to the PowerShell Runner app...
+
+If the idea was to replicate everything the Windows Task Scheduler can do this project would have been pure folly - the scope, reliability and years of testing of the Windows Task Scheduler is just too much to compete with and I just be better off hiking, taking photos, reading, creating content, etc.
+
+But I don't need to replicate the Windows Task Scheduler and I'm not making a product to sell - I just want a nice way to run my long list of scheduled, and occasionally on demand, tasks and I want to do it via PowerShell scripts. The scope is limited and for me the total cost is low/reasonable.
+
+The Actual Cost? One month of side work while I was also working on other backup programs and working my day job! I'm sure I will find bugs to fix and missed features - and occasional package updates will break code and force changes - so there is absolutely ongoing cost - but in a month I have a program that is running, doing what I want/need it to do and is pretty nice to work with.
+
+In the end I'm happy I wrote the PowerShell Runner - I think it is going to serve me well...
+
 5/31/2024
 
 Cloudflare has been a nice update from S3 both in terms of speed (not measured but visibly faster) and in terms of peace of mind about cost. While watching a Primeagen episode about some apparent distasteful strong arm sales tactics from Cloudflare the post he was reading had a suggestion to keep your setup generic and not strongly tied to anything specific to Cloudflare. This made me look up some alternatives and while looking at 'things' I was reminded of Wasabi and since I don't still have my login from when Wasabi was a really great banking app I made a new login to check things out. I think the simplicity of the setup and speed for serving sites off Cloudflare makes R2 great for that - but Wasabi has the potential to push the cost down even more so I added support for Wasabi to Pointless Waymarks esp. with Backup use in mind.
