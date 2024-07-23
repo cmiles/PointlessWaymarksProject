@@ -142,7 +142,7 @@ public class GpxTrackImport
                         true, settings.OverwriteExistingArchiveDirectoryFiles,
                         new ConnectGpxService
                             { ConnectUsername = settings.ConnectUserName, ConnectPassword = settings.ConnectPassword },
-                        consoleProgress);
+                        consoleProgress, CancellationToken.None);
 
                     fileList.Add((jsonArchiveFile, gpxFile));
                 }
