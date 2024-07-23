@@ -31,7 +31,7 @@ public partial class ScriptJobListListItem
     public NotificationCatcher IpcNotifications { get; set; }
     public required ObservableCollection<ScriptJobRun> Items { get; set; } = [];
     public IPowerShellProgress? LastProgressItem { get; set; }
-    public DateTime? NextRun { get; set; }
+    public DateTime NextRun { get; set; } = DateTime.MaxValue;
     public ScriptJobRun? SelectedItem { get; set; }
     public List<ScriptJobRun> SelectedItems { get; set; } = [];
     public required string TranslatedScript { get; set; }

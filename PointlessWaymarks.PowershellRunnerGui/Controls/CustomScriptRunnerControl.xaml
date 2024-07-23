@@ -87,7 +87,7 @@
                         </TextBox>
                         <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
                                  Visibility="{Binding Message, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}"
-                                 Text="{Binding Message}" />
+                                 Text="{Binding Message}" TextWrapping="Wrap" />
                     </StackPanel>
                 </Grid>
             </DataTemplate>

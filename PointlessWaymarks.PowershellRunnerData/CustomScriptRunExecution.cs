@@ -22,8 +22,16 @@ internal class CustomScriptRunExecution
 
     internal async Task<(bool errors, List<string> runLog)> ExecuteScript()
     {
+        var initialSessionState = InitialSessionState.CreateDefault();
+        // 2024-7-23: Leaving this code commented to consider - this would make this program's
+        // PowerShell execution a lot more like what the user expects at a command prompt which
+        // is good, but it also makes it a lot less portable. I wonder if the Vanilla runspace
+        // is the better compromise?
+        //initialSessionState.ImportPSModule(["*"]); // Attempt to preload all available modules
+        //initialSessionState.ExecutionPolicy = Microsoft.PowerShell.ExecutionPolicy.Unrestricted;
+
         // create Powershell runspace
-        var runSpace = RunspaceFactory.CreateRunspace();
+        var runSpace = RunspaceFactory.CreateRunspace(initialSessionState);
 
         // open it
         runSpace.Open();

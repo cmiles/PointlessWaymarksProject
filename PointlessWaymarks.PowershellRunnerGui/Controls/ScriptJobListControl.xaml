@@ -19,8 +19,7 @@
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
-            <columnSort:AscendingListSortIsVisibleConverter x:Key="AscendingListSortIsVisible" />
-            <columnSort:DescendingListSortIsVisibleConverter x:Key="DescendingListSortIsVisible" />
+            <local:DateTimeMaxValueToNullConverter x:Key="DateTimeMaxValueToNull" />
             <local:LengthInSecondsToHumanReadableConverter x:Key="LengthInSecondsToHumanReadable" />
             <local:UtcTimeToLocalTimeConverter x:Key="UtcTimeToLocalTime" />
             <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptProgressMessageItem}">
@@ -232,7 +231,7 @@
                                                 <Binding Path="DbEntry.CronExpression" />
                                                 <Binding Path="CronDescription" />
                                                 <Binding Path="DbEntry.ScheduleEnabled" />
-                                                <Binding Path="NextRun" />
+                                                <Binding Path="NextRun" Converter="{StaticResource DateTimeMaxValueToNull}" />
                                             </MultiBinding>
                                         </TextBox.Text>
                                         <TextBox.InputBindings>

@@ -8,7 +8,7 @@ namespace PointlessWaymarks.PowerShellRunnerData;
 
 internal class PowerShellRunnerCloseOrphanRuns
 {
-    private readonly ConcurrentBag<Guid> _repliedScriptJobRuns = new();
+    private readonly ConcurrentBag<Guid> _repliedScriptJobRuns = [];
     private List<ScriptJobRun> _runsToCheck = [];
     internal required string DatabaseFile { get; set; }
     internal required Guid DatabaseId { get; set; }

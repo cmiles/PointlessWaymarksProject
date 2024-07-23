@@ -369,7 +369,7 @@ public partial class ScriptJobListContext
         foreach (var loopJobs in jobs)
         {
             if (!loopJobs.DbEntry.ScheduleEnabled || string.IsNullOrWhiteSpace(loopJobs.DbEntry.CronExpression))
-                loopJobs.NextRun = null;
+                loopJobs.NextRun = DateTime.MaxValue;
 
             try
             {
@@ -380,7 +380,7 @@ public partial class ScriptJobListContext
             }
             catch (Exception)
             {
-                loopJobs.NextRun = null;
+                loopJobs.NextRun = DateTime.MaxValue;
                 loopJobs.CronDescription = string.Empty;
             }
         }
