@@ -135,7 +135,8 @@ public class GeoTag
         foreach (var loopService in gpxServices)
             pointsCollection.AddRange(
                 (await loopService.GetGpxPoints(
-                    listOfUtcAndFileToProcess.Select(x => x.createdUtc).Distinct().OrderBy(x => x).ToList(), progress, CancellationToken.None))
+                    listOfUtcAndFileToProcess.Select(x => x.createdUtc).Distinct().OrderBy(x => x).ToList(), progress,
+                    CancellationToken.None))
                 .Where(x =>
                     x.Waypoint.TimestampUtc != null));
 
@@ -354,19 +355,32 @@ public class GeoTag
     }
 
 
-    public record GeoTagFileAction(string FileName, bool ShouldWriteMetadata, string Notes, string Source,
-        DateTime? UtcDateTime = null, double? Latitude = null,
-        double? Longitude = null, double? Elevation = null);
-
-    public record GeoTagMetadataWrite(string FileName, bool WroteMetadata, string Notes, string Source,
+    public record GeoTagFileAction(
+        string FileName,
+        bool ShouldWriteMetadata,
+        string Notes,
+        string Source,
+        DateTime? UtcDateTime = null,
         double? Latitude = null,
-        double? Longitude = null, double? Elevation = null);
+        double? Longitude = null,
+        double? Elevation = null);
+
+    public record GeoTagMetadataWrite(
+        string FileName,
+        bool WroteMetadata,
+        string Notes,
+        string Source,
+        double? Latitude = null,
+        double? Longitude = null,
+        double? Elevation = null);
 
     // ReSharper disable NotAccessedPositionalProperty.Global
     public record GeoTagProduceActionsResult(string Title, string Notes, List<GeoTagFileAction> FileResults);
     // ReSharper restore NotAccessedPositionalProperty.Global
 
     // ReSharper disable once NotAccessedPositionalProperty.Global
-    public record GeoTagWriteMetadataToFilesResult(string Title, string Notes,
+    public record GeoTagWriteMetadataToFilesResult(
+        string Title,
+        string Notes,
         List<GeoTagMetadataWrite> FileResults);
 }

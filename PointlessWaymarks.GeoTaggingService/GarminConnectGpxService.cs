@@ -96,7 +96,8 @@ public class GarminConnectGpxService(string archiveDirectory, IRemoteGpxService 
         return allPointsList;
     }
 
-    private async Task<List<WaypointAndSource>> ActivitiesToWaypointAndSources(List<GarminActivity> activities, IProgress<string> progress, CancellationToken cancellationToken)
+    private async Task<List<WaypointAndSource>> ActivitiesToWaypointAndSources(List<GarminActivity> activities,
+        IProgress<string> progress, CancellationToken cancellationToken)
     {
         var allPointsList = new List<WaypointAndSource>();
 
