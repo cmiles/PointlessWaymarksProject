@@ -13,7 +13,7 @@ public class GarminConnectGpxService(string archiveDirectory, IRemoteGpxService 
     public int SearchSurroundingDays { get; } = 7;
 
     public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
-        IProgress<string> progress)
+        IProgress<string> progress, CancellationToken cancellationToken)
     {
         var photoDates = photoDateTimeUtcList.GroupBy(x => DateOnly.FromDateTime(x.Date)).Select(x => x.Key)
             .OrderBy(x => x).ToList();
@@ -86,17 +86,17 @@ public class GarminConnectGpxService(string archiveDirectory, IRemoteGpxService 
 
             activityList.AddRange(await ConnectWrapper.GetActivityList(
                 searchStartDate.ToDateTime(new TimeOnly(0, 0)),
-                searchEndDate.ToDateTime(new TimeOnly(0, 0))));
+                searchEndDate.ToDateTime(new TimeOnly(0, 0)), progress));
         }
 
-        var allPointsList = await ActivitiesToWaypointAndSources(activityList, progress);
+        var allPointsList = await ActivitiesToWaypointAndSources(activityList, progress, cancellationToken);
 
         progress.Report($"Found {allPointsList.Count} Points from Garmin Connect Activities");
 
         return allPointsList;
     }
 
-    private async Task<List<WaypointAndSource>> ActivitiesToWaypointAndSources(List<GarminActivity> activities, IProgress<string> progress)
+    private async Task<List<WaypointAndSource>> ActivitiesToWaypointAndSources(List<GarminActivity> activities, IProgress<string> progress, CancellationToken cancellationToken)
     {
         var allPointsList = new List<WaypointAndSource>();
 
@@ -105,11 +105,11 @@ public class GarminConnectGpxService(string archiveDirectory, IRemoteGpxService 
         foreach (var loopActivity in activities)
         {
             var gpxFile = await GarminConnectTools.GetGpx(loopActivity, new DirectoryInfo(ArchiveDirectory),
-                false, false, ConnectWrapper, progress);
+                false, false, ConnectWrapper, progress, cancellationToken);
 
             if (gpxFile is null) continue;
 
-            var gpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName),
+            var gpx = GpxFile.Parse(await File.ReadAllTextAsync(gpxFile.FullName, cancellationToken),
                 new GpxReaderSettings
                 {
                     BuildWebLinksForVeryLongUriValues = true,

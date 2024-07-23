@@ -135,7 +135,7 @@ public class GeoTag
         foreach (var loopService in gpxServices)
             pointsCollection.AddRange(
                 (await loopService.GetGpxPoints(
-                    listOfUtcAndFileToProcess.Select(x => x.createdUtc).Distinct().OrderBy(x => x).ToList(), progress))
+                    listOfUtcAndFileToProcess.Select(x => x.createdUtc).Distinct().OrderBy(x => x).ToList(), progress, CancellationToken.None))
                 .Where(x =>
                     x.Waypoint.TimestampUtc != null));
 

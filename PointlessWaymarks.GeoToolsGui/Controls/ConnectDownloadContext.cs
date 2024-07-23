@@ -101,7 +101,7 @@ public partial class ConnectDownloadContext
     }
 
     [BlockingCommand]
-    public async Task DownloadActivity(GarminActivityAndLocalFiles? toDownload)
+    public async Task DownloadActivity(GarminActivityAndLocalFiles? toDownload, CancellationToken cancelToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -134,9 +134,12 @@ public partial class ConnectDownloadContext
 
         toDownload.ArchivedJson =
             await GarminConnectTools.WriteJsonActivityArchiveFile(toDownload.Activity, archiveDirectory, true);
+
+        cancelToken.ThrowIfCancellationRequested();
+
         toDownload.ArchivedGpx = await GarminConnectTools.GetGpx(toDownload.Activity, archiveDirectory, false, true,
             new ConnectGpxService { ConnectUsername = credentials.userName, ConnectPassword = credentials.password },
-            StatusContext.ProgressTracker());
+            StatusContext.ProgressTracker(), cancelToken);
 
         StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
     }
@@ -332,7 +335,7 @@ public partial class ConnectDownloadContext
     }
 
     [BlockingCommand]
-    public async Task ShowGpxFile(GarminActivityAndLocalFiles? toShow)
+    public async Task ShowGpxFile(GarminActivityAndLocalFiles? toShow, CancellationToken cancellationToken)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -350,7 +353,7 @@ public partial class ConnectDownloadContext
             return;
         }
 
-        if (toShow.ArchivedGpx is not { Exists: true }) await DownloadActivity(toShow);
+        if (toShow.ArchivedGpx is not { Exists: true }) await DownloadActivity(toShow, cancellationToken);
 
         if (toShow.ArchivedGpx is not { Exists: true })
         {

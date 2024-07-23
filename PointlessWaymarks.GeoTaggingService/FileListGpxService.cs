@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.IO;
+using NetTopologySuite.IO;
 
 namespace PointlessWaymarks.GeoTaggingService;
 
@@ -7,7 +7,7 @@ public class FileListGpxService(List<FileInfo> listOfGpxFiles) : IGpxService
     private List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)>? _gpxFiles;
 
     public async Task<List<WaypointAndSource>> GetGpxPoints(List<DateTime> photoDateTimeUtcList,
-        IProgress<string>? progress)
+        IProgress<string>? progress, CancellationToken cancellationToken)
     {
         if (_gpxFiles == null) await ScanFiles(progress);
 
@@ -15,9 +15,13 @@ public class FileListGpxService(List<FileInfo> listOfGpxFiles) : IGpxService
         List<(DateTime startDateTime, DateTime endDateTime, FileInfo file)> possibleFiles = [];
 
         foreach (var loopPhotoDateTime in photoDateTimeUtcList)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
             possibleFiles.AddRange(_gpxFiles!.Where(x =>
                 loopPhotoDateTime >= x.startDateTime && loopPhotoDateTime <= x.endDateTime &&
                 !possibleFiles.Any(y => x.file.FullName.Equals(y.file.FullName))).ToList());
+        }
 
         progress?.Report($"Found {possibleFiles.Count} Gpx Files");
 
@@ -31,7 +35,9 @@ public class FileListGpxService(List<FileInfo> listOfGpxFiles) : IGpxService
 
         foreach (var loopFile in possibleFiles)
         {
-            var gpx = GpxFile.Parse(await File.ReadAllTextAsync(loopFile.file.FullName),
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var gpx = GpxFile.Parse(await File.ReadAllTextAsync(loopFile.file.FullName, cancellationToken),
                 new GpxReaderSettings
                 {
                     BuildWebLinksForVeryLongUriValues = true,
@@ -49,6 +55,8 @@ public class FileListGpxService(List<FileInfo> listOfGpxFiles) : IGpxService
         }
 
         progress?.Report($"Found {allPointsList.Count} Points");
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         return allPointsList;
     }
