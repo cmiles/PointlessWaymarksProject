@@ -2158,7 +2158,7 @@ public static class Db
         toSave.ContentVersion = ContentVersionDateTime();
         
         toSave.MainPicture = toSave.UserMainPicture ??
-                             BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+                             await BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent, null);
         
         await context.FileContents.AddAsync(toSave).ConfigureAwait(false);
         
@@ -2229,7 +2229,7 @@ public static class Db
         
         toSave.ContentVersion = ContentVersionDateTime();
         
-        toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+        toSave.MainPicture = await BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent, null);
         
         var boundingBox = SpatialConverters.GeometryBoundingBox(toSave);
         
@@ -2316,7 +2316,7 @@ public static class Db
         
         toSave.ContentVersion = ContentVersionDateTime();
         
-        toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+        toSave.MainPicture = await BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent, null);
         
         var boundingBox = SpatialConverters.GeometryBoundingBox(toSave);
         
@@ -2618,7 +2618,7 @@ public static class Db
         if (toSave.Id > 0) toSave.Id = 0;
         toSave.ContentVersion = ContentVersionDateTime();
         
-        toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+        toSave.MainPicture = await BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent, null);
         
         await context.PointContents.AddAsync(toSave).ConfigureAwait(false);
         
@@ -2775,7 +2775,7 @@ public static class Db
         if (toSave.Id > 0) toSave.Id = 0;
         toSave.ContentVersion = ContentVersionDateTime();
         
-        toSave.MainPicture = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+        toSave.MainPicture = await BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent, null);
         
         await context.PostContents.AddAsync(toSave).ConfigureAwait(false);
         
@@ -2812,8 +2812,8 @@ public static class Db
         if (toSave.Id > 0) toSave.Id = 0;
         toSave.ContentVersion = ContentVersionDateTime();
         
-        toSave.MainPicture = toSave.UserMainPicture ??
-                             BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent);
+        toSave.MainPicture = toSave.UserMainPicture ?? await 
+                             BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent, null);
         
         await context.VideoContents.AddAsync(toSave).ConfigureAwait(false);
         

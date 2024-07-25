@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 
@@ -209,7 +209,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 
 
     [Test]
-    public void PhotoOrImageCodeFirstIdInContentFindsFirstPhoto()
+    public async Task PhotoOrImageCodeFirstIdInContentFindsFirstPhoto()
     {
         var testString = @"
 A Test Post for Ironwood Forest National Monument. From
@@ -224,9 +224,9 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 {{photo d45ef8f8-e376-4144-acef-164310ee85bc; 2017 May Ironwood Tree Against The Sky}}
 {{photo 611a88cd-908b-45bc-ac3c-a904b0c7a9c7; 2018 August Agua Blanca Ranch Sign at the Manville Road Entrance to the Ironwood Forest National Monument}}Basic information for Ironwood Forest National Monument
 ";
-        var result = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(testString);
+        var result = await BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(testString, null);
 
-        Assert.That(result, Is.EqualTo(Guid.Parse("be010d97-a2b1-4c88-97ac-c36ebbd3fad4")));
+        Assert.That(result.Value, Is.EqualTo(Guid.Parse("be010d97-a2b1-4c88-97ac-c36ebbd3fad4")));
     }
 
     [Test]

@@ -243,7 +243,7 @@ Notes:
         if (UserMainPictureEntry is { HasValidationIssues: false, UserValue: not null })
             return UserMainPictureEntry.UserValue;
         
-        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserValue);
+        return BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(BodyContent?.UserValue, null).Result;
     }
     
     public VideoContent CurrentStateToVideoContent()

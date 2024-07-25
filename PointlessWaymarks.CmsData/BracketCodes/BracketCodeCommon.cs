@@ -159,13 +159,28 @@ public static partial class BracketCodeCommon
     /// </summary>
     /// <param name="toProcess"></param>
     /// <returns></returns>
-    public static Guid? PhotoOrImageCodeFirstIdInContent(string? toProcess)
+    public static async Task<Guid?> PhotoOrImageCodeFirstIdInContent(string? toProcess, IProgress<string>? progress)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return null;
 
+        //Prefer Photos and Images
         var regexObj = new Regex(@"{{(?:photo|image) (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
         var matchResult = regexObj.Match(toProcess);
         if (matchResult.Success) return Guid.Parse(matchResult.Groups["siteGuid"].Value);
+
+        var videoEmbeds = await BracketCodeVideoEmbed.DbContentFromBracketCodes(toProcess, null);
+        if (videoEmbeds.Any(x => x.MainPicture != null)) return videoEmbeds.First(x => x.MainPicture != null).ContentId;
+
+        var videoImages = await BracketCodeVideoImageLink.DbContentFromBracketCodes(toProcess, null);
+        if (videoImages.Any(x => x.MainPicture != null)) return videoImages.First().ContentId;
+
+        var fileEmbeds = await BracketCodeFileEmbed.DbContentFromBracketCodes(toProcess, null);
+        if(fileEmbeds.Any(x => x.MainPicture != null)) return fileEmbeds.First().ContentId;
+
+        var fileImages = await BracketCodeFileImageLink.DbContentFromBracketCodes(toProcess, progress);
+        if (fileImages.Any()) return fileImages.First().ContentId;
+
+        //TODO: Review the list above - it could be extended but???
 
         return null;
     }

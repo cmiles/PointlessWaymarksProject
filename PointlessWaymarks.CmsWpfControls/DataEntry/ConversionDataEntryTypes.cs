@@ -1,4 +1,5 @@
-﻿using PointlessWaymarks.CmsData.BracketCodes;
+using HtmlTags.Reflection;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CommonTools;
 
@@ -15,7 +16,7 @@ namespace PointlessWaymarks.CmsWpfControls.DataEntry
 
             if (cleanedUserText.Contains("{"))
             {
-                var possibleBracketGuid = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(cleanedUserText);
+                var possibleBracketGuid = BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(cleanedUserText, null).Result;
 
                 if (possibleBracketGuid != null)
                     return (true, $"Extracted {possibleBracketGuid} from {cleanedUserText}", possibleBracketGuid);
