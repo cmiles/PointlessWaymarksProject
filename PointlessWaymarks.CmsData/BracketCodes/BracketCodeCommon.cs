@@ -169,16 +169,16 @@ public static partial class BracketCodeCommon
         if (matchResult.Success) return Guid.Parse(matchResult.Groups["siteGuid"].Value);
 
         var videoEmbeds = await BracketCodeVideoEmbed.DbContentFromBracketCodes(toProcess, null);
-        if (videoEmbeds.Any(x => x.MainPicture != null)) return videoEmbeds.First(x => x.MainPicture != null).ContentId;
+        if (videoEmbeds.Any(x => x.MainPicture != null)) return videoEmbeds.First(x => x.MainPicture != null).MainPicture;
 
         var videoImages = await BracketCodeVideoImageLink.DbContentFromBracketCodes(toProcess, null);
-        if (videoImages.Any(x => x.MainPicture != null)) return videoImages.First().ContentId;
+        if (videoImages.Any(x => x.MainPicture != null)) return videoImages.First().MainPicture;
 
         var fileEmbeds = await BracketCodeFileEmbed.DbContentFromBracketCodes(toProcess, null);
-        if(fileEmbeds.Any(x => x.MainPicture != null)) return fileEmbeds.First().ContentId;
+        if(fileEmbeds.Any(x => x.MainPicture != null)) return fileEmbeds.First().MainPicture;
 
         var fileImages = await BracketCodeFileImageLink.DbContentFromBracketCodes(toProcess, progress);
-        if (fileImages.Any()) return fileImages.First().ContentId;
+        if (fileImages.Any()) return fileImages.First().MainPicture;
 
         //TODO: Review the list above - it could be extended but???
 
