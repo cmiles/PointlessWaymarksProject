@@ -4,4 +4,8 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Metalama.Framework" Version="2024.1.25" />
+  </ItemGroup>
+
 </Project>
