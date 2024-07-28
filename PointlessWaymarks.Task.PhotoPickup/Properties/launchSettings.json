@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "PointlessWaymarks.Task.PhotoPickup": {
-      "commandName": "Project",
-      "commandLineArgs": "M:\\SomewherePointlessWaymarks\\SomweherePhotoPickupSettings.json"
-    }
-  }
-}
