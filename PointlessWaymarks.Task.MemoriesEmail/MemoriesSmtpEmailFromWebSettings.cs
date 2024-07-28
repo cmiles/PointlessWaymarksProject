@@ -14,7 +14,7 @@ public record MemoriesSmtpEmailFromWebSettings : ISettingsFileType
     public string SmtpHost { get; set; } = string.Empty;
     public int SmtpPort { get; set; } = 587;
     public string ToAddressList { get; set; } = string.Empty;
-    public List<int> YearsBack { get; set; } = [10, 5, 2, 1];
+    public List<int> YearsBack { get; set; } = [20, 15, 10, 5, 2, 1];
 
     public string SettingsType { get; set; } = SettingsTypeIdentifier();
 

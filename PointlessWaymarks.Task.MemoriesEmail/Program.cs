@@ -70,7 +70,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEma
         {
             PropertyDisplayName = "From Email Password",
             PropertyEntryHelp =
-                "2FA is not currently supported and blank is not a valid value. Be sure to read the program warnings about security before entering this value.",
+                "2FA is not currently supported and blank is not a valid value. Be sure to read the program warnings about security before entering this value. For some accounts you may need to use an 'application password' or similar token rather than your regular password",
             HideEnteredValue = true,
             PropertyIsValid =
                 ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
@@ -82,7 +82,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEma
         new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
         {
             PropertyDisplayName = "From Email Display Name",
-            PropertyEntryHelp = "The display name for the email address that the email will be sent from.",
+            PropertyEntryHelp = "The display name for the email address that the email will be sent from. This can contain spaces and while it may show in an email client is essentially just for display.",
             PropertyIsValid =
                 ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
                     x.FromEmailDisplayName),
@@ -93,6 +93,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEma
         new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
         {
             PropertyDisplayName = "SMTP Host",
+            PropertyEntryHelp = "For example smtp.gmail.com",
             PropertyIsValid =
                 ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
                     x.SmtpHost),
@@ -121,7 +122,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEma
         new SettingsFileProperty<MemoriesSmtpEmailFromWebSettings>
         {
             PropertyDisplayName = "Site Url",
-            PropertyEntryHelp = "The URL of the site to generate the email from.",
+            PropertyEntryHelp = "The URL of the site to generate the email from. Include the protocol - for example https://yoursite.com",
             PropertyIsValid =
                 ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
                     x.SiteUrl),
