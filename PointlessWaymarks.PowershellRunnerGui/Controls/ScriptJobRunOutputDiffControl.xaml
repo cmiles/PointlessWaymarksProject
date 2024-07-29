@@ -57,57 +57,61 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <GroupBox Header="Left Run" Margin="4,0,4,0">
-                <ListBox ItemsSource="{Binding Source={StaticResource LeftSortedItems}}" SelectionMode="Single"
-                         SelectedItem="{Binding SelectedLeftRun}" HorizontalContentAlignment="Stretch"
-                         ItemTemplate="{StaticResource RunListDataTemplate}" BorderThickness="0"
-                         >
-                    <b:Interaction.Behaviors>
-                        <behaviors:ScrollToItemBehavior ScrollRequestItem="{Binding LeftScrollItem}"></behaviors:ScrollToItemBehavior>
-                    </b:Interaction.Behaviors>
-                    <ListBox.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="View Selected Run" Command="{Binding ViewRunCommand}"
-                                      CommandParameter="{Binding SelectedLeftRun}" />
-                        </ContextMenu>
-                    </ListBox.ContextMenu>
-                </ListBox>
-            </GroupBox>
-            <GroupBox Grid.Column="1" Grid.Row="0" Header="Right Run" Margin="0,0,4,0">
-                <ListBox ItemsSource="{Binding Source={StaticResource RightSortedItems}}" SelectionMode="Single"
-                         SelectedItem="{Binding SelectedRightRun}" HorizontalContentAlignment="Stretch"
-                         ItemTemplate="{StaticResource RunListDataTemplate}" BorderThickness="0">
-                    <b:Interaction.Behaviors>
-                        <behaviors:ScrollToItemBehavior ScrollRequestItem="{Binding RightScrollItem}"></behaviors:ScrollToItemBehavior>
-                    </b:Interaction.Behaviors>
-                    <ListBox.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="View Selected Run" Command="{Binding ViewRunCommand}"
-                                      CommandParameter="{Binding SelectedRightRun}" />
-                        </ContextMenu>
-                    </ListBox.ContextMenu>
-                </ListBox>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="Left Run" Margin="4,0,4,0">
+                    <ListBox ItemsSource="{Binding Source={StaticResource LeftSortedItems}}" SelectionMode="Single"
+                             SelectedItem="{Binding SelectedLeftRun}" HorizontalContentAlignment="Stretch"
+                             ItemTemplate="{StaticResource RunListDataTemplate}" BorderThickness="0">
+                        <b:Interaction.Behaviors>
+                            <behaviors:ScrollToItemBehavior ScrollRequestItem="{Binding LeftScrollItem}"></behaviors:ScrollToItemBehavior>
+                        </b:Interaction.Behaviors>
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="View Selected Run" Command="{Binding ViewRunCommand}"
+                                          CommandParameter="{Binding SelectedLeftRun}" />
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                </GroupBox>
+                <GroupBox Grid.Column="1" Grid.Row="0" Header="Right Run" Margin="0,0,4,0">
+                    <ListBox ItemsSource="{Binding Source={StaticResource RightSortedItems}}" SelectionMode="Single"
+                             SelectedItem="{Binding SelectedRightRun}" HorizontalContentAlignment="Stretch"
+                             ItemTemplate="{StaticResource RunListDataTemplate}" BorderThickness="0">
+                        <b:Interaction.Behaviors>
+                            <behaviors:ScrollToItemBehavior ScrollRequestItem="{Binding RightScrollItem}"></behaviors:ScrollToItemBehavior>
+                        </b:Interaction.Behaviors>
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="View Selected Run" Command="{Binding ViewRunCommand}"
+                                          CommandParameter="{Binding SelectedRightRun}" />
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                </GroupBox>
+            </Grid>
+            <GroupBox Grid.Column="1" Grid.Row="0" Header="Script Diff">
+                <controls:DiffViewer Margin="4" OldText="{Binding SelectedLeftRun.TranslatedScript, FallbackValue=''}"
+                                     NewText="{Binding SelectedRightRun.TranslatedScript, FallbackValue=''}"
+                                     IsSideBySide="False" />
             </GroupBox>
         </Grid>
-        <GroupBox Grid.Column="1" Grid.Row="0" Header="Script Diff">
-            <controls:DiffViewer Margin="4" OldText="{Binding SelectedLeftRun.TranslatedScript, FallbackValue=''}"
-                                 NewText="{Binding SelectedRightRun.TranslatedScript, FallbackValue=''}"
-                                 IsSideBySide="False" />
-        </GroupBox>
-        <GroupBox Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Header="Output Diff" Margin="4,0,4,4">
+        <GridSplitter Grid.Row="1" Margin="8,8,8,2" Height="4" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                      Background="LightGray" />
+        <GroupBox Grid.Column="0" Grid.Row="2" Header="Output Diff" Margin="4,0,4,4">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"></RowDefinition>

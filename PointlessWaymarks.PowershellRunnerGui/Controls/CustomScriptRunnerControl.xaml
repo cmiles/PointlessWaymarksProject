@@ -117,6 +117,7 @@
     <Grid Margin="4">
         <Grid.RowDefinitions>
             <RowDefinition Height="200" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Border Style="{StaticResource ActionPanelBorderStyle}">
@@ -136,7 +137,8 @@
                 </Button>
             </Grid>
         </Border>
-        <GroupBox Header="Progress" Grid.Row="1" Margin="3,0,3,4" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <GridSplitter Grid.Row="1" Margin="8,6,8,2" Height="4" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="LightGray" />
+        <GroupBox Header="Progress" Grid.Row="2" Margin="3,0,3,4" Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
                 Style="{StaticResource ContentListListBoxStyle}"
                 ItemsSource="{Binding Source={StaticResource SortedProgressItems}}"
