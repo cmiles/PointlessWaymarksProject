@@ -611,12 +611,12 @@ public static class ContentListSearch
                 searchString.Trim(), "Public Download Link"), searchResultModifier);
     }
 
-    public static ContentListSearchReturn SearchShowInMainSiteFeed(IContentListItem toFilter, string searchString,
+    public static ContentListSearchReturn SearchInMainSiteFeed(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterBoolean(toFilter.Content().ShowInMainSiteFeed, searchString,
-                "Show in Main Site Feed"), searchResultModifier);
+                "In Main Site Feed"), searchResultModifier);
     }
 
     public static ContentListSearchReturn SearchShutterSpeed(IContentListItem toFilter, string searchString,

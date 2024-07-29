@@ -520,7 +520,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             else if (searchString.StartsWith("LAST UPDATED BY:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedBy;
             else if (searchString.StartsWith("IN MAIN SITE FEED:", StringComparison.InvariantCultureIgnoreCase))
-                searchFilterFunction = ContentListSearch.SearchShowInMainSiteFeed;
+                searchFilterFunction = ContentListSearch.SearchInMainSiteFeed;
             else if (searchString.StartsWith("TAGS:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchTags;
             else if (searchString.StartsWith("SLUG:", StringComparison.InvariantCultureIgnoreCase))
