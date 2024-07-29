@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
+namespace PointlessWaymarks.CmsWpfControls.HelpDisplay;
 
 public static class BracketCodeHelpMarkdown
 {
@@ -19,28 +19,38 @@ Basic code formats - the [*description*] blocks should be replaced:
  - {{[*link type (see below)*] [*ContentId*]; text [*your display text*]; [*title or note - for reference only*]}} - displays a link to the content with the specified display text (don't forget to include 'text ' for this to work).
 
 Link Types:
+ - dailyphotoslink - links to a Daily Photo Page
  - filelink - text link to the File Page
  - fileimagelink - image link to the File Page
  - fileembed - if possible/supported 'embeds' the file into a player/viewer - pdf, common video and common sound files are supported
  - filedownloadlink - text link to the File itself - this is a 'download' link and will only work correctly if direct downloads are enabled for the file
  - fileurl - the url for the file referenced by the file content - this does not create a link or do anything other than return the url for the referenced file as text - this can be used to use the file in something like an html audio tag
  - geojson - map with GeoJson
+ - geojsonimagelink - image link to the GeoJson Page
  - geojsonlink - text link to the GeoJson Page
  - image - image ink to the Image Page
  - imagelink - text link to the Image Page
  - line - map with Line
+ - lineelevationchart - Line Elevation Chart
+ - lineimagelink - image link to the Line Page
  - linelink - text link to the Line Page
+ - linestats - Line Stats
  - mapcomponent - Map
  - notelink - text link to the Note Page
  - photo - image link to the Photo Page
  - photolink - text link to the Photo Page
  - point - map with Points
+ - pointexternaldirectionslink - link to external directions for a Point
+ - pointimagelink - image link to the Point Page
  - pointlink - text link to the Point Page
  - postlink - text link to the Post Page
  - postimage - image link to a Post Page
  - videoimagelink - image link to the Video Page
  - videolink - text link to the Video Page
  - videoembed - if possible/supported 'embeds' the video into a player/viewer
+
+Picture Gallery: Content types with a Main Picture can be used inside a picture gallery to create a compact view of a number of images. Content without a Main Picture will be skipped and the gallery will not honor your content order.
+ - [[picture gallery {{Include as Many Bracket Codes as you Want}}{{Include as Many Bracket Codes as you Want}}]]
 
 
 #### Site Codes

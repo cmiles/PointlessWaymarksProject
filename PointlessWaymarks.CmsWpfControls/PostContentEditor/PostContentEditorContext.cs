@@ -56,10 +56,12 @@ public partial class PostContentEditorContext : IHasChanges, IHasValidationIssue
         @"
 ### Post Content
 
-Posts are the most 'generic' content type and will, by default, be included on the main page of the site in chronological order.
+Posts are the most 'generic' content type and will, by default, be included on the main page of the site in chronological order. One of the most useful functions of a Post is to combine other pieces and types of content.
 
-Notes:
- - This system does not have 'Pages', Posts (or another Content Type) can serve as 'Pages'.
+For the most part you can think of a Post the same way you would in any other blog/web publishing system. Some systems differentiate between Posts and Pages - the Pointless Waymarks CMS does not and only has Posts.
+
+If your intent is just to put a single piece of content onto the main page of the site you may not need to create a post... Most Content Types can also appear on the main page of the site and include a Title, Body, Tags, etc.
+
 ";
     
     public StatusControlContext StatusContext { get; set; }
