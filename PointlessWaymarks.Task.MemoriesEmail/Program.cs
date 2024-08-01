@@ -70,7 +70,7 @@ var settingFileReadAndSetup = new ObfuscatedSettingsConsoleSetup<MemoriesSmtpEma
         {
             PropertyDisplayName = "From Email Password",
             PropertyEntryHelp =
-                "2FA is not currently supported and blank is not a valid value. Be sure to read the program warnings about security before entering this value. For some accounts you may need to use an 'application password' or similar token rather than your regular password",
+                "2FA is not directly supported and blank is not a valid value. Be sure to read the program warnings about security before entering this value. For some accounts, especially if 2FA is enabled, you may need to use an 'application password' or similar token rather than your regular password",
             HideEnteredValue = true,
             PropertyIsValid =
                 ObfuscatedSettingsHelpers.PropertyIsValidIfNotNullOrWhiteSpace<MemoriesSmtpEmailFromWebSettings>(x =>
