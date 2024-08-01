@@ -2,7 +2,7 @@
   <ItemGroup>
     <PackageReference Include="FluentMigrator" Version="5.2.0" />
     <PackageReference Include="FluentMigrator.Runner.SQLite" Version="5.2.0" />
-    <PackageReference Include="Metalama.Framework" Version="2024.2.18" />
+    <PackageReference Include="Metalama.Framework" Version="2024.2.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.7" />
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.4" />

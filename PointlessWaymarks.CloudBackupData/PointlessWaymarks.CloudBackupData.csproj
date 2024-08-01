@@ -6,7 +6,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Metalama.Framework" Version="2024.2.18" />
+    <PackageReference Include="Metalama.Framework" Version="2024.2.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.7" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
