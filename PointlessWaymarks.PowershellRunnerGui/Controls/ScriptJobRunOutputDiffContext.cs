@@ -14,9 +14,9 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public class ScriptJobRunOutputDiffContext
+public partial class ScriptJobRunOutputDiffContext
 {
-    private const string _regexRemoveDateTimeStamp =
+    private const string RegexRemoveDateTimeStamp =
         @"^([1-9]|1[0-2])/([1-9]|[1-3]\d)/(1|2)\d\d\d ([1-9]|1[0-2]):([0-5])\d:([0-5])\d (AM|PM)>>";
 
     private string _databaseFile = string.Empty;
@@ -44,6 +44,7 @@ public class ScriptJobRunOutputDiffContext
     ///     can
     ///     be specified or left null (if null a right job will be auto-selected).
     /// </summary>
+    /// <param name="statusContext"></param>
     /// <param name="initialLeftScriptJobRun"></param>
     /// <param name="initialRightScript"></param>
     /// <param name="databaseFile"></param>
@@ -84,7 +85,7 @@ public class ScriptJobRunOutputDiffContext
 
         ScriptJobRunGuiView? factorySelectedRightRun = null;
         if (jobId == Guid.Empty || leftRun == null || !factoryRightRuns.Any()) factorySelectedRightRun = null;
-        if (factoryRightRuns.Count == 1)
+        else if (factoryRightRuns.Count == 1)
         {
             factorySelectedRightRun = factoryRightRuns.First();
         }
@@ -226,7 +227,7 @@ public class ScriptJobRunOutputDiffContext
         {
             loopRun.TranslatedOutput = loopRun.Output.Decrypt(_key);
             if (RemoveOutputTimeStamp)
-                loopRun.TranslatedOutput = Regex.Replace(loopRun.TranslatedOutput, _regexRemoveDateTimeStamp,
+                loopRun.TranslatedOutput = Regex.Replace(loopRun.TranslatedOutput, RegexRemoveDateTimeStamp,
                     string.Empty, RegexOptions.Multiline);
         }
 
@@ -234,7 +235,7 @@ public class ScriptJobRunOutputDiffContext
         {
             loopRun.TranslatedOutput = loopRun.Output.Decrypt(_key);
             if (RemoveOutputTimeStamp)
-                loopRun.TranslatedOutput = Regex.Replace(loopRun.TranslatedOutput, _regexRemoveDateTimeStamp,
+                loopRun.TranslatedOutput = Regex.Replace(loopRun.TranslatedOutput, RegexRemoveDateTimeStamp,
                     string.Empty, RegexOptions.Multiline);
         }
     }
@@ -245,7 +246,7 @@ public class ScriptJobRunOutputDiffContext
         var toAdd = ScriptJobRunGuiView.CreateInstance(loopRun, job, key);
 
         if (removeOutputTimeStamp)
-            toAdd.TranslatedOutput = Regex.Replace(toAdd.TranslatedOutput, _regexRemoveDateTimeStamp,
+            toAdd.TranslatedOutput = Regex.Replace(toAdd.TranslatedOutput, RegexRemoveDateTimeStamp,
                 string.Empty, RegexOptions.Multiline);
 
         return toAdd;

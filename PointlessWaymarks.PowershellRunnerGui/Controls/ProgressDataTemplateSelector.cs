@@ -13,9 +13,9 @@ public class ProgressDataTemplateSelector : DataTemplateSelector
     {
         return item switch
         {
-            ScriptProgressMessageItem => ProgressTemplate,
-            ScriptStateMessageItem => StateTemplate,
-            ScriptErrorMessageItem => ErrorTemplate,
+            ScriptMessageItemProgress => ProgressTemplate,
+            ScriptMessageItemState => StateTemplate,
+            ScriptMessageItemError => ErrorTemplate,
             _ => null
         };
     }

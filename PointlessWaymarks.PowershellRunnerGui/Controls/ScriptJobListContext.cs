@@ -86,7 +86,7 @@ public partial class ScriptJobListContext
 
         factoryContext.UpdateCronExpressionInformation();
 
-        factoryContext.UpdateCronNextRun();
+        _ = factoryContext.UpdateCronNextRun();
 
         await ListContextSortHelpers.SortList(
             factoryContext.ListSort.SortDescriptions(), factoryContext.Items);
@@ -369,7 +369,11 @@ public partial class ScriptJobListContext
         foreach (var loopJobs in jobs)
         {
             if (!loopJobs.DbEntry.ScheduleEnabled || string.IsNullOrWhiteSpace(loopJobs.DbEntry.CronExpression))
+            {
                 loopJobs.NextRun = DateTime.MaxValue;
+                loopJobs.CronDescription = string.Empty;
+                continue;
+            }
 
             try
             {

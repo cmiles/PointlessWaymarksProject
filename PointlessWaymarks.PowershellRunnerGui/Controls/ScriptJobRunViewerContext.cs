@@ -11,7 +11,7 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 public partial class ScriptJobRunViewerContext
 {
     private string _databaseFile = string.Empty;
-    public Guid _dbId = Guid.Empty;
+    public Guid DbId = Guid.Empty;
     private string _key = string.Empty;
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public ScriptJob? Job { get; set; }
@@ -44,7 +44,7 @@ public partial class ScriptJobRunViewerContext
                 RunView = toAdd,
                 _key = key,
                 _databaseFile = databaseFile,
-                _dbId = dbId
+                DbId = dbId
             };
 
             factoryContext.DataNotificationsProcessor = new NotificationCatcher
@@ -78,7 +78,7 @@ public partial class ScriptJobRunViewerContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (interProcessUpdateNotification.DatabaseId != _dbId ||
+        if (interProcessUpdateNotification.DatabaseId != DbId ||
             interProcessUpdateNotification.JobPersistentId != Job?.PersistentId ||
             interProcessUpdateNotification.UpdateType == DataNotifications.DataNotificationUpdateType.Delete)
             return;
@@ -100,7 +100,7 @@ public partial class ScriptJobRunViewerContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (interProcessUpdateNotification.DatabaseId != _dbId ||
+        if (interProcessUpdateNotification.DatabaseId != DbId ||
             interProcessUpdateNotification.JobPersistentId != Job?.PersistentId ||
             interProcessUpdateNotification.RunPersistentId == Run?.PersistentId ||
             interProcessUpdateNotification.UpdateType == DataNotifications.DataNotificationUpdateType.Delete)

@@ -109,7 +109,7 @@ public partial class PowerShellEditorControl
         _textMarkerService.RemoveAll();
         var script = TextEditor.TextArea.TextView.Document.Text;
 
-        var ast = Parser.ParseInput(script, out _, out var errors);
+        _ = Parser.ParseInput(script, out _, out var errors);
 
         foreach (var item in errors)
         {

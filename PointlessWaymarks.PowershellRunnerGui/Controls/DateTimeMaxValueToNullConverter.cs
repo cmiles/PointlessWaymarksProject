@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows.Data;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
@@ -12,7 +12,7 @@ public class DateTimeMaxValueToNullConverter : IValueConverter
         return dateTime;
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotSupportedException();
     }

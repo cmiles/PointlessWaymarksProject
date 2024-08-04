@@ -133,7 +133,6 @@ public partial class MainWindow
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                continue;
             }
         }
     }
@@ -401,7 +400,7 @@ public partial class MainWindow
             HelpMarkdown.SoftwareUsedBlock
         ]);
 
-        MainTimerCheckForNewRuns();
+        _ = MainTimerCheckForNewRuns();
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             await PowerShellRunnerDbQuery

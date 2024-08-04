@@ -30,7 +30,7 @@ public partial class ScriptJobListListItem
     public required ScriptJob DbEntry { get; set; }
     public NotificationCatcher IpcNotifications { get; set; }
     public required ObservableCollection<ScriptJobRun> Items { get; set; } = [];
-    public IPowerShellProgress? LastProgressItem { get; set; }
+    public IScriptMessageItem? LastProgressItem { get; set; }
     public DateTime NextRun { get; set; } = DateTime.MaxValue;
     public ScriptJobRun? SelectedItem { get; set; }
     public List<ScriptJobRun> SelectedItems { get; set; } = [];
@@ -87,7 +87,7 @@ public partial class ScriptJobListListItem
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        LastProgressItem = new ScriptProgressMessageItem
+        LastProgressItem = new ScriptMessageItemProgress
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
@@ -150,7 +150,7 @@ public partial class ScriptJobListListItem
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        LastProgressItem = new ScriptStateMessageItem
+        LastProgressItem = new ScriptMessageItemState
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId,

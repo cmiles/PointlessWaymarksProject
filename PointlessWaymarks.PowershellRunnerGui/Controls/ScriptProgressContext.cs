@@ -14,16 +14,12 @@ public partial class ScriptProgressContext
     private static string _databaseFile = string.Empty;
     private static Guid _dbId = Guid.Empty;
 
-    public ScriptProgressContext()
-    {
-    }
-
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
-    public required ObservableCollection<IPowerShellProgress> Items { get; set; }
+    public required ObservableCollection<IScriptMessageItem> Items { get; set; }
     public List<Guid> ScriptJobIdFilter { get; set; } = [];
     public List<Guid> ScriptJobRunIdFilter { get; set; } = [];
-    public IPowerShellProgress? SelectedItem { get; set; }
-    public List<IPowerShellProgress> SelectedItems { get; set; } = [];
+    public IScriptMessageItem? SelectedItem { get; set; }
+    public List<IScriptMessageItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<ScriptProgressContext> CreateInstance(StatusControlContext? context,
@@ -62,7 +58,7 @@ public partial class ScriptProgressContext
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptErrorMessageItem { ReceivedOn = DateTime.Now, Message = arg.ErrorMessage });
+        Items.Add(new ScriptMessageItemError { ReceivedOn = DateTime.Now, Message = arg.ErrorMessage });
     }
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
@@ -75,7 +71,7 @@ public partial class ScriptProgressContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptProgressMessageItem
+        Items.Add(new ScriptMessageItemProgress
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
@@ -98,7 +94,7 @@ public partial class ScriptProgressContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptStateMessageItem
+        Items.Add(new ScriptMessageItemState
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId,

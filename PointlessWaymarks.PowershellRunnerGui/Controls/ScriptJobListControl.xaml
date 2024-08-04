@@ -22,7 +22,7 @@
             <local:DateTimeMaxValueToNullConverter x:Key="DateTimeMaxValueToNull" />
             <local:LengthInSecondsToHumanReadableConverter x:Key="LengthInSecondsToHumanReadable" />
             <local:UtcTimeToLocalTimeConverter x:Key="UtcTimeToLocalTime" />
-            <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptProgressMessageItem}">
+            <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptMessageItemProgress}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -35,7 +35,7 @@
                              TextWrapping="Wrap" Text="{Binding Message}" />
                 </Grid>
             </DataTemplate>
-            <DataTemplate x:Key="ProgressStateDataTemplate" DataType="{x:Type local:ScriptStateMessageItem}">
+            <DataTemplate x:Key="ProgressStateDataTemplate" DataType="{x:Type local:ScriptMessageItemState}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -92,7 +92,7 @@
                     </Grid>
                 </Grid>
             </DataTemplate>
-            <DataTemplate x:Key="ProgressErrorDataTemplate" DataType="{x:Type local:ScriptErrorMessageItem}">
+            <DataTemplate x:Key="ProgressErrorDataTemplate" DataType="{x:Type local:ScriptMessageItemError}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />

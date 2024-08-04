@@ -1,8 +1,7 @@
-using DocumentFormat.OpenXml.Spreadsheet;
+using System.ComponentModel;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData.Models;
-using System.ComponentModel;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -14,28 +13,13 @@ public partial class ScriptJobRunGuiView
         PropertyChanged += OnPropertyChanged;
     }
 
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-        if (e.PropertyName.Equals(nameof(LengthInSeconds)))
-        {
-            if (LengthInSeconds is null)
-            {
-                HumanReadableLength = string.Empty;
-                return;
-            }
-
-            HumanReadableLength = TimeSpan.FromSeconds(LengthInSeconds.Value).ToString(@"hh\:mm\:ss");
-        }
-    }
-
     public DateTime? CompletedOn { get; set; }
     public DateTime? CompletedOnUtc { get; set; }
     public bool Errors { get; set; }
+    public string HumanReadableLength { get; set; } = string.Empty;
     public int Id { get; set; }
     public required ScriptJob? Job { get; set; }
     public int? LengthInSeconds { get; set; }
-    public string HumanReadableLength { get; set; } = string.Empty;
     public string Output { get; set; } = string.Empty;
     public required Guid PersistentId { get; set; }
     public string RunType { get; set; } = string.Empty;
@@ -68,6 +52,21 @@ public partial class ScriptJobRunGuiView
         };
 
         return newView;
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+        if (e.PropertyName.Equals(nameof(LengthInSeconds)))
+        {
+            if (LengthInSeconds is null)
+            {
+                HumanReadableLength = string.Empty;
+                return;
+            }
+
+            HumanReadableLength = TimeSpan.FromSeconds(LengthInSeconds.Value).ToString(@"hh\:mm\:ss");
+        }
     }
 
     public void Update(ScriptJobRun run, ScriptJob? job, string key)

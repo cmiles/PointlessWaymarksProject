@@ -12,20 +12,17 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 [GenerateStatusCommands]
 public partial class CustomScriptRunnerContext
 {
+    // ReSharper disable once NotAccessedField.Local
     private string _databaseFile = string.Empty;
     private Guid _dbId = Guid.Empty;
 
-    public CustomScriptRunnerContext()
-    {
-    }
-
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
-    public required ObservableCollection<IPowerShellProgress> Items { get; set; }
+    public required ObservableCollection<IScriptMessageItem> Items { get; set; }
     public required Guid ScriptJobId { get; set; }
     public required Guid ScriptJobRunId { get; set; }
     public bool ScriptRunning { get; set; }
-    public IPowerShellProgress? SelectedItem { get; set; }
-    public List<IPowerShellProgress> SelectedItems { get; set; } = [];
+    public IScriptMessageItem? SelectedItem { get; set; }
+    public List<IScriptMessageItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
     public required StringDataEntryNoIndicatorsContext UserScriptEntryContext { get; set; }
 
@@ -38,6 +35,14 @@ public partial class CustomScriptRunnerContext
 
         var modifiedGuid = Guid.Parse(formattedGuidString);
         return modifiedGuid;
+    }
+
+    [NonBlockingCommand]
+    public async Task CancelScript()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        DataNotifications.PublishRunCancelRequest("Custom Script Runner", _dbId, ScriptJobRunId);
     }
 
     public static async Task<CustomScriptRunnerContext> CreateInstance(StatusControlContext? statusContext,
@@ -85,7 +90,7 @@ public partial class CustomScriptRunnerContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptProgressMessageItem
+        Items.Add(new ScriptMessageItemProgress
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId
@@ -104,20 +109,12 @@ public partial class CustomScriptRunnerContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        Items.Add(new ScriptStateMessageItem
+        Items.Add(new ScriptMessageItemState
         {
             ReceivedOn = DateTime.Now, Message = arg.ProgressMessage, Sender = arg.Sender,
             ScriptJobPersistentId = arg.ScriptJobPersistentId, ScriptJobRunPersistentId = arg.ScriptJobRunPersistentId,
             State = arg.State
         });
-    }
-
-    [NonBlockingCommand]
-    public async Task CancelScript()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        DataNotifications.PublishRunCancelRequest("Custom Script Runner", _dbId, ScriptJobRunId);
     }
 
     [NonBlockingCommand]

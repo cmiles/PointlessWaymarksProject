@@ -15,6 +15,7 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 public partial class ScriptProgressWindow
 {
     private string _databaseFile = string.Empty;
+    // ReSharper disable once NotAccessedField.Local
     private Guid _dbId = Guid.Empty;
 
     public ScriptProgressWindow()

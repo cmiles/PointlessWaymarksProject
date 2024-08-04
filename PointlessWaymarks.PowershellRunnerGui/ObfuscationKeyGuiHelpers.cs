@@ -11,6 +11,7 @@ public static class ObfuscationKeyGuiHelpers
     ///     database must already have been set/created.
     /// </summary>
     /// <param name="statusContext"></param>
+    /// <param name="databaseFile"></param>
     /// <returns></returns>
     public static async Task<string> GetObfuscationKeyWithUserCreateAsNeeded(StatusControlContext statusContext, string databaseFile)
     {

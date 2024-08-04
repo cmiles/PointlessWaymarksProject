@@ -15,7 +15,7 @@ public class NotificationCatcher
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
-    private DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
+    private DataNotificationsWorkQueue? DataNotificationsProcessor { get; }
 
     public Func<DataNotifications.InterProcessProcessingError, Task> ErrorNotification { get; set; } = x =>
     {

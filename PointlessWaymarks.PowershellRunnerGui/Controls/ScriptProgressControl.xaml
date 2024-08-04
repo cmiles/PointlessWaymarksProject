@@ -23,7 +23,7 @@
                     <scm:SortDescription PropertyName="ReceivedOn" Direction="Ascending" />
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
-            <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptProgressMessageItem}">
+            <DataTemplate x:Key="ProgressMessageDataTemplate" DataType="{x:Type local:ScriptMessageItemProgress}">
                 <Grid>
                     <Grid.ContextMenu>
                         <ContextMenu>
@@ -44,7 +44,7 @@
                              TextWrapping="Wrap" Text="{Binding Message}" />
                 </Grid>
             </DataTemplate>
-            <DataTemplate x:Key="ProgressStateDataTemplate" DataType="{x:Type local:ScriptStateMessageItem}">
+            <DataTemplate x:Key="ProgressStateDataTemplate" DataType="{x:Type local:ScriptMessageItemState}">
                 <Grid>
                     <Grid.ContextMenu>
                         <ContextMenu>
@@ -106,7 +106,7 @@
                     </StackPanel>
                 </Grid>
             </DataTemplate>
-            <DataTemplate x:Key="ProgressErrorDataTemplate" DataType="{x:Type local:ScriptErrorMessageItem}">
+            <DataTemplate x:Key="ProgressErrorDataTemplate" DataType="{x:Type local:ScriptMessageItemError}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />

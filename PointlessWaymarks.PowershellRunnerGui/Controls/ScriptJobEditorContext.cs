@@ -23,14 +23,11 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
     private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(30));
+    // ReSharper disable once NotAccessedField.Local
     private string _databaseFile = string.Empty;
     private Guid _dbId = Guid.Empty;
 
-    public ScriptJobEditorContext()
-    {
-    }
-
-    public BoolDataEntryContext AllowSimultaneousRunsEntry { get; set; }
+    public required BoolDataEntryContext AllowSimultaneousRunsEntry { get; set; }
     public string? CronDescription { get; set; }
     public DateTime? CronNextRun { get; set; }
     public required string DatabaseFile { get; set; }
@@ -159,7 +156,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         await newContext.Setup(initialScriptJob);
 
-        newContext.UpdateCronNextRun();
+        _ = newContext.UpdateCronNextRun();
 
         return newContext;
     }
