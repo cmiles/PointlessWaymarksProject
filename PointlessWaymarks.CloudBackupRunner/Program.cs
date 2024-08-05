@@ -12,18 +12,18 @@ namespace PointlessWaymarks.CloudBackupRunner;
 
 public static class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         LogTools.StandardStaticLoggerForDefaultLogDirectory("CloudBackupRunner");
-        
+
         AppDomain.CurrentDomain.UnhandledException += delegate(object _, UnhandledExceptionEventArgs eventArgs)
         {
             var exceptionMessage = "Unhandled Fatal Exception";
             if (eventArgs.ExceptionObject is Exception castException) exceptionMessage = castException.Message;
-            
+
             Log.ForContext("exceptionObject", eventArgs.ExceptionObject.SafeObjectDump())
                 .Error(exceptionMessage, eventArgs.ExceptionObject);
-            
+
             try
             {
                 WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner").Result
@@ -37,12 +37,12 @@ public static class Program
             {
                 // ignored
             }
-            
+
             Log.CloseAndFlush();
         };
-        
+
         var startTime = DateTime.Now;
-        
+
         if (args.Length is < 1 or > 3)
         {
             Console.WriteLine("""
@@ -101,134 +101,134 @@ public static class Program
                                 needs a large number of actions to complete. If a 'best guess' Batch is not found
                                 a new batch will be created.
                               """);
-            
-            return;
+
+            return -1;
         }
-        
+
         var consoleId = Guid.NewGuid();
-        
+
         var progress = new ConsoleAndDataNotificationProgress(consoleId);
-        
+
         var errorNotifier = (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                 FileAndFolderTools.ReadAllText(
                     Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md")));
-        
+
         Log.ForContext("args", args, true).Information(
             "PointlessWaymarks.CloudBackupRunner Starting");
-        
+
         var db = await CloudBackupContext.TryCreateInstance(args[0]);
-        
+
         if (!db.success || db.context is null)
         {
             await errorNotifier.Error($"Failed to Connect to the Db {args[0]}");
-            
+
             Log.ForContext(nameof(db), db, true).Error("Failed to Connect to the Db {dbFile}", args[0]);
             Log.Information("Cloud Backup Runner - Finished Run");
             await Log.CloseAndFlushAsync();
-            return;
+            return -1;
         }
-        
+
         if (args.Length == 1)
         {
             var jobs = await db.context.BackupJobs.Include(backupJob => backupJob.Batches).ToListAsync();
-            
+
             Log.Verbose("Found {jobCount} Jobs", jobs.Count);
-            
+
             foreach (var loopJob in jobs)
             {
                 Console.WriteLine(
                     $"{loopJob.Id}  {loopJob.Name}: {loopJob.LocalDirectory} to {loopJob.CloudBucket}:{loopJob.CloudDirectory}");
-                
+
                 var batches = loopJob.Batches.OrderByDescending(x => x.CreatedOn).Take(5).ToList();
-                
+
                 foreach (var loopBatch in batches)
                     Console.WriteLine(
                         $"  Batch Id {loopBatch.Id} - {loopBatch.CreatedOn} - Copies {loopBatch.CloudCopies.Count(x => x.CopyCompletedSuccessfully)} of {loopBatch.CloudCopies.Count}, Complete Uploads {loopBatch.CloudUploads.Count(x => x.UploadCompletedSuccessfully)} of {loopBatch.CloudUploads.Count} Complete, Deletions {loopBatch.CloudDeletions.Count(x => x.DeletionCompletedSuccessfully)} of {loopBatch.CloudDeletions.Count} Complete, {loopBatch.CloudCopies.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudUploads.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage)) + loopBatch.CloudDeletions.Count(x => !string.IsNullOrWhiteSpace(x.ErrorMessage))} Errors");
             }
-            
+
             Log.Information("Cloud Backup Runner - Finished Run");
-            
+
             await Log.CloseAndFlushAsync();
-            return;
+            return 0;
         }
-        
+
         if (!int.TryParse(args[1], out var jobId))
         {
             await errorNotifier.Error($"Failed to Parse Job Id {args[1]}");
-            
+
             Log.Error("Failed to Parse Job Id {jobId}", args[1]);
             Log.Information("Cloud Backup Runner - Finished Run");
             await Log.CloseAndFlushAsync();
-            return;
+            return -1;
         }
-        
+
         var backupJob = await db.context.BackupJobs.Include(backupJob => backupJob.Batches)
             .SingleOrDefaultAsync(x => x.Id == jobId);
-        
+
         if (backupJob == null)
         {
             await errorNotifier.Error($"Failed to find a Backup Job with Id {jobId} in {args[0]}");
-            
+
             Log.Error("Failed to find a Backup Job with Id {jobId} in {dbFile}", jobId, args[0]);
             Log.Information("Cloud Backup Runner - Finished Run");
             await Log.CloseAndFlushAsync();
-            return;
+            return -1;
         }
-        
+
         DataNotifications.PublishProgressNotification(consoleId.ToString(), Environment.ProcessId, "Starting...",
             backupJob.PersistentId, null);
-        
+
         progress.PersistentId = backupJob.PersistentId;
-        
+
         Log.Logger = new LoggerConfiguration().StandardEnrichers().LogToConsole()
             .LogToFileInProgramDirectory("CloudBackupRunner").WriteTo.DelegatingTextSink(
                 x => DataNotifications.PublishProgressNotification(consoleId.ToString(), Environment.ProcessId, x,
                     backupJob.PersistentId, null),
                 outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
             .CreateLogger();
-        
+
         var cloudCredentials = PasswordVaultTools.GetCredentials(backupJob.VaultS3CredentialsIdentifier);
-        
+
         if (string.IsNullOrWhiteSpace(cloudCredentials.username) ||
             string.IsNullOrWhiteSpace(cloudCredentials.password))
         {
             await errorNotifier.Error("Cloud Credentials are not Valid?");
-            
+
             Log.Error(
                 $"Cloud Credentials are not Valid? Access Key is blank {string.IsNullOrWhiteSpace(cloudCredentials.username)}, Password is blank {string.IsNullOrWhiteSpace(cloudCredentials.password)}");
             Log.Information("Cloud Backup Runner - Finished Run");
             await Log.CloseAndFlushAsync();
-            return;
+            return -1;
         }
-        
+
         var frozenNow = DateTime.Now;
-        
+
         if (!Enum.TryParse(backupJob.CloudProvider, out S3Providers provider)) provider = S3Providers.Amazon;
-        
+
         var serviceUrl = string.Empty;
-        
+
         if (provider != S3Providers.Amazon)
         {
             serviceUrl =
                 PasswordVaultTools.GetCredentials(backupJob.VaultServiceUrlIdentifier).password;
-            
+
             if (string.IsNullOrWhiteSpace(serviceUrl))
             {
                 await errorNotifier.Error("Service URL is not Valid?");
-                
+
                 Log.Error(
                     "Service URL is not Valid? Service URL is Blank.");
                 Log.Information("Cloud Backup Runner - Finished Run");
                 await Log.CloseAndFlushAsync();
-                return;
+                return -1;
             }
         }
         else
         {
             serviceUrl = S3Tools.AmazonServiceUrlFromBucketRegion(backupJob.CloudRegion);
         }
-        
+
         var amazonCredentials = new S3AccountInformation
         {
             AccessKey = () => cloudCredentials.username,
@@ -243,7 +243,7 @@ public static class Program
                 $"{frozenNow:yyyy-MM-dd-HH-mm}-{args[0]}.xlsx")
         };
         CloudTransferBatch? batch = null;
-        
+
         //3 Args mean that a batch has been specified in one of 3 ways: auto, last, or id. On all of these options
         //a 'bad' option (last when there is no last batch, id that doesn't match anything in the db...) will fall
         //thru to a new batch being generated. 
@@ -255,15 +255,19 @@ public static class Program
             {
                 var mostRecentBatch = backupJob.Batches.MaxBy(x => x.CreatedOn)!;
                 var batchStatistics = await BatchStatistics.CreateInstance(mostRecentBatch.Id);
-                var totalActions = batchStatistics.CopiesCount + batchStatistics.UploadsCount + batchStatistics.DeletesCount;
-                
-                var successfulActions = batchStatistics.CopiesCompleteCount + batchStatistics.UploadsCompleteCount + batchStatistics.DeletesCompleteCount;
-                var errorActions = batchStatistics.CopiesWithErrorNoteCount + batchStatistics.UploadsWithErrorNoteCount + batchStatistics.DeletesWithErrorNoteCount;
+                var totalActions = batchStatistics.CopiesCount + batchStatistics.UploadsCount +
+                                   batchStatistics.DeletesCount;
+
+                var successfulActions = batchStatistics.CopiesCompleteCount + batchStatistics.UploadsCompleteCount +
+                                        batchStatistics.DeletesCompleteCount;
+                var errorActions = batchStatistics.CopiesWithErrorNoteCount +
+                                   batchStatistics.UploadsWithErrorNoteCount +
+                                   batchStatistics.DeletesWithErrorNoteCount;
                 var percentSuccess = totalActions == 0 ? 1 : successfulActions / (decimal)totalActions;
                 var percentError = totalActions == 0 ? 0 : errorActions / (decimal)totalActions;
                 var highPercentSuccess = percentSuccess > .95M;
                 var highPercentErrors = percentError > .10M;
-                
+
                 Console.WriteLine("Auto Batch Selection");
                 Console.WriteLine($"  Last Batch: Id {mostRecentBatch.Id} Created On: {mostRecentBatch.CreatedOn}");
                 Console.WriteLine($"  Total Actions: {totalActions}");
@@ -273,7 +277,7 @@ public static class Program
                     $"  Error Actions: {errorActions} - {(totalActions == 0 ? 0 : errorActions / (decimal)totalActions):P0}");
                 Console.WriteLine($"    High Percent Success: {highPercentSuccess}");
                 Console.WriteLine($"    High Percent Errors: {highPercentErrors}");
-                
+
                 //Case: We have a batch that seems likely to be productive to resume
                 if (!highPercentSuccess && !highPercentErrors)
                 {
@@ -323,13 +327,13 @@ public static class Program
                         .Information(
                             "Comparing Local Files to the Cloud File Cache Files produced no backup actions - Nothing To Do, Stopping");
                     Log.Information("Cloud Backup Runner - Finished Run");
-                    return;
+                    return 0;
                 }
             }
         }
-        
+
         CloudTransferBatchInformation? batchInformation;
-        
+
         //Batch equals null here means either that no batch was specified or that the batch specification
         //didn't return anything - either way a new batch is created, the source of the batch changes depends
         //on the age of the last Cloud File Scan.
@@ -349,25 +353,25 @@ public static class Program
         {
             batchInformation = await CloudTransferBatchInformation.CreateInstance(batch.Id);
         }
-        
-        
+
+
         //Batch is null here means that the local scan and the cloud cache files match - nothing to do
-        
+
         if (batchInformation == null)
         {
             Log.ForContext(nameof(backupJob), backupJob.Dump())
                 .Information(
                     "Comparing Local Files to the Cloud File Cache Files produced no backup actions - Nothing To Do, Stopping");
             Log.Information("Cloud Backup Runner - Finished Run");
-            return;
+            return 0;
         }
-        
+
         Log.ForContext(nameof(batchInformation), batchInformation.SafeObjectDumpNoEnumerables()).Information(
             "Using Batch Id {batchId} with {copyCount} Copies, {uploadCount} Uploads and {deleteCount} Deletes",
             batchInformation.Batch.Id,
             batchInformation.CloudCopies.Count, batchInformation.CloudUploads.Count,
             batchInformation.CloudDeletions.Count);
-        
+
         if (batchInformation.CloudCopies.Count < 1 && batchInformation.CloudUploads.Count < 1 &&
             batchInformation.CloudDeletions.Count < 1)
         {
@@ -376,20 +380,20 @@ public static class Program
                 batchInformation.Batch.Id);
             Log.Information("Cloud Backup Runner - Finished Run");
             await Log.CloseAndFlushAsync();
-            return;
+            return 0;
         }
-        
+
         progress.BatchId = batchInformation.Batch.Id;
-        
+
         try
         {
             var runInformation =
                 await CloudTransfer.CloudCopyUploadAndDelete(amazonCredentials, batchInformation.Batch.Id, startTime,
                     progress);
             Log.ForContext(nameof(runInformation), runInformation, true).Information("Cloud Backup Ending");
-            
+
             var batchReport = await BatchReportToExcel.Run(batchInformation.Batch.Id, progress);
-            
+
             (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
                 .SetAutomationLogoNotificationIconUrl().MessageWithFile(
                     $"Uploaded {FileAndFolderTools.GetBytesReadable(runInformation.UploadedSize)} in {(runInformation.Ended - runInformation.Started).TotalHours:N2} Hours{(runInformation.CopyErrorCount + runInformation.DeleteErrorCount + runInformation.UploadErrorCount > 0 ? $" - {runInformation.CopyErrorCount + runInformation.DeleteErrorCount + runInformation.UploadErrorCount}  Errors" : string.Empty)} - Click for Report",
@@ -399,16 +403,20 @@ public static class Program
         {
             Log.Error(e, "Error Running Program...");
             Console.WriteLine(e);
-            
+
             await (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
                 .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
                     FileAndFolderTools.ReadAllText(
                         Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md"))).Error(e);
+
+            return -1;
         }
         finally
         {
             Log.Information("Cloud Backup Runner - Finished Run");
             await Log.CloseAndFlushAsync();
         }
+
+        return 0;
     }
 }
