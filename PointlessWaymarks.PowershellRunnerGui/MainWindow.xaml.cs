@@ -25,6 +25,7 @@ namespace PointlessWaymarks.PowerShellRunnerGui;
 public partial class MainWindow
 {
     private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(60));
+    private Guid _dbId;
     private DateTime? _mainTimerLastCheck;
     private DateTime? _mostRecentScheduleCheckTime;
     private bool _windowCloseOk;
@@ -57,10 +58,16 @@ public partial class MainWindow
         BuildCommands();
 
         StatusContext.RunFireAndForgetBlockingTask(async () => { await CheckForProgramUpdate(currentDateVersion); });
+
+        DataNotificationsProcessor = new NotificationCatcher
+        {
+            RunCancelRequestNotification = ProcessCancelRequestForOrphans
+        };
     }
 
     public CustomScriptRunnerContext? ArbitraryRunnerContext { get; set; }
     public string CurrentDatabase { get; set; } = string.Empty;
+    public NotificationCatcher? DataNotificationsProcessor { get; set; }
 
     public HelpDisplayContext? HelpContext { get; set; }
 
@@ -211,6 +218,9 @@ public partial class MainWindow
         await PowerShellRunnerGuiSettingTools.WriteSettings(currentSettings);
         CurrentDatabase = possibleFile.FullName;
 
+        _dbId = await PowerShellRunnerDbQuery.DbId(CurrentDatabase);
+        _ = PowerShellRunner.CleanUpOrphanRuns(CurrentDatabase, _dbId);
+
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
         RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
         ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
@@ -312,6 +322,9 @@ public partial class MainWindow
         await PowerShellRunnerGuiSettingTools.WriteSettings(currentSettings);
         CurrentDatabase = userDatabaseFile.FullName;
 
+        _dbId = await PowerShellRunnerDbQuery.DbId(CurrentDatabase);
+        _ = PowerShellRunner.CleanUpOrphanRuns(CurrentDatabase, _dbId);
+
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
@@ -362,6 +375,13 @@ public partial class MainWindow
         Close();
     }
 
+    private async Task ProcessCancelRequestForOrphans(DataNotifications.InterProcessRunCancelRequest arg)
+    {
+        if (arg.DatabaseId != _dbId) return;
+
+        await PowerShellRunner.CleanUpOrphanRuns(CurrentDatabase, _dbId);
+    }
+
     public async Task Setup()
     {
         var settings = PowerShellRunnerGuiSettingTools.ReadSettings();
@@ -383,9 +403,8 @@ public partial class MainWindow
 
         CurrentDatabase = settings.DatabaseFile;
 
-        var dbId = await PowerShellRunnerDbQuery.DbId(CurrentDatabase);
-
-        _ = PowerShellRunner.CleanUpOrphanRuns(CurrentDatabase, dbId);
+        _dbId = await PowerShellRunnerDbQuery.DbId(CurrentDatabase);
+        _ = PowerShellRunner.CleanUpOrphanRuns(CurrentDatabase, _dbId);
 
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
 
