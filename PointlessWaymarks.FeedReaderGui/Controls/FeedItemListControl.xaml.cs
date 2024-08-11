@@ -28,7 +28,7 @@ public partial class FeedItemListControl
 
         if (string.IsNullOrWhiteSpace(context?.DisplayUrl)) return;
 
-        if (e.Uri.Equals(context.DisplayUrl, StringComparison.OrdinalIgnoreCase)) return;
+        if (e.IsRedirected || e.Uri.Equals(context.DisplayUrl, StringComparison.OrdinalIgnoreCase)) return;
 
         e.Cancel = true;
 
