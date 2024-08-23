@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.VideoContentEditor.VideoContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,21 +6,21 @@
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
+    xmlns:simpleMediaPlayer="clr-namespace:PointlessWaymarks.WpfCommon.SimpleMediaPlayer;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
+    xmlns:videoContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoContentEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:videoContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoContentEditor"
-    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
-    xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:simpleMediaPlayer="clr-namespace:PointlessWaymarks.WpfCommon.SimpleMediaPlayer;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
     d:DataContext="{d:DesignInstance videoContentEditor:VideoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -48,20 +48,23 @@
                         Video
                     </Label>
                     <Image
+                        Width="{StaticResource SmallIconSize}"
                         Margin="0,0,4,0"
-                        Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                        Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}"
-                        Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                               AppName=PointlessWaymarks.WpfCommon}"
+                        Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}">
                         <Image.ToolTip>
-                            <ToolTip
-                                Content="{Binding LoadedFile.FullName, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                                ContentStringFormat="Original Value: {0}" />
+                            <ToolTip Content="{Binding LoadedFile.FullName, FallbackValue='Previously blank', TargetNullValue='Previously empty'}" ContentStringFormat="Original Value: {0}" />
                         </Image.ToolTip>
                     </Image>
-                    <Image ToolTip="{Binding SelectedFileValidationMessage}"
-                           Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                           Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                           Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
+                    <Image
+                        Width="{StaticResource SmallIconSize}"
+                        VerticalAlignment="Center"
+                        Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                               AppName=PointlessWaymarks.WpfCommon}"
+                        ToolTip="{Binding SelectedFileValidationMessage}"
+                        Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
             </GroupBox.Header>
             <Grid>
@@ -127,8 +130,7 @@
                     </Button>
                     <Button Command="{Binding OpenSelectedFileCommand}">View Video</Button>
                     <Button Command="{Binding OpenSelectedFileDirectoryCommand}">View Directory</Button>
-                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}"
-                            IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">
+                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}" IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">
                         Title-&gt;Name
                     </Button>
                     <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
@@ -140,21 +142,15 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0"
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
-                                DataContext="{Binding MainSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
-                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <conversionDataEntry:ConversionDataEntryControl
-                                DataContext="{Binding UserMainPictureEntry}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0" DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserMainPictureEntry}" />
                             <Grid Margin="24,2,2,2">
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding UserMainPictureEntry.HasValidationIssues}"
-                                                Value="true">
+                                            <DataTrigger Binding="{Binding UserMainPictureEntry.HasValidationIssues}" Value="true">
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -166,28 +162,26 @@
                                 </Grid.ColumnDefinitions>
                                 <Image
                                     Grid.Column="0"
-                                    Margin="2"
                                     Width="110"
-                                    VerticalAlignment="Top"
+                                    Margin="2"
                                     HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
                                     Source="{Binding UserMainPictureEntrySmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}" />
-                                <StackPanel Margin="0,24,0,0" Grid.Column="1" Orientation="Vertical">
-                                    <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                             Text="{Binding UserMainPictureEntryContent.Title}" />
-                                    <StackPanel Orientation="Horizontal" Margin="4,12,4,4">
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Margin="0,24,0,0"
+                                    Orientation="Vertical">
+                                    <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding UserMainPictureEntryContent.Title}" />
+                                    <StackPanel Margin="4,12,4,4" Orientation="Horizontal">
                                         <Button Width="120" Command="{Binding EditUserMainPictureCommand}">Edit</Button>
                                         <Button Width="120" Command="{Binding ViewUserMainPictureCommand}">View</Button>
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>
-                            <optionalLocationEntry:OptionalLocationEntryControl
-                                DataContext="{Binding OptionalLocationEntry}" />
-                            <optionalLocationEntry:OptionalLocationActionsControl></optionalLocationEntry:OptionalLocationActionsControl>
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <optionalLocationEntry:OptionalLocationEntryControl DataContext="{Binding OptionalLocationEntry}" />
+                            <optionalLocationEntry:OptionalLocationActionsControl />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -198,8 +192,7 @@
                         <StackPanel Margin="4">
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding VideoCreatedByEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding VideoCreatedOnEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl
-                                DataContext="{Binding VideoCreatedOnUtcEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding VideoCreatedOnUtcEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding LicenseEntry}" />
                         </StackPanel>
                     </Grid>
@@ -219,7 +212,11 @@
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
         </TabControl>
-        <Border Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource ActionPanelBorderStyle}">
+        <Border
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding SaveCommand}"

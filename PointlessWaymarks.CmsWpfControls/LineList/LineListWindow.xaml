@@ -1,14 +1,15 @@
-﻿<Window x:Class="PointlessWaymarks.CmsWpfControls.LineList.LineListWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList"
-        Title="{Binding WindowTitle}"
-        Width="1000"
-        Height="750"
-        mc:Ignorable="d" 
-        d:DataContext="{d:DesignInstance local:LineListWindow}">
+﻿<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.LineList.LineListWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.LineList"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="{Binding WindowTitle}"
+    Width="1000"
+    Height="750"
+    d:DataContext="{d:DesignInstance local:LineListWindow}"
+    mc:Ignorable="d">
     <Grid>
         <local:LineListWithActionsControl DataContext="{Binding ListContext}" />
     </Grid>

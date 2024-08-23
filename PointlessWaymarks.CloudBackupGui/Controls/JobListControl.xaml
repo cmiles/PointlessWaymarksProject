@@ -1,16 +1,19 @@
-<UserControl x:Class="PointlessWaymarks.CloudBackupGui.Controls.JobListControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
-             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
-             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance controls:JobListContext}">
+﻿<UserControl
+    x:Class="PointlessWaymarks.CloudBackupGui.Controls.JobListControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    d:DataContext="{d:DesignInstance controls:JobListContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -26,10 +29,10 @@
                 <StackPanel Orientation="Vertical">
                     <StackPanel.Resources>
                         <Style TargetType="Label">
-                            <Setter Property="Width" Value="180"></Setter>
+                            <Setter Property="Width" Value="180" />
                         </Style>
                         <Style TargetType="StackPanel">
-                            <Setter Property="Margin" Value="1"></Setter>
+                            <Setter Property="Margin" Value="1" />
                         </Style>
                     </StackPanel.Resources>
                     <StackPanel Orientation="Horizontal">
@@ -50,8 +53,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Uploads Complete Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.UploadsCompleteSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.UploadsCompleteSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Uploads Not Complete Count</Label>
@@ -59,8 +61,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Uploads Not Complete Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.UploadsNotCompletedSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.UploadsNotCompletedSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Uploads w/Error Note Count</Label>
@@ -68,8 +69,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Uploads w/Error Note Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.UploadsWithErrorNoteSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.UploadsWithErrorNoteSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                 </StackPanel>
             </ToolTip>
@@ -80,10 +80,10 @@
                 <StackPanel Orientation="Vertical">
                     <StackPanel.Resources>
                         <Style TargetType="Label">
-                            <Setter Property="Width" Value="180"></Setter>
+                            <Setter Property="Width" Value="180" />
                         </Style>
                         <Style TargetType="StackPanel">
-                            <Setter Property="Margin" Value="1"></Setter>
+                            <Setter Property="Margin" Value="1" />
                         </Style>
                     </StackPanel.Resources>
                     <StackPanel Orientation="Horizontal">
@@ -104,8 +104,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Copies Complete Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.CopiesCompleteSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.CopiesCompleteSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Copies Not Complete Count</Label>
@@ -113,8 +112,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Copies Not Complete Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.CopiesNotCompletedSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.CopiesNotCompletedSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Copies w/Error Note Count</Label>
@@ -122,8 +120,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Copies w/Error Note Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.CopiesWithErrorNoteSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.CopiesWithErrorNoteSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                 </StackPanel>
             </ToolTip>
@@ -134,10 +131,10 @@
                 <StackPanel Orientation="Vertical">
                     <StackPanel.Resources>
                         <Style TargetType="Label">
-                            <Setter Property="Width" Value="180"></Setter>
+                            <Setter Property="Width" Value="180" />
                         </Style>
                         <Style TargetType="StackPanel">
-                            <Setter Property="Margin" Value="1"></Setter>
+                            <Setter Property="Margin" Value="1" />
                         </Style>
                     </StackPanel.Resources>
                     <StackPanel Orientation="Horizontal">
@@ -154,8 +151,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Deletes Complete Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.DeletesCompleteSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.DeletesCompleteSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Deletes Not Complete Count</Label>
@@ -163,8 +159,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Deletes Not Complete Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.DeletesNotCompletedSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.DeletesNotCompletedSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Deletes w/Error Note Count</Label>
@@ -172,8 +167,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label>Deletes w/Error Note Size</Label>
-                        <TextBlock
-                            Text="{Binding LatestBatch.DeletesWithErrorNoteSize, Converter={StaticResource HumanFileSize}}" />
+                        <TextBlock Text="{Binding LatestBatch.DeletesWithErrorNoteSize, Converter={StaticResource HumanFileSize}}" />
                     </StackPanel>
                 </StackPanel>
             </ToolTip>
@@ -181,51 +175,87 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Margin="6,10,6,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Button Padding="8,0,8,0" Width="120" Command="{Binding NewDatabaseCommand}">Create New</Button>
-            <Button Grid.Column="1" Padding="8,0,8,0" Width="120" Command="{Binding ChooseCurrentDbCommand}">Choose Existing</Button>
-            <Image Grid.Column="2" ToolTip="Database is not valid?" Margin="6,0,0,0"
-                   Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                   Visibility="{Binding CurrentDatabaseIsValid, Converter={StaticResource BooleanNotToHidden}}"
-                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
-            <TextBox Margin="4,0,0,0" Grid.Column="3" Text="{Binding CurrentDatabase, Delay=750}"></TextBox>
+            <Button
+                Width="120"
+                Padding="8,0,8,0"
+                Command="{Binding NewDatabaseCommand}">
+                Create New
+            </Button>
+            <Button
+                Grid.Column="1"
+                Width="120"
+                Padding="8,0,8,0"
+                Command="{Binding ChooseCurrentDbCommand}">
+                Choose Existing
+            </Button>
+            <Image
+                Grid.Column="2"
+                Width="{StaticResource SmallIconSize}"
+                Margin="6,0,0,0"
+                VerticalAlignment="Center"
+                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                       AppName=PointlessWaymarks.WpfCommon}"
+                ToolTip="Database is not valid?"
+                Visibility="{Binding CurrentDatabaseIsValid, Converter={StaticResource BooleanNotToHidden}}" />
+            <TextBox
+                Grid.Column="3"
+                Margin="4,0,0,0"
+                Text="{Binding CurrentDatabase, Delay=750}" />
         </Grid>
         <GroupBox
-            Margin="8,4,4,0"
             Grid.Row="1"
+            Margin="8,4,4,0"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <GroupBox.Header>
-                <Grid Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,16,0">
+                <Grid
+                    Grid.Row="0"
+                    Margin="0,4,16,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock FontWeight="Bold" Margin="6,0,18,2" VerticalAlignment="Center">Jobs</TextBlock>
-                    <TextBox Grid.Column="1" VerticalAlignment="Center" Padding="3"
-                             Text="{Binding UserFilterText, Delay=400, UpdateSourceTrigger=PropertyChanged}"
-                             Width="180" TextAlignment="Right">
-                    </TextBox>
-                    <columnSort:ColumnSortControl Grid.Column="2" Margin="18,0,0,0" DataContext="{Binding ListSort}"></columnSort:ColumnSortControl>
+                    <TextBlock
+                        Margin="6,0,18,2"
+                        VerticalAlignment="Center"
+                        FontWeight="Bold">
+                        Jobs
+                    </TextBlock>
+                    <TextBox
+                        Grid.Column="1"
+                        Width="180"
+                        Padding="3"
+                        VerticalAlignment="Center"
+                        Text="{Binding UserFilterText, Delay=400, UpdateSourceTrigger=PropertyChanged}"
+                        TextAlignment="Right" />
+                    <columnSort:ColumnSortControl
+                        Grid.Column="2"
+                        Margin="18,0,0,0"
+                        DataContext="{Binding ListSort}" />
                 </Grid>
             </GroupBox.Header>
-            <ListBox Margin="0,6,0,0" ItemsSource="{Binding Items}"
-                     Style="{StaticResource ContentListListBoxStyle}"
-                     SelectedItem="{Binding SelectedJob}"
-                     behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedJobs}">
+            <ListBox
+                Margin="0,6,0,0"
+                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedJobs}"
+                ItemsSource="{Binding Items}"
+                SelectedItem="{Binding SelectedJob}"
+                Style="{StaticResource ContentListListBoxStyle}">
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Edit Job" Command="{Binding EditSelectedJobCommand}"></MenuItem>
+                        <MenuItem Command="{Binding EditSelectedJobCommand}" Header="Edit Job" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
@@ -239,17 +269,19 @@
                             </Border.InputBindings>
                             <Grid Style="{StaticResource ContentListOuterGridStyle}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="290"></ColumnDefinition>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="290" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="70"></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="70" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                         TextWrapping="Wrap">
+                                <TextBox
+                                    FontWeight="Bold"
+                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                    TextWrapping="Wrap">
                                     <TextBox.Text>
                                         <MultiBinding StringFormat="{}{0} - Id {1}">
                                             <Binding Path="DbJob.Name" />
@@ -257,9 +289,13 @@
                                         </MultiBinding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <TextBox Grid.Column="0" Grid.Row="1" Margin="6,4,0,0"
-                                         Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap"
-                                         VerticalAlignment="Top">
+                                <TextBox
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="6,4,0,0"
+                                    VerticalAlignment="Top"
+                                    Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                    TextWrapping="Wrap">
                                     <TextBox.Text>
                                         <MultiBinding StringFormat="{}{0} to {1}/{2}">
                                             <Binding Path="DbJob.LocalDirectory" />
@@ -268,110 +304,106 @@
                                         </MultiBinding>
                                     </TextBox.Text>
                                 </TextBox>
-                                <GroupBox Grid.Column="1" Grid.RowSpan="2" Grid.Row="0" Margin="24,0,0,4"
-                                          Header="Progress" Style="{StaticResource UiComponentGroupBoxStyle}">
-                                    <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"
-                                             Text="{Binding ProgressString}"
-                                             Style="{StaticResource ReadOnlyTextBoxStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Height="70">
-                                    </TextBox>
+                                <GroupBox
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="1"
+                                    Margin="24,0,0,4"
+                                    Header="Progress"
+                                    Style="{StaticResource UiComponentGroupBoxStyle}">
+                                    <TextBox
+                                        Grid.Row="2"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="2"
+                                        Height="70"
+                                        Margin="2"
+                                        HorizontalScrollBarVisibility="Disabled"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                        Text="{Binding ProgressString}"
+                                        TextWrapping="Wrap"
+                                        VerticalScrollBarVisibility="Auto" />
                                 </GroupBox>
-                                <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="10,6,0,8"
-                                           Orientation="Horizontal">
+                                <WrapPanel
+                                    Grid.Row="2"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Margin="10,6,0,8"
+                                    Orientation="Horizontal">
                                     <WrapPanel.Resources>
                                         <Style TargetType="Button">
-                                            <Setter Property="Margin" Value="2"></Setter>
-                                            <Setter Property="Padding" Value="10,4,8,4"></Setter>
+                                            <Setter Property="Margin" Value="2" />
+                                            <Setter Property="Padding" Value="10,4,8,4" />
                                         </Style>
                                     </WrapPanel.Resources>
-                                    <Button Command="{Binding Data.EditJobCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.EditJobCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Edit
                                     </Button>
-                                    <Button
-                                        Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}"
-                                        CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.IncludedAndExcludedFilesReportCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Included/Excluded Files Report
                                     </Button>
-                                    <Button
-                                        Command="{Binding Data.NewBatchWindowCommand, Source={StaticResource proxy}}"
-                                        CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.NewBatchWindowCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Batch List
                                     </Button>
-                                    <Button
-                                        Command="{Binding Data.CloudCacheFilesReportCommand, Source={StaticResource proxy}}"
-                                        CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.CloudCacheFilesReportCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Cloud Cache Files To Excel
                                     </Button>
-                                    <Button
-                                        Command="{Binding Data.NewProgressWindowCommand, Source={StaticResource proxy}}"
-                                        CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.NewProgressWindowCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Progress to Window
                                     </Button>
-                                    <Button Command="{Binding Data.DeleteJobCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.DeleteJobCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Delete Backup Job
                                     </Button>
-                                    <Button
-                                        Command="{Binding Data.BasicCommandLineCommandToClipboardCommand, Source={StaticResource proxy}}"
-                                        CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.BasicCommandLineCommandToClipboardCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Command Line Command to Clipboard
                                     </Button>
-                                    <Button Command="{Binding Data.RunJobForceCloudCacheRescanCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.RunJobForceCloudCacheRescanCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Run - New Batch/Full Rescan
                                     </Button>
-                                    <Button Command="{Binding Data.RunJobCommand, Source={StaticResource proxy}}"
-                                            CommandParameter="{Binding DbJob}">
+                                    <Button Command="{Binding Data.RunJobCommand, Source={StaticResource proxy}}" CommandParameter="{Binding DbJob}">
                                         Run
                                     </Button>
                                 </WrapPanel>
-                                <WrapPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="24,0,0,0"
-                                           Orientation="Horizontal">
+                                <WrapPanel
+                                    Grid.Row="3"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Margin="24,0,0,0"
+                                    Orientation="Horizontal">
                                     <WrapPanel.Resources>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Margin" Value="6,2,6,2"></Setter>
+                                            <Setter Property="Margin" Value="6,2,6,2" />
                                         </Style>
                                     </WrapPanel.Resources>
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.LatestCloudActivity, StringFormat='Latest Cloud Activity {0}'}">
-                                    </TextBlock>
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.LocalFileSize, StringFormat='Local Files {0}', Converter={StaticResource FileSizePresentation}}">
-                                    </TextBlock>
+                                    <TextBlock Text="{Binding LatestBatch.LatestCloudActivity, StringFormat='Latest Cloud Activity {0}'}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding LatestBatch.LocalFileSize, StringFormat='Local Files {0}', Converter={StaticResource FileSizePresentation}}" TextWrapping="Wrap" />
 
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.UploadsSizeCompletedPercentage, StringFormat='Uploads Completed {0:P0}'}"
-                                               ToolTip="{StaticResource BatchUploadStatisticsTooltip}">
-                                    </TextBlock>
+                                    <TextBlock
+                                        Text="{Binding LatestBatch.UploadsSizeCompletedPercentage, StringFormat='Uploads Completed {0:P0}'}"
+                                        TextWrapping="Wrap"
+                                        ToolTip="{StaticResource BatchUploadStatisticsTooltip}" />
 
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.UploadsNotCompletedSize, StringFormat='Remaining  {0}', Converter={StaticResource FileSizePresentation}}"
-                                               ToolTip="{StaticResource BatchUploadStatisticsTooltip}">
-                                    </TextBlock>
+                                    <TextBlock
+                                        Text="{Binding LatestBatch.UploadsNotCompletedSize, StringFormat='Remaining  {0}', Converter={StaticResource FileSizePresentation}}"
+                                        TextWrapping="Wrap"
+                                        ToolTip="{StaticResource BatchUploadStatisticsTooltip}" />
 
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.CopiesSizeCompletedPercentage, StringFormat='Copies Completed {0:P0}'}"
-                                               ToolTip="{StaticResource BatchCopiesStatisticsTooltip}">
-                                    </TextBlock>
+                                    <TextBlock
+                                        Text="{Binding LatestBatch.CopiesSizeCompletedPercentage, StringFormat='Copies Completed {0:P0}'}"
+                                        TextWrapping="Wrap"
+                                        ToolTip="{StaticResource BatchCopiesStatisticsTooltip}" />
 
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.CopiesNotCompletedSize, StringFormat='Remaining  {0}', Converter={StaticResource FileSizePresentation}}"
-                                               ToolTip="{StaticResource BatchCopiesStatisticsTooltip}">
-                                    </TextBlock>
+                                    <TextBlock
+                                        Text="{Binding LatestBatch.CopiesNotCompletedSize, StringFormat='Remaining  {0}', Converter={StaticResource FileSizePresentation}}"
+                                        TextWrapping="Wrap"
+                                        ToolTip="{StaticResource BatchCopiesStatisticsTooltip}" />
 
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.DeletesNotCompletedCount, StringFormat='Deletes Remaining  {0:N0}', Converter={StaticResource FileSizePresentation}}"
-                                               ToolTip="{StaticResource BatchDeleteStatisticsTooltip}">
-                                    </TextBlock>
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding DbJob.LastCloudFileScan, StringFormat='Last Cloud Scan:  {0:d}', TargetNullValue='Last Cloud Scan: (none)'}">
-                                    </TextBlock>
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding DbJob.MaximumRunTimeInHours, StringFormat='Max Runtime: {0:N0} Hours'}">
-                                    </TextBlock>
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{Binding LatestBatch.BatchCreatedOn, StringFormat='Latest Batch Created {0}'}">
-                                    </TextBlock>
+                                    <TextBlock
+                                        Text="{Binding LatestBatch.DeletesNotCompletedCount, StringFormat='Deletes Remaining  {0:N0}', Converter={StaticResource FileSizePresentation}}"
+                                        TextWrapping="Wrap"
+                                        ToolTip="{StaticResource BatchDeleteStatisticsTooltip}" />
+                                    <TextBlock Text="{Binding DbJob.LastCloudFileScan, StringFormat='Last Cloud Scan:  {0:d}', TargetNullValue='Last Cloud Scan: (none)'}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding DbJob.MaximumRunTimeInHours, StringFormat='Max Runtime: {0:N0} Hours'}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding LatestBatch.BatchCreatedOn, StringFormat='Latest Batch Created {0}'}" TextWrapping="Wrap" />
                                 </WrapPanel>
                             </Grid>
                         </Border>
@@ -382,16 +414,17 @@
         <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
+                    Command="{Binding RefreshListCommand}"
                     Content="_Refresh"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding RefreshListCommand}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
+                    Command="{Binding EditSelectedJobCommand}"
                     Content="_Edit"
-                    Style="{StaticResource ActionPanelButtonStyle}" Command="{Binding EditSelectedJobCommand}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
+                    Command="{Binding NewJobCommand}"
                     Content="_New"
-                    Style="{StaticResource ActionPanelButtonStyle}"
-                    Command="{Binding NewJobCommand}" />
+                    Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
     </Grid>

@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.MenuLinkEditor.MenuLinkEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -28,12 +28,15 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Menu >
+        <Menu>
             <StaticResource ResourceKey="NewMenu" />
             <StaticResource ResourceKey="ViewMenu" />
             <StaticResource ResourceKey="SiteMenu" />
         </Menu>
-        <GroupBox Grid.Row="1" Header="Notes" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <GroupBox
+            Grid.Row="1"
+            Header="Notes"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
             <wpf:MarkdownViewer Markdown="{Binding HelpMarkdown}" />
         </GroupBox>
         <GroupBox
@@ -172,9 +175,7 @@
             </ListBox>
         </GroupBox>
         <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">
-            <WrapPanel
-                HorizontalAlignment="Center"
-                Orientation="Horizontal">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button
                     Command="{Binding AddItemCommand}"
                     Content="Add"

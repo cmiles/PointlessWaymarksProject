@@ -1,19 +1,23 @@
-<Window x:Class="PointlessWaymarks.CmsWpfControls.ListFilterBuilder.LocationBoundsChooserWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
-        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
-        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-        xmlns:listFilterBuilder="clr-namespace:PointlessWaymarks.CmsWpfControls.ListFilterBuilder"
-        xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
-        mc:Ignorable="d"
-        d:DesignHeight="450" d:DesignWidth="800" Height="800" Width="800"
-        d:DataContext="{d:DesignInstance listFilterBuilder:LocationBoundsChooserWindow}"
-        WindowStartupLocation="CenterOwner">
+﻿<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.ListFilterBuilder.LocationBoundsChooserWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
+    xmlns:listFilterBuilder="clr-namespace:PointlessWaymarks.CmsWpfControls.ListFilterBuilder"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    Width="800"
+    Height="800"
+    d:DataContext="{d:DesignInstance listFilterBuilder:LocationBoundsChooserWindow}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -35,32 +39,37 @@
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Label FontWeight="Bold">Current Bounds</Label>
                 <Label Margin="12,0,0,0">Minimum Lat, Long:</Label>
-                <TextBlock VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,4,0"
-                           Text="{Binding LocationChooser.MapBounds.MinLatitude, StringFormat='{}{0:N6},'}">
-                </TextBlock>
-                <TextBlock VerticalAlignment="Center" FontWeight="Bold"
-                           Text="{Binding LocationChooser.MapBounds.MinLongitude, StringFormat='{}{0:N6}'}">
-                </TextBlock>
+                <TextBlock
+                    Margin="0,0,4,0"
+                    VerticalAlignment="Center"
+                    FontWeight="Bold"
+                    Text="{Binding LocationChooser.MapBounds.MinLatitude, StringFormat='{}{0:N6},'}" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontWeight="Bold"
+                    Text="{Binding LocationChooser.MapBounds.MinLongitude, StringFormat='{}{0:N6}'}" />
                 <Label Margin="12,0,0,0">Maximum Lat, Long:</Label>
-                <TextBlock VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,4,0"
-                           Text="{Binding LocationChooser.MapBounds.MaxLatitude, StringFormat='{}{0:N6},'}">
-                </TextBlock>
-                <TextBlock VerticalAlignment="Center" FontWeight="Bold"
-                           Text="{Binding LocationChooser.MapBounds.MaxLongitude, StringFormat='{}{0:N6}'}">
-                </TextBlock>
+                <TextBlock
+                    Margin="0,0,4,0"
+                    VerticalAlignment="Center"
+                    FontWeight="Bold"
+                    Text="{Binding LocationChooser.MapBounds.MaxLatitude, StringFormat='{}{0:N6},'}" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontWeight="Bold"
+                    Text="{Binding LocationChooser.MapBounds.MaxLongitude, StringFormat='{}{0:N6}'}" />
             </WrapPanel>
         </GroupBox>
-        <wpf:WebView2
-            Grid.Row="1"
-            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+        <wpf:WebView2 Grid.Row="1" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
-                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
-                    WebViewMessenger="{Binding LocationChooser}"
-                    DeferNavigationTo="{Binding LocationChooser.MapPreviewNavigationManager}" />
+                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior DeferNavigationTo="{Binding LocationChooser.MapPreviewNavigationManager}" WebViewMessenger="{Binding LocationChooser}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
-        <Border Grid.Row="2" Style="{StaticResource ActionPanelBorderStyle}" Visibility="{Binding LocationChooser.LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
-            <geoSearch:GeoSearchControl DataContext="{Binding LocationChooser.LocationSearchContext}"></geoSearch:GeoSearchControl>
+        <Border
+            Grid.Row="2"
+            Style="{StaticResource ActionPanelBorderStyle}"
+            Visibility="{Binding LocationChooser.LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
+            <geoSearch:GeoSearchControl DataContext="{Binding LocationChooser.LocationSearchContext}" />
         </Border>
         <Border Grid.Row="3" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
@@ -69,12 +78,12 @@
                     Content="Search"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Content="Cancel"
                     Click="CancelButton_OnClick"
+                    Content="Cancel"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Content="Choose Location"
                     Click="ChooseLocationButton_OnClick"
+                    Content="Choose Location"
                     Style="{StaticResource ActionPanelButtonStyle}" />
             </WrapPanel>
         </Border>
@@ -83,6 +92,10 @@
             Grid.RowSpan="4"
             HorizontalContentAlignment="Right"
             VerticalContentAlignment="Bottom" />
-        <status:StatusControl Grid.Row="0" Grid.RowSpan="3" d:IsHidden="true" DataContext="{Binding StatusContext}" />
+        <status:StatusControl
+            Grid.Row="0"
+            Grid.RowSpan="3"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

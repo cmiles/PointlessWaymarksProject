@@ -1,26 +1,26 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.PhotoContentEditor.PhotoContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bodyContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
+    xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
     xmlns:photoContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PhotoContentEditor"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
-    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
     d:DataContext="{d:DesignInstance photoContentEditor:PhotoContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -49,20 +49,23 @@
                         Photo
                     </Label>
                     <Image
+                        Width="{StaticResource SmallIconSize}"
                         Margin="0,0,4,0"
-                        Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                        Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}"
-                        Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                               AppName=PointlessWaymarks.WpfCommon}"
+                        Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}">
                         <Image.ToolTip>
-                            <ToolTip
-                                Content="{Binding LoadedFile.FullName, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                                ContentStringFormat="Original Value: {0}" />
+                            <ToolTip Content="{Binding LoadedFile.FullName, FallbackValue='Previously blank', TargetNullValue='Previously empty'}" ContentStringFormat="Original Value: {0}" />
                         </Image.ToolTip>
                     </Image>
-                    <Image ToolTip="{Binding SelectedFileValidationMessage}"
-                           Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                           Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                           Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
+                    <Image
+                        Width="{StaticResource SmallIconSize}"
+                        VerticalAlignment="Center"
+                        Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                               AppName=PointlessWaymarks.WpfCommon}"
+                        ToolTip="{Binding SelectedFileValidationMessage}"
+                        Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
             </GroupBox.Header>
             <Grid>
@@ -136,8 +139,7 @@
                         Show Metadata
                     </Button>
                     <Button Command="{Binding ViewSelectedFileCommand}">View Photo</Button>
-                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}"
-                            IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">
+                    <Button Command="{Binding AutoRenameSelectedFileBasedOnTitleCommand}" IsEnabled="{Binding TitleSummarySlugFolder.CustomTitleFunctionEnabled}">
                         Title-&gt;Name
                     </Button>
                     <Button Command="{Binding RenameSelectedFileCommand}">Rename</Button>
@@ -152,18 +154,12 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
-                                DataContext="{Binding MainSiteFeed}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
                             <boolDataEntry:BoolDataEntryControl Margin="4,8,0,0" DataContext="{Binding ShowSizesEntry}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
-                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -175,27 +171,22 @@
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding AltTextEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding PhotoCreatedByEntry}" />
                             <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding PhotoCreatedOnEntry}" />
-                            <conversionDataEntry:ConversionDataEntryControl
-                                DataContext="{Binding PhotoCreatedOnUtcEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding PhotoCreatedOnUtcEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding LicenseEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding CameraMakeEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding CameraModelEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding LensEntry}" />
                             <WrapPanel Margin="0,8,0,0" Orientation="Horizontal">
-                                <stringDataEntry:StringDataEntryControl Width="120"
-                                                                        DataContext="{Binding FocalLengthEntry}" />
-                                <stringDataEntry:StringDataEntryControl Width="120"
-                                                                        DataContext="{Binding ApertureEntry}" />
-                                <stringDataEntry:StringDataEntryControl Width="120"
-                                                                        DataContext="{Binding ShutterSpeedEntry}" />
+                                <stringDataEntry:StringDataEntryControl Width="120" DataContext="{Binding FocalLengthEntry}" />
+                                <stringDataEntry:StringDataEntryControl Width="120" DataContext="{Binding ApertureEntry}" />
+                                <stringDataEntry:StringDataEntryControl Width="120" DataContext="{Binding ShutterSpeedEntry}" />
                                 <conversionDataEntry:ConversionDataEntryControl
                                     Width="120"
                                     HorizontalAlignment="Left"
                                     DataContext="{Binding IsoEntry}" />
                             </WrapPanel>
-                            <optionalLocationEntry:OptionalLocationEntryControl
-                                DataContext="{Binding OptionalLocationEntry}" />
-                            <optionalLocationEntry:OptionalLocationActionsControl></optionalLocationEntry:OptionalLocationActionsControl>
+                            <optionalLocationEntry:OptionalLocationEntryControl DataContext="{Binding OptionalLocationEntry}" />
+                            <optionalLocationEntry:OptionalLocationActionsControl />
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>

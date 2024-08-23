@@ -1,11 +1,11 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry.StringWithDropdownDataEntryControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance stringWithDropdownDataEntry:IStringWithDropdownDataEntryContext}"
     d:DesignHeight="60"
     d:DesignWidth="260"
@@ -17,7 +17,10 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <StackPanel Margin="0,4,0,0" Orientation="Vertical" HorizontalAlignment="Stretch">
+    <StackPanel
+        Margin="0,4,0,0"
+        HorizontalAlignment="Stretch"
+        Orientation="Vertical">
         <StackPanel Orientation="Horizontal">
             <Label
                 Content="{Binding Title}"
@@ -25,21 +28,23 @@
                 Target="{Binding ElementName=StringEntryTextBox}"
                 ToolTip="{Binding HelpText}" />
             <Image
+                Width="{StaticResource SmallIconSize}"
                 Margin="0,0,4,0"
-                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
-                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                VerticalAlignment="Center"
+                Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                       AppName=PointlessWaymarks.WpfCommon}"
+                Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}">
                 <Image.ToolTip>
-                    <ToolTip
-                        Content="{Binding ReferenceValue, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                        ContentStringFormat="Original Value: {0}" />
+                    <ToolTip Content="{Binding ReferenceValue, FallbackValue='Previously blank', TargetNullValue='Previously empty'}" ContentStringFormat="Original Value: {0}" />
                 </Image.ToolTip>
             </Image>
-            <Image ToolTip="{Binding ValidationMessage}"
-                   Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                   Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                   Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-            </Image>
+            <Image
+                Width="{StaticResource SmallIconSize}"
+                VerticalAlignment="Center"
+                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                       AppName=PointlessWaymarks.WpfCommon}"
+                ToolTip="{Binding ValidationMessage}"
+                Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
         </StackPanel>
         <ComboBox
             Name="StringEntryTextBox"

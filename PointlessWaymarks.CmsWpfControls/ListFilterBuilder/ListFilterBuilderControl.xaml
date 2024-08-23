@@ -1,14 +1,17 @@
-<UserControl x:Class="PointlessWaymarks.CmsWpfControls.ListFilterBuilder.ListFilterBuilderControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
-             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:listFilterBuilder="clr-namespace:PointlessWaymarks.CmsWpfControls.ListFilterBuilder"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance listFilterBuilder:ListFilterBuilderContext}">
+﻿<UserControl
+    x:Class="PointlessWaymarks.CmsWpfControls.ListFilterBuilder.ListFilterBuilderControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:listFilterBuilder="clr-namespace:PointlessWaymarks.CmsWpfControls.ListFilterBuilder"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    d:DataContext="{d:DesignInstance listFilterBuilder:ListFilterBuilderContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,28 +19,40 @@
             </ResourceDictionary.MergedDictionaries>
             <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
             <Style x:Key="RemoveFilterButtonStyle" TargetType="Button">
-                <Setter Property="Height" Value="30"></Setter>
+                <Setter Property="Height" Value="30" />
                 <Setter Property="Margin" Value="12,0,4,0" />
                 <Setter Property="Padding" Value="8,0,8,0" />
-                <Setter Property="Command"
-                        Value="{Binding Data.RemoveSearchFilterCommand, Source={StaticResource Proxy}}" />
+                <Setter Property="Command" Value="{Binding Data.RemoveSearchFilterCommand, Source={StaticResource Proxy}}" />
                 <Setter Property="CommandParameter" Value="{Binding .}" />
             </Style>
-            <DataTemplate DataType="{x:Type listFilterBuilder:TextListFilterFieldBuilder}" x:Key="TextTemplate">
+            <DataTemplate x:Key="TextTemplate" DataType="{x:Type listFilterBuilder:TextListFilterFieldBuilder}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="90" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
-                                   Content="{Binding FieldTitle}" />
-                            <TextBox Margin="16,4,4,4" MinWidth="240" TextAlignment="Left"
-                                     VerticalContentAlignment="Center" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Margin="4,2,0,0"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Not}">
+                                Not
+                            </CheckBox>
+                            <Label
+                                Margin="4,0,0,0"
+                                VerticalAlignment="Center"
+                                Content="{Binding FieldTitle}"
+                                FontWeight="Bold" />
+                            <TextBox
+                                MinWidth="240"
+                                Margin="16,4,4,4"
+                                Padding="4"
+                                VerticalContentAlignment="Center"
+                                AcceptsReturn="False"
+                                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                TextAlignment="Left"
+                                TextWrapping="Wrap" />
                         </StackPanel>
                         <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
                             Remove
@@ -45,16 +60,19 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type listFilterBuilder:BooleanListFilterFieldBuilder}" x:Key="BooleanTemplate">
+            <DataTemplate x:Key="BooleanTemplate" DataType="{x:Type listFilterBuilder:BooleanListFilterFieldBuilder}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="90" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding SearchBoolean}"
-                                      Content="{Binding FieldTitle}" />
+                            <CheckBox
+                                Margin="4,2,0,0"
+                                VerticalAlignment="Center"
+                                Content="{Binding FieldTitle}"
+                                IsChecked="{Binding SearchBoolean}" />
                         </StackPanel>
                         <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
                             Remove
@@ -62,37 +80,57 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type listFilterBuilder:NumericListFilterFieldBuilder}" x:Key="NumericTemplate">
+            <DataTemplate x:Key="NumericTemplate" DataType="{x:Type listFilterBuilder:NumericListFilterFieldBuilder}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="90" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
-                                   Content="{Binding FieldTitle}" />
-                            <ComboBox VerticalAlignment="Center" Margin="8,0,0,0"
-                                      ItemsSource="{Binding OperatorChoices}"
-                                      SelectedValue="{Binding SelectedOperatorOne}" />
-                            <TextBox MinWidth="60" VerticalAlignment="Center" TextAlignment="Right"
-                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding UserNumberTextOne, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Margin="4,2,0,0"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Not}">
+                                Not
+                            </CheckBox>
+                            <Label
+                                Margin="4,0,0,0"
+                                VerticalAlignment="Center"
+                                Content="{Binding FieldTitle}"
+                                FontWeight="Bold" />
+                            <ComboBox
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                ItemsSource="{Binding OperatorChoices}"
+                                SelectedValue="{Binding SelectedOperatorOne}" />
+                            <TextBox
+                                MinWidth="60"
+                                Margin="8,0,0,0"
+                                Padding="4"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                AcceptsReturn="False"
+                                Text="{Binding UserNumberTextOne, UpdateSourceTrigger=PropertyChanged}"
+                                TextAlignment="Right"
+                                TextWrapping="Wrap" />
                             <Image
+                                Width="{StaticResource SmallIconSize}"
                                 Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding ShowNumberOneTextWarning, Converter={StaticResource BooleanToVisibility}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                VerticalAlignment="Center"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                       AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding ShowNumberOneTextWarning, Converter={StaticResource BooleanToVisibility}}">
                                 <Image.ToolTip>
                                     <ToolTip>Please enter a valid value</ToolTip>
                                 </Image.ToolTip>
                             </Image>
-                            <ComboBox Margin="12,0,0,0" VerticalAlignment="Center"
-                                      ItemsSource="{Binding OperatorChoices}"
-                                      SelectedValue="{Binding SelectedOperatorTwo}"
-                                      IsEnabled="{Binding EnableNumberTwo}">
+                            <ComboBox
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center"
+                                IsEnabled="{Binding EnableNumberTwo}"
+                                ItemsSource="{Binding OperatorChoices}"
+                                SelectedValue="{Binding SelectedOperatorTwo}">
                                 <ComboBox.Style>
                                     <Style TargetType="ComboBox">
                                         <Style.Triggers>
@@ -103,11 +141,17 @@
                                     </Style>
                                 </ComboBox.Style>
                             </ComboBox>
-                            <TextBox MinWidth="60" VerticalAlignment="Center" TextAlignment="Right"
-                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding UserNumberTextTwo, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding EnableNumberTwo}">
+                            <TextBox
+                                MinWidth="60"
+                                Margin="8,0,0,0"
+                                Padding="4"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                AcceptsReturn="False"
+                                IsEnabled="{Binding EnableNumberTwo}"
+                                Text="{Binding UserNumberTextTwo, UpdateSourceTrigger=PropertyChanged}"
+                                TextAlignment="Right"
+                                TextWrapping="Wrap">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
                                         <Style.Triggers>
@@ -119,10 +163,12 @@
                                 </TextBox.Style>
                             </TextBox>
                             <Image
+                                Width="{StaticResource SmallIconSize}"
                                 Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding ShowNumberTwoTextWarning, Converter={StaticResource BooleanToVisibility}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                VerticalAlignment="Center"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                       AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding ShowNumberTwoTextWarning, Converter={StaticResource BooleanToVisibility}}">
                                 <Image.ToolTip>
                                     <ToolTip>Please enter a valid value</ToolTip>
                                 </Image.ToolTip>
@@ -134,78 +180,144 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type listFilterBuilder:BoundsListFilterFieldBuilder}" x:Key="BoundsTemplate">
+            <DataTemplate x:Key="BoundsTemplate" DataType="{x:Type listFilterBuilder:BoundsListFilterFieldBuilder}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="90" />
                         </Grid.ColumnDefinitions>
-                        <CheckBox VerticalAlignment="Top" Margin="4,6,0,0" IsChecked="{Binding Not}">Not</CheckBox>
+                        <CheckBox
+                            Margin="4,6,0,0"
+                            VerticalAlignment="Top"
+                            IsChecked="{Binding Not}">
+                            Not
+                        </CheckBox>
                         <WrapPanel Grid.Column="1" Orientation="Horizontal">
-                            <Label Margin="4,0,0,8" FontWeight="Bold" VerticalAlignment="Center"
-                                   Content="{Binding FieldTitle}" />
-                            <Button Padding="8,4,8,4" Margin="8,0,8,0" VerticalAlignment="Top" Command="{Binding GetBoundsFromMapCommand}">From Map</Button>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Lat</Label>
-                                <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
-                                         VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                         AcceptsReturn="False" TextWrapping="Wrap"
-                                         Text="{Binding UserMinLatitude, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label
+                                Margin="4,0,0,8"
+                                VerticalAlignment="Center"
+                                Content="{Binding FieldTitle}"
+                                FontWeight="Bold" />
+                            <Button
+                                Margin="8,0,8,0"
+                                Padding="8,4,8,4"
+                                VerticalAlignment="Top"
+                                Command="{Binding GetBoundsFromMapCommand}">
+                                From Map
+                            </Button>
+                            <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
+                                <Label
+                                    Margin="4,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontWeight="Bold">
+                                    Min Lat
+                                </Label>
+                                <TextBox
+                                    MinWidth="45"
+                                    Margin="8,0,0,0"
+                                    Padding="4"
+                                    VerticalAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    AcceptsReturn="False"
+                                    Text="{Binding UserMinLatitude, UpdateSourceTrigger=PropertyChanged}"
+                                    TextAlignment="Right"
+                                    TextWrapping="Wrap" />
                                 <Image
+                                    Width="{StaticResource SmallIconSize}"
                                     Margin="4,0,4,0"
-                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                    Visibility="{Binding UserMinLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
-                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    VerticalAlignment="Center"
+                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                           AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding UserMinLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}">
                                     <Image.ToolTip>
                                         <ToolTip>Please enter a valid value</ToolTip>
                                     </Image.ToolTip>
                                 </Image>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Min Long</Label>
-                                <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
-                                         VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                         AcceptsReturn="False" TextWrapping="Wrap"
-                                         Text="{Binding UserMinLongitude, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
+                                <Label
+                                    Margin="4,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontWeight="Bold">
+                                    Min Long
+                                </Label>
+                                <TextBox
+                                    MinWidth="45"
+                                    Margin="8,0,0,0"
+                                    Padding="4"
+                                    VerticalAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    AcceptsReturn="False"
+                                    Text="{Binding UserMinLongitude, UpdateSourceTrigger=PropertyChanged}"
+                                    TextAlignment="Right"
+                                    TextWrapping="Wrap" />
                                 <Image
+                                    Width="{StaticResource SmallIconSize}"
                                     Margin="4,0,4,0"
-                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                    Visibility="{Binding UserMinLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
-                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    VerticalAlignment="Center"
+                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                           AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding UserMinLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}">
                                     <Image.ToolTip>
                                         <ToolTip>Please enter a valid value</ToolTip>
                                     </Image.ToolTip>
                                 </Image>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Lat</Label>
-                                <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
-                                         VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                         AcceptsReturn="False" TextWrapping="Wrap"
-                                         Text="{Binding UserMaxLatitude, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
+                                <Label
+                                    Margin="4,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontWeight="Bold">
+                                    Max Lat
+                                </Label>
+                                <TextBox
+                                    MinWidth="45"
+                                    Margin="8,0,0,0"
+                                    Padding="4"
+                                    VerticalAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    AcceptsReturn="False"
+                                    Text="{Binding UserMaxLatitude, UpdateSourceTrigger=PropertyChanged}"
+                                    TextAlignment="Right"
+                                    TextWrapping="Wrap" />
                                 <Image
+                                    Width="{StaticResource SmallIconSize}"
                                     Margin="4,0,4,0"
-                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                    Visibility="{Binding UserMaxLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
-                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    VerticalAlignment="Center"
+                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                           AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding UserMaxLatitudeConverts, Converter={StaticResource BooleanNotToVisibility}}">
                                     <Image.ToolTip>
                                         <ToolTip>Please enter a valid value</ToolTip>
                                     </Image.ToolTip>
                                 </Image>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Max Long</Label>
-                                <TextBox MinWidth="45" VerticalAlignment="Center" TextAlignment="Right"
-                                         VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                         AcceptsReturn="False" TextWrapping="Wrap"
-                                         Text="{Binding UserMaxLongitude, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
+                                <Label
+                                    Margin="4,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontWeight="Bold">
+                                    Max Long
+                                </Label>
+                                <TextBox
+                                    MinWidth="45"
+                                    Margin="8,0,0,0"
+                                    Padding="4"
+                                    VerticalAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    AcceptsReturn="False"
+                                    Text="{Binding UserMaxLongitude, UpdateSourceTrigger=PropertyChanged}"
+                                    TextAlignment="Right"
+                                    TextWrapping="Wrap" />
                                 <Image
+                                    Width="{StaticResource SmallIconSize}"
                                     Margin="4,0,4,0"
-                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                    Visibility="{Binding UserMaxLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}"
-                                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                    VerticalAlignment="Center"
+                                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                           AppName=PointlessWaymarks.WpfCommon}"
+                                    Visibility="{Binding UserMaxLongitudeConverts, Converter={StaticResource BooleanNotToVisibility}}">
                                     <Image.ToolTip>
                                         <ToolTip>Please enter a valid value</ToolTip>
                                     </Image.ToolTip>
@@ -218,43 +330,65 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type listFilterBuilder:DateTimeListFilterFieldBuilder}" x:Key="DateTimeTemplate">
+            <DataTemplate x:Key="DateTimeTemplate" DataType="{x:Type listFilterBuilder:DateTimeListFilterFieldBuilder}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="90" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center"
-                                   Content="{Binding FieldTitle}" />
-                            <ComboBox VerticalAlignment="Center" Margin="8,0,0,0"
-                                      ItemsSource="{Binding OperatorChoices}"
-                                      SelectedValue="{Binding SelectedOperatorOne}" />
-                            <TextBox MinWidth="90" VerticalAlignment="Center" TextAlignment="Right"
-                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding UserDateTimeTextOne, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Margin="4,2,0,0"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Not}">
+                                Not
+                            </CheckBox>
+                            <Label
+                                Margin="4,0,0,0"
+                                VerticalAlignment="Center"
+                                Content="{Binding FieldTitle}"
+                                FontWeight="Bold" />
+                            <ComboBox
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                ItemsSource="{Binding OperatorChoices}"
+                                SelectedValue="{Binding SelectedOperatorOne}" />
+                            <TextBox
+                                MinWidth="90"
+                                Margin="8,0,0,0"
+                                Padding="4"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                AcceptsReturn="False"
+                                Text="{Binding UserDateTimeTextOne, UpdateSourceTrigger=PropertyChanged}"
+                                TextAlignment="Right"
+                                TextWrapping="Wrap" />
                             <Image
+                                Width="{StaticResource SmallIconSize}"
                                 Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding ShowDateTimeOneTextWarning, Converter={StaticResource BooleanToVisibility}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                VerticalAlignment="Center"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                       AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding ShowDateTimeOneTextWarning, Converter={StaticResource BooleanToVisibility}}">
                                 <Image.ToolTip>
                                     <ToolTip>Please enter a valid value</ToolTip>
                                 </Image.ToolTip>
                             </Image>
                             <Image
+                                Width="{StaticResource SmallIconSize}"
                                 Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding UserDateTimeOneTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                ToolTip="{Binding UserDateTimeOneTranslation}" />
-                            <ComboBox Margin="12,0,0,0" VerticalAlignment="Center"
-                                      ItemsSource="{Binding OperatorChoices}"
-                                      SelectedValue="{Binding SelectedOperatorTwo}"
-                                      IsEnabled="{Binding EnableDateTimeTwo}">
+                                VerticalAlignment="Center"
+                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                                       AppName=PointlessWaymarks.WpfCommon}"
+                                ToolTip="{Binding UserDateTimeOneTranslation}"
+                                Visibility="{Binding UserDateTimeOneTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}" />
+                            <ComboBox
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center"
+                                IsEnabled="{Binding EnableDateTimeTwo}"
+                                ItemsSource="{Binding OperatorChoices}"
+                                SelectedValue="{Binding SelectedOperatorTwo}">
                                 <ComboBox.Style>
                                     <Style TargetType="ComboBox">
                                         <Style.Triggers>
@@ -265,11 +399,17 @@
                                     </Style>
                                 </ComboBox.Style>
                             </ComboBox>
-                            <TextBox MinWidth="90" VerticalAlignment="Center" TextAlignment="Right"
-                                     VerticalContentAlignment="Center" Margin="8,0,0,0" Padding="4"
-                                     AcceptsReturn="False" TextWrapping="Wrap"
-                                     Text="{Binding UserDateTimeTextTwo, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding EnableDateTimeTwo}">
+                            <TextBox
+                                MinWidth="90"
+                                Margin="8,0,0,0"
+                                Padding="4"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                AcceptsReturn="False"
+                                IsEnabled="{Binding EnableDateTimeTwo}"
+                                Text="{Binding UserDateTimeTextTwo, UpdateSourceTrigger=PropertyChanged}"
+                                TextAlignment="Right"
+                                TextWrapping="Wrap">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox">
                                         <Style.Triggers>
@@ -281,20 +421,24 @@
                                 </TextBox.Style>
                             </TextBox>
                             <Image
+                                Width="{StaticResource SmallIconSize}"
                                 Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding ShowDateTimeTwoTextWarning, Converter={StaticResource BooleanToVisibility}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                VerticalAlignment="Center"
+                                Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                       AppName=PointlessWaymarks.WpfCommon}"
+                                Visibility="{Binding ShowDateTimeTwoTextWarning, Converter={StaticResource BooleanToVisibility}}">
                                 <Image.ToolTip>
                                     <ToolTip>Please enter a valid value</ToolTip>
                                 </Image.ToolTip>
                             </Image>
                             <Image
+                                Width="{StaticResource SmallIconSize}"
                                 Margin="4,0,4,0"
-                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                Visibility="{Binding UserDateTimeTwoTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}"
-                                Width="{StaticResource SmallIconSize}" VerticalAlignment="Center"
-                                ToolTip="{Binding UserDateTimeTwoTranslation}" />
+                                VerticalAlignment="Center"
+                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                                       AppName=PointlessWaymarks.WpfCommon}"
+                                ToolTip="{Binding UserDateTimeTwoTranslation}"
+                                Visibility="{Binding UserDateTimeTwoTranslation, Converter={StaticResource NullOrWhiteSpaceStringToHidden}}" />
                         </StackPanel>
                         <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
                             Remove
@@ -302,7 +446,7 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type listFilterBuilder:ContentTypeListFilterBuilder}" x:Key="ContentTypeTemplate">
+            <DataTemplate x:Key="ContentTypeTemplate" DataType="{x:Type listFilterBuilder:ContentTypeListFilterBuilder}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.RowDefinitions>
@@ -310,15 +454,30 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="90" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox VerticalAlignment="Center" Margin="4,2,0,0" IsChecked="{Binding Not}">Not</CheckBox>
-                            <Label Margin="4,0,0,0" FontWeight="Bold" VerticalAlignment="Center">Content Type</Label>
+                            <CheckBox
+                                Margin="4,2,0,0"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Not}">
+                                Not
+                            </CheckBox>
+                            <Label
+                                Margin="4,0,0,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Bold">
+                                Content Type
+                            </Label>
                         </StackPanel>
-                        <ItemsControl Grid.Column="0" Grid.Row="1" Margin="24,4,12,0" BorderThickness="0"
-                                 ItemsSource="{Binding ContentTypeChoices}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Margin="24,4,12,0"
+                            BorderThickness="0"
+                            ItemsSource="{Binding ContentTypeChoices}"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
@@ -326,29 +485,40 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type listFilterBuilder:ContentTypeListFilterChoice}">
-                                    <CheckBox Content="{Binding TypeDescription}" IsChecked="{Binding IsSelected}" Margin="6,1,4,8"/>
+                                    <CheckBox
+                                        Margin="6,1,4,8"
+                                        Content="{Binding TypeDescription}"
+                                        IsChecked="{Binding IsSelected}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <Button Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
+                        <Button
+                            Grid.Row="0"
+                            Grid.RowSpan="2"
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource RemoveFilterButtonStyle}">
                             Remove
                         </Button>
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type listFilterBuilder:ListFilterBuilderFilterAdd}" x:Key="BuilderButtonTemplate">
-                <Button Padding="12,4,12,4" Margin="2" Command="{Binding AddFilterCommand}"
-                        Content="{Binding Description}">
-                </Button>
+            <DataTemplate x:Key="BuilderButtonTemplate" DataType="{x:Type listFilterBuilder:ListFilterBuilderFilterAdd}">
+                <Button
+                    Margin="2"
+                    Padding="12,4,12,4"
+                    Command="{Binding AddFilterCommand}"
+                    Content="{Binding Description}" />
             </DataTemplate>
-            <behaviors:EmptyCollectionToCollapsedConverter x:Key="EmptyCollectionToVisibility"></behaviors:EmptyCollectionToCollapsedConverter>
-            <listFilterBuilder:ListFilterTemplateSelector x:Key="FilterSelector"
-                                          TextListFilterTemplate="{StaticResource TextTemplate}"
-                                          NumericListFilterTemplate="{StaticResource NumericTemplate}"
-                                          ContentTypeListFilterTemplate="{StaticResource ContentTypeTemplate}"
-                                          DateListFilterTemplate="{StaticResource DateTimeTemplate}"
-                                          BooleanListFilterTemplate="{StaticResource BooleanTemplate}"
-                                          BoundsListFilterTemplate="{StaticResource BoundsTemplate}" />
+            <behaviors:EmptyCollectionToCollapsedConverter x:Key="EmptyCollectionToVisibility" />
+            <listFilterBuilder:ListFilterTemplateSelector
+                x:Key="FilterSelector"
+                BooleanListFilterTemplate="{StaticResource BooleanTemplate}"
+                BoundsListFilterTemplate="{StaticResource BoundsTemplate}"
+                ContentTypeListFilterTemplate="{StaticResource ContentTypeTemplate}"
+                DateListFilterTemplate="{StaticResource DateTimeTemplate}"
+                NumericListFilterTemplate="{StaticResource NumericTemplate}"
+                TextListFilterTemplate="{StaticResource TextTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="4">
@@ -367,11 +537,14 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <GroupBox Header="General" Margin="4"
-                      Visibility="{Binding GeneralBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
-                <ItemsControl ItemsSource="{Binding GeneralBuilderItems}"
-                         ItemTemplate="{StaticResource BuilderButtonTemplate}"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <GroupBox
+                Margin="4"
+                Header="General"
+                Visibility="{Binding GeneralBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
+                <ItemsControl
+                    ItemTemplate="{StaticResource BuilderButtonTemplate}"
+                    ItemsSource="{Binding GeneralBuilderItems}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
@@ -379,11 +552,16 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </GroupBox>
-            <GroupBox Grid.Row="1" Grid.Column="0" Header="Photographs" Margin="4,0,4,0"
-                      Visibility="{Binding PhotoBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
-                <ItemsControl ItemsSource="{Binding PhotoBuilderItems}"
-                         ItemTemplate="{StaticResource BuilderButtonTemplate}"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <GroupBox
+                Grid.Row="1"
+                Grid.Column="0"
+                Margin="4,0,4,0"
+                Header="Photographs"
+                Visibility="{Binding PhotoBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
+                <ItemsControl
+                    ItemTemplate="{StaticResource BuilderButtonTemplate}"
+                    ItemsSource="{Binding PhotoBuilderItems}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
@@ -391,11 +569,16 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </GroupBox>
-            <GroupBox Grid.Row="2" Grid.Column="0" Header="Lines" Margin="4,0,4,4"
-                      Visibility="{Binding LineBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
-                <ItemsControl ItemsSource="{Binding LineBuilderItems}"
-                         ItemTemplate="{StaticResource BuilderButtonTemplate}"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <GroupBox
+                Grid.Row="2"
+                Grid.Column="0"
+                Margin="4,0,4,4"
+                Header="Lines"
+                Visibility="{Binding LineBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
+                <ItemsControl
+                    ItemTemplate="{StaticResource BuilderButtonTemplate}"
+                    ItemsSource="{Binding LineBuilderItems}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
@@ -403,11 +586,16 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </GroupBox>
-            <GroupBox Grid.Row="3" Grid.Column="0" Header="Points" Margin="4,0,4,4"
-                      Visibility="{Binding PointBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
-                <ItemsControl ItemsSource="{Binding PointBuilderItems}"
-                         ItemTemplate="{StaticResource BuilderButtonTemplate}"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <GroupBox
+                Grid.Row="3"
+                Grid.Column="0"
+                Margin="4,0,4,4"
+                Header="Points"
+                Visibility="{Binding PointBuilderItems, Converter={StaticResource EmptyCollectionToVisibility}}">
+                <ItemsControl
+                    ItemTemplate="{StaticResource BuilderButtonTemplate}"
+                    ItemsSource="{Binding PointBuilderItems}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
@@ -421,15 +609,34 @@
                 <RowDefinition />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <GroupBox Margin="4" Grid.Row="0" Header="Search">
-                <TextBox BorderThickness="0" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
-                         Text="{Binding SearchStringPreview}" />
+            <GroupBox
+                Grid.Row="0"
+                Margin="4"
+                Header="Search">
+                <TextBox
+                    AcceptsReturn="True"
+                    BorderThickness="0"
+                    IsReadOnly="True"
+                    Text="{Binding SearchStringPreview}"
+                    TextWrapping="Wrap" />
             </GroupBox>
-            <Button Grid.Row="1" Height="30" Margin="6,2,6,6" Command="{Binding ClearSearchFiltersCommand}">Clear Search</Button>
+            <Button
+                Grid.Row="1"
+                Height="30"
+                Margin="6,2,6,6"
+                Command="{Binding ClearSearchFiltersCommand}">
+                Clear Search
+            </Button>
         </Grid>
 
-        <ListBox Grid.Row="1" Margin="4" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding SearchFilters}"
-                 ItemTemplateSelector="{StaticResource FilterSelector}" HorizontalContentAlignment="Stretch"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+        <ListBox
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Margin="4"
+            HorizontalContentAlignment="Stretch"
+            ItemTemplateSelector="{StaticResource FilterSelector}"
+            ItemsSource="{Binding SearchFilters}"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
     </Grid>
 </UserControl>

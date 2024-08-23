@@ -1,10 +1,12 @@
-<UserControl x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.AppSettingsControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+﻿<UserControl
+    x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.AppSettingsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     </UserControl.Resources>
@@ -12,9 +14,11 @@
         <GroupBox Header="Program Update Location">
             <Grid Margin="4">
                 <StackPanel Orientation="Vertical">
-                    <TextBox Text="{Binding  ProgramUpdateLocation, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock Margin="8,4,4,4" FontWeight="Bold"
-                               Visibility="{Binding ShowUpdateLocationExistsWarning, Converter={StaticResource BooleanToVisibility}}">
+                    <TextBox Text="{Binding ProgramUpdateLocation, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock
+                        Margin="8,4,4,4"
+                        FontWeight="Bold"
+                        Visibility="{Binding ShowUpdateLocationExistsWarning, Converter={StaticResource BooleanToVisibility}}">
                         ! The Directory Does Not Exist !
                     </TextBlock>
                     <TextBlock Margin="8,4,4,4" TextWrapping="Wrap">

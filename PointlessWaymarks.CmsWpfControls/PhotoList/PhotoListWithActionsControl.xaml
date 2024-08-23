@@ -29,20 +29,15 @@
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
                 <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}"
-                          Header="Import From Open Excel Application" />
+                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="Reports">
                 <MenuItem Command="{Binding ReportNoTagsCommand}" Header="No Tags" />
                 <MenuItem Command="{Binding ReportBlankLicenseCommand}" Header="License is Blank" />
-                <MenuItem Command="{Binding ReportTitleDoesNotStartWithYearMonthCommand}"
-                          Header="Title doesn't start with Year Month" />
-                <MenuItem Command="{Binding ReportTitleAndTakenDoNotMatchCommand}"
-                          Header="Title and Taken Don't Match" />
-                <MenuItem Command="{Binding ReportFileNameAndTakenOnDoNotMatchCommand}"
-                          Header="File Name and Taken Don't Match" />
-                <MenuItem Command="{Binding ReportLicenseAndTakenYearDoNotMatchCommand}"
-                          Header="License Year and Taken Year Don't Match" />
+                <MenuItem Command="{Binding ReportTitleDoesNotStartWithYearMonthCommand}" Header="Title doesn't start with Year Month" />
+                <MenuItem Command="{Binding ReportTitleAndTakenDoNotMatchCommand}" Header="Title and Taken Don't Match" />
+                <MenuItem Command="{Binding ReportFileNameAndTakenOnDoNotMatchCommand}" Header="File Name and Taken Don't Match" />
+                <MenuItem Command="{Binding ReportLicenseAndTakenYearDoNotMatchCommand}" Header="License Year and Taken Year Don't Match" />
                 <MenuItem Command="{Binding ReportMultiSpacesInTitleCommand}" Header="Titles with Multiple Spaces" />
                 <MenuItem Command="{Binding ReportAllPhotosCommand}" Header="All Photos" />
                 <MenuItem Command="{Binding ReportPhotoMetadataCommand}" Header="Selected - Metadata to Html" />
@@ -51,8 +46,7 @@
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
             <MenuItem Header="On the Web">
-                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}"
-                          Header="Open Selected on Public Site In Browser" />
+                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}" Header="Open Selected on Public Site In Browser" />
             </MenuItem>
             <MenuItem Header="History">
                 <MenuItem Command="{Binding ListContext.ViewHistorySelectedCommand}" Header="View History" />
@@ -60,8 +54,7 @@
             <MenuItem Header="Processing">
                 <MenuItem Command="{Binding ListContext.GenerateHtmlSelectedCommand}" Header="Generate Html" />
                 <MenuItem Command="{Binding ForcedResizeCommand}" Header="Reprocess Photo" />
-                <MenuItem Command="{Binding RegenerateHtmlAndReprocessPhotoForSelectedCommand}"
-                          Header="Reprocess Photo and Generate Html" />
+                <MenuItem Command="{Binding RegenerateHtmlAndReprocessPhotoForSelectedCommand}" Header="Reprocess Photo and Generate Html" />
                 <MenuItem Command="{Binding ListContext.ExtractNewLinksSelectedCommand}" Header="Extract Links" />
             </MenuItem>
             <StaticResource ResourceKey="ViewMenu" />

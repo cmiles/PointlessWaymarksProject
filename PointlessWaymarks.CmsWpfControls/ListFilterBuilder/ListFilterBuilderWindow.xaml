@@ -1,12 +1,16 @@
-<Window x:Class="PointlessWaymarks.CmsWpfControls.ListFilterBuilder.ListFilterBuilderWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:listFilterBuilder="clr-namespace:PointlessWaymarks.CmsWpfControls.ListFilterBuilder"
-        mc:Ignorable="d"
-        Title="Search Builder" Height="800" Width="800" d:DataContext="{d:DesignInstance listFilterBuilder:ListFilterBuilderWindow}"
-        WindowStartupLocation="CenterOwner">
+﻿<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.ListFilterBuilder.ListFilterBuilderWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:listFilterBuilder="clr-namespace:PointlessWaymarks.CmsWpfControls.ListFilterBuilder"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Search Builder"
+    Width="800"
+    Height="800"
+    d:DataContext="{d:DesignInstance listFilterBuilder:ListFilterBuilderWindow}"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,14 +20,17 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <listFilterBuilder:ListFilterBuilderControl DataContext="{Binding ListFilterContext}"></listFilterBuilder:ListFilterBuilderControl>
-        <Grid Height="30" Grid.Row="1" Margin="8,0,8,8">
+        <listFilterBuilder:ListFilterBuilderControl DataContext="{Binding ListFilterContext}" />
+        <Grid
+            Grid.Row="1"
+            Height="30"
+            Margin="8,0,8,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Button Command="{Binding CancelSearchCommand}">Cancel</Button>
             <Button Grid.Column="1" Command="{Binding RunSearchCommand}">Search</Button>

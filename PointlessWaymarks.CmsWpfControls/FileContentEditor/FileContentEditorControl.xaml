@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.FileContentEditor.FileContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,19 +7,19 @@
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:fileContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.FileContentEditor"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
-    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
     d:DataContext="{d:DesignInstance fileContentEditor:FileContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -44,25 +44,28 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <GroupBox Margin="4,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
                                 <GroupBox.Header>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
                                         <Label Style="{StaticResource DataEntryLabelStyle}">
                                             File
                                         </Label>
                                         <Image
+                                            Width="{StaticResource SmallIconSize}"
                                             Margin="0,0,4,0"
-                                            Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                            Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}"
-                                            Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                            VerticalAlignment="Center"
+                                            Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                                                   AppName=PointlessWaymarks.WpfCommon}"
+                                            Visibility="{Binding SelectedFileHasPathOrNameChanges, Converter={StaticResource BooleanToVisibility}}">
                                             <Image.ToolTip>
-                                                <ToolTip
-                                                    Content="{Binding LoadedFile.FullName, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                                                    ContentStringFormat="Original Value: {0}" />
+                                                <ToolTip Content="{Binding LoadedFile.FullName, FallbackValue='Previously blank', TargetNullValue='Previously empty'}" ContentStringFormat="Original Value: {0}" />
                                             </Image.ToolTip>
                                         </Image>
-                                        <Image ToolTip="{Binding SelectedFileValidationMessage}"
-                                               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                               Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                                               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
+                                        <Image
+                                            Width="{StaticResource SmallIconSize}"
+                                            VerticalAlignment="Center"
+                                            Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                                                   AppName=PointlessWaymarks.WpfCommon}"
+                                            ToolTip="{Binding SelectedFileValidationMessage}"
+                                            Visibility="{Binding SelectedFileHasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
                                     </StackPanel>
                                 </GroupBox.Header>
                                 <Grid>
@@ -72,16 +75,18 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Button Command="{Binding ChooseFileCommand}"
-                                            Style="{StaticResource ActionPanelButtonStyle}" HorizontalAlignment="Left">
+                                    <Button
+                                        HorizontalAlignment="Left"
+                                        Command="{Binding ChooseFileCommand}"
+                                        Style="{StaticResource ActionPanelButtonStyle}">
                                         Choose File
                                     </Button>
                                     <Label Grid.Row="1" Style="{StaticResource DataEntryLabelStyle}">Selected File</Label>
                                     <StackPanel
                                         Grid.Row="2"
                                         Margin="6,2,0,8"
-                                        Orientation="Vertical"
-                                        HorizontalAlignment="Left">
+                                        HorizontalAlignment="Left"
+                                        Orientation="Vertical">
                                         <TextBox
                                             Style="{StaticResource ReadOnlyTextBoxStyle}"
                                             Text="{Binding SelectedFile.FullName, Mode=OneWay}"
@@ -92,8 +97,8 @@
                                             </b:Interaction.Behaviors>
                                         </TextBox>
                                         <Button
-                                            Background="Yellow"
                                             Margin="0,6,0,2"
+                                            Background="Yellow"
                                             Command="{Binding AutoRenameSelectedFileCommand}"
                                             ToolTip="This filename has illegal characters - pressing this to attempt to auto-rename the file"
                                             Visibility="{Binding SelectedFileNameHasInvalidCharacters, Converter={StaticResource BooleanToVisibility}}">
@@ -128,21 +133,15 @@
                             </StackPanel>
                             <boolDataEntry:BoolDataEntryControl DataContext="{Binding PublicDownloadLink}" />
                             <boolDataEntry:BoolDataEntryControl DataContext="{Binding EmbedFile}" />
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0"
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
-                                DataContext="{Binding MainSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
-                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <conversionDataEntry:ConversionDataEntryControl
-                                DataContext="{Binding UserMainPictureEntry}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl Margin="0,4,0,0" DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserMainPictureEntry}" />
                             <Grid Margin="24,2,2,2">
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding UserMainPictureEntry.HasValidationIssues}"
-                                                Value="true">
+                                            <DataTrigger Binding="{Binding UserMainPictureEntry.HasValidationIssues}" Value="true">
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -154,28 +153,26 @@
                                 </Grid.ColumnDefinitions>
                                 <Image
                                     Grid.Column="0"
-                                    Margin="2"
                                     Width="110"
-                                    VerticalAlignment="Top"
+                                    Margin="2"
                                     HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
                                     Source="{Binding UserMainPictureEntrySmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}" />
-                                <StackPanel Margin="0,24,0,0" Grid.Column="1" Orientation="Vertical">
-                                    <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                             Text="{Binding UserMainPictureEntryContent.Title}" />
-                                    <StackPanel Orientation="Horizontal" Margin="4,12,4,4">
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Margin="0,24,0,0"
+                                    Orientation="Vertical">
+                                    <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}" Text="{Binding UserMainPictureEntryContent.Title}" />
+                                    <StackPanel Margin="4,12,4,4" Orientation="Horizontal">
                                         <Button Width="120" Command="{Binding EditUserMainPictureCommand}">Edit</Button>
                                         <Button Width="120" Command="{Binding ViewUserMainPictureCommand}">View</Button>
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>
-                            <optionalLocationEntry:OptionalLocationEntryControl
-                                DataContext="{Binding OptionalLocationEntry}" />
-                            <optionalLocationEntry:OptionalLocationActionsControl></optionalLocationEntry:OptionalLocationActionsControl>
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <optionalLocationEntry:OptionalLocationEntryControl DataContext="{Binding OptionalLocationEntry}" />
+                            <optionalLocationEntry:OptionalLocationActionsControl />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -219,11 +216,12 @@
                 <Button
                     Command="{Binding SaveAndExtractImageFromMp4Command}"
                     Content="Extract 1st Video Frame"
-                    Visibility="{Binding FileIsMp4, Converter={StaticResource BooleanToVisibility}}"
-                    Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding SaveAndExtractImageFromPdfCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}"
-                        Visibility="{Binding FileIsPdf, Converter={StaticResource BooleanToVisibility}}">
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Visibility="{Binding FileIsMp4, Converter={StaticResource BooleanToVisibility}}" />
+                <Button
+                    Command="{Binding SaveAndExtractImageFromPdfCommand}"
+                    Style="{StaticResource ActionPanelButtonStyle}"
+                    Visibility="{Binding FileIsPdf, Converter={StaticResource BooleanToVisibility}}">
                     <Viewbox StretchDirection="DownOnly">
                         <StackPanel Orientation="Horizontal">
                             <Label>Save, Extract Pdf Page</Label>

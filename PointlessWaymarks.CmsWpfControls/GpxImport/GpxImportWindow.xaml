@@ -15,12 +15,9 @@
     <Grid Margin="4">
         <local:GpxImportControl DataContext="{Binding ImportContext}" />
         <windowScreenShot:WindowScreenShotControl
-            HorizontalContentAlignment="Left"
-            VerticalContentAlignment="Bottom"
             Margin="4"
-        />
-        <status:StatusControl
-            d:IsHidden="true"
-            DataContext="{Binding StatusContext}" />
+            HorizontalContentAlignment="Left"
+            VerticalContentAlignment="Bottom" />
+        <status:StatusControl d:IsHidden="true" DataContext="{Binding StatusContext}" />
     </Grid>
 </Window>

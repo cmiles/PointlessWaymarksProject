@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.BodyContentEditor.BodyContentEditorHorizontalControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,12 +7,12 @@
     xmlns:contentFormat="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentFormat"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfCmsHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfCmsHtml"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance bodyContentEditor:BodyContentEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -64,15 +64,15 @@
                 <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
                     <GroupBox.Header>
                         <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource DataEntryLabelStyle}"
-                                   Target="{Binding ElementName=BodyContentTextBox}">
+                            <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=BodyContentTextBox}">
                                 Content
                             </Label>
-                            <Image ToolTip="Content Has Changes"
-                                   Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                   Visibility="{Binding BodyContentHasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                   Width="{StaticResource SmallIconSize}">
-                            </Image>
+                            <Image
+                                Width="{StaticResource SmallIconSize}"
+                                Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                                       AppName=PointlessWaymarks.WpfCommon}"
+                                ToolTip="Content Has Changes"
+                                Visibility="{Binding BodyContentHasChanges, Converter={StaticResource BooleanToVisibility}}" />
                         </StackPanel>
                     </GroupBox.Header>
                     <TextBox
@@ -111,8 +111,7 @@
                 ShowsPreview="True" />
             <GroupBox Grid.Row="2" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <Label Style="{StaticResource DataEntryLabelStyle}"
-                           Target="{Binding ElementName=BodyContentWebView}">
+                    <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=BodyContentWebView}">
                         Preview
                     </Label>
                 </GroupBox.Header>
@@ -133,7 +132,7 @@
                         Grid.Row="1"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
-                            <wpfCmsHtml:WebViewHtmlPostLocalPreviewBehavior HtmlString="{Binding HtmlPreview}"/>
+                            <wpfCmsHtml:WebViewHtmlPostLocalPreviewBehavior HtmlString="{Binding HtmlPreview}" />
                             <wpfHtml:WebViewSelectedTextBehavior WebViewSelectedText="{Binding UserHtmlSelectedText}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>

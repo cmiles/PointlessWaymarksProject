@@ -29,8 +29,7 @@
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
                 <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}"
-                          Header="Import From Open Excel Application" />
+                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="Import">
                 <MenuItem Command="{Binding WordPressImportWindowCommand}" Header="WordPress XML Import Helper" />

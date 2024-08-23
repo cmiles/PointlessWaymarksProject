@@ -1,23 +1,23 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.MapComponentEditor.MapComponentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dd="urn:gong-wpf-dragdrop"
     xmlns:mapComponentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentEditor"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     x:Name="MapComponentEditorControlXaml"
     d:DataContext="{d:DesignInstance mapComponentEditor:MapComponentEditorContext}"
     d:DesignHeight="450"
@@ -29,8 +29,7 @@
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanNotToVisibilityConverter x:Key="BooleanNotToVisibility" />
-            <DataTemplate x:Key="MapElementFileTemplate"
-                          DataType="{x:Type mapComponentEditor:MapElementListFileItem}">
+            <DataTemplate x:Key="MapElementFileTemplate" DataType="{x:Type mapComponentEditor:MapElementListFileItem}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
@@ -45,14 +44,13 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button
-                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
-                                    CommandParameter="{Binding .}">
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
-                                <Button Margin="0,4,0,0"
-                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
-                                        CommandParameter="{Binding .}">
+                                <Button
+                                    Margin="0,4,0,0"
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                    CommandParameter="{Binding .}">
                                     Edit
                                 </Button>
                             </StackPanel>
@@ -79,14 +77,13 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button
-                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
-                                    CommandParameter="{Binding .}">
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
-                                <Button Margin="0,4,0,0"
-                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
-                                        CommandParameter="{Binding .}">
+                                <Button
+                                    Margin="0,4,0,0"
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                    CommandParameter="{Binding .}">
                                     Edit
                                 </Button>
                             </StackPanel>
@@ -98,8 +95,7 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="MapElementImageTemplate"
-                          DataType="{x:Type mapComponentEditor:MapElementListImageItem}">
+            <DataTemplate x:Key="MapElementImageTemplate" DataType="{x:Type mapComponentEditor:MapElementListImageItem}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
@@ -114,14 +110,13 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button
-                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
-                                    CommandParameter="{Binding .}">
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
-                                <Button Margin="0,4,0,0"
-                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
-                                        CommandParameter="{Binding .}">
+                                <Button
+                                    Margin="0,4,0,0"
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                    CommandParameter="{Binding .}">
                                     Edit
                                 </Button>
                             </StackPanel>
@@ -148,14 +143,13 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button
-                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
-                                    CommandParameter="{Binding .}">
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
-                                <Button Margin="0,4,0,0"
-                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
-                                        CommandParameter="{Binding .}">
+                                <Button
+                                    Margin="0,4,0,0"
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                    CommandParameter="{Binding .}">
                                     Edit
                                 </Button>
                             </StackPanel>
@@ -167,8 +161,7 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="MapElementPhotoTemplate"
-                          DataType="{x:Type mapComponentEditor:MapElementListPhotoItem}">
+            <DataTemplate x:Key="MapElementPhotoTemplate" DataType="{x:Type mapComponentEditor:MapElementListPhotoItem}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
@@ -183,14 +176,13 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button
-                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
-                                    CommandParameter="{Binding .}">
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
-                                <Button Margin="0,4,0,0"
-                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
-                                        CommandParameter="{Binding .}">
+                                <Button
+                                    Margin="0,4,0,0"
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                    CommandParameter="{Binding .}">
                                     Edit
                                 </Button>
                             </StackPanel>
@@ -217,14 +209,13 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button
-                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
-                                    CommandParameter="{Binding .}">
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
-                                <Button Margin="0,4,0,0"
-                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
-                                        CommandParameter="{Binding .}">
+                                <Button
+                                    Margin="0,4,0,0"
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                    CommandParameter="{Binding .}">
                                     Edit
                                 </Button>
                             </StackPanel>
@@ -236,8 +227,7 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="MapElementPostTemplate"
-                          DataType="{x:Type mapComponentEditor:MapElementListPostItem}">
+            <DataTemplate x:Key="MapElementPostTemplate" DataType="{x:Type mapComponentEditor:MapElementListPostItem}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
@@ -252,14 +242,13 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button
-                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
-                                    CommandParameter="{Binding .}">
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
-                                <Button Margin="0,4,0,0"
-                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
-                                        CommandParameter="{Binding .}">
+                                <Button
+                                    Margin="0,4,0,0"
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                    CommandParameter="{Binding .}">
                                     Edit
                                 </Button>
                             </StackPanel>
@@ -271,8 +260,7 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="MapElementVideoTemplate"
-                          DataType="{x:Type mapComponentEditor:MapElementListVideoItem}">
+            <DataTemplate x:Key="MapElementVideoTemplate" DataType="{x:Type mapComponentEditor:MapElementListVideoItem}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.ColumnDefinitions>
@@ -287,14 +275,13 @@
                                 <CheckBox Margin="4" IsChecked="{Binding IsFeaturedElement}">Featured</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding ShowInitialDetails}">Show Details</CheckBox>
                                 <CheckBox Margin="4" IsChecked="{Binding InInitialView}">In Initial View</CheckBox>
-                                <Button
-                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}"
-                                    CommandParameter="{Binding .}">
+                                <Button Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.RemoveItemCommand}" CommandParameter="{Binding .}">
                                     Remove
                                 </Button>
-                                <Button Margin="0,4,0,0"
-                                        Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
-                                        CommandParameter="{Binding .}">
+                                <Button
+                                    Margin="0,4,0,0"
+                                    Command="{Binding ElementName=MapComponentEditorControlXaml, Path=DataContext.OpenItemEditorCommand}"
+                                    CommandParameter="{Binding .}">
                                     Edit
                                 </Button>
                             </StackPanel>
@@ -313,8 +300,8 @@
                 ImageTemplate="{StaticResource MapElementImageTemplate}"
                 LineTemplate="{StaticResource MapElementLineTemplate}"
                 PhotoTemplate="{StaticResource MapElementPhotoTemplate}"
-                PostTemplate="{StaticResource MapElementPostTemplate}"
                 PointTemplate="{StaticResource MapElementPointTemplate}"
+                PostTemplate="{StaticResource MapElementPostTemplate}"
                 VideoTemplate="{StaticResource MapElementVideoTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
@@ -330,11 +317,8 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding TitleEntry}" />
                             <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -342,28 +326,31 @@
             <TabItem Header="Map">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Grid>
-                        <wpf:WebView2
-                            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <wpf:WebView2 Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                             <b:Interaction.Behaviors>
-                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
-                                    WebViewMessenger="{Binding .}"
-                                    DeferNavigationTo="{Binding MapPreviewNavigationManager}" />
+                                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior DeferNavigationTo="{Binding MapPreviewNavigationManager}" WebViewMessenger="{Binding .}" />
                             </b:Interaction.Behaviors>
                         </wpf:WebView2>
                     </Grid>
-                    <GridSplitter Grid.Row="0" Grid.Column="1" ResizeBehavior="PreviousAndNext"
-                                  VerticalAlignment="Stretch"
-                                  Width="4" />
-                    <Grid Grid.Column="2" Grid.Row="0" Margin="4">
+                    <GridSplitter
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Width="4"
+                        VerticalAlignment="Stretch"
+                        ResizeBehavior="PreviousAndNext" />
+                    <Grid
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="4">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition />
@@ -374,12 +361,14 @@
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <GroupBox Grid.Column="0" Header="Add Text Codes"
-                                      Style="{StaticResource UiComponentGroupBoxStyle}">
+                            <GroupBox
+                                Grid.Column="0"
+                                Header="Add Text Codes"
+                                Style="{StaticResource UiComponentGroupBoxStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition></ColumnDefinition>
-                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBox
                                         dd:DragDrop.DropHandler="{Binding}"
@@ -394,8 +383,10 @@
                                     </Button>
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Grid.Column="1" Header="Search Titles"
-                                      Style="{StaticResource UiComponentGroupBoxStyle}">
+                            <GroupBox
+                                Grid.Column="1"
+                                Header="Search Titles"
+                                Style="{StaticResource UiComponentGroupBoxStyle}">
                                 <TextBox
                                     VerticalAlignment="Stretch"
                                     AcceptsReturn="False"
@@ -416,45 +407,41 @@
                             Header="Map Elements"
                             Style="{StaticResource UiComponentGroupBoxStyle}">
                             <ListBox
+                                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding ListSelection.SelectedItems}"
                                 dd:DragDrop.DropHandler="{Binding}"
                                 dd:DragDrop.IsDropTarget="True"
                                 ItemTemplateSelector="{StaticResource MapElementSelector}"
                                 ItemsSource="{Binding MapElements}"
                                 SelectedItem="{Binding ListSelection.Selected}"
-                                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding ListSelection.SelectedItems}"
                                 Style="{StaticResource ContentListListBoxStyle}">
                                 <b:Interaction.Behaviors>
-                                    <behaviors:AttachCommandBindingsBehavior
-                                        CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
+                                    <behaviors:AttachCommandBindingsBehavior CommandBindings="{Binding ListSelection.ListBoxAppCommandBindings}" />
                                 </b:Interaction.Behaviors>
                             </ListBox>
                         </GroupBox>
                     </Grid>
-                    <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
-                            Style="{StaticResource ActionPanelBorderStyle}">
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="3"
+                        Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                            <Button Command="{Binding RequestMapCenterOnSelectedItemsCommand}"
-                                    Style="{StaticResource ActionPanelButtonStyle}">
+                            <Button Command="{Binding RequestMapCenterOnSelectedItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                                 Center - Selected
                             </Button>
-                            <Button Command="{Binding RequestMapCenterOnFilteredItemsCommand}"
-                                    Style="{StaticResource ActionPanelButtonStyle}">
+                            <Button Command="{Binding RequestMapCenterOnFilteredItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                                 Center - Filtered
                             </Button>
-                            <Button Command="{Binding RequestMapCenterOnAllItemsCommand}"
-                                    Style="{StaticResource ActionPanelButtonStyle}">
+                            <Button Command="{Binding RequestMapCenterOnAllItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                                 Center - All
                             </Button>
-                            <Button Command="{Binding PopupsForSelectedItemsCommand}"
-                                    Style="{StaticResource ActionPanelButtonStyle}">
+                            <Button Command="{Binding PopupsForSelectedItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                                 Popups - Selected
                             </Button>
-                            <Button Command="{Binding CloseAllPopupsCommand}"
-                                    Style="{StaticResource ActionPanelButtonStyle}">
+                            <Button Command="{Binding CloseAllPopupsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                                 Close All Popups
                             </Button>
-                            <Button Command="{Binding RefreshMapPreviewCommand}"
-                                    Style="{StaticResource ActionPanelButtonStyle}">
+                            <Button Command="{Binding RefreshMapPreviewCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                                 Refresh Map
                             </Button>
                         </WrapPanel>
@@ -487,11 +474,11 @@
             </WrapPanel>
         </Border>
         <windowScreenShot:WindowScreenShotControl
-            d:IsHidden="true"
             Grid.Row="0"
             Grid.RowSpan="2"
             Grid.Column="0"
             HorizontalContentAlignment="Right"
-            VerticalContentAlignment="Bottom" />
+            VerticalContentAlignment="Bottom"
+            d:IsHidden="true" />
     </Grid>
 </UserControl>

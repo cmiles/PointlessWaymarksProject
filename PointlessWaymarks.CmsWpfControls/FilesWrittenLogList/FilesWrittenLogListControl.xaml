@@ -3,10 +3,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
     xmlns:filesWrittenLogList="clr-namespace:PointlessWaymarks.CmsWpfControls.FilesWrittenLogList"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:dgx="urn:tom-englert.de/DataGridExtensions"
     d:DataContext="{d:DesignInstance filesWrittenLogList:FilesWrittenLogListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -38,40 +38,28 @@
                     </Grid.RowDefinitions>
                     <Menu>
                         <MenuItem Header="S3 ">
-                            <MenuItem Command="{Binding AllWrittenFilesToRunningS3UploaderCommand}"
-                                      Header="S3 - Upload All" />
-                            <MenuItem Command="{Binding SelectedWrittenFilesToRunningS3UploaderCommand}"
-                                      Header="S3 - Upload Selected" />
+                            <MenuItem Command="{Binding AllWrittenFilesToRunningS3UploaderCommand}" Header="S3 - Upload All" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToRunningS3UploaderCommand}" Header="S3 - Upload Selected" />
                             <Separator />
-                            <MenuItem Command="{Binding SiteMissingAndChangedFilesReportCommand}"
-                                      Header="S3 - Missing and Changed Files on Site" />
-                            <MenuItem Command="{Binding SiteDeletedFilesReportCommand}"
-                                      Header="S3 - Deleted Files on Site" />
+                            <MenuItem Command="{Binding SiteMissingAndChangedFilesReportCommand}" Header="S3 - Missing and Changed Files on Site" />
+                            <MenuItem Command="{Binding SiteDeletedFilesReportCommand}" Header="S3 - Deleted Files on Site" />
                             <Separator />
-                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}"
-                                      Header="S3 - All to Uploader" />
-                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}"
-                                      Header="S3 - Selected to Uploader" />
+                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="S3 - All to Uploader" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderCommand}" Header="S3 - Selected to Uploader" />
                             <Separator />
-                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderJsonFileCommand}"
-                                      Header="All to Uploader Json File" />
-                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderJsonFileCommand}"
-                                      Header="Selected to Uploader Json File" />
+                            <MenuItem Command="{Binding AllWrittenFilesToS3UploaderJsonFileCommand}" Header="All to Uploader Json File" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToS3UploaderJsonFileCommand}" Header="Selected to Uploader Json File" />
                             <Separator />
                             <MenuItem Command="{Binding OpenUploaderJsonFileCommand}" Header="Open Uploader Json File" />
                             <Separator />
-                            <MenuItem Command="{Binding AllScriptStringsToPowerShellScriptCommand}"
-                                      Header="All to PowerShell Ps1 File" />
-                            <MenuItem Command="{Binding SelectedScriptStringsToPowerShellScriptCommand}"
-                                      Header="Selected to PowerShell Ps1 File" />
+                            <MenuItem Command="{Binding AllScriptStringsToPowerShellScriptCommand}" Header="All to PowerShell Ps1 File" />
+                            <MenuItem Command="{Binding SelectedScriptStringsToPowerShellScriptCommand}" Header="Selected to PowerShell Ps1 File" />
                             <Separator />
                             <MenuItem Command="{Binding AllScriptStringsToClipboardCommand}" Header="All to Clipboard" />
-                            <MenuItem Command="{Binding SelectedScriptStringsToClipboardCommand}"
-                                      Header="Selected to Clipboard" />
+                            <MenuItem Command="{Binding SelectedScriptStringsToClipboardCommand}" Header="Selected to Clipboard" />
                         </MenuItem>
                         <MenuItem Header="File Names">
-                            <MenuItem Command="{Binding SelectedWrittenFilesToClipboardCommand}"
-                                      Header="Selected to Clipboard" />
+                            <MenuItem Command="{Binding SelectedWrittenFilesToClipboardCommand}" Header="Selected to Clipboard" />
                             <MenuItem Command="{Binding AllWrittenFilesToClipboardCommand}" Header="All to Clipboard" />
                         </MenuItem>
                         <MenuItem Header="Excel">
@@ -113,6 +101,7 @@
                         x:Name="WrittenFilesDataGrid"
                         Grid.Row="2"
                         Margin="4,0,4,4"
+                        dgx:DataGridFilter.IsAutoFilterEnabled="True"
                         AlternatingRowBackground="Gainsboro"
                         AlternationCount="1"
                         AutoGenerateColumns="False"
@@ -120,8 +109,7 @@
                         CanUserResizeColumns="True"
                         IsReadOnly="True"
                         ItemsSource="{Binding Items}"
-                        SelectionChanged="Selector_OnSelectionChanged"
-                        dgx:DataGridFilter.IsAutoFilterEnabled="True">
+                        SelectionChanged="Selector_OnSelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding WrittenOn}" Header="Written On" />
                             <DataGridTextColumn Binding="{Binding FileBase}" Header="File" />

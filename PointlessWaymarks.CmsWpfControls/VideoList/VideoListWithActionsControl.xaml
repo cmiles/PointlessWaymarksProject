@@ -1,15 +1,16 @@
-﻿<UserControl x:Class="PointlessWaymarks.CmsWpfControls.VideoList.VideoListWithActionsControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
-             xmlns:contentList="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
-             xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-             d:DataContext="{d:DesignInstance local:VideoListWithActionsContext}"
-             d:DesignHeight="300"
-             d:DesignWidth="300"
-             mc:Ignorable="d">
+﻿<UserControl
+    x:Class="PointlessWaymarks.CmsWpfControls.VideoList.VideoListWithActionsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contentList="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    d:DataContext="{d:DesignInstance local:VideoListWithActionsContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -28,15 +29,13 @@
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding ListContext.SelectedToExcelCommand}" Header="Selected To Excel" />
                 <MenuItem Command="{Binding ListContext.ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}"
-                          Header="Import From Open Excel Application" />
+                <MenuItem Command="{Binding ListContext.ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <MenuItem Header="Email">
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />
             </MenuItem>
             <MenuItem Header="On the Web">
-                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}"
-                          Header="Open Selected on Public Site In Browser" />
+                <MenuItem Command="{Binding ListContext.ViewOnSiteCommand}" Header="Open Selected on Public Site In Browser" />
             </MenuItem>
             <MenuItem Header="History">
                 <MenuItem Command="{Binding ListContext.ViewHistorySelectedCommand}" Header="View History" />
@@ -62,8 +61,7 @@
                     Command="{Binding ListContext.NewActions.NewVideoContentFromFilesCommand}"
                     Content="New Content from Files"
                     Style="{StaticResource ActionPanelButtonStyle}" />
-                <Button Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding ListContext.BracketCodeToClipboardSelectedCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Image _Code
                 </Button>
             </WrapPanel>

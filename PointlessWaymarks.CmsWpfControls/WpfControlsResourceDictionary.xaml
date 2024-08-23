@@ -1,4 +1,4 @@
-<ResourceDictionary
+﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
@@ -13,18 +13,18 @@
     xmlns:linkList="clr-namespace:PointlessWaymarks.CmsWpfControls.LinkList"
     xmlns:mapComponentList="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentList"
     xmlns:noteList="clr-namespace:PointlessWaymarks.CmsWpfControls.NoteList"
+    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
     xmlns:photoList="clr-namespace:PointlessWaymarks.CmsWpfControls.PhotoList"
     xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList"
     xmlns:postList="clr-namespace:PointlessWaymarks.CmsWpfControls.PostList"
-    xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
-    xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
-    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
-    xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers"
     xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
-    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry">
+    xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
+    xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
+    xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
+    xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -36,7 +36,7 @@
     <lineList:LineRecordedOnToStringConverter x:Key="LineRecordedOnToString" />
     <pointList:MapMarkerColorConverter x:Key="MapMarkerColor" />
     <wpfHelpers:DbEntryHasLocationToCollapsedVisibilityConverter x:Key="DbEntryHasLocationToCollapsedVisibility" />
-    <wpfConverter:MetersToFeetValueConverter x:Key="MetersToFeet"></wpfConverter:MetersToFeetValueConverter>
+    <wpfConverter:MetersToFeetValueConverter x:Key="MetersToFeet" />
     <optionalLocationEntry:HasValidLatLongVisibilityConverter x:Key="HasLatLong" />
 
     <Style x:Key="DataEntryComboBoxStyle" TargetType="ComboBox">
@@ -51,8 +51,7 @@
     <Style x:Key="TagsEditorInPanelStyle" TargetType="tagsEditor:TagsEditorControl">
         <Setter Property="Margin" Value="0,4,0,0" />
     </Style>
-    <Style x:Key="CreatedUpdatedInPanelStyle"
-           TargetType="createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl">
+    <Style x:Key="CreatedUpdatedInPanelStyle" TargetType="createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl">
         <Setter Property="Margin" Value="0,4,0,0" />
     </Style>
     <Style x:Key="ContentIdInPanelStyle" TargetType="contentIdViewer:ContentIdViewerControl">
@@ -104,8 +103,7 @@
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                            PassEventArgsToCommand="True" />
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
@@ -126,8 +124,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -148,8 +145,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -169,8 +165,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -191,18 +186,17 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
         <TextBox
+            Margin="6,0,0,0"
             FontWeight="Bold"
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="(Main Feed)"
-            Margin="6,0,0,0"
-            Visibility="{Binding DbEntry.ShowInMainSiteFeed, TargetNullValue=Collapsed, FallbackValue=Collapsed, Converter={StaticResource BooleanToVisibility}}"
-            TextWrapping="Wrap">
+            TextWrapping="Wrap"
+            Visibility="{Binding DbEntry.ShowInMainSiteFeed, TargetNullValue=Collapsed, FallbackValue=Collapsed, Converter={StaticResource BooleanToVisibility}}">
             <TextBox.InputBindings>
                 <MouseBinding
                     Command="{Binding DataContext.ItemActions.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
@@ -214,8 +208,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -238,8 +231,7 @@
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                            PassEventArgsToCommand="True" />
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
@@ -261,8 +253,7 @@
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                            PassEventArgsToCommand="True" />
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
@@ -283,25 +274,17 @@
                 <Setter Property="Margin" Value="6,0,6,0" />
             </Style>
         </WrapPanel.Resources>
-        <Button
-            Command="{Binding DataContext.FolderSearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-            CommandParameter="{Binding DbEntry.Folder}">
+        <Button Command="{Binding DataContext.FolderSearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" CommandParameter="{Binding DbEntry.Folder}">
             <Button.Content>
-                <TextBlock Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}"
-                           ToolTip="Folder - click to search for other content in folders with the same name" />
+                <TextBlock Text="{Binding DbEntry.Folder, StringFormat='Folder: {0}'}" ToolTip="Folder - click to search for other content in folders with the same name" />
             </Button.Content>
         </Button>
-        <Button
-            Command="{Binding DataContext.CreatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-            CommandParameter="{Binding DbEntry.CreatedOn}">
+        <Button Command="{Binding DataContext.CreatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" CommandParameter="{Binding DbEntry.CreatedOn}">
             <Button.Content>
-                <TextBlock Text="{Binding DbEntry.CreatedOn, StringFormat='Created: {0}'}"
-                           ToolTip="Created On - click to search for other content created on the same date" />
+                <TextBlock Text="{Binding DbEntry.CreatedOn, StringFormat='Created: {0}'}" ToolTip="Created On - click to search for other content created on the same date" />
             </Button.Content>
         </Button>
-        <Button
-            Command="{Binding DataContext.UpdatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-            CommandParameter="{Binding DbEntry.LastUpdatedOn}">
+        <Button Command="{Binding DataContext.UpdatedOnDaySearchCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" CommandParameter="{Binding DbEntry.LastUpdatedOn}">
             <Button.Content>
                 <TextBlock
                     Text="{Binding DbEntry.LastUpdatedOn, StringFormat='Updated: {0}', FallbackValue='(Never Updated)', TargetNullValue='(Never Updated)'}"
@@ -336,8 +319,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -359,8 +341,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -383,8 +364,7 @@
         </b:Interaction.Behaviors>
         <b:Interaction.Triggers>
             <b:EventTrigger EventName="SelectionChanged">
-                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                            PassEventArgsToCommand="True" />
+                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
             </b:EventTrigger>
         </b:Interaction.Triggers>
     </TextBox>
@@ -407,8 +387,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -428,8 +407,7 @@
             </b:Interaction.Behaviors>
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="SelectionChanged">
-                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                                PassEventArgsToCommand="True" />
+                    <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </TextBox>
@@ -442,7 +420,7 @@
         x:Shared="False"
         Source="{Binding SmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}">
         <Image.ToolTip>
-            <Image Source="{Binding DisplayImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}"></Image>
+            <Image Source="{Binding DisplayImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}" />
         </Image.ToolTip>
         <Image.InputBindings>
             <MouseBinding
@@ -457,7 +435,7 @@
         x:Shared="False"
         Source="{Binding SmallImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}">
         <Image.ToolTip>
-            <Image Source="{Binding DisplayImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}"></Image>
+            <Image Source="{Binding DisplayImageUrl, Mode=OneWay, Converter={StaticResource ImageCache}}" />
         </Image.ToolTip>
         <Image.InputBindings>
             <MouseBinding
@@ -488,14 +466,20 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
                         <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
                             preview
                         </Button>
-                        <Grid Margin="0,6,0,0" Width="24" Height="24" VerticalAlignment="Top"
-                              Background="{Binding DbEntry.MapMarkerColor, Converter={StaticResource MapMarkerColor}}">
+                        <Grid
+                            Width="24"
+                            Height="24"
+                            Margin="0,6,0,0"
+                            VerticalAlignment="Top"
+                            Background="{Binding DbEntry.MapMarkerColor, Converter={StaticResource MapMarkerColor}}">
                             <Grid.ToolTip>
                                 <TextBlock>
                                     <TextBlock.Text>
@@ -506,7 +490,10 @@
                                     </TextBlock.Text>
                                 </TextBlock>
                             </Grid.ToolTip>
-                            <svgc:SvgViewbox Width="18" Height="18" SvgSource="{Binding DbEntry.MapIconSvg}">
+                            <svgc:SvgViewbox
+                                Width="18"
+                                Height="18"
+                                SvgSource="{Binding DbEntry.MapIconSvg}">
                                 <svgc:SvgViewbox.ToolTip>
                                     <TextBlock>
                                         <TextBlock.Text>
@@ -526,15 +513,19 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" HorizontalAlignment="Left" Orientation="Vertical">
+                    <StackPanel
+                        Grid.Row="0"
+                        HorizontalAlignment="Left"
+                        Orientation="Vertical">
                         <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <WrapPanel Orientation="Horizontal">
                             <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0"
-                                       Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}"
-                                       Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}">
-                            </TextBlock>
+                            <TextBlock
+                                Margin="12,2,0,0"
+                                VerticalAlignment="Center"
+                                Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}"
+                                Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}" />
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
                     </StackPanel>
@@ -565,9 +556,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
                         <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
                             preview
                         </Button>
@@ -611,9 +604,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
                         <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
                             preview
                         </Button>
@@ -643,8 +638,7 @@
                             <TextBlock Text="{Binding DbEntry.DescentElevation, StringFormat='Descent: {0}\''}" />
                             <TextBlock Text="{Binding DbEntry.MaximumElevation, StringFormat='Max Elevation: {0}\''}" />
                             <TextBlock Text="{Binding DbEntry.MinimumElevation, StringFormat='Min Elevation: {0}\''}" />
-                            <TextBlock
-                                Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}, StringFormat='Time: {0}'}" />
+                            <TextBlock Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}, StringFormat='Time: {0}'}" />
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
                         <WrapPanel
@@ -695,9 +689,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
                         <Button Style="{StaticResource ContentListItemViewFileButtonStyle}">
                             view
                         </Button>
@@ -744,9 +740,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
                         <Button Style="{StaticResource ContentListItemViewFileButtonStyle}">
                             view
                         </Button>
@@ -790,7 +788,7 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Grid Style="{StaticResource ContentListItemImageGridStyle}">
-                    <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}" VerticalAlignment="Bottom">
+                    <Button VerticalAlignment="Bottom" Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
                         preview
                     </Button>
                 </Grid>
@@ -832,9 +830,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
                         <Button Style="{StaticResource ContentListItemViewFileButtonStyle}">
                             view
                         </Button>
@@ -853,10 +853,11 @@
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <WrapPanel Orientation="Horizontal">
                             <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                            <TextBlock VerticalAlignment="Center" Margin="12,2,0,0"
-                                       Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}"
-                                       Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}">
-                            </TextBlock>
+                            <TextBlock
+                                Margin="12,2,0,0"
+                                VerticalAlignment="Center"
+                                Text="{Binding DbEntry.Elevation, StringFormat='Elevation {0:N0}\''}"
+                                Visibility="{Binding DbEntry.Elevation, Converter={StaticResource NullToCollapsedVisibility}}" />
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListOriginalFileNameAndSlugDisplay}" />
                         <WrapPanel Margin="0,4,0,0" Orientation="Horizontal">
@@ -893,8 +894,7 @@
                                 CommandParameter="{Binding DbEntry.LastUpdatedOn}"
                                 ToolTip="Last Updated On - click to search for other content last updated on the same date">
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.LastUpdatedOn, StringFormat='Updated: {0}', FallbackValue='(Never Updated)', TargetNullValue='(Never Updated)'}" />
+                                    <TextBlock Text="{Binding DbEntry.LastUpdatedOn, StringFormat='Updated: {0}', FallbackValue='(Never Updated)', TargetNullValue='(Never Updated)'}" />
                                 </Button.Content>
                             </Button>
                             <Button
@@ -903,8 +903,7 @@
                                 Visibility="{Binding DbEntry, Converter={StaticResource DbEntryHasLocationToCollapsedVisibility}}">
                                 Map
                             </Button>
-                            <Button
-                                ToolTip="Photo Created On - click to search for other content created on the same date">
+                            <Button ToolTip="Photo Created On - click to search for other content created on the same date">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.PhotoTakenOnSearchCommand}"
@@ -912,8 +911,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo: {0}', TargetNullValue='(No Photo Date)'}" />
+                                    <TextBlock Text="{Binding DbEntry.PhotoCreatedOn, StringFormat='Photo: {0}', TargetNullValue='(No Photo Date)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Camera Make - click to search for other photos with this Camera Make">
@@ -924,8 +922,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.CameraMake, StringFormat='Make: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Camera Make)'}" />
+                                    <TextBlock Text="{Binding DbEntry.CameraMake, StringFormat='Make: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Camera Make)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Camera Model - click to search for other photos with this Camera Model">
@@ -936,8 +933,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.CameraModel, StringFormat='Model: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Camera Model)'}" />
+                                    <TextBlock Text="{Binding DbEntry.CameraModel, StringFormat='Model: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Camera Model)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Lens - click to search for other photos taken with this lens">
@@ -948,8 +944,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.Lens, StringFormat='Lens: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Lens)'}" />
+                                    <TextBlock Text="{Binding DbEntry.Lens, StringFormat='Lens: {0}', Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Lens)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Focal Length - click to search for other photos with this focal length">
@@ -960,8 +955,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.FocalLength, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Focal Length)'}" />
+                                    <TextBlock Text="{Binding DbEntry.FocalLength, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Focal Length)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="Aperture - click to search for other photos taken with this Aperture">
@@ -972,12 +966,10 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.Aperture, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Aperture)'}" />
+                                    <TextBlock Text="{Binding DbEntry.Aperture, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Aperture)'}" />
                                 </Button.Content>
                             </Button>
-                            <Button
-                                ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
+                            <Button ToolTip="Shutter Speed - click to search for other photos take with this Shutter Speed">
                                 <Button.InputBindings>
                                     <MouseBinding
                                         Command="{Binding ItemActions.ShutterSpeedSearchSearchCommand}"
@@ -985,8 +977,7 @@
                                         MouseAction="LeftClick" />
                                 </Button.InputBindings>
                                 <Button.Content>
-                                    <TextBlock
-                                        Text="{Binding DbEntry.ShutterSpeed, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Shutter Speed)'}" />
+                                    <TextBlock Text="{Binding DbEntry.ShutterSpeed, Converter={StaticResource NullOrWhiteSpaceStringToDefault}, ConverterParameter='(No Shutter Speed)'}" />
                                 </Button.Content>
                             </Button>
                             <Button ToolTip="ISO - click to search for other pictures taken at this ISO">
@@ -1028,9 +1019,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
                         <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
                             preview
                         </Button>
@@ -1075,9 +1068,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <ContentPresenter VerticalAlignment="Top"
-                                      Content="{StaticResource ContentListSmallImageContentDisplay}" />
-                    <WrapPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
                         <Button Style="{StaticResource ContentListItemViewFileButtonStyle}">
                             view
                         </Button>
@@ -1157,16 +1152,13 @@
                         </b:Interaction.Behaviors>
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
-                                <wpfBehavior:EventToCommand
-                                    Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}"
-                                    PassEventArgsToCommand="True" />
+                                <wpfBehavior:EventToCommand Command="{Binding SelectedTextTracker.SelectedTextChangedCommand}" PassEventArgsToCommand="True" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </TextBox>
                     <WrapPanel Margin="0,6,0,0" Orientation="Horizontal">
                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                            <Hyperlink Command="{Binding ItemActions.ViewOnSiteCommand}"
-                                       CommandParameter="{Binding DbEntry}">
+                            <Hyperlink Command="{Binding ItemActions.ViewOnSiteCommand}" CommandParameter="{Binding DbEntry}">
                                 <Hyperlink.Inlines>
                                     <Run Text="{Binding DbEntry.Url}" />
                                 </Hyperlink.Inlines>
@@ -1191,10 +1183,8 @@
         </Border>
     </DataTemplate>
     <collections:ArrayList x:Key="SiteMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding CommonCommands.GenerateChangedHtmlAndStartUploadCommand}"
-                  Header="Generate Site and Start Upload" />
-        <MenuItem Command="{Binding CommonCommands.GenerateChangedHtmlAndShowSitePreviewCommand}"
-                  Header="Generate Site and Show Preview" />
+        <MenuItem Command="{Binding CommonCommands.GenerateChangedHtmlAndStartUploadCommand}" Header="Generate Site and Start Upload" />
+        <MenuItem Command="{Binding CommonCommands.GenerateChangedHtmlAndShowSitePreviewCommand}" Header="Generate Site and Show Preview" />
         <MenuItem Command="{Binding CommonCommands.GenerateChangedHtmlCommand}" Header="Generate Site" />
         <MenuItem Command="{Binding CommonCommands.ShowSitePreviewWindowCommand}" Header="Preview Site from Disk" />
     </collections:ArrayList>
@@ -1204,15 +1194,13 @@
         Header="Site"
         ItemsSource="{StaticResource SiteMenuItemValues}" />
     <collections:ArrayList x:Key="ViewMenuItemValues" x:Shared="False">
-        <MenuItem Command="{Binding CommonCommands.NewAllContentListWindowCommand}"
-                  Header="New All Content List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewAllContentListWindowCommand}" Header="New All Content List Window" />
         <MenuItem Command="{Binding CommonCommands.NewFileListWindowCommand}" Header="New File List Window" />
         <MenuItem Command="{Binding CommonCommands.NewGeoJsonListWindowCommand}" Header="New GeoJson List Window" />
         <MenuItem Command="{Binding CommonCommands.NewImageListWindowCommand}" Header="New Image List Window" />
         <MenuItem Command="{Binding CommonCommands.NewLineListWindowCommand}" Header="New Line List Window" />
         <MenuItem Command="{Binding CommonCommands.NewLinkListWindowCommand}" Header="New Link List Window" />
-        <MenuItem Command="{Binding CommonCommands.NewMapComponentListWindowCommand}"
-                  Header="New Map Component List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewMapComponentListWindowCommand}" Header="New Map Component List Window" />
         <MenuItem Command="{Binding CommonCommands.NewMapIconListWindowCommand}" Header="New Map Icon List Window" />
         <MenuItem Command="{Binding CommonCommands.NewNoteListWindowCommand}" Header="New Note List Window" />
         <MenuItem Command="{Binding CommonCommands.NewPhotoListWindowCommand}" Header="New Photo List Window" />
@@ -1236,19 +1224,15 @@
         <MenuItem Command="{Binding CommonCommands.NewGpxImportWindowCommand}" Header="Gpx Import" />
         <MenuItem Command="{Binding CommonCommands.NewImageContentFromFilesCommand}" Header="Image from File" />
         <MenuItem Command="{Binding CommonCommands.NewImageContentCommand}" Header="Image" />
-        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithPhotosWithAutosaveCommand}"
-                  Header="Line from File - Add Photos - Auto-Save" />
-        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithAutosaveCommand}"
-                  Header="Line from File - Auto-Save" />
-        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithPhotosCommand}"
-                  Header="Line from File - Add Photos" />
+        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithPhotosWithAutosaveCommand}" Header="Line from File - Add Photos - Auto-Save" />
+        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithAutosaveCommand}" Header="Line from File - Auto-Save" />
+        <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesWithPhotosCommand}" Header="Line from File - Add Photos" />
         <MenuItem Command="{Binding CommonCommands.NewLineContentFromFilesCommand}" Header="Line from File" />
         <MenuItem Command="{Binding CommonCommands.NewLineContentCommand}" Header="Line" />
         <MenuItem Command="{Binding CommonCommands.NewLinkContentCommand}" Header="Link" />
         <MenuItem Command="{Binding CommonCommands.NewMapContentCommand}" Header="Map Component" />
         <MenuItem Command="{Binding CommonCommands.NewNoteContentCommand}" Header="Note" />
-        <MenuItem Command="{Binding CommonCommands.NewPhotoContentFromFilesWithAutosaveCommand}"
-                  Header="Photo from File - Auto-Save" />
+        <MenuItem Command="{Binding CommonCommands.NewPhotoContentFromFilesWithAutosaveCommand}" Header="Photo from File - Auto-Save" />
         <MenuItem Command="{Binding CommonCommands.NewPhotoContentFromFilesCommand}" Header="Photo from File" />
         <MenuItem Command="{Binding CommonCommands.NewPhotoContentCommand}" Header="Photo" />
         <MenuItem Command="{Binding CommonCommands.NewPointContentCommand}" Header="Point" />

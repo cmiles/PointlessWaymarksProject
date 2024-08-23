@@ -4,16 +4,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.GpxImport"
+    xmlns:math="http://hexinnovation.com/math"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:math="http://hexinnovation.com/math"
     d:DataContext="{d:DesignInstance local:GpxImportContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -99,12 +99,10 @@
                                     TextWrapping="Wrap" />
                             </Grid>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
-                                <CheckBox IsChecked="{Binding MarkedForImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Import
                                 </CheckBox>
-                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Replace Elevation on Import
                                 </CheckBox>
                             </WrapPanel>
@@ -128,8 +126,7 @@
                                     FontWeight="Bold"
                                     Style="{StaticResource ImportWrapTextBoxNameContent}"
                                     Text="{Binding UserContentName}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.Length, StringFormat='{}{0:F2} Miles'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.Length, StringFormat='{}{0:F2} Miles'}" />
                             </WrapPanel>
                             <Grid Margin="0,12,0,6">
                                 <Grid.ColumnDefinitions>
@@ -144,24 +141,18 @@
                                     TextWrapping="Wrap" />
                             </Grid>
                             <WrapPanel Orientation="Horizontal" Style="{StaticResource ImportWrapContainer}">
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.MinimumElevation, StringFormat='{}{0:F2} Min Elevation (m)'}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MinimumElevation, StringFormat='{}{0:F2} Min Elevation (m)'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
                             </WrapPanel>
                             <WrapPanel Orientation="Horizontal" Style="{StaticResource ImportWrapContainer}">
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding TrackInformation.StartsOnLocal, StringFormat='Starts: {0}'}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding TrackInformation.EndsOnLocal, StringFormat='Ends: {0}'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding TrackInformation.StartsOnLocal, StringFormat='Starts: {0}'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding TrackInformation.EndsOnLocal, StringFormat='Ends: {0}'}" />
                             </WrapPanel>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
-                                <CheckBox IsChecked="{Binding MarkedForImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Import
                                 </CheckBox>
-                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Replace Elevation on Import
                                 </CheckBox>
                             </WrapPanel>
@@ -185,8 +176,7 @@
                                     FontWeight="Bold"
                                     Style="{StaticResource ImportWrapTextBoxNameContent}"
                                     Text="{Binding UserContentName}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.Length, StringFormat='{}{0:F2} Miles'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.Length, StringFormat='{}{0:F2} Miles'}" />
                                 <TextBlock
                                     Style="{StaticResource ImportWrapTextBlockItem}"
                                     Text="{Binding CreatedOn, StringFormat='{}{0:G}'}"
@@ -205,18 +195,14 @@
                                     TextWrapping="Wrap" />
                             </Grid>
                             <WrapPanel Orientation="Horizontal" Style="{StaticResource ImportWrapContainer}">
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.MinimumElevation, StringFormat='{}{0:F2} Min Elevation (m)'}" />
-                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}"
-                                           Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MinimumElevation, StringFormat='{}{0:F2} Min Elevation (m)'}" />
+                                <TextBlock Style="{StaticResource ImportWrapTextBlockItem}" Text="{Binding Statistics.MaximumElevation, StringFormat='{}{0:F2} Max Elevation (m)'}" />
                             </WrapPanel>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
-                                <CheckBox IsChecked="{Binding MarkedForImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     ImportS
                                 </CheckBox>
-                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}"
-                                          Style="{StaticResource ImportImportChoiceItem}">
+                                <CheckBox IsChecked="{Binding ReplaceElevationOnImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Replace Elevation on Import
                                 </CheckBox>
                             </WrapPanel>
@@ -251,8 +237,7 @@
             Grid.Column="0"
             Header="Import Data"
             Style="{StaticResource UiComponentGroupBoxStyle}">
-            <wpf:WebView2 x:Name="GpxImportWebView"
-                          Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+            <wpf:WebView2 x:Name="GpxImportWebView" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                 <b:Interaction.Behaviors>
                     <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
                 </b:Interaction.Behaviors>
@@ -269,8 +254,8 @@
             </Grid.RowDefinitions>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <GroupBox Header="Search" Style="{StaticResource UiComponentGroupBoxStyle}">
                     <Grid>
@@ -294,8 +279,11 @@
                 VerticalAlignment="Stretch"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <TextBlock Margin="4" Text="{Binding ImportFileName, StringFormat='Import Items From {0}'}" Width="{Binding RelativeSource={RelativeSource AncestorType=GroupBox, Mode=FindAncestor}, Path=ActualWidth, ConverterParameter=x-60, Converter={StaticResource Math}}" TextWrapping="Wrap">
-                    </TextBlock>
+                    <TextBlock
+                        Width="{Binding RelativeSource={RelativeSource AncestorType=GroupBox, Mode=FindAncestor}, Path=ActualWidth, ConverterParameter=x-60, Converter={StaticResource Math}}"
+                        Margin="4"
+                        Text="{Binding ImportFileName, StringFormat='Import Items From {0}'}"
+                        TextWrapping="Wrap" />
                 </GroupBox.Header>
                 <ListBox
                     x:Name="GpxImportListBox"
@@ -306,20 +294,15 @@
                     Style="{StaticResource ContentListListBoxStyle}">
                     <ListBox.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Command="{Binding ToggleSelectedForImportCommand}"
-                                      Header="Toggle Selected For Import" />
+                            <MenuItem Command="{Binding ToggleSelectedForImportCommand}" Header="Toggle Selected For Import" />
                             <MenuItem Command="{Binding MarkAllForImportCommand}" Header="Mark All For Import" />
                             <MenuItem Command="{Binding ClearAllForImportCommand}" Header="Clear All For Import" />
                             <Separator />
-                            <MenuItem Command="{Binding ToggleSelectedForElevationReplacementCommand}"
-                                      Header="Toggle Selected For Elevation Replacement" />
-                            <MenuItem Command="{Binding MarkAllForElevationReplacementCommand}"
-                                      Header="Mark All For Elevation Replacement" />
-                            <MenuItem Command="{Binding ClearAllForElevationReplacementCommand}"
-                                      Header="Clear All For Elevation Replacement" />
+                            <MenuItem Command="{Binding ToggleSelectedForElevationReplacementCommand}" Header="Toggle Selected For Elevation Replacement" />
+                            <MenuItem Command="{Binding MarkAllForElevationReplacementCommand}" Header="Mark All For Elevation Replacement" />
+                            <MenuItem Command="{Binding ClearAllForElevationReplacementCommand}" Header="Clear All For Elevation Replacement" />
                             <Separator />
-                            <MenuItem Command="{Binding RemoveSelectedFromListCommand}"
-                                      Header="Remove Selected From Import List" />
+                            <MenuItem Command="{Binding RemoveSelectedFromListCommand}" Header="Remove Selected From Import List" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
                 </ListBox>

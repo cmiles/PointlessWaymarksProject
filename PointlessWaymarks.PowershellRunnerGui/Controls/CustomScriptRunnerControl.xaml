@@ -1,27 +1,31 @@
-<UserControl x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.CustomScriptRunnerControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
-             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:runspaces="clr-namespace:System.Management.Automation.Runspaces;assembly=System.Management.Automation"
-             xmlns:powerShellEditor="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.PowerShellEditor"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance local:CustomScriptRunnerContext}">
+﻿<UserControl
+    x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.CustomScriptRunnerControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:powerShellEditor="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.PowerShellEditor"
+    xmlns:runspaces="clr-namespace:System.Management.Automation.Runspaces;assembly=System.Management.Automation"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    d:DataContext="{d:DesignInstance local:CustomScriptRunnerContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <CollectionViewSource x:Key="SortedProgressItems" Source="{Binding Items}"
-                                  xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
+            <CollectionViewSource
+                xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                x:Key="SortedProgressItems"
+                Source="{Binding Items}">
                 <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="ReceivedOn" Direction="Ascending" />
+                    <scm:SortDescription Direction="Ascending" PropertyName="ReceivedOn" />
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
             <valueConverters:BooleanNotConverter x:Key="BooleanNot" />
@@ -31,11 +35,17 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Center"
-                             Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4" />
-                    <TextBox Grid.Column="1" Margin="16,2,0,2" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             TextWrapping="Wrap" Text="{Binding Message}" />
+                    <TextBox
+                        VerticalAlignment="Center"
+                        Opacity=".4"
+                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" />
+                    <TextBox
+                        Grid.Column="1"
+                        Margin="16,2,0,2"
+                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        Text="{Binding Message}"
+                        TextWrapping="Wrap" />
                 </Grid>
             </DataTemplate>
             <DataTemplate x:Key="ProgressStateDataTemplate" DataType="{x:Type local:ScriptMessageItemState}">
@@ -44,50 +54,49 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}"
-                             VerticalAlignment="Center"
-                             Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4" />
-                    <StackPanel Orientation="Vertical" Grid.Column="1" Margin="16,2,0,2">
+                    <TextBox
+                        VerticalAlignment="Center"
+                        Opacity=".4"
+                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" />
+                    <StackPanel
+                        Grid.Column="1"
+                        Margin="16,2,0,2"
+                        Orientation="Vertical">
                         <TextBox Text="{Binding State}">
                             <TextBox.Style>
-                                <Style TargetType="TextBox" BasedOn="{StaticResource ReadOnlyTextBoxStyle}">
+                                <Style BasedOn="{StaticResource ReadOnlyTextBoxStyle}" TargetType="TextBox">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding State}"
-                                                     Value="{x:Static runspaces:PipelineState.Completed}">
+                                        <DataTrigger Binding="{Binding State}" Value="{x:Static runspaces:PipelineState.Completed}">
                                             <Setter Property="Background" Value="Green" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding State}"
-                                                     Value="{x:Static runspaces:PipelineState.Running}">
+                                        <DataTrigger Binding="{Binding State}" Value="{x:Static runspaces:PipelineState.Running}">
                                             <Setter Property="Background" Value="GreenYellow" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding State}"
-                                                     Value="{x:Static runspaces:PipelineState.Failed}">
+                                        <DataTrigger Binding="{Binding State}" Value="{x:Static runspaces:PipelineState.Failed}">
                                             <Setter Property="Background" Value="DarkRed" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding State}"
-                                                     Value="{x:Static runspaces:PipelineState.Disconnected}">
+                                        <DataTrigger Binding="{Binding State}" Value="{x:Static runspaces:PipelineState.Disconnected}">
                                             <Setter Property="Background" Value="Orange" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding State}"
-                                                     Value="{x:Static runspaces:PipelineState.NotStarted}">
+                                        <DataTrigger Binding="{Binding State}" Value="{x:Static runspaces:PipelineState.NotStarted}">
                                             <Setter Property="Background" Value="OrangeRed" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding State}"
-                                                     Value="{x:Static runspaces:PipelineState.Stopped}">
+                                        <DataTrigger Binding="{Binding State}" Value="{x:Static runspaces:PipelineState.Stopped}">
                                             <Setter Property="Background" Value="OrangeRed" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding State}"
-                                                     Value="{x:Static runspaces:PipelineState.Stopping}">
+                                        <DataTrigger Binding="{Binding State}" Value="{x:Static runspaces:PipelineState.Stopping}">
                                             <Setter Property="Background" Value="Yellow" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </TextBox.Style>
                         </TextBox>
-                        <TextBox Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                 Visibility="{Binding Message, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}"
-                                 Text="{Binding Message}" TextWrapping="Wrap" />
+                        <TextBox
+                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                            Text="{Binding Message}"
+                            TextWrapping="Wrap"
+                            Visibility="{Binding Message, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}" />
                     </StackPanel>
                 </Grid>
             </DataTemplate>
@@ -97,22 +106,29 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" VerticalAlignment="Center"
-                             Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             Opacity=".4" />
-                    <TextBox Grid.Column="1" Margin="16,2,0,0" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                             TextWrapping="Wrap" Text="{Binding Message}" Background="Red" />
+                    <TextBox
+                        VerticalAlignment="Center"
+                        Opacity=".4"
+                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        Text="{Binding ReceivedOn, StringFormat='{}{0:G}'}" />
+                    <TextBox
+                        Grid.Column="1"
+                        Margin="16,2,0,0"
+                        Background="Red"
+                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                        Text="{Binding Message}"
+                        TextWrapping="Wrap" />
                 </Grid>
             </DataTemplate>
-            <local:ProgressDataTemplateSelector x:Key="ProgressSelectorTemplate"
-                                                ErrorTemplate="{StaticResource ProgressErrorDataTemplate }"
-                                                ProgressTemplate="{StaticResource ProgressMessageDataTemplate}"
-                                                StateTemplate="{StaticResource ProgressStateDataTemplate}" />
+            <local:ProgressDataTemplateSelector
+                x:Key="ProgressSelectorTemplate"
+                ErrorTemplate="{StaticResource ProgressErrorDataTemplate}"
+                ProgressTemplate="{StaticResource ProgressMessageDataTemplate}"
+                StateTemplate="{StaticResource ProgressStateDataTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.InputBindings>
-        <KeyBinding Command="{Binding Path=RunScriptCommand}"
-                    Key="F5" />
+        <KeyBinding Key="F5" Command="{Binding Path=RunScriptCommand}" />
     </UserControl.InputBindings>
     <Grid Margin="4">
         <Grid.RowDefinitions>
@@ -123,29 +139,49 @@
         <Border Style="{StaticResource ActionPanelBorderStyle}">
             <Grid Margin="4">
                 <powerShellEditor:PowerShellEditorControl DataContext="{Binding UserScriptEntryContext}" />
-                <Button VerticalAlignment="Top" Width="90" Height="22" HorizontalAlignment="Right" Margin="0,0,0,0"
-                        IsEnabled="{Binding ScriptRunning, Converter={StaticResource BooleanNot}}"
-                        Visibility="{Binding ScriptRunning, Converter={StaticResource BooleanNotToVisibility}}"
-                        Command="{Binding RunScriptCommand}">
+                <Button
+                    Width="90"
+                    Height="22"
+                    Margin="0,0,0,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Command="{Binding RunScriptCommand}"
+                    IsEnabled="{Binding ScriptRunning, Converter={StaticResource BooleanNot}}"
+                    Visibility="{Binding ScriptRunning, Converter={StaticResource BooleanNotToVisibility}}">
                     Run (F5)
                 </Button>
-                <Button VerticalAlignment="Top" Width="90" Height="22" HorizontalAlignment="Right" Margin="0,0,0,0"
-                        IsEnabled="{Binding ScriptRunning}"
-                        Visibility="{Binding ScriptRunning, Converter={StaticResource BooleanToVisibility}}"
-                        Command="{Binding CancelScriptCommand}">
+                <Button
+                    Width="90"
+                    Height="22"
+                    Margin="0,0,0,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Command="{Binding CancelScriptCommand}"
+                    IsEnabled="{Binding ScriptRunning}"
+                    Visibility="{Binding ScriptRunning, Converter={StaticResource BooleanToVisibility}}">
                     Cancel
                 </Button>
             </Grid>
         </Border>
-        <GridSplitter Grid.Row="1" Margin="8,6,8,2" Height="4" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="LightGray" />
-        <GroupBox Header="Progress" Grid.Row="2" Margin="3,0,3,4" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <GridSplitter
+            Grid.Row="1"
+            Height="4"
+            Margin="8,6,8,2"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Center"
+            Background="LightGray" />
+        <GroupBox
+            Grid.Row="2"
+            Margin="3,0,3,4"
+            Header="Progress"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
             <ListBox
-                Style="{StaticResource ContentListListBoxStyle}"
-                ItemsSource="{Binding Source={StaticResource SortedProgressItems}}"
-                SelectedItem="{Binding SelectedItem}"
                 behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
+                ItemTemplateSelector="{StaticResource ProgressSelectorTemplate}"
+                ItemsSource="{Binding Source={StaticResource SortedProgressItems}}"
                 ScrollViewer.VerticalScrollBarVisibility="Visible"
-                ItemTemplateSelector="{StaticResource ProgressSelectorTemplate}">
+                SelectedItem="{Binding SelectedItem}"
+                Style="{StaticResource ContentListListBoxStyle}">
                 <b:Interaction.Behaviors>
                     <behaviors:ListBoxAutoScrollToEndBehaviour />
                 </b:Interaction.Behaviors>

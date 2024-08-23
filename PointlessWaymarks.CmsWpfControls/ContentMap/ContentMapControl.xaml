@@ -1,18 +1,21 @@
-<UserControl x:Class="PointlessWaymarks.CmsWpfControls.ContentMap.ContentMapControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentMap"
-             xmlns:contentList="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
-             xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
-             mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance local:ContentMapContext}">
+﻿<UserControl
+    x:Class="PointlessWaymarks.CmsWpfControls.ContentMap.ContentMapControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:contentList="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentList"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
+    xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentMap"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+    d:DataContext="{d:DesignInstance local:ContentMapContext}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -22,58 +25,67 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <wpf:WebView2
             Grid.Row="0"
             Grid.Column="0"
             Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
             <b:Interaction.Behaviors>
-                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}"
-                                                                            RedirectExternalLinksToBrowser="True"
-                                                                            DeferNavigationTo="{Binding MapPreviewNavigationManager}" />
+                <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
+                    DeferNavigationTo="{Binding MapPreviewNavigationManager}"
+                    RedirectExternalLinksToBrowser="True"
+                    WebViewMessenger="{Binding .}" />
             </b:Interaction.Behaviors>
         </wpf:WebView2>
-        <GridSplitter Grid.Row="0" Grid.Column="1" ResizeBehavior="PreviousAndNext" VerticalAlignment="Stretch"
-                      Width="4" />
+        <GridSplitter
+            Grid.Row="0"
+            Grid.Column="1"
+            Width="4"
+            VerticalAlignment="Stretch"
+            ResizeBehavior="PreviousAndNext" />
         <contentList:ContentListControl
             Grid.Row="0"
             Grid.Column="2"
             Margin="4,5,4,6"
             DataContext="{Binding ListContext}" />
-        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}" Visibility="{Binding LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
-            <geoSearch:GeoSearchControl DataContext="{Binding LocationSearchContext}"></geoSearch:GeoSearchControl>
+        <Border
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Style="{StaticResource ActionPanelBorderStyle}"
+            Visibility="{Binding LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
+            <geoSearch:GeoSearchControl DataContext="{Binding LocationSearchContext}" />
         </Border>
-        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource ActionPanelBorderStyle}">
+        <Border
+            Grid.Row="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel
                 Grid.Row="1"
                 HorizontalAlignment="Center"
                 Orientation="Horizontal">
-                <Button Command="{Binding RequestMapCenterOnSelectedItemsCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding RequestMapCenterOnSelectedItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Center - Selected
                 </Button>
-                <Button Command="{Binding RequestMapCenterOnFilteredItemsCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding RequestMapCenterOnFilteredItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Center - Filtered
                 </Button>
-                <Button Command="{Binding RequestMapCenterOnAllItemsCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding RequestMapCenterOnAllItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Center - All
                 </Button>
-                <Button Command="{Binding PopupsForSelectedItemsCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding PopupsForSelectedItemsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Popups - Selected
                 </Button>
-                <Button Command="{Binding CloseAllPopupsCommand}"
-                        Style="{StaticResource ActionPanelButtonStyle}">
+                <Button Command="{Binding CloseAllPopupsCommand}" Style="{StaticResource ActionPanelButtonStyle}">
                     Close All Popups
                 </Button>
                 <Button Command="{Binding SearchInBoundsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Search Here</Button>

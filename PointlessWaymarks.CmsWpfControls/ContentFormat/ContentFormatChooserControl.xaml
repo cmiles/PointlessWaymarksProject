@@ -12,7 +12,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -31,19 +31,23 @@
             SelectedItem="{Binding SelectedContentFormat}" />
         <Image
             Grid.Column="2"
+            Width="{StaticResource SmallIconSize}"
             Margin="6,0,4,0"
-            Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-            Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}"
-            Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+            VerticalAlignment="Center"
+            Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                   AppName=PointlessWaymarks.WpfCommon}"
+            Visibility="{Binding SelectedContentFormatHasChanges, Converter={StaticResource BooleanToVisibility}}">
             <Image.ToolTip>
-                <ToolTip
-                    Content="{Binding InitialValue, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                    ContentStringFormat="Original Value: {0}" />
+                <ToolTip Content="{Binding InitialValue, FallbackValue='Previously blank', TargetNullValue='Previously empty'}" ContentStringFormat="Original Value: {0}" />
             </Image.ToolTip>
         </Image>
-        <Image Grid.Column="3" ToolTip="{Binding ValidationMessage}"
-               Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-               Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-               Width="{StaticResource SmallIconSize}" VerticalAlignment="Center" />
+        <Image
+            Grid.Column="3"
+            Width="{StaticResource SmallIconSize}"
+            VerticalAlignment="Center"
+            Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                   AppName=PointlessWaymarks.WpfCommon}"
+            ToolTip="{Binding ValidationMessage}"
+            Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
     </Grid>
 </UserControl>

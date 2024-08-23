@@ -32,8 +32,7 @@
             <StaticResource ResourceKey="NewMenu" />
             <MenuItem Header="Excel">
                 <MenuItem Command="{Binding ImportFromExcelFileCommand}" Header="Import From Excel File" />
-                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}"
-                          Header="Import From Open Excel Application" />
+                <MenuItem Command="{Binding ImportFromOpenExcelInstanceCommand}" Header="Import From Open Excel Application" />
             </MenuItem>
             <StaticResource ResourceKey="ViewMenu" />
             <StaticResource ResourceKey="SiteMenu" />

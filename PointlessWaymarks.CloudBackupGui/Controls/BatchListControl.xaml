@@ -1,16 +1,19 @@
-<UserControl x:Class="PointlessWaymarks.CloudBackupGui.Controls.BatchListControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-             xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
-             xmlns:reports="clr-namespace:PointlessWaymarks.CloudBackupData.Reports;assembly=PointlessWaymarks.CloudBackupData"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance controls:BatchListContext}">
+﻿<UserControl
+    x:Class="PointlessWaymarks.CloudBackupGui.Controls.BatchListControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:reports="clr-namespace:PointlessWaymarks.CloudBackupData.Reports;assembly=PointlessWaymarks.CloudBackupData"
+    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    d:DataContext="{d:DesignInstance controls:BatchListContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,10 +21,12 @@
             </ResourceDictionary.MergedDictionaries>
             <utility:BindingProxy x:Key="proxy" Data="{Binding}" />
             <valueConverters:FileSizeConverter x:Key="HumanFileSize" />
-            <CollectionViewSource x:Key="SortedItems" Source="{Binding Items}"
-                                  xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase">
+            <CollectionViewSource
+                xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                x:Key="SortedItems"
+                Source="{Binding Items}">
                 <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="DbBatch.CreatedOn" Direction="Descending" />
+                    <scm:SortDescription Direction="Descending" PropertyName="DbBatch.CreatedOn" />
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
         </ResourceDictionary>
@@ -33,9 +38,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <GroupBox
-                    Margin="4,4,4,0"
-                    Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox Margin="4,4,4,0" Style="{StaticResource UiComponentGroupBoxStyle}">
                     <GroupBox.Header>
                         <TextBlock Margin="6,4,0,0">
                             <TextBlock.Text>
@@ -49,10 +52,11 @@
                             </TextBlock.Text>
                         </TextBlock>
                     </GroupBox.Header>
-                    <ListBox ItemsSource="{Binding Source={StaticResource SortedItems}}"
-                             Style="{StaticResource ContentListListBoxStyle}"
-                             SelectedItem="{Binding SelectedBatch}"
-                             behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedBatches}">
+                    <ListBox
+                        behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedBatches}"
+                        ItemsSource="{Binding Source={StaticResource SortedItems}}"
+                        SelectedItem="{Binding SelectedBatch}"
+                        Style="{StaticResource ContentListListBoxStyle}">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type controls:BatchListListItem}">
                                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
@@ -62,11 +66,12 @@
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
-                                        <TextBox FontWeight="Bold" Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                                 TextWrapping="Wrap">
+                                        <TextBox
+                                            FontWeight="Bold"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                            TextWrapping="Wrap">
                                             <TextBox.Text>
-                                                <MultiBinding
-                                                    StringFormat="Latest Cloud Activity {0} - Id {1} - Uploads {2:P0} Complete - Created {3} - Based On New Cloud File Scan: {4}">
+                                                <MultiBinding StringFormat="Latest Cloud Activity {0} - Id {1} - Uploads {2:P0} Complete - Created {3} - Based On New Cloud File Scan: {4}">
                                                     <Binding Path="Statistics.LatestCloudActivity" />
                                                     <Binding Path="Statistics.BatchId" />
                                                     <Binding Path="Statistics.UploadsSizeCompletedPercentage" />
@@ -75,14 +80,15 @@
                                                 </MultiBinding>
                                             </TextBox.Text>
                                         </TextBox>
-                                        <WrapPanel Grid.Row="1" Margin="10,6,0,4"
-                                                   Orientation="Horizontal">
-                                            <StackPanel Orientation="Vertical" Width="380">
-                                                <Label FontWeight="DemiBold" Margin="4">Copies</Label>
+                                        <WrapPanel
+                                            Grid.Row="1"
+                                            Margin="10,6,0,4"
+                                            Orientation="Horizontal">
+                                            <StackPanel Width="380" Orientation="Vertical">
+                                                <Label Margin="4" FontWeight="DemiBold">Copies</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
+                                                        <MultiBinding StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
                                                             <Binding Path="Statistics.CopiesCount" />
                                                             <Binding Path="Statistics.CopiesCompleteCount" />
                                                             <Binding Path="Statistics.CopiesNotCompletedCount" />
@@ -92,31 +98,28 @@
                                                 </TextBlock>
                                                 <TextBlock Margin="14,4,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="Statistics.CopiesSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.CopiesCompleteSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.CopiesNotCompletedSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.CopiesWithErrorNoteSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                        <MultiBinding StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.CopiesSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.CopiesCompleteSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.CopiesNotCompletedSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.CopiesWithErrorNoteSize" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-                                                <Button HorizontalAlignment="Left" Margin="24,8,8,8" Width="300"
-                                                        Command="{Binding Data.CopiesToExcelCommand, Source={StaticResource proxy}}"
-                                                        CommandParameter="{Binding Statistics.BatchId}">
+                                                <Button
+                                                    Width="300"
+                                                    Margin="24,8,8,8"
+                                                    HorizontalAlignment="Left"
+                                                    Command="{Binding Data.CopiesToExcelCommand, Source={StaticResource proxy}}"
+                                                    CommandParameter="{Binding Statistics.BatchId}">
                                                     Copies Report
                                                 </Button>
                                             </StackPanel>
-                                            <StackPanel Orientation="Vertical" Width="380">
-                                                <Label FontWeight="DemiBold" Margin="4">Uploads</Label>
+                                            <StackPanel Width="380" Orientation="Vertical">
+                                                <Label Margin="4" FontWeight="DemiBold">Uploads</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
+                                                        <MultiBinding StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
                                                             <Binding Path="Statistics.UploadsCount" />
                                                             <Binding Path="Statistics.UploadsCompleteCount" />
                                                             <Binding Path="Statistics.UploadsNotCompletedCount" />
@@ -126,31 +129,28 @@
                                                 </TextBlock>
                                                 <TextBlock Margin="14,4,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="Statistics.UploadSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.UploadsCompleteSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.UploadsNotCompletedSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.UploadsWithErrorNoteSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                        <MultiBinding StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.UploadSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.UploadsCompleteSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.UploadsNotCompletedSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.UploadsWithErrorNoteSize" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-                                                <Button HorizontalAlignment="Left" Margin="24,8,8,8" Width="300"
-                                                        Command="{Binding Data.UploadsToExcelCommand, Source={StaticResource proxy}}"
-                                                        CommandParameter="{Binding Statistics.BatchId}">
+                                                <Button
+                                                    Width="300"
+                                                    Margin="24,8,8,8"
+                                                    HorizontalAlignment="Left"
+                                                    Command="{Binding Data.UploadsToExcelCommand, Source={StaticResource proxy}}"
+                                                    CommandParameter="{Binding Statistics.BatchId}">
                                                     Uploads Report
                                                 </Button>
                                             </StackPanel>
-                                            <StackPanel Orientation="Vertical" Width="380">
-                                                <Label FontWeight="DemiBold" Margin="4">Deletions</Label>
+                                            <StackPanel Width="380" Orientation="Vertical">
+                                                <Label Margin="4" FontWeight="DemiBold">Deletions</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
+                                                        <MultiBinding StringFormat="By File Count: {0:N0}; {1:N0} Complete; {2:N0} Remaining; {3:N0} Errors">
                                                             <Binding Path="Statistics.DeletesCount" />
                                                             <Binding Path="Statistics.DeletesCompleteCount" />
                                                             <Binding Path="Statistics.DeletesNotCompletedCount" />
@@ -160,61 +160,63 @@
                                                 </TextBlock>
                                                 <TextBlock Margin="14,4,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
-                                                            <Binding Path="Statistics.DeletesSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.DeletesCompleteSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.DeletesNotCompletedSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
-                                                            <Binding Path="Statistics.DeletesWithErrorNoteSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                        <MultiBinding StringFormat="By Size: {0}; {1} Complete; {2} Remaining; {3} Errors">
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.DeletesSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.DeletesCompleteSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.DeletesNotCompletedSize" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.DeletesWithErrorNoteSize" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-                                                <Button Width="300" Margin="24,8,8,8" HorizontalAlignment="Left"
-                                                        Command="{Binding Data.DeletesToExcelCommand, Source={StaticResource proxy}}"
-                                                        CommandParameter="{Binding Statistics.BatchId}">
+                                                <Button
+                                                    Width="300"
+                                                    Margin="24,8,8,8"
+                                                    HorizontalAlignment="Left"
+                                                    Command="{Binding Data.DeletesToExcelCommand, Source={StaticResource proxy}}"
+                                                    CommandParameter="{Binding Statistics.BatchId}">
                                                     Deletion Report
                                                 </Button>
                                             </StackPanel>
-                                            <StackPanel Orientation="Vertical" Width="380">
-                                                <Label FontWeight="DemiBold" Margin="4">Files</Label>
+                                            <StackPanel Width="380" Orientation="Vertical">
+                                                <Label Margin="4" FontWeight="DemiBold">Files</Label>
                                                 <TextBlock Margin="14,0,4,4" TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding
-                                                            StringFormat="When the Batch was started there were {0:N0} Local Files totaling {1} and {2:N0} Cloud Files totaling {3}.">
+                                                        <MultiBinding StringFormat="When the Batch was started there were {0:N0} Local Files totaling {1} and {2:N0} Cloud Files totaling {3}.">
                                                             <Binding Path="Statistics.LocalFileCount" />
-                                                            <Binding Path="Statistics.LocalFileSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.LocalFileSize" />
                                                             <Binding Path="Statistics.CloudFileCount" />
-                                                            <Binding Path="Statistics.CloudFileSize"
-                                                                     Converter="{StaticResource HumanFileSize}" />
+                                                            <Binding Converter="{StaticResource HumanFileSize}" Path="Statistics.CloudFileSize" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-                                                <Grid Width="300" HorizontalAlignment="Left" Margin="24,8,8,8">
+                                                <Grid
+                                                    Width="300"
+                                                    Margin="24,8,8,8"
+                                                    HorizontalAlignment="Left">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition></ColumnDefinition>
-                                                        <ColumnDefinition></ColumnDefinition>
+                                                        <ColumnDefinition />
+                                                        <ColumnDefinition />
                                                     </Grid.ColumnDefinitions>
-                                                    <Button
-                                                        Command="{Binding Data.LocalFilesToExcelCommand, Source={StaticResource proxy}}"
-                                                        CommandParameter="{Binding Statistics.BatchId}">
+                                                    <Button Command="{Binding Data.LocalFilesToExcelCommand, Source={StaticResource proxy}}" CommandParameter="{Binding Statistics.BatchId}">
                                                         Local Files At Creation
                                                     </Button>
-                                                    <Button Grid.Column="1"
-                                                            Command="{Binding Data.CloudFilesToExcelCommand, Source={StaticResource proxy}}"
-                                                            CommandParameter="{Binding Statistics.BatchId}">
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        Command="{Binding Data.CloudFilesToExcelCommand, Source={StaticResource proxy}}"
+                                                        CommandParameter="{Binding Statistics.BatchId}">
                                                         Cloud Files at Creation
                                                     </Button>
                                                 </Grid>
                                             </StackPanel>
                                         </WrapPanel>
-                                        <Button Grid.Row="2" Margin="8" Height="30" Width="720" HorizontalAlignment="Left"
-                                                Command="{Binding Data.BatchToExcelCommand, Source={StaticResource proxy}}"
-                                                CommandParameter="{Binding Statistics.BatchId}">
+                                        <Button
+                                            Grid.Row="2"
+                                            Width="720"
+                                            Height="30"
+                                            Margin="8"
+                                            HorizontalAlignment="Left"
+                                            Command="{Binding Data.BatchToExcelCommand, Source={StaticResource proxy}}"
+                                            CommandParameter="{Binding Statistics.BatchId}">
                                             <TextBlock>Full Report</TextBlock>
                                         </Button>
                                     </Grid>
@@ -226,13 +228,13 @@
                 <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
                     <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                         <Button
+                            Command="{Binding DeleteSelectedBatchesCommand}"
                             Content="Delete Selected"
-                            Style="{StaticResource ActionPanelButtonStyle}"
-                            Command="{Binding DeleteSelectedBatchesCommand}" />
+                            Style="{StaticResource ActionPanelButtonStyle}" />
                         <Button
+                            Command="{Binding RefreshListCommand}"
                             Content="_Refresh"
-                            Style="{StaticResource ActionPanelButtonStyle}"
-                            Command="{Binding RefreshListCommand}" />
+                            Style="{StaticResource ActionPanelButtonStyle}" />
                     </WrapPanel>
                 </Border>
             </Grid>

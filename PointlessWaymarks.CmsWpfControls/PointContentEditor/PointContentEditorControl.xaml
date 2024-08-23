@@ -1,28 +1,28 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.PointContentEditor.PointContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.DropdownDataEntry"
+    xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pointContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PointContentEditor"
     xmlns:pointDetailEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.PointDetailEditor"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:titleSummarySlugFolderEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor"
     xmlns:updateNotesEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UpdateNotesEditor"
+    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
-    xmlns:dropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.DropdownDataEntry"
-    xmlns:geoSearch="clr-namespace:PointlessWaymarks.CmsWpfControls.GeoSearch"
     d:DataContext="{d:DesignInstance pointContentEditor:PointContentEditorContext}"
     d:DesignHeight="800"
     d:DesignWidth="800"
@@ -44,17 +44,11 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
-                                DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
-                                DataContext="{Binding MainSiteFeed}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
-                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
-                                DataContext="{Binding CreatedUpdatedDisplay}"
-                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
-                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -70,17 +64,20 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
-                            Style="{StaticResource ActionPanelBorderStyle}">
+                    <Border
+                        Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Grid.Column="1"
+                        Style="{StaticResource ActionPanelBorderStyle}">
                         <ScrollViewer
                             HorizontalContentAlignment="Left"
                             HorizontalScrollBarVisibility="Disabled"
                             VerticalScrollBarVisibility="Auto">
                             <StackPanel
-                                Orientation="Vertical"
                                 Margin="4"
                                 HorizontalAlignment="Center"
-                                VerticalAlignment="Top">
+                                VerticalAlignment="Top"
+                                Orientation="Vertical">
                                 <StackPanel.Resources>
                                     <Style TargetType="conversionDataEntry:ConversionDataEntryControl">
                                         <Setter Property="Width" Value="210" />
@@ -95,12 +92,9 @@
                                         <Setter Property="HorizontalAlignment" Value="Left" />
                                     </Style>
                                 </StackPanel.Resources>
-                                <conversionDataEntry:ConversionDataEntryControl
-                                    DataContext="{Binding LatitudeEntry}" />
-                                <conversionDataEntry:ConversionDataEntryControl
-                                    DataContext="{Binding LongitudeEntry}" />
-                                <conversionDataEntry:ConversionDataEntryControl
-                                    DataContext="{Binding ElevationEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding LatitudeEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding LongitudeEntry}" />
+                                <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ElevationEntry}" />
                                 <Button
                                     Width="190"
                                     Margin="5,10,5,12"
@@ -116,27 +110,31 @@
                                     Add Feature Intersect Tags
                                 </Button>
                                 <stringDataEntry:StringDataEntryControl DataContext="{Binding MapLabelContentEntry}" />
-                                <dropdownDataEntry:ContentMapIconDataEntryControl
-                                    DataContext="{Binding MapIconEntry}" />
-                                <dropdownDataEntry:ContentMapMarkerColorDataEntryControl
-                                    DataContext="{Binding MapMarkerColorEntry}" />
+                                <dropdownDataEntry:ContentMapIconDataEntryControl DataContext="{Binding MapIconEntry}" />
+                                <dropdownDataEntry:ContentMapMarkerColorDataEntryControl DataContext="{Binding MapMarkerColorEntry}" />
                             </StackPanel>
                         </ScrollViewer>
                     </Border>
                     <wpf:WebView2
-                        Grid.Row="0" Grid.Column="0"
+                        Grid.Row="0"
+                        Grid.Column="0"
                         Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
                         <b:Interaction.Behaviors>
-                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}"
-                                DeferNavigationTo="{Binding MapPreviewNavigationManager}" />
+                            <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior DeferNavigationTo="{Binding MapPreviewNavigationManager}" WebViewMessenger="{Binding .}" />
                         </b:Interaction.Behaviors>
                     </wpf:WebView2>
-                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource ActionPanelBorderStyle}"
-                            Visibility="{Binding LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Style="{StaticResource ActionPanelBorderStyle}"
+                        Visibility="{Binding LocationSearchContext.ApiAvailable, Converter={StaticResource BooleanToVisibility}}">
                         <geoSearch:GeoSearchControl DataContext="{Binding LocationSearchContext}" />
                     </Border>
-                    <Border Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0"
-                            Style="{StaticResource ActionPanelBorderStyle}">
+                    <Border
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Style="{StaticResource ActionPanelBorderStyle}">
                         <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
                             <Button
                                 Command="{Binding SearchPointsInBoundsCommand}"

@@ -1,13 +1,13 @@
-<UserControl
+﻿<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.SitePreview.SitePreviewControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sitePreview="clr-namespace:PointlessWaymarks.CmsWpfControls.SitePreview"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpf1="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
-    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance sitePreview:SitePreviewContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -61,27 +61,22 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Button Command="{Binding TryGoBackNavigationCommand}">
-                    <Image
-                        Source="{svgc:SvgImage Source=/Icons/arrow-left-circle.svg, AppName=PointlessWaymarks.WpfCommon}">
-                    </Image>
+                    <Image Source="{svgc:SvgImage Source=/Icons/arrow-left-circle.svg, AppName=PointlessWaymarks.WpfCommon}" />
                 </Button>
                 <Button Grid.Column="1" Command="{Binding TryGoForwardNavigationCommand}">
-                    <Image
-                        Source="{svgc:SvgImage Source=/Icons/arrow-right-circle.svg, AppName=PointlessWaymarks.WpfCommon}">
-                    </Image>
+                    <Image Source="{svgc:SvgImage Source=/Icons/arrow-right-circle.svg, AppName=PointlessWaymarks.WpfCommon}" />
                 </Button>
                 <Button Grid.Column="2" Command="{Binding TryRefreshCommand}">
-                    <Image
-                        Source="{svgc:SvgImage Source=/Icons/refresh-circle.svg, AppName=PointlessWaymarks.WpfCommon}">
-                    </Image>
+                    <Image Source="{svgc:SvgImage Source=/Icons/refresh-circle.svg, AppName=PointlessWaymarks.WpfCommon}" />
                 </Button>
                 <Button Grid.Column="3" Command="{Binding TryNavigateHomeCommand}">
-                    <Image
-                        Source="{svgc:SvgImage Source=/Icons/home-circle.svg, AppName=PointlessWaymarks.WpfCommon}">
-                    </Image>
+                    <Image Source="{svgc:SvgImage Source=/Icons/home-circle.svg, AppName=PointlessWaymarks.WpfCommon}" />
                 </Button>
-                <Menu Grid.Column="4" VerticalAlignment="Center" Margin="6,0,0,0">
-                    <MenuItem Header="Common Locations" Padding="6">
+                <Menu
+                    Grid.Column="4"
+                    Margin="6,0,0,0"
+                    VerticalAlignment="Center">
+                    <MenuItem Padding="6" Header="Common Locations">
                         <MenuItem Command="{Binding TryNavigateToSearchPageCommand}" Header="Search Page" />
                         <MenuItem Command="{Binding TryNavigateToLatestContentGalleryCommand}" Header="Latest Content" />
                         <MenuItem Command="{Binding TryNavigateToCameraRollGalleryCommand}" Header="Photo Gallery" />

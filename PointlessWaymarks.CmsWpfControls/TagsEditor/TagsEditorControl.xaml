@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
     d:DataContext="{d:DesignInstance tagsEditor:TagsEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -14,7 +14,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -27,21 +27,23 @@
                     Target="{Binding ElementName=TagsTextBox}"
                     ToolTip="{Binding HelpText}" />
                 <Image
+                    Width="{StaticResource SmallIconSize}"
                     Margin="0,0,4,0"
-                    Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                    Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
-                    Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                    VerticalAlignment="Center"
+                    Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                           AppName=PointlessWaymarks.WpfCommon}"
+                    Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}">
                     <Image.ToolTip>
-                        <ToolTip
-                            Content="{Binding DbEntry.Tags, FallbackValue='Previously blank', TargetNullValue='Previously empty'}"
-                            ContentStringFormat="Original Value: {0}" />
+                        <ToolTip Content="{Binding DbEntry.Tags, FallbackValue='Previously blank', TargetNullValue='Previously empty'}" ContentStringFormat="Original Value: {0}" />
                     </Image.ToolTip>
                 </Image>
-                <Image ToolTip="{Binding TagsValidationMessage}"
-                       Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg, AppName=PointlessWaymarks.WpfCommon}"
-                       Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}"
-                       Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
-                </Image>
+                <Image
+                    Width="{StaticResource SmallIconSize}"
+                    VerticalAlignment="Center"
+                    Source="{svgc:SvgImage Source=/Icons/alert-octagon.svg,
+                                           AppName=PointlessWaymarks.WpfCommon}"
+                    ToolTip="{Binding TagsValidationMessage}"
+                    Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
             <TextBox
                 Name="TagsTextBox"

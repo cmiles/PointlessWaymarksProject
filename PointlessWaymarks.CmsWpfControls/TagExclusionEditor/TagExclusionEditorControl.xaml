@@ -6,11 +6,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:tagExclusionEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagExclusionEditor"
     xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     Name="TagExclusionEditorControlXaml"
     d:DataContext="{d:DesignInstance tagExclusionEditor:TagExclusionEditorContext}"
     d:DesignHeight="450"
@@ -20,7 +20,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-                
+
             </ResourceDictionary.MergedDictionaries>
             <wpfConverter:BooleanToHiddenConverter x:Key="BooleanToHidden" />
         </ResourceDictionary>
@@ -37,7 +37,10 @@
             <StaticResource ResourceKey="ViewMenu" />
             <StaticResource ResourceKey="SiteMenu" />
         </Menu>
-        <GroupBox Grid.Row="1" Header="Notes" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <GroupBox
+            Grid.Row="1"
+            Header="Notes"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
             <wpf:MarkdownViewer Markdown="{Binding HelpMarkdown}" />
         </GroupBox>
         <GroupBox
@@ -78,13 +81,13 @@
                                         VerticalContentAlignment="Center"
                                         Text="{Binding TagValue, UpdateSourceTrigger=PropertyChanged}" />
                                     <Image
-                                        Source="{svgc:SvgImage Source=/Icons/information-outline.svg, AppName=PointlessWaymarks.WpfCommon}"
-                                        Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}"
-                                        Width="{StaticResource SmallIconSize}" VerticalAlignment="Center">
+                                        Width="{StaticResource SmallIconSize}"
+                                        VerticalAlignment="Center"
+                                        Source="{svgc:SvgImage Source=/Icons/information-outline.svg,
+                                                               AppName=PointlessWaymarks.WpfCommon}"
+                                        Visibility="{Binding HasChanges, Converter={StaticResource BooleanToVisibility}}">
                                         <Image.ToolTip>
-                                            <ToolTip
-                                                Content="{Binding DbEntry.Tag, FallbackValue='New Entry', TargetNullValue='New Entry'}"
-                                                ContentStringFormat="Original Value: {0}" />
+                                            <ToolTip Content="{Binding DbEntry.Tag, FallbackValue='New Entry', TargetNullValue='New Entry'}" ContentStringFormat="Original Value: {0}" />
                                         </Image.ToolTip>
                                     </Image>
                                     <Button

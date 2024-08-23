@@ -1,16 +1,19 @@
-﻿<UserControl x:Class="PointlessWaymarks.SiteViewerGui.SiteChooserControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PointlessWaymarks.SiteViewerGui"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:SiteChooserContext}"
-             Name="SettingsFileChooserControlXaml">
+﻿<UserControl
+    x:Class="PointlessWaymarks.SiteViewerGui.SiteChooserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarks.SiteViewerGui"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Name="SettingsFileChooserControlXaml"
+    d:DataContext="{d:DesignInstance local:SiteChooserContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
     <UserControl.Resources>
-        <DataTemplate DataType="{x:Type local:SiteSettingsFileListItem}" x:Key="SettingsFileItemTemplate">
+        <DataTemplate x:Key="SettingsFileItemTemplate" DataType="{x:Type local:SiteSettingsFileListItem}">
             <Border
                 Background="White"
                 BorderBrush="DarkGreen"
@@ -55,7 +58,7 @@
                 </Grid>
             </Border>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type local:SiteDirectoryListItem}" x:Key="ProjectDirectoryFileItemTemplate">
+        <DataTemplate x:Key="ProjectDirectoryFileItemTemplate" DataType="{x:Type local:SiteDirectoryListItem}">
             <Border
                 Background="White"
                 BorderBrush="DarkGreen"
@@ -76,9 +79,7 @@
                         Grid.Column="1"
                         Margin="4,0,0,0"
                         Orientation="Vertical">
-                        <TextBlock
-                            Text="{Binding SiteDirectory.FullName}"
-                            TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding SiteDirectory.FullName}" TextWrapping="Wrap" />
                     </StackPanel>
                     <Button
                         Grid.Column="1"
@@ -100,8 +101,8 @@
         </DataTemplate>
         <local:SiteChooserDataTemplateSelector
             x:Key="ProjectTemplateSelector"
-            SiteSettingsFileTemplate="{StaticResource SettingsFileItemTemplate}"
-            SiteDirectoryTemplate="{StaticResource ProjectDirectoryFileItemTemplate}" />
+            SiteDirectoryTemplate="{StaticResource ProjectDirectoryFileItemTemplate}"
+            SiteSettingsFileTemplate="{StaticResource SettingsFileItemTemplate}" />
     </UserControl.Resources>
     <StackPanel>
         <TextBlock
@@ -121,19 +122,19 @@
                 Height="200"
                 HorizontalContentAlignment="Stretch"
                 BorderThickness="0"
+                ItemTemplateSelector="{StaticResource ProjectTemplateSelector}"
                 ItemsSource="{Binding Items}"
                 ScrollViewer.CanContentScroll="True"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 SelectionMode="Single"
                 VirtualizingPanel.IsVirtualizing="False"
-                VirtualizingPanel.ScrollUnit="Pixel"
-                ItemTemplateSelector="{StaticResource ProjectTemplateSelector}">
+                VirtualizingPanel.ScrollUnit="Pixel">
                 <b:Interaction.Behaviors>
                     <behaviors:ListBoxOneLineMouseWheelScroll />
                 </b:Interaction.Behaviors>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
@@ -145,16 +146,16 @@
             Header="Select a Settings File or Site Generated Files Directory">
             <WrapPanel Orientation="Horizontal">
                 <Button
-                    Height="40"
                     Width="190"
+                    Height="40"
                     Margin="6,8,4,8"
                     Command="{Binding ChooseFileCommand}"
                     FontSize="14">
                     Select Settings File (.ini)
                 </Button>
                 <Button
-                    Height="40"
                     Width="190"
+                    Height="40"
                     Margin="6,8,4,8"
                     Command="{Binding ChooseDirectoryCommand}"
                     FontSize="14">

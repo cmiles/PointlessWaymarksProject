@@ -1,14 +1,15 @@
-﻿<Window x:Class="PointlessWaymarks.CmsWpfControls.MapComponentList.MapComponentListWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentList"
-        Title="{Binding WindowTitle}"
-        Width="1000"
-        Height="750"
-        mc:Ignorable="d" 
-        d:DataContext="{d:DesignInstance local:MapComponentListWindow}">
+﻿<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.MapComponentList.MapComponentListWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.MapComponentList"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="{Binding WindowTitle}"
+    Width="1000"
+    Height="750"
+    d:DataContext="{d:DesignInstance local:MapComponentListWindow}"
+    mc:Ignorable="d">
     <Grid>
         <local:MapComponentListWithActionsControl DataContext="{Binding ListContext}" />
     </Grid>
