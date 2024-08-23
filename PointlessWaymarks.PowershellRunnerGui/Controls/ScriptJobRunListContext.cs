@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
+using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
@@ -29,13 +30,15 @@ public partial class ScriptJobRunListContext
     public required string FilterDescription { get; set; }
     public required ObservableCollection<ScriptJobRunGuiView> Items { get; set; }
     public List<Guid> JobFilter { get; set; } = [];
+    public Func<ScriptJobRun, bool> RunFilter { get; set; } = _ => true;
+    public string RunFilterDescription { get; set; } = string.Empty;
     public required StringDataEntryNoIndicatorsContext ScriptViewerContext { get; set; }
     public ScriptJobRunGuiView? SelectedItem { get; set; }
     public List<ScriptJobRunGuiView> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<ScriptJobRunListContext> CreateInstance(StatusControlContext? statusContext,
-        List<Guid> jobFilter, string databaseFile)
+        List<Guid> jobFilter, string databaseFile, Func<ScriptJobRun, bool>? runFilter = null, string? runFilterDescription = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -48,6 +51,8 @@ public partial class ScriptJobRunListContext
                 .OrderByDescending(x => x.StartedOnUtc).AsNoTracking().ToListAsync()
             : await db.ScriptJobRuns.OrderByDescending(x => x.StartedOnUtc).AsNoTracking().ToListAsync();
 
+        if (runFilter is not null) filteredRuns = filteredRuns.Where(runFilter).ToList();
+
         var possibleJobs = jobFilter.Any()
             ? await db.ScriptJobs.Where(x => jobFilter.Contains(x.PersistentId)).ToListAsync()
             : await db.ScriptJobs.ToListAsync();
@@ -55,6 +60,8 @@ public partial class ScriptJobRunListContext
         var filterDescription = jobFilter.Any()
             ? $"Job{(possibleJobs.Count > 1 ? "s" : "")}: {string.Join(", ", possibleJobs.OrderBy(x => x.Name).Select(x => x.Name))}"
             : "All Jobs";
+
+        if (!string.IsNullOrWhiteSpace(runFilterDescription)) filterDescription += $" - {runFilterDescription}";
 
         var runList = new List<ScriptJobRunGuiView>();
 
@@ -74,6 +81,8 @@ public partial class ScriptJobRunListContext
             JobFilter = jobFilter,
             FilterDescription = filterDescription,
             ScriptViewerContext = factoryScriptViewerContext,
+            RunFilter = runFilter ?? (_ => true),
+            RunFilterDescription = runFilterDescription ?? string.Empty,
             _key = key,
             _databaseFile = databaseFile,
             _dbId = dbId
@@ -105,6 +114,7 @@ public partial class ScriptJobRunListContext
                 "You can only delete runs that are completed - Cancel any active runs before deleting them.");
             return;
         }
+
         var selectedIdsToDelete = SelectedItems.Select(x => x.PersistentId).ToList();
 
         if (selectedIdsToDelete.Count > 1)

@@ -1,19 +1,22 @@
-<Window x:Class="PointlessWaymarks.PowerShellRunnerGui.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
-        xmlns:powershellRunnerGui="clr-namespace:PointlessWaymarks.PowerShellRunnerGui"
-        xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
-        xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-        xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
-        xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
-        mc:Ignorable="d"
-        Loaded="MainWindow_OnLoaded"
-        Closing="MainWindow_OnClosing"
-        Title="{Binding InfoTitle}" Height="450" Width="800"
-        d:DataContext="{d:DesignInstance powershellRunnerGui:MainWindow }">
+<Window
+    x:Class="PointlessWaymarks.PowerShellRunnerGui.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:powershellRunnerGui="clr-namespace:PointlessWaymarks.PowerShellRunnerGui"
+    xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    Title="{Binding InfoTitle}"
+    Width="800"
+    Height="450"
+    d:DataContext="{d:DesignInstance powershellRunnerGui:MainWindow}"
+    Closing="MainWindow_OnClosing"
+    Loaded="MainWindow_OnLoaded"
+    mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -22,12 +25,38 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
+        <Grid
+            Margin="564,2,4,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button Padding="2,0,4,0" Command="{Binding NewDatabaseCommand}">New Database</Button>
+            <Button
+                Grid.Column="1"
+                Padding="2,0,4,0"
+                Command="{Binding ChooseCurrentDbCommand}">
+                Open Database
+            </Button>
+            <TextBox
+                Grid.Column="2"
+                Margin="2,0,4,0"
+                Style="{StaticResource ReadOnlyTextBoxStyle}"
+                Text="{Binding CurrentDatabase}"
+                ToolTip="{Binding CurrentDatabase}" />
+        </Grid>
         <TabControl>
             <TabItem Header="Job List">
                 <controls:ScriptJobListControl DataContext="{Binding JobListContext}" />
             </TabItem>
             <TabItem Header="Run List">
-                <controls:ScriptJobRunListControl DataContext="{Binding RunListContext}"></controls:ScriptJobRunListControl>
+                <controls:ScriptJobRunListControl DataContext="{Binding AllRunListContext}" />
+            </TabItem>
+            <TabItem Header="Run List - Errors">
+                <controls:ScriptJobRunListControl DataContext="{Binding ErrorRunListContext}" />
             </TabItem>
             <TabItem Header="Custom Script">
                 <controls:CustomScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
@@ -39,29 +68,21 @@
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpContext}" />
             </TabItem>
             <TabItem Header="App Settings">
-                <controls:AppSettingsControl DataContext="{Binding SettingsContext}"></controls:AppSettingsControl>
+                <controls:AppSettingsControl DataContext="{Binding SettingsContext}" />
             </TabItem>
         </TabControl>
-        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="448,2,4,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-
-            </Grid.ColumnDefinitions>
-            <Button Padding="2,0,4,0" Command="{Binding NewDatabaseCommand}">New Database</Button>
-            <Button Grid.Column="1" Padding="2,0,4,0" Command="{Binding ChooseCurrentDbCommand}">Open Database</Button>
-            <TextBox Grid.Column="2" Margin="2,0,4,0" Text="{Binding CurrentDatabase}" ToolTip="{Binding CurrentDatabase}" Style="{StaticResource ReadOnlyTextBoxStyle}"></TextBox>
-        </Grid>
-        <programUpdateMessage:ProgramUpdateMessageControl VerticalAlignment="Top" HorizontalAlignment="Center"
-                                                          Width="400" DataContext="{Binding UpdateMessageContext}" />
+        <programUpdateMessage:ProgramUpdateMessageControl
+            Width="400"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            DataContext="{Binding UpdateMessageContext}" />
         <status:StatusControl
             Grid.Row="0"
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
         <windowScreenShot:WindowScreenShotControl
-            Margin="2,2,2,6"
             Width="40"
+            Margin="2,2,2,6"
             HorizontalAlignment="Left"
             VerticalAlignment="Bottom" />
     </Grid>

@@ -68,7 +68,6 @@ public partial class MainWindow
     public CustomScriptRunnerContext? ArbitraryRunnerContext { get; set; }
     public string CurrentDatabase { get; set; } = string.Empty;
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
-
     public HelpDisplayContext? HelpContext { get; set; }
 
     public string HelpText => """
@@ -79,16 +78,12 @@ public partial class MainWindow
                               """;
 
     public string InfoTitle { get; set; }
-
     public ScriptJobListContext? JobListContext { get; set; }
-
     public ScriptProgressContext? ProgressContext { get; set; }
-    public ScriptJobRunListContext? RunListContext { get; set; }
-
+    public ScriptJobRunListContext? AllRunListContext { get; set; }
+    public ScriptJobRunListContext? ErrorRunListContext { get; set; }
     public AppSettingsContext? SettingsContext { get; set; }
-
     public StatusControlContext StatusContext { get; set; }
-
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 
     private void CheckAndRunJobsBasedOnCronExpression()
@@ -222,7 +217,8 @@ public partial class MainWindow
         _ = PowerShellRunner.CleanUpOrphanRuns(CurrentDatabase, _dbId);
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
-        RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
+        AllRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
+        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase, x => x.Errors, "Runs with Errors");
         ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
@@ -328,7 +324,8 @@ public partial class MainWindow
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
-        RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
+        AllRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
+        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase, x => x.Errors, "Runs with Errors");
         ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
@@ -409,7 +406,8 @@ public partial class MainWindow
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
-        RunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
+        AllRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
+        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase, x => x.Errors, "Runs with Errors");
         ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
