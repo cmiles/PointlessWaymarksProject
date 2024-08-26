@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using Amazon.S3;
 using Amazon.S3.Transfer;
@@ -201,7 +202,7 @@ public static class CloudTransfer
                     $"Copy Upload {copyCount} - {copyUpload.NewCloudObjectKey} - {FileAndFolderTools.GetBytesReadable(copyUploadLength)} - {estimateCurrentCopyUpload}");
                 
                 var transferRequest =
-                    await S3Tools.S3TransferUploadRequest(localFileToCopy, copyUpload.BucketName,
+                    await S3Tools.S3TransferUploadRequestFilePath(localFileToCopy, copyUpload.BucketName,
                         copyUpload.NewCloudObjectKey);
                 
                 if (accountInformation.S3Provider() == S3Providers.Cloudflare)
@@ -209,8 +210,21 @@ public static class CloudTransfer
                 
                 try
                 {
-                    await pollyS3RetryPolicy.ExecuteAsync(() => copyUploadTransferUtility.UploadAsync(transferRequest));
-                    
+                    //8/25/2024 - See notes in the Upload Section about this code
+                    await Policy.Handle<Exception>()
+                        .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(2 * (retryAttempt + 1)), async (exception, _, retryCount, _) =>
+                        {
+                            if (exception is IOException && retryCount == 1)
+                            {
+                                var fileStream = new FileStream(localFileToCopy.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+                                transferRequest =
+                                    await S3Tools.S3TransferUploadRequestFileStream(localFileToCopy, copyUpload.BucketName, copyUpload.NewCloudObjectKey);
+
+                                if (accountInformation.S3Provider() == S3Providers.Cloudflare) transferRequest.DisablePayloadSigning = true;
+                            }
+                        }).ExecuteAsync(() => copyUploadTransferUtility.UploadAsync(transferRequest));
+
                     copyUpload.LastUpdatedOn = DateTime.Now;
                     copyUpload.CopyCompletedSuccessfully = true;
                     copyUpload.ErrorMessage = string.Empty;
@@ -358,13 +372,28 @@ public static class CloudTransfer
                 $"Upload {uploadCount} - {upload.CloudObjectKey} - {FileAndFolderTools.GetBytesReadable(uploadLength)} - {estimateCurrentUpload}");
             
             var transferRequest =
-                await S3Tools.S3TransferUploadRequest(localFile, upload.BucketName, upload.CloudObjectKey);
-            
+                await S3Tools.S3TransferUploadRequestFilePath(localFile, upload.BucketName, upload.CloudObjectKey);
+
             if (accountInformation.S3Provider() == S3Providers.Cloudflare) transferRequest.DisablePayloadSigning = true;
             
             try
             {
-                await pollyS3RetryPolicy.ExecuteAsync(() => transferUtility.UploadAsync(transferRequest));
+                //2024-08-25 - Creating an upload request with a stream allows for some in-use files to be copied without error, but
+                // with terabytes of data uploaded via the filepath method I'm reluctant to switch completely to the stream method - also
+                // while performance should likely be the same it did seem in some quick testing that the path version may perform better
+                // in some cases?
+                await Policy.Handle<Exception>()
+                    .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(2 * (retryAttempt + 1)), async (exception, _, retryCount, _) =>
+                    {
+                        if (exception is IOException && retryCount == 1)
+                        {
+                            transferRequest =
+                                await S3Tools.S3TransferUploadRequestFileStream(localFile, upload.BucketName, upload.CloudObjectKey);
+
+                            if (accountInformation.S3Provider() == S3Providers.Cloudflare) transferRequest.DisablePayloadSigning = true;
+                        }
+                    }).ExecuteAsync(() => transferUtility.UploadAsync(transferRequest));
+
                 upload.LastUpdatedOn = DateTime.Now;
                 upload.UploadCompletedSuccessfully = true;
                 upload.ErrorMessage = string.Empty;

@@ -196,7 +196,7 @@ public partial class FilesWrittenLogListContext
         await ThreadSwitcher.ResumeForegroundAsync();
         
         var newUploadWindow =
-            new S3UploadsWindow(S3CmsTools.AmazonInformationFromSettings(), toTransfer,
+            new S3UploadsWindow(S3CmsTools.S3AccountInformationFromSettings(), toTransfer,
                 UserSettingsSingleton.CurrentSettings().SiteName, autoStartUpload);
         newUploadWindow.PositionWindowAndShow();
     }
@@ -475,7 +475,7 @@ public partial class FilesWrittenLogListContext
             await ThreadSwitcher.ResumeForegroundAsync();
             
             var newUploaderWindow =
-                new S3UploadsWindow(S3CmsTools.AmazonInformationFromSettings(),
+                new S3UploadsWindow(S3CmsTools.S3AccountInformationFromSettings(),
                     await items.ToAsyncEnumerable().SelectAwait(async x =>
                             await S3Tools.UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.ServiceUrl,
                                 x.Note))
@@ -551,7 +551,7 @@ public partial class FilesWrittenLogListContext
     public async Task SiteDeletedFilesReport()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
-        var results = await S3GeneratedSiteComparisonForDeletions.RunReport(S3CmsTools.AmazonInformationFromSettings(), StatusContext.ProgressTracker());
+        var results = await S3GeneratedSiteComparisonForDeletions.RunReport(S3CmsTools.S3AccountInformationFromSettings(), StatusContext.ProgressTracker());
         
         if (!results.S3KeysToDelete.Any())
         {
@@ -578,7 +578,7 @@ public partial class FilesWrittenLogListContext
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newUploadWindow = new S3DeletionsWindow(S3CmsTools.AmazonInformationFromSettings(), results
+        var newUploadWindow = new S3DeletionsWindow(S3CmsTools.S3AccountInformationFromSettings(), results
             .S3KeysToDelete.Select(x =>
                 new S3DeletionsItem
                 {
@@ -594,7 +594,7 @@ public partial class FilesWrittenLogListContext
         await ThreadSwitcher.ResumeBackgroundAsync();
         var results =
             await S3GeneratedSiteComparisonForAdditionsAndChanges.RunReport(
-                S3CmsTools.AmazonInformationFromSettings(), StatusContext.ProgressTracker());
+                S3CmsTools.S3AccountInformationFromSettings(), StatusContext.ProgressTracker());
         
         if (results.ErrorMessages.Any())
         {
@@ -624,7 +624,7 @@ public partial class FilesWrittenLogListContext
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newUploadWindow = new S3UploadsWindow(S3CmsTools.AmazonInformationFromSettings(), toUpload,
+        var newUploadWindow = new S3UploadsWindow(S3CmsTools.S3AccountInformationFromSettings(), toUpload,
             UserSettingsSingleton.CurrentSettings().SiteName, false);
         newUploadWindow.PositionWindowAndShow();
     }

@@ -137,7 +137,7 @@ public static class S3CmsTools
         // ReSharper restore UnusedAutoPropertyAccessor.Local
     }
     
-    public static IS3AccountInformation AmazonInformationFromSettings()
+    public static IS3AccountInformation S3AccountInformationFromSettings()
     {
         Enum.TryParse(UserSettingsSingleton.CurrentSettings().SiteS3CloudProvider, out S3Providers cloudProvider);
 

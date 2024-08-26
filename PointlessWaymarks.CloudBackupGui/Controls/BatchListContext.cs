@@ -196,9 +196,13 @@ public partial class BatchListContext
 
         var batchList = new List<BatchListListItem>();
 
+        StatusContext.Progress($"{job.Batches.Count} Batches Found");
+
+        var batchLoadCounter = 0;
+
         foreach (var loopBatch in job.Batches.OrderByDescending(x => x.CreatedOn))
         {
-            StatusContext.Progress($"Batch List - Creating Entry for Batch Id {loopBatch.Id}");
+            StatusContext.Progress($"Batch List - {++batchLoadCounter} of {job.Batches.Count} - Creating Entry for Batch Id {loopBatch.Id}");
             batchList.Add(await BatchListListItem.CreateInstance(loopBatch));
         }
 

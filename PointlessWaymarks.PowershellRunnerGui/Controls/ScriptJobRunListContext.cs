@@ -226,6 +226,8 @@ public partial class ScriptJobRunListContext
 
         if (dbRun == null) return;
 
+        if(!RunFilter(dbRun)) return;
+
         var dbJob = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == dbRun.ScriptJobPersistentId);
 
         if (dbJob == null) return;

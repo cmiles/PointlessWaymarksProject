@@ -45,7 +45,7 @@ public static class S3UploadHelpers
         }
         
         await ThreadSwitcher.ResumeForegroundAsync();
-        new S3UploadsWindow(S3CmsTools.AmazonInformationFromSettings(), toUpload.uploadItems,
+        new S3UploadsWindow(S3CmsTools.S3AccountInformationFromSettings(), toUpload.uploadItems,
             UserSettingsSingleton.CurrentSettings().SiteName, true).PositionWindowAndShow();
     }
 }

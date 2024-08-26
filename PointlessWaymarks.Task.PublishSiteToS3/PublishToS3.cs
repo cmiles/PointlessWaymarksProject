@@ -45,21 +45,12 @@ public class PublishToS3
             Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
                 $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json"));
 
-        var s3Client = S3CmsTools.AmazonInformationFromSettings().S3Client();
+        var s3Client = S3CmsTools.S3AccountInformationFromSettings().S3Client();
 
         var fileTransferUtility = new TransferUtility(s3Client);
 
         var progressList = new List<(bool sucess, S3UploadRequest uploadRequest)>();
         var exceptionList = new List<Exception>();
-
-        var s3RetryPolicy = Policy.Handle<Exception>().WaitAndRetryAsync(3,
-            retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-            (exception, _, retryCount, _) =>
-            {
-                Log.ForContext("exception", exception.ToString()).Verbose(exception,
-                    "S3 Upload Retry {retryCount} - {exceptionMessage}", retryCount,
-                    exception.Message);
-            });
 
         var progressCount = 0;
 
@@ -68,11 +59,27 @@ public class PublishToS3
             if (progressCount++ % 10 == 0)
                 consoleProgress.Report($"   S3 Upload Progress - {progressCount} of {toUpload.uploadItems.Count}");
 
-            var uploadRequest = loopUpload.UploadRequest();
+            var uploadRequest = loopUpload.UploadRequestFilePath();
 
             try
             {
-                await s3RetryPolicy.ExecuteAsync(async () => await fileTransferUtility.UploadAsync(uploadRequest));
+                await Policy.Handle<Exception>()
+                    .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(2 * (retryAttempt + 1)),
+                        (exception, _, retryCount, _) =>
+                        {
+                            Log.ForContext("exception", exception.ToString()).Verbose(exception,
+                                "S3 Upload Retry {retryCount} - {exceptionMessage}", retryCount,
+                                exception.Message);
+
+                            if (exception is IOException && retryCount == 1)
+                            {
+                                uploadRequest = loopUpload.UploadRequestStream();
+
+                                if (S3CmsTools.S3AccountInformationFromSettings().S3Provider() ==
+                                    S3Providers.Cloudflare) uploadRequest.DisablePayloadSigning = true;
+                            }
+                        }).ExecuteAsync(() => fileTransferUtility.UploadAsync(uploadRequest));
+
                 Log.Verbose($"S3 Upload Completed - {loopUpload.ToUpload.LocalFile.FullName} to {loopUpload.S3Key}");
                 progressList.Add((true, loopUpload));
             }
@@ -81,7 +88,7 @@ public class PublishToS3
                 exceptionList.Add(e);
                 progressList.Add((false, loopUpload));
                 Log.ForContext("loopUpload", loopUpload.SafeObjectDump()).Error(e,
-                    $"Amazon S3 Upload Failed - {loopUpload.ToUpload.LocalFile.FullName} to {loopUpload.S3Key}");
+                    $"S3 Upload Failed - {loopUpload.ToUpload.LocalFile.FullName} to {loopUpload.S3Key}");
             }
         }
 
