@@ -263,7 +263,7 @@ public partial class MainWindow
 
         if (string.IsNullOrWhiteSpace(settingReturn.userInput))
         {
-            StatusContext.ToastError("Error with Directory? No name?");
+            await StatusContext.ToastError("Error with Directory? No name?");
             return;
         }
 
@@ -271,7 +271,7 @@ public partial class MainWindow
 
         if (!directoryInfo.Exists)
         {
-            StatusContext.ToastError("Error with Directory? Does not exist?");
+            await StatusContext.ToastError("Error with Directory? Does not exist?");
             return;
         }
 
@@ -301,7 +301,7 @@ public partial class MainWindow
 
         if (string.IsNullOrWhiteSpace(settingReturn.userInput))
         {
-            StatusContext.ToastError("Error - Nothing Selected?");
+            await StatusContext.ToastError("Error - Nothing Selected?");
             return;
         }
 

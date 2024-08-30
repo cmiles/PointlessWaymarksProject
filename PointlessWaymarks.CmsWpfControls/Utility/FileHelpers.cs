@@ -13,7 +13,7 @@ public static class FileHelpers
     {
         if (selectedFile is not { Exists: true })
         {
-            statusContext.ToastWarning("No file to rename?");
+            await statusContext.ToastWarning("No file to rename?");
             return;
         }
 
@@ -28,7 +28,7 @@ public static class FileHelpers
 
         if (string.IsNullOrWhiteSpace(cleanedName))
         {
-            statusContext.ToastError("Can't rename the file to an empty string...");
+            await statusContext.ToastError("Can't rename the file to an empty string...");
             return;
         }
 
@@ -36,13 +36,13 @@ public static class FileHelpers
 
         if (string.IsNullOrWhiteSpace(noExtensionCleaned))
         {
-            statusContext.ToastError("Not a valid filename...");
+            await statusContext.ToastError("Not a valid filename...");
             return;
         }
 
         if (!FileAndFolderTools.IsNoUrlEncodingNeeded(noExtensionCleaned))
         {
-            statusContext.ToastError("File Names must be limited to A - Z a - z 0 - 9 - . _");
+            await statusContext.ToastError("File Names must be limited to A - Z a - z 0 - 9 - . _");
             return;
         }
 
@@ -57,7 +57,7 @@ public static class FileHelpers
         {
             Log.Error(e, "Exception while trying to rename file. Status Control Context Id {0}",
                 statusContext.StatusControlContextId);
-            statusContext.ToastError($"Error Copying File: {e.Message}");
+            await statusContext.ToastError($"Error Copying File: {e.Message}");
             return;
         }
 
@@ -65,7 +65,7 @@ public static class FileHelpers
 
         if (!finalFile.Exists)
         {
-            statusContext.ToastError("Unknown error renaming file - original file still selected.");
+            await statusContext.ToastError("Unknown error renaming file - original file still selected.");
             return;
         }
 
@@ -75,11 +75,11 @@ public static class FileHelpers
         }
         catch (Exception e)
         {
-            statusContext.ToastError($"Error setting selected file - {e.Message}");
+            await statusContext.ToastError($"Error setting selected file - {e.Message}");
             return;
         }
 
-        statusContext.ToastSuccess($"Selected file now {selectedFile.FullName}");
+        await statusContext.ToastSuccess($"Selected file now {selectedFile.FullName}");
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public static class FileHelpers
 
         if (selectedFile is not { Exists: true })
         {
-            statusContext.ToastWarning("No file to rename?");
+            await statusContext.ToastWarning("No file to rename?");
             return;
         }
 
@@ -122,7 +122,7 @@ public static class FileHelpers
 
         if (selectedFile is not { Exists: true })
         {
-            statusContext.ToastWarning("No file to rename?");
+            await statusContext.ToastWarning("No file to rename?");
             return;
         }
 
@@ -130,13 +130,13 @@ public static class FileHelpers
 
         if (string.IsNullOrWhiteSpace(cleanedName))
         {
-            statusContext.ToastError("Can't rename the file to an empty string...");
+            await statusContext.ToastError("Can't rename the file to an empty string...");
             return;
         }
 
         if (!FileAndFolderTools.IsNoUrlEncodingNeeded(cleanedName))
         {
-            statusContext.ToastError("File Names must be limited to A - Z a - z 0 - 9 - . _");
+            await statusContext.ToastError("File Names must be limited to A - Z a - z 0 - 9 - . _");
             return;
         }
 
@@ -151,7 +151,7 @@ public static class FileHelpers
         {
             Log.Error(e, "Exception while trying to rename file. Status Control Context Id {0}",
                 statusContext.StatusControlContextId);
-            statusContext.ToastError($"Error Copying File: {e.Message}");
+            await statusContext.ToastError($"Error Copying File: {e.Message}");
             return;
         }
 
@@ -159,7 +159,7 @@ public static class FileHelpers
 
         if (!finalFile.Exists)
         {
-            statusContext.ToastError("Unknown error renaming file - original file still selected.");
+            await statusContext.ToastError("Unknown error renaming file - original file still selected.");
             return;
         }
 
@@ -169,10 +169,10 @@ public static class FileHelpers
         }
         catch (Exception e)
         {
-            statusContext.ToastError($"Error setting selected file - {e.Message}");
+            await statusContext.ToastError($"Error setting selected file - {e.Message}");
             return;
         }
 
-        statusContext.ToastSuccess($"Selected file now {selectedFile.FullName}");
+        await statusContext.ToastSuccess($"Selected file now {selectedFile.FullName}");
     }
 }

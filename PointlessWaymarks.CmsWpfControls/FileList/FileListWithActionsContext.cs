@@ -125,7 +125,7 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
         HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
 
-        StatusContext.ToastSuccess("Email Html on Clipboard");
+        await StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
     [BlockingCommand]
@@ -141,7 +141,7 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -157,7 +157,7 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -173,7 +173,7 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -189,7 +189,7 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]

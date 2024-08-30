@@ -113,13 +113,13 @@ public partial class FileBasedGeoTaggerContext
         if (GpxFileList.Files == null || !GpxFileList.Files.Any() || FilesToTagFileList.Files == null ||
             !FilesToTagFileList.Files.Any())
         {
-            StatusContext.ToastError("No GPX Files Selected?");
+            await StatusContext.ToastError("No GPX Files Selected?");
             return;
         }
 
         if (FilesToTagFileList.Files == null || !FilesToTagFileList.Files.Any())
         {
-            StatusContext.ToastError("No Files to Tag Selected?");
+            await StatusContext.ToastError("No Files to Tag Selected?");
             return;
         }
 
@@ -203,7 +203,7 @@ public partial class FileBasedGeoTaggerContext
 
         if (FilesToTagFileList?.SelectedFiles == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -211,13 +211,13 @@ public partial class FileBasedGeoTaggerContext
 
         if (frozenSelected.Count == 0)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
         if (frozenSelected.Count > 10)
         {
-            StatusContext.ToastWarning("Sorry - dumping metadata limited to 10 files at once...");
+            await StatusContext.ToastWarning("Sorry - dumping metadata limited to 10 files at once...");
             return;
         }
 
@@ -226,7 +226,7 @@ public partial class FileBasedGeoTaggerContext
             loopFile.Refresh();
             if (!loopFile.Exists)
             {
-                StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
+                await StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
                 continue;
             }
 
@@ -330,7 +330,7 @@ public partial class FileBasedGeoTaggerContext
 
         if (WriteToFileResults?.FileResults == null || WriteToFileResults.FileResults.Count == 0)
         {
-            StatusContext.ToastError("No Results to Send");
+            await StatusContext.ToastError("No Results to Send");
             return;
         }
 
@@ -345,7 +345,7 @@ public partial class FileBasedGeoTaggerContext
 
         if (GpxFileList?.SelectedFiles == null || !GpxFileList.SelectedFiles.Any())
         {
-            StatusContext.ToastWarning("No gpx files selected?");
+            await StatusContext.ToastWarning("No gpx files selected?");
             return;
         }
 
@@ -384,7 +384,7 @@ public partial class FileBasedGeoTaggerContext
 
         if (PreviewResults == null)
         {
-            StatusContext.ToastError("No Results to Write?");
+            await StatusContext.ToastError("No Results to Write?");
             return;
         }
 

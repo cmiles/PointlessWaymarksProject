@@ -105,13 +105,13 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (generationReturn.HasError)
         {
-            StatusContext.ToastError(generationReturn.GenerationNote);
+            await StatusContext.ToastError(generationReturn.GenerationNote);
             return;
         }
 
         if (linkMetadata == null)
         {
-            StatusContext.ToastError("No Link Data?");
+            await StatusContext.ToastError("No Link Data?");
             return;
         }
 
@@ -216,7 +216,7 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         {
             if (string.IsNullOrWhiteSpace(LinkUrlEntry!.UserValue))
             {
-                StatusContext.ToastWarning("Link is Blank?");
+                await StatusContext.ToastWarning("Link is Blank?");
                 return;
             }
 
@@ -224,7 +224,7 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
         }
         catch (Exception e)
         {
-            StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
+            await StatusContext.ToastWarning($"Trouble opening link - {e.Message}");
         }
     }
 

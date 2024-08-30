@@ -113,7 +113,7 @@ public partial class WordPressXmlImportContext
 
         if (!ImportPages && !ImportPosts)
         {
-            StatusContext.ToastError("Please choose one or both of Import Pages/Posts - nothing to import...");
+            await StatusContext.ToastError("Please choose one or both of Import Pages/Posts - nothing to import...");
             return;
         }
 
@@ -238,7 +238,7 @@ public partial class WordPressXmlImportContext
 
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("No Items Selected?");
+            await StatusContext.ToastWarning("No Items Selected?");
             return;
         }
 
@@ -275,7 +275,7 @@ public partial class WordPressXmlImportContext
 
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("No Items Selected?");
+            await StatusContext.ToastWarning("No Items Selected?");
             return;
         }
 
@@ -306,7 +306,7 @@ public partial class WordPressXmlImportContext
 
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("No Items Selected?");
+            await StatusContext.ToastWarning("No Items Selected?");
             return;
         }
 

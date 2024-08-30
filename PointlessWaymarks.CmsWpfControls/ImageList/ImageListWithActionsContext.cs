@@ -103,7 +103,7 @@ public partial class ImageListWithActionsContext
 
         HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
 
-        StatusContext.ToastSuccess("Email Html on Clipboard");
+        await StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
     [BlockingCommand]
@@ -153,7 +153,7 @@ public partial class ImageListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard: {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {finalString}");
     }
 
     [BlockingCommand]

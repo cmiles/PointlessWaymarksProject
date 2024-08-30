@@ -65,14 +65,14 @@ public partial class TagListContext
         await TagContentToExcel(DetailsList);
     }
 
-    private string ContentTypeString(dynamic content)
+    private async Task<string> ContentTypeString(dynamic content)
     {
         var contentTypeString = Db.ContentTypeDisplayString(content);
 
         if (contentTypeString == string.Empty)
         {
             Log.Error(new DataException("The Content Object was of Unknown Type"), "TagListContext Error");
-            StatusContext.ToastError("Unknown Content Type - Unusual Error...");
+            await StatusContext.ToastError("Unknown Content Type - Unusual Error...");
             return "Unknown";
         }
 
@@ -190,7 +190,7 @@ public partial class TagListContext
                     ContentId = content.ContentId,
                     Title = content.Title,
                     Tags = content.Tags,
-                    ContentType = ContentTypeString(content)
+                    ContentType = await ContentTypeString(content)
                 };
 
                 if (possibleTagEntry == null)
@@ -227,7 +227,7 @@ public partial class TagListContext
 
         if (content == null)
         {
-            StatusContext.ToastWarning("Nothing to edit?");
+            await StatusContext.ToastWarning("Nothing to edit?");
             return;
         }
 
@@ -268,7 +268,7 @@ public partial class TagListContext
                 break;
 
             default:
-                StatusContext.ToastError("Content Type is Unknown?");
+                await StatusContext.ToastError("Content Type is Unknown?");
                 break;
         }
     }
@@ -350,7 +350,7 @@ public partial class TagListContext
 
                 detailToAdd.ContentId = loopContent.ContentId;
                 detailToAdd.Title = loopContent.Title;
-                detailToAdd.ContentType = ContentTypeString(loopContent);
+                detailToAdd.ContentType = await ContentTypeString(loopContent);
                 detailToAdd.Tags = loopContent.Tags;
 
                 contentDetails.Add(detailToAdd);
@@ -402,7 +402,7 @@ public partial class TagListContext
             return;
         }
 
-        StatusContext.ToastSuccess($"Saved Tag Exclusion {toExclude}");
+        await StatusContext.ToastSuccess($"Saved Tag Exclusion {toExclude}");
     }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
@@ -444,7 +444,7 @@ public partial class TagListContext
 
         await Db.DeleteTagExclusion(toRemove.exclusion.Id);
 
-        StatusContext.ToastSuccess($"Removed Tag Exclusion {toExclude}");
+        await StatusContext.ToastSuccess($"Removed Tag Exclusion {toExclude}");
     }
 
     [BlockingCommand]
@@ -460,7 +460,7 @@ public partial class TagListContext
 
         if (SelectedItems == null || !SelectedItems.Any())
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -468,7 +468,7 @@ public partial class TagListContext
 
         if (!tagsProjection.Any())
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -494,7 +494,7 @@ public partial class TagListContext
 
         if (items == null || !items.Any())
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -527,7 +527,7 @@ public partial class TagListContext
 
         if (!Items.Any())
         {
-            StatusContext.ToastError("No Items?");
+            await StatusContext.ToastError("No Items?");
             return;
         }
 
@@ -536,7 +536,7 @@ public partial class TagListContext
 
         if (!tagsProjection.Any())
         {
-            StatusContext.ToastError("Nothing Visible?");
+            await StatusContext.ToastError("Nothing Visible?");
             return;
         }
 

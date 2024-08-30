@@ -102,7 +102,7 @@ public partial class SitePreviewControl
         catch (Exception exception)
         {
             e.Cancel = true;
-            PreviewContext?.StatusContext.ToastError($"Trouble parsing {e.Uri}? {exception.Message}");
+            PreviewContext.StatusContext.ToastError($"Trouble parsing {e.Uri}? {exception.Message}");
             return;
         }
 

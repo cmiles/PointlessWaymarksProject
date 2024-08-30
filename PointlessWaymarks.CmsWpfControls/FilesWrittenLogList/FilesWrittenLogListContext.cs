@@ -69,7 +69,7 @@ public partial class FilesWrittenLogListContext
         
         if (!Items.Any())
         {
-            StatusContext.ToastError("No Items?");
+            await StatusContext.ToastError("No Items?");
             return;
         }
         
@@ -83,7 +83,7 @@ public partial class FilesWrittenLogListContext
         
         if (!Items.Any())
         {
-            StatusContext.ToastError("No Items?");
+            await StatusContext.ToastError("No Items?");
             return;
         }
         
@@ -95,7 +95,7 @@ public partial class FilesWrittenLogListContext
         
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        StatusContext.ToastSuccess("Items added to Clipboard");
+        await StatusContext.ToastSuccess("Items added to Clipboard");
     }
     
     [BlockingCommand]
@@ -179,14 +179,14 @@ public partial class FilesWrittenLogListContext
         
         if (!toTransfer.Any())
         {
-            StatusContext.ToastError("No Files in the Generation Directory?");
+            await StatusContext.ToastError("No Files in the Generation Directory?");
             return;
         }
         
         var toSkipCount = SelectedItems.Count(x => !x.IsInGenerationDirectory);
         
         if (toSkipCount > 0)
-            StatusContext.ToastWarning($"{toSkipCount} skipped files not in the Generation Directory");
+            await StatusContext.ToastWarning($"{toSkipCount} skipped files not in the Generation Directory");
         
         var fileName = Path.Combine(UserSettingsSingleton.CurrentSettings().LocalScriptsDirectory().FullName,
             $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---File-Upload-Data.json");
@@ -269,7 +269,7 @@ public partial class FilesWrittenLogListContext
         
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        StatusContext.ToastSuccess("Items added to Clipboard");
+        await StatusContext.ToastSuccess("Items added to Clipboard");
     }
     
     private void FilesToExcel(List<FilesWrittenLogListListItem> items)
@@ -285,7 +285,7 @@ public partial class FilesWrittenLogListContext
         
         if (SelectedGenerationChoice == null)
         {
-            StatusContext.ToastError("Please make a Generation Date Choice");
+            await StatusContext.ToastError("Please make a Generation Date Choice");
             return;
         }
         
@@ -457,7 +457,7 @@ public partial class FilesWrittenLogListContext
         
         if (!file.Exists)
         {
-            StatusContext.ToastError($"Selected Json Upload File - {selectedFileName} - doesn't exist?");
+            await StatusContext.ToastError($"Selected Json Upload File - {selectedFileName} - doesn't exist?");
             return;
         }
         
@@ -468,7 +468,7 @@ public partial class FilesWrittenLogListContext
             
             if (items == null || !items.Any())
             {
-                StatusContext.ToastError("File format error or no items to upload?");
+                await StatusContext.ToastError("File format error or no items to upload?");
                 return;
             }
             
@@ -555,7 +555,7 @@ public partial class FilesWrittenLogListContext
         
         if (!results.S3KeysToDelete.Any())
         {
-            StatusContext.ToastSuccess("Nothing on site found to delete.");
+            await StatusContext.ToastSuccess("Nothing on site found to delete.");
             return;
         }
         
@@ -618,7 +618,7 @@ public partial class FilesWrittenLogListContext
         
         if (!toUpload.Any())
         {
-            StatusContext.ToastSuccess("No Missing Files or Size Mismatches Found");
+            await StatusContext.ToastSuccess("No Missing Files or Size Mismatches Found");
             return;
         }
         

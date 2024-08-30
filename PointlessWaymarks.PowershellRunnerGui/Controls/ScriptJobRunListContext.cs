@@ -104,7 +104,7 @@ public partial class ScriptJobRunListContext
     {
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastError("No Runs Selected to Delete?");
+            await StatusContext.ToastError("No Runs Selected to Delete?");
             return;
         }
 
@@ -149,13 +149,13 @@ public partial class ScriptJobRunListContext
 
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastError("No Run Selected?");
+            await StatusContext.ToastError("No Run Selected?");
             return;
         }
 
         if (SelectedItems.Count > 2)
         {
-            StatusContext.ToastError($"Selected 2 Runs to Diff - {SelectedItems.Count} Selected?");
+            await StatusContext.ToastError($"Selected 2 Runs to Diff - {SelectedItems.Count} Selected?");
             return;
         }
 
@@ -252,19 +252,19 @@ public partial class ScriptJobRunListContext
 
         if (selectedRun == null)
         {
-            StatusContext.ToastError("No Run Selected?");
+            await StatusContext.ToastError("No Run Selected?");
             return;
         }
 
         if (selectedRun.CompletedOnUtc is not null)
         {
-            StatusContext.ToastError("Cancel Request Not Sent - Run already Finished...");
+            await StatusContext.ToastError("Cancel Request Not Sent - Run already Finished...");
             return;
         }
 
         DataNotifications.PublishRunCancelRequest("Run List", _dbId, selectedRun.PersistentId);
 
-        StatusContext.ToastSuccess("Sent Cancel Request, Run may take some time to stop...");
+        await StatusContext.ToastSuccess("Sent Cancel Request, Run may take some time to stop...");
     }
 
     [NonBlockingCommand]
@@ -274,7 +274,7 @@ public partial class ScriptJobRunListContext
 
         if (SelectedItem == null)
         {
-            StatusContext.ToastError("No Run Selected?");
+            await StatusContext.ToastError("No Run Selected?");
             return;
         }
 
@@ -289,7 +289,7 @@ public partial class ScriptJobRunListContext
 
         if (persistentGuid == null)
         {
-            StatusContext.ToastError("No Run Selected?");
+            await StatusContext.ToastError("No Run Selected?");
             return;
         }
 
@@ -303,7 +303,7 @@ public partial class ScriptJobRunListContext
 
         if (SelectedItem == null)
         {
-            StatusContext.ToastError("No Run Selected?");
+            await StatusContext.ToastError("No Run Selected?");
             return;
         }
 

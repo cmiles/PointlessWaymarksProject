@@ -210,13 +210,13 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     {
         if (!HasChanges)
         {
-            StatusContext.ToastError("No Changes to Save?");
+            await StatusContext.ToastError("No Changes to Save?");
             return;
         }
 
         if (HasValidationIssues)
         {
-            StatusContext.ToastError("Can't Save - Validation Issues Exist...");
+            await StatusContext.ToastError("Can't Save - Validation Issues Exist...");
             return;
         }
 
@@ -263,14 +263,14 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     {
         if (string.IsNullOrWhiteSpace(ScriptEntry.UserValue))
         {
-            StatusContext.ToastError("No Script to Copy?");
+            await StatusContext.ToastError("No Script to Copy?");
             return;
         }
 
         await ThreadSwitcher.ResumeForegroundAsync();
         Clipboard.SetText(ScriptEntry.UserValue);
 
-        StatusContext.ToastSuccess("Script Copied to Clipboard");
+        await StatusContext.ToastSuccess("Script Copied to Clipboard");
     }
 
     public async Task Setup(ScriptJob initialEntry)

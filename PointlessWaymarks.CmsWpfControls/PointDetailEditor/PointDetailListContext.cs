@@ -91,7 +91,7 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
 
         if (pointDetail == null)
         {
-            StatusContext.ToastError("Nothing to Delete? Point Detail is null...");
+            await StatusContext.ToastError("Nothing to Delete? Point Detail is null...");
             return;
         }
 
@@ -170,7 +170,7 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
             var toAdd = await ListItemEditorFromTypeIdentifier(loopLoad);
             if (toAdd == null)
             {
-                StatusContext.ToastError("Unable to load Point Detail Type: " + loopLoad.DataType);
+                await StatusContext.ToastError("Unable to load Point Detail Type: " + loopLoad.DataType);
                 continue;
             }
 
@@ -195,7 +195,7 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
 
         if (string.IsNullOrWhiteSpace(typeIdentifier))
         {
-            StatusContext.ToastError("Detail Type is blank???");
+            await StatusContext.ToastError("Detail Type is blank???");
             return;
         }
 
@@ -222,13 +222,13 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
 
         if (!newDetailEntry.Any())
         {
-            StatusContext.ToastError($"No Detail Type Found Matching {typeIdentifier}?");
+            await StatusContext.ToastError($"No Detail Type Found Matching {typeIdentifier}?");
             return;
         }
 
         if (newDetailEntry.Count > 1)
         {
-            StatusContext.ToastError($"More than one Detail Type Found Matching {typeIdentifier}?");
+            await StatusContext.ToastError($"More than one Detail Type Found Matching {typeIdentifier}?");
             return;
         }
 
@@ -240,7 +240,7 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
         var newDetail = await ListItemEditorFromTypeIdentifier(newPointDetail);
         if (newDetail == null)
         {
-            StatusContext.ToastError("Unable to load Point Detail?!?");
+            await StatusContext.ToastError("Unable to load Point Detail?!?");
             return;
         }
 

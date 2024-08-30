@@ -109,13 +109,13 @@ public partial class ScriptProgressContext
 
         if (runPersistentId == null)
         {
-            StatusContext.ToastError("No Run Id Provided?");
+            await StatusContext.ToastError("No Run Id Provided?");
             return;
         }
 
         if (runPersistentId.Value.ToString("N").StartsWith("000000000000"))
         {
-            StatusContext.ToastError("Progress from Arbitrary Script Run - No Run/Job to Show.");
+            await StatusContext.ToastError("Progress from Arbitrary Script Run - No Run/Job to Show.");
             return;
         }
 

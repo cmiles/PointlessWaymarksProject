@@ -185,7 +185,7 @@ public partial class CmsCommonCommands
 
         if (selectedFiles.Count > 20)
         {
-            StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
+            await StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
             return;
         }
 
@@ -193,7 +193,7 @@ public partial class CmsCommonCommands
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {
-            StatusContext.ToastError("Files don't exist?");
+            await StatusContext.ToastError("Files don't exist?");
             return;
         }
 
@@ -279,7 +279,7 @@ public partial class CmsCommonCommands
 
         if (selectedFiles.Count > 20)
         {
-            StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
+            await StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
             return;
         }
 
@@ -287,7 +287,7 @@ public partial class CmsCommonCommands
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {
-            StatusContext.ToastError("Files don't exist?");
+            await StatusContext.ToastError("Files don't exist?");
             return;
         }
 
@@ -295,12 +295,12 @@ public partial class CmsCommonCommands
 
         if (!selectedFileInfos.Any(ImageGenerator.ImageFileTypeIsSupported))
         {
-            StatusContext.ToastError("None of the files appear to be supported file types...");
+            await StatusContext.ToastError("None of the files appear to be supported file types...");
             return;
         }
 
         if (selectedFileInfos.Any(x => !ImageGenerator.ImageFileTypeIsSupported(x)))
-            StatusContext.ToastWarning(
+            await StatusContext.ToastWarning(
                 $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !ImageGenerator.ImageFileTypeIsSupported(x)))}");
 
         foreach (var loopFile in selectedFileInfos.Where(ImageGenerator.ImageFileTypeIsSupported))
@@ -362,7 +362,7 @@ public partial class CmsCommonCommands
 
         if (!autoSaveAndClose && selectedFiles.Count > 10)
         {
-            statusContext.ToastError("Opening new content in an editor window is limited to 10 files at a time...");
+            await statusContext.ToastError("Opening new content in an editor window is limited to 10 files at a time...");
             return;
         }
 
@@ -372,7 +372,7 @@ public partial class CmsCommonCommands
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {
-            statusContext.ToastError("Files don't exist?");
+            await statusContext.ToastError("Files don't exist?");
             return;
         }
 
@@ -411,7 +411,7 @@ public partial class CmsCommonCommands
 
             if (tracksList.Count < 1 || tracksList.All(x => x.Track.Count < 2))
             {
-                statusContext.ToastWarning($"No Tracks in {loopFile.Name}? Skipping...");
+                await statusContext.ToastWarning($"No Tracks in {loopFile.Name}? Skipping...");
                 continue;
             }
 
@@ -582,7 +582,7 @@ public partial class CmsCommonCommands
 
         if (!autoSaveAndClose && selectedFiles.Count > 10)
         {
-            StatusContext.ToastError("Opening new content in an editor window is limited to 10 photos at a time...");
+            await StatusContext.ToastError("Opening new content in an editor window is limited to 10 photos at a time...");
             return;
         }
 
@@ -592,7 +592,7 @@ public partial class CmsCommonCommands
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {
-            StatusContext.ToastError("Files don't exist?");
+            await StatusContext.ToastError("Files don't exist?");
             return;
         }
 
@@ -600,12 +600,12 @@ public partial class CmsCommonCommands
 
         if (!selectedFileInfos.Any(PhotoGenerator.PhotoFileTypeIsSupported))
         {
-            StatusContext.ToastError("None of the files appear to be supported file types...");
+            await StatusContext.ToastError("None of the files appear to be supported file types...");
             return;
         }
 
         if (selectedFileInfos.Any(x => !PhotoGenerator.PhotoFileTypeIsSupported(x)))
-            StatusContext.ToastWarning(
+            await StatusContext.ToastWarning(
                 $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !PhotoGenerator.PhotoFileTypeIsSupported(x)))}");
 
         var validFiles = selectedFileInfos.Where(PhotoGenerator.PhotoFileTypeIsSupported).ToList();
@@ -770,7 +770,7 @@ public partial class CmsCommonCommands
 
         if (selectedFiles.Count > 20)
         {
-            StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
+            await StatusContext.ToastError($"Sorry - max limit is 20 files at once, {selectedFiles.Count} selected...");
             return;
         }
 
@@ -778,7 +778,7 @@ public partial class CmsCommonCommands
 
         if (!selectedFileInfos.Any(x => x.Exists))
         {
-            StatusContext.ToastError("Files don't exist?");
+            await StatusContext.ToastError("Files don't exist?");
             return;
         }
 
@@ -786,12 +786,12 @@ public partial class CmsCommonCommands
 
         if (!selectedFileInfos.Any(VideoGenerator.VideoFileTypeIsSupported))
         {
-            StatusContext.ToastError("None of the files appear to be supported file types...");
+            await StatusContext.ToastError("None of the files appear to be supported file types...");
             return;
         }
 
         if (selectedFileInfos.Any(x => !VideoGenerator.VideoFileTypeIsSupported(x)))
-            StatusContext.ToastWarning(
+            await StatusContext.ToastWarning(
                 $"Skipping - not supported - {string.Join(", ", selectedFileInfos.Where(x => !VideoGenerator.VideoFileTypeIsSupported(x)))}");
 
         foreach (var loopFile in selectedFileInfos.Where(VideoGenerator.VideoFileTypeIsSupported))

@@ -44,7 +44,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -54,7 +54,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -64,13 +64,13 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError($"Map {content.Title} - Entry is not saved - Skipping?");
+            await StatusContext.ToastError($"Map {content.Title} - Entry is not saved - Skipping?");
             return;
         }
 
@@ -89,7 +89,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
         var refreshedData = context.MapComponents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
         if (refreshedData == null)
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
         var newContentWindow = await MapComponentEditorWindow.CreateInstance(refreshedData);
@@ -104,7 +104,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -125,7 +125,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -135,7 +135,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         await Export.WriteMapComponentContentData(dto, StatusContext.ProgressTracker());
 
-        StatusContext.ToastSuccess("Generated Map Data");
+        await StatusContext.ToastSuccess("Generated Map Data");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -147,7 +147,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -161,7 +161,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
 
         if (historicItems.Count < 1)
         {
-            StatusContext.ToastWarning("No History to Show...");
+            await StatusContext.ToastWarning("No History to Show...");
             return;
         }
 
@@ -178,7 +178,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        StatusContext.ToastWarning("Maps don't have a direct URL to open...");
+        await StatusContext.ToastWarning("Maps don't have a direct URL to open...");
     }
 
     [BlockingCommand]
@@ -186,7 +186,7 @@ public partial class MapComponentContentActions : IContentActions<MapComponent>
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        StatusContext.ToastWarning("Maps don't have a direct URL to open...");
+        await StatusContext.ToastWarning("Maps don't have a direct URL to open...");
     }
 
     public static async Task<MapComponentListListItem> ListItemFromDbItem(MapComponent content,

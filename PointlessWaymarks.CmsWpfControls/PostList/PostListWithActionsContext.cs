@@ -78,7 +78,7 @@ public partial class PostListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     public static async Task<PostListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
@@ -106,7 +106,7 @@ public partial class PostListWithActionsContext
 
         HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
 
-        StatusContext.ToastSuccess("Email Html on Clipboard");
+        await StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
     [BlockingCommand]

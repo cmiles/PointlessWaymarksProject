@@ -169,7 +169,7 @@ public partial class UserSettingsEditorContext
 
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning("Cloud Credential Entry Cancelled");
+            await StatusContext.ToastWarning("Cloud Credential Entry Cancelled");
             return;
         }
 
@@ -186,7 +186,7 @@ public partial class UserSettingsEditorContext
 
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {
-            StatusContext.ToastError("Cloud Credential Entry Canceled - secret can not be blank");
+            await StatusContext.ToastError("Cloud Credential Entry Canceled - secret can not be blank");
             return;
         }
         
@@ -204,7 +204,7 @@ public partial class UserSettingsEditorContext
 
             if (string.IsNullOrWhiteSpace(cleanedServiceUrl))
             {
-                StatusContext.ToastError("Cloud Credential Entry Canceled - Service URL can not be blank");
+                await StatusContext.ToastError("Cloud Credential Entry Canceled - Service URL can not be blank");
                 return;
             }
             
@@ -220,7 +220,7 @@ public partial class UserSettingsEditorContext
         
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning(" GeoNames Web API Username Entry Cancelled");
+            await StatusContext.ToastWarning(" GeoNames Web API Username Entry Cancelled");
             return;
         }
         

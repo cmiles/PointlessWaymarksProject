@@ -102,7 +102,7 @@ public partial class FeatureIntersectTaggerContext
     {
         if (string.IsNullOrWhiteSpace(PadUsAttributeToAdd))
         {
-            StatusContext.ToastWarning("Can't Add a Blank/Whitespace Only Attribute");
+            await StatusContext.ToastWarning("Can't Add a Blank/Whitespace Only Attribute");
             return;
         }
 
@@ -112,7 +112,7 @@ public partial class FeatureIntersectTaggerContext
 
         if (Settings.PadUsAttributes.Any(x => x.Equals(PadUsAttributeToAdd)))
         {
-            StatusContext.ToastWarning($"Can't Add {PadUsAttributeToAdd} - already exists.");
+            await StatusContext.ToastWarning($"Can't Add {PadUsAttributeToAdd} - already exists.");
             return;
         }
 
@@ -212,7 +212,7 @@ public partial class FeatureIntersectTaggerContext
 
         if (SelectedFeatureFile == null)
         {
-            StatusContext.ToastWarning("Nothing Selected To Delete?");
+            await StatusContext.ToastWarning("Nothing Selected To Delete?");
             return;
         }
 
@@ -228,17 +228,17 @@ public partial class FeatureIntersectTaggerContext
     }
 
     [NonBlockingCommand]
-    public Task EditFeatureFile()
+    public async Task EditFeatureFile()
     {
         if (SelectedFeatureFile == null)
         {
-            StatusContext.ToastWarning("Nothing Selected To Edit?");
-            return Task.CompletedTask;
+            await StatusContext.ToastWarning("Nothing Selected To Edit?");
+            return;
         }
 
         FeatureFileToEdit!.Show(SelectedFeatureFile, Settings.FeatureIntersectFiles.ToList());
 
-        return Task.CompletedTask;
+        return;
     }
 
     private void EndEdit(object? sender,
@@ -279,7 +279,7 @@ public partial class FeatureIntersectTaggerContext
 
         if (FilesToTagFileList?.Files == null || !FilesToTagFileList.Files.Any())
         {
-            StatusContext.ToastError("No Files to Tag Selected?");
+            await StatusContext.ToastError("No Files to Tag Selected?");
             return;
         }
 
@@ -315,7 +315,7 @@ public partial class FeatureIntersectTaggerContext
 
         if (!selectedFile.Exists)
         {
-            StatusContext.ToastError("File Selected for Import does not Exist?");
+            await StatusContext.ToastError("File Selected for Import does not Exist?");
             return;
         }
 
@@ -324,7 +324,7 @@ public partial class FeatureIntersectTaggerContext
 
         if (settings == null)
         {
-            StatusContext.ToastError($"Couldn't convert {selectedFile.Name} into a valid Settings File?");
+            await StatusContext.ToastError($"Couldn't convert {selectedFile.Name} into a valid Settings File?");
             return;
         }
 
@@ -388,7 +388,7 @@ public partial class FeatureIntersectTaggerContext
 
         if (FilesToTagFileList?.SelectedFiles == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -396,13 +396,13 @@ public partial class FeatureIntersectTaggerContext
 
         if (!frozenSelected.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
         if (frozenSelected.Count > 10)
         {
-            StatusContext.ToastWarning("Sorry - dumping metadata limited to 10 files at once...");
+            await StatusContext.ToastWarning("Sorry - dumping metadata limited to 10 files at once...");
             return;
         }
 
@@ -411,7 +411,7 @@ public partial class FeatureIntersectTaggerContext
             loopFile.Refresh();
             if (!loopFile.Exists)
             {
-                StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
+                await StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
                 continue;
             }
 
@@ -545,13 +545,13 @@ public partial class FeatureIntersectTaggerContext
 
         if (PreviewResults.Count == 0)
         {
-            StatusContext.ToastError("No Files to Write To?");
+            await StatusContext.ToastError("No Files to Write To?");
             return;
         }
 
         if (PreviewResults.Count(x => !string.IsNullOrWhiteSpace(x.NewTagsString)) == 0)
         {
-            StatusContext.ToastError("None of the files have New Tags - nothing to Write?");
+            await StatusContext.ToastError("None of the files have New Tags - nothing to Write?");
             return;
         }
 

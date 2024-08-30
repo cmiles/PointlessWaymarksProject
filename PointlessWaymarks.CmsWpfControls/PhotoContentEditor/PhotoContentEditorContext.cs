@@ -149,13 +149,13 @@ Photo Content Notes:
         
         if (!newFile.Exists)
         {
-            StatusContext.ToastError("File doesn't exist?");
+            await StatusContext.ToastError("File doesn't exist?");
             return;
         }
         
         if (!PhotoGenerator.PhotoFileTypeIsSupported(newFile))
         {
-            StatusContext.ToastError("Only JPEGs are supported...");
+            await StatusContext.ToastError("Only JPEGs are supported...");
             return;
         }
         
@@ -292,7 +292,7 @@ Photo Content Notes:
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
         
@@ -302,7 +302,7 @@ Photo Content Notes:
         
         Clipboard.SetText(linkString);
         
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
     
     public async Task LoadData(PhotoContent? toLoad, bool skipMediaDirectoryCheck = false)
@@ -504,14 +504,14 @@ Photo Content Notes:
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("The Photo must be saved before creating a Point.");
+            await StatusContext.ToastError("The Photo must be saved before creating a Point.");
             return;
         }
         
         if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
             OptionalLocationEntry.LongitudeEntry!.UserValue == null)
         {
-            StatusContext.ToastError("Latitude or Longitude is missing?");
+            await StatusContext.ToastError("Latitude or Longitude is missing?");
             return;
         }
         
@@ -522,7 +522,7 @@ Photo Content Notes:
         
         if (!latitudeValidation.Valid || !longitudeValidation.Valid)
         {
-            StatusContext.ToastError("Latitude/Longitude is not valid?");
+            await StatusContext.ToastError("Latitude/Longitude is not valid?");
             return;
         }
         
@@ -557,7 +557,7 @@ Photo Content Notes:
         
         if (SelectedFile == null)
         {
-            StatusContext.ToastError("No File Selected?");
+            await StatusContext.ToastError("No File Selected?");
             return;
         }
         
@@ -565,7 +565,7 @@ Photo Content Notes:
         
         if (!SelectedFile.Exists)
         {
-            StatusContext.ToastError("File doesn't appear to exist?");
+            await StatusContext.ToastError("File doesn't appear to exist?");
             return;
         }
         
@@ -605,7 +605,7 @@ Photo Content Notes:
         
         if (SelectedFile == null)
         {
-            StatusContext.ToastError("No File Selected? There must be a photograph to Save...");
+            await StatusContext.ToastError("No File Selected? There must be a photograph to Save...");
             return;
         }
         
@@ -677,7 +677,7 @@ Photo Content Notes:
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Please save the content first...");
+            await StatusContext.ToastError("Please save the content first...");
             return;
         }
         
@@ -702,7 +702,7 @@ Photo Content Notes:
         
         if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
-            StatusContext.ToastError("No Selected Photo or Selected Photo no longer exists?");
+            await StatusContext.ToastError("No Selected Photo or Selected Photo no longer exists?");
             return;
         }
         

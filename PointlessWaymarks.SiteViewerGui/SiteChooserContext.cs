@@ -44,7 +44,7 @@ public partial class SiteChooserContext
 
         if (!possibleDirectory.Exists)
         {
-            StatusContext.ToastError("Directory doesn't exist?");
+            await StatusContext.ToastError("Directory doesn't exist?");
             return;
         }
 
@@ -69,7 +69,7 @@ public partial class SiteChooserContext
 
         if (!possibleFile.Exists)
         {
-            StatusContext.ToastError("File doesn't exist?");
+            await StatusContext.ToastError("File doesn't exist?");
             return;
         }
 
@@ -106,7 +106,7 @@ public partial class SiteChooserContext
 
         if (projectDirectoryListItem == null)
         {
-            StatusContext.ToastWarning("Nothing selected?");
+            await StatusContext.ToastWarning("Nothing selected?");
             return;
         }
 
@@ -114,7 +114,7 @@ public partial class SiteChooserContext
 
         if (!projectDirectoryListItem.SiteDirectory.Exists)
         {
-            StatusContext.ToastWarning("Directory doesn't appear to currently exist...");
+            await StatusContext.ToastWarning("Directory doesn't appear to currently exist...");
             return;
         }
 
@@ -130,7 +130,7 @@ public partial class SiteChooserContext
 
         if (projectFileListItem == null)
         {
-            StatusContext.ToastWarning("Nothing selected?");
+            await StatusContext.ToastWarning("Nothing selected?");
             return;
         }
 
@@ -138,7 +138,7 @@ public partial class SiteChooserContext
 
         if (!projectFileListItem.SettingsFile.Exists)
         {
-            StatusContext.ToastWarning("File doesn't appear to currently exist...");
+            await StatusContext.ToastWarning("File doesn't appear to currently exist...");
             return;
         }
 

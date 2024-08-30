@@ -124,7 +124,7 @@ public partial class CustomScriptRunnerContext
 
         if (string.IsNullOrWhiteSpace(UserScriptEntryContext.UserValue))
         {
-            StatusContext.ToastError("No Script to Run?");
+            await StatusContext.ToastError("No Script to Run?");
             return;
         }
 

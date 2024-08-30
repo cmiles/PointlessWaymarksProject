@@ -33,7 +33,7 @@ public partial class LocationChooserWindow
         
         if (LocationChooser.HasValidationIssues)
         {
-            StatusContext.ToastError("Validation Error...");
+            await StatusContext.ToastError("Validation Error...");
             return;
         }
         

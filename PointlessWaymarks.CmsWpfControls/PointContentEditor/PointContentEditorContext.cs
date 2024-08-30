@@ -126,13 +126,13 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         var featureToCheck = await FeatureFromPoint();
         if (featureToCheck == null)
         {
-            StatusContext.ToastError("No valid Lat/Long to check?");
+            await StatusContext.ToastError("No valid Lat/Long to check?");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
             return;
         }
@@ -143,7 +143,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (!possibleTags.Any())
         {
-            StatusContext.ToastWarning("No tags found...");
+            await StatusContext.ToastWarning("No tags found...");
             return;
         }
 
@@ -171,7 +171,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (MapBounds == null)
         {
-            StatusContext.ToastError("No Map Bounds?");
+            await StatusContext.ToastError("No Map Bounds?");
             return;
         }
 
@@ -180,7 +180,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (!searchResultIds.Any())
         {
-            StatusContext.ToastWarning("No Items Found in Bounds?");
+            await StatusContext.ToastWarning("No Items Found in Bounds?");
             return;
         }
 
@@ -280,7 +280,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     {
         if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues)
         {
-            StatusContext.ToastError("Lat Long is not valid");
+            await StatusContext.ToastError("Lat Long is not valid");
             return;
         }
 
@@ -310,7 +310,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
 
@@ -320,7 +320,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         Clipboard.SetText(linkString);
 
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
     public async Task LoadData(PointContent? toLoad)
@@ -523,7 +523,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (MapBounds == null)
         {
-            StatusContext.ToastError("No Map Bounds?");
+            await StatusContext.ToastError("No Map Bounds?");
             return;
         }
 
@@ -532,11 +532,11 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (!searchResult.Any())
         {
-            StatusContext.ToastWarning("No New Items Found");
+            await StatusContext.ToastWarning("No New Items Found");
             return;
         }
 
-        StatusContext.ToastSuccess($"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
+        await StatusContext.ToastSuccess($"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
 
         var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
         DisplayedContentGuids =
@@ -575,7 +575,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Please save the content first...");
+            await StatusContext.ToastError("Please save the content first...");
             return;
         }
 

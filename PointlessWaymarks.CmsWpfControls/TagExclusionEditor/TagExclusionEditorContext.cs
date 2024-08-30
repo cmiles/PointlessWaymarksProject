@@ -80,7 +80,7 @@ public partial class TagExclusionEditorContext
 
         if (tagItem == null)
         {
-            StatusContext.ToastError("No Tag Item to Delete???");
+            await StatusContext.ToastError("No Tag Item to Delete???");
             return;
         }
 
@@ -159,7 +159,7 @@ public partial class TagExclusionEditorContext
 
         if (tagItem == null)
         {
-            StatusContext.ToastError("No Tag Item to Save???");
+            await StatusContext.ToastError("No Tag Item to Save???");
             return;
         }
 
@@ -173,7 +173,7 @@ public partial class TagExclusionEditorContext
 
         if (validation.HasError)
         {
-            StatusContext.ToastError($"Tag is not valid - {validation.GenerationNote}");
+            await StatusContext.ToastError($"Tag is not valid - {validation.GenerationNote}");
             return;
         }
 
@@ -181,7 +181,7 @@ public partial class TagExclusionEditorContext
 
         if (saveReturn.generationReturn.HasError)
         {
-            StatusContext.ToastError($"Error Saving - {validation.GenerationNote}");
+            await StatusContext.ToastError($"Error Saving - {validation.GenerationNote}");
             return;
         }
 

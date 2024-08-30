@@ -165,13 +165,13 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (MapElements.Any(x => x.ContentId() == possibleFile.ContentId))
         {
-            StatusContext.ToastWarning($"File {possibleFile.Title} is already on the map");
+            await StatusContext.ToastWarning($"File {possibleFile.Title} is already on the map");
             return;
         }
         
         if (!await possibleFile.HasValidLocation())
         {
-            StatusContext.ToastWarning($"File {possibleFile.Title} doesn't have a valid location");
+            await StatusContext.ToastWarning($"File {possibleFile.Title} doesn't have a valid location");
             return;
         }
         
@@ -182,7 +182,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements.Add(newFileContent);
         
-        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added File - {possibleFile.Title}");
+        if (guiNotificationAndMapRefreshWhenAdded) await StatusContext.ToastSuccess($"Added File - {possibleFile.Title}");
     }
     
     private async Task AddGeoJson(GeoJsonContent possibleGeoJson, MapElement? loopContent = null,
@@ -192,7 +192,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (MapElements.Any(x => x.ContentId() == possibleGeoJson.ContentId))
         {
-            StatusContext.ToastWarning($"GeoJson {possibleGeoJson.Title} is already on the map");
+            await StatusContext.ToastWarning($"GeoJson {possibleGeoJson.Title} is already on the map");
             return;
         }
         
@@ -203,7 +203,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements.Add(newGeoJsonItem);
         
-        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleGeoJson.Title}");
+        if (guiNotificationAndMapRefreshWhenAdded) await StatusContext.ToastSuccess($"Added Point - {possibleGeoJson.Title}");
     }
     
     private async Task AddImage(ImageContent possibleImage, MapElement? loopContent = null,
@@ -213,13 +213,13 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (MapElements.Any(x => x.ContentId() == possibleImage.ContentId))
         {
-            StatusContext.ToastWarning($"Image {possibleImage.Title} is already on the map");
+            await StatusContext.ToastWarning($"Image {possibleImage.Title} is already on the map");
             return;
         }
         
         if (!await possibleImage.HasValidLocation())
         {
-            StatusContext.ToastWarning($"Image {possibleImage.Title} doesn't have a valid location");
+            await StatusContext.ToastWarning($"Image {possibleImage.Title} doesn't have a valid location");
             return;
         }
         
@@ -230,7 +230,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements.Add(newImageContent);
         
-        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Image - {possibleImage.Title}");
+        if (guiNotificationAndMapRefreshWhenAdded) await StatusContext.ToastSuccess($"Added Image - {possibleImage.Title}");
     }
     
     private async Task AddLine(LineContent possibleLine, MapElement? loopContent = null,
@@ -240,7 +240,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (MapElements.Any(x => x.ContentId() == possibleLine.ContentId))
         {
-            StatusContext.ToastWarning($"Line {possibleLine.Title} is already on the map");
+            await StatusContext.ToastWarning($"Line {possibleLine.Title} is already on the map");
             return;
         }
         
@@ -251,7 +251,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements.Add(newLineItem);
         
-        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Point - {possibleLine.Title}");
+        if (guiNotificationAndMapRefreshWhenAdded) await StatusContext.ToastSuccess($"Added Point - {possibleLine.Title}");
     }
     
     private async Task AddPhoto(PhotoContent possiblePhoto, MapElement? loopContent = null,
@@ -261,13 +261,13 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (MapElements.Any(x => x.ContentId() == possiblePhoto.ContentId))
         {
-            StatusContext.ToastWarning($"Photo {possiblePhoto.Title} is already on the map");
+            await StatusContext.ToastWarning($"Photo {possiblePhoto.Title} is already on the map");
             return;
         }
         
         if (!await possiblePhoto.HasValidLocation())
         {
-            StatusContext.ToastWarning($"Photo {possiblePhoto.Title} doesn't have a valid location");
+            await StatusContext.ToastWarning($"Photo {possiblePhoto.Title} doesn't have a valid location");
             return;
         }
         
@@ -278,7 +278,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements.Add(newPhotoContent);
         
-        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Photo - {possiblePhoto.Title}");
+        if (guiNotificationAndMapRefreshWhenAdded) await StatusContext.ToastSuccess($"Added Photo - {possiblePhoto.Title}");
     }
     
     
@@ -289,7 +289,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (MapElements.Any(x => x.ContentId() == possiblePoint.ContentId))
         {
-            StatusContext.ToastWarning($"Point {possiblePoint.Title} is already on the map");
+            await StatusContext.ToastWarning($"Point {possiblePoint.Title} is already on the map");
             return;
         }
         
@@ -300,7 +300,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements.Add(newPointContent);
         
-        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Point - {possiblePoint.Title}");
+        if (guiNotificationAndMapRefreshWhenAdded) await StatusContext.ToastSuccess($"Added Point - {possiblePoint.Title}");
     }
     
     private async Task AddPost(PostContent possiblePost, MapElement? loopContent = null,
@@ -310,13 +310,13 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (MapElements.Any(x => x.ContentId() == possiblePost.ContentId))
         {
-            StatusContext.ToastWarning($"Post {possiblePost.Title} is already on the map");
+            await StatusContext.ToastWarning($"Post {possiblePost.Title} is already on the map");
             return;
         }
         
         if (!await possiblePost.HasValidLocation())
         {
-            StatusContext.ToastWarning($"Post {possiblePost.Title} doesn't have a valid location");
+            await StatusContext.ToastWarning($"Post {possiblePost.Title} doesn't have a valid location");
             return;
         }
         
@@ -327,7 +327,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements.Add(newPostContent);
         
-        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Post - {possiblePost.Title}");
+        if (guiNotificationAndMapRefreshWhenAdded) await StatusContext.ToastSuccess($"Added Post - {possiblePost.Title}");
     }
     
     private async Task AddVideo(VideoContent possibleVideo, MapElement? loopContent = null,
@@ -337,13 +337,13 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (MapElements.Any(x => x.ContentId() == possibleVideo.ContentId))
         {
-            StatusContext.ToastWarning($"Video {possibleVideo.Title} is already on the map");
+            await StatusContext.ToastWarning($"Video {possibleVideo.Title} is already on the map");
             return;
         }
         
         if (!await possibleVideo.HasValidLocation())
         {
-            StatusContext.ToastWarning($"Video {possibleVideo.Title} doesn't have a valid location");
+            await StatusContext.ToastWarning($"Video {possibleVideo.Title} doesn't have a valid location");
             return;
         }
         
@@ -354,7 +354,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         MapElements.Add(newVideoContent);
         
-        if (guiNotificationAndMapRefreshWhenAdded) StatusContext.ToastSuccess($"Added Video - {possibleVideo.Title}");
+        if (guiNotificationAndMapRefreshWhenAdded) await StatusContext.ToastSuccess($"Added Video - {possibleVideo.Title}");
     }
     
     [NonBlockingCommand]
@@ -613,7 +613,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
         
         if (refreshedData == null)
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
         
         var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
@@ -632,7 +632,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
         
         if (refreshedData == null)
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
         
         var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
@@ -651,7 +651,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
         
         if (refreshedData == null)
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
         
         var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
@@ -705,7 +705,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
         
@@ -715,7 +715,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         Clipboard.SetText(linkString);
         
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
     
     public async Task LoadData(MapComponent? toLoad)
@@ -866,7 +866,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (toEdit == null)
         {
-            StatusContext.ToastError("No Item to Edit?");
+            await StatusContext.ToastError("No Item to Edit?");
             return;
         }
         
@@ -942,7 +942,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (toRemove == null)
         {
-            StatusContext.ToastError("No Item Selected?");
+            await StatusContext.ToastError("No Item Selected?");
             return;
         }
         
@@ -952,7 +952,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         }
         catch (Exception e)
         {
-            StatusContext.ToastError($"Trouble Removing Map Element - {e.Message}");
+            await StatusContext.ToastError($"Trouble Removing Map Element - {e.Message}");
         }
         
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -966,7 +966,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (!MapElements.Any())
         {
-            StatusContext.ToastError("No Items?");
+            await StatusContext.ToastError("No Items?");
             return;
         }
         
@@ -1018,7 +1018,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (!filteredItems.Any())
         {
-            StatusContext.ToastError("No Visible Items?");
+            await StatusContext.ToastError("No Visible Items?");
             return;
         }
         
@@ -1179,7 +1179,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
             return;
         }
         
-        StatusContext.ToastError("Item isn't a spatial type or isn't in the db?");
+        await StatusContext.ToastError("Item isn't a spatial type or isn't in the db?");
     }
     
     [BlockingCommand]
@@ -1189,7 +1189,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (string.IsNullOrWhiteSpace(UserGeoContentInput))
         {
-            StatusContext.ToastError("Nothing to add?");
+            await StatusContext.ToastError("Nothing to add?");
             return;
         }
         
@@ -1210,7 +1210,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         
         if (!codes.Any())
         {
-            StatusContext.ToastError("No Content Ids found?");
+            await StatusContext.ToastError("No Content Ids found?");
             return;
         }
         
@@ -1277,7 +1277,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
                 continue;
             }
             
-            StatusContext.ToastWarning(
+            await StatusContext.ToastWarning(
                 $"ContentId {loopCode} doesn't appear to be a valid GeoJson, Line, Photo or Point content for the map?");
         }
         

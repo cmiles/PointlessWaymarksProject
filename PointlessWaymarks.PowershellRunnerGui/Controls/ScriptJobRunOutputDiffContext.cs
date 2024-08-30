@@ -259,7 +259,7 @@ public partial class ScriptJobRunOutputDiffContext
 
         if (toView == null)
         {
-            StatusContext.ToastError("No Run Selected?");
+            await StatusContext.ToastError("No Run Selected?");
             return;
         }
 

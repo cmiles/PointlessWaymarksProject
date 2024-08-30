@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Web;
 using HtmlTableHelper;
@@ -19,7 +19,7 @@ public static class PhotoMetadataReport
 
         if (selectedFile == null)
         {
-            statusContext.ToastError("No photo...");
+            await statusContext.ToastError("No photo...");
             return;
         }
 
@@ -27,7 +27,7 @@ public static class PhotoMetadataReport
 
         if (!selectedFile.Exists)
         {
-            statusContext.ToastError($"File {selectedFile.FullName} doesn't exist?");
+            await statusContext.ToastError($"File {selectedFile.FullName} doesn't exist?");
             return;
         }
 

@@ -150,7 +150,7 @@ If your intent is just to put a single piece of content onto the main page of th
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
         
@@ -160,7 +160,7 @@ If your intent is just to put a single piece of content onto the main page of th
         
         Clipboard.SetText(linkString);
         
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
     
     public async Task LoadData(PostContent? toLoad)
@@ -202,14 +202,14 @@ If your intent is just to put a single piece of content onto the main page of th
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("The Photo must be saved before creating a Point.");
+            await StatusContext.ToastError("The Photo must be saved before creating a Point.");
             return;
         }
         
         if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
             OptionalLocationEntry.LongitudeEntry!.UserValue == null)
         {
-            StatusContext.ToastError("Latitude or Longitude is missing?");
+            await StatusContext.ToastError("Latitude or Longitude is missing?");
             return;
         }
         
@@ -220,7 +220,7 @@ If your intent is just to put a single piece of content onto the main page of th
         
         if (!latitudeValidation.Valid || !longitudeValidation.Valid)
         {
-            StatusContext.ToastError("Latitude/Longitude is not valid?");
+            await StatusContext.ToastError("Latitude/Longitude is not valid?");
             return;
         }
         
@@ -285,7 +285,7 @@ If your intent is just to put a single piece of content onto the main page of th
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Please save the content first...");
+            await StatusContext.ToastError("Please save the content first...");
             return;
         }
         

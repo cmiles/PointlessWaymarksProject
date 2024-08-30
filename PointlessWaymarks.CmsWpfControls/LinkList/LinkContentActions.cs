@@ -43,7 +43,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -53,7 +53,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -63,13 +63,13 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError($"Link {content.Title} - Entry is not saved - Skipping?");
+            await StatusContext.ToastError($"Link {content.Title} - Entry is not saved - Skipping?");
             return;
         }
 
@@ -88,7 +88,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
         var refreshedData = context.LinkContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
         if (refreshedData == null)
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
         var newContentWindow = await LinkContentEditorWindow.CreateInstance(refreshedData);
@@ -103,7 +103,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -130,7 +130,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
+        await StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -142,7 +142,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -156,7 +156,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         if (historicItems.Count < 1)
         {
-            StatusContext.ToastWarning("No History to Show...");
+            await StatusContext.ToastWarning("No History to Show...");
             return;
         }
 
@@ -175,13 +175,13 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(content.Url))
         {
-            StatusContext.ToastError("URL is Blank?");
+            await StatusContext.ToastError("URL is Blank?");
             return;
         }
 
@@ -198,7 +198,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -220,13 +220,13 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         if (string.IsNullOrWhiteSpace(link))
         {
-            StatusContext.ToastError("Nothing to Copy?");
+            await StatusContext.ToastError("Nothing to Copy?");
             return;
         }
 
         Clipboard.SetText(link);
 
-        StatusContext.ToastSuccess($"To Clipboard {link}");
+        await StatusContext.ToastSuccess($"To Clipboard {link}");
     }
 
     public static async Task<LinkListListItem> ListItemFromDbItem(LinkContent content, LinkContentActions itemActions,

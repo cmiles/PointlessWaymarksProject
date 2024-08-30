@@ -74,7 +74,7 @@ public partial class NoteListWithActionsContext
 
         HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
 
-        StatusContext.ToastSuccess("Email Html on Clipboard");
+        await StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
     [BlockingCommand]

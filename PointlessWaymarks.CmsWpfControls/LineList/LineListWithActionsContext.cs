@@ -138,14 +138,14 @@ public partial class LineListWithActionsContext
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
-            StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
+            await StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
             return;
         }
 
         var settingsFileInfo = new FileInfo(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile);
         if (!settingsFileInfo.Exists)
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"The Settings File for the Feature Intersection {settingsFileInfo.FullName} doesn't exist?");
             return;
         }
@@ -275,7 +275,7 @@ public partial class LineListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -309,7 +309,7 @@ public partial class LineListWithActionsContext
         Clipboard.SetText(finalString);
 
         if (successCounter > 0)
-            StatusContext.ToastSuccess($"GeoJson To Clipboard for {successCounter} Lines");
+            await StatusContext.ToastSuccess($"GeoJson To Clipboard for {successCounter} Lines");
 
         if (warningList.Any())
             await StatusContext.ShowMessageWithOkButton("GeoJson Conversion Failures?",
@@ -328,7 +328,7 @@ public partial class LineListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -392,6 +392,6 @@ public partial class LineListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 }

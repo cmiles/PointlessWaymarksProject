@@ -133,7 +133,7 @@ public static class MapCmsJson
                             await editWindow.PositionWindowAndShowOnUiThread();
                             break;
                         default:
-                            statusContext.ToastError($"Content Not Found? {contentId}");
+                            await statusContext.ToastError($"Content Not Found? {contentId}");
                             break;
                     }
                 });

@@ -46,7 +46,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -56,7 +56,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [NonBlockingCommand]
@@ -66,13 +66,13 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError($"Post {content.Title} - Entry is not saved - Skipping?");
+            await StatusContext.ToastError($"Post {content.Title} - Entry is not saved - Skipping?");
             return;
         }
 
@@ -101,7 +101,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (refreshedData == null)
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
             return;
         }
@@ -118,7 +118,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -139,7 +139,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -149,7 +149,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         await htmlContext.WriteLocalHtml();
 
-        StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+        await StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -161,7 +161,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -175,7 +175,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (historicItems.Count < 1)
         {
-            StatusContext.ToastWarning("No History to Show...");
+            await StatusContext.ToastWarning("No History to Show...");
             return;
         }
 
@@ -194,7 +194,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -213,7 +213,7 @@ public partial class PostContentActions : IContentActions<PostContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 

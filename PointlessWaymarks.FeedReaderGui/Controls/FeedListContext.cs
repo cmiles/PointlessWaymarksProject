@@ -48,7 +48,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
     {
         if (SelectedItem == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -246,7 +246,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
 
         if (!urls.Any())
         {
-            StatusContext.ToastError("No New Links Found?");
+            await StatusContext.ToastError("No New Links Found?");
             return;
         }
 
@@ -327,7 +327,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
 
         if (string.IsNullOrEmpty(UserAddFeedInput))
         {
-            StatusContext.ToastWarning("Feed to Add is Blank?");
+            await StatusContext.ToastWarning("Feed to Add is Blank?");
             return;
         }
 
@@ -386,7 +386,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var errors = await ContextDb.UpdateFeeds(StatusContext.ProgressTracker());
-        foreach (var loopError in errors) StatusContext.ToastError(loopError);
+        foreach (var loopError in errors) await StatusContext.ToastError(loopError);
     }
 
     [NonBlockingCommand]
@@ -396,7 +396,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
         var errors =
             await ContextDb.UpdateFeeds(SelectedListItem()!.DbReaderFeed.PersistentId.AsList(),
                 StatusContext.ProgressTracker());
-        foreach (var loopError in errors) StatusContext.ToastError(loopError);
+        foreach (var loopError in errors) await StatusContext.ToastError(loopError);
     }
 
     public async Task Setup()
@@ -462,7 +462,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
 
         if (string.IsNullOrEmpty(UserAddFeedInput))
         {
-            StatusContext.ToastWarning("Feed to Add is Blank?");
+            await StatusContext.ToastWarning("Feed to Add is Blank?");
             return;
         }
 

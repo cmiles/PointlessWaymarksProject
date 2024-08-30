@@ -103,7 +103,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         
         if (MapBounds == null)
         {
-            StatusContext.ToastError("No Map Bounds?");
+            await StatusContext.ToastError("No Map Bounds?");
             return;
         }
         
@@ -112,7 +112,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         
         if (!searchResultIds.Any())
         {
-            StatusContext.ToastWarning("No Items Found in Bounds?");
+            await StatusContext.ToastWarning("No Items Found in Bounds?");
             return;
         }
         
@@ -144,7 +144,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
     {
         if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues)
         {
-            StatusContext.ToastError("Lat Long is not valid");
+            await StatusContext.ToastError("Lat Long is not valid");
             return;
         }
         
@@ -275,7 +275,7 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         
         if (MapBounds == null)
         {
-            StatusContext.ToastError("No Map Bounds?");
+            await StatusContext.ToastError("No Map Bounds?");
             return;
         }
         
@@ -284,11 +284,11 @@ public partial class LocationChooserContext : IHasChanges, ICheckForChangesAndVa
         
         if (!searchResult.Any())
         {
-            StatusContext.ToastWarning("No New Items Found");
+            await StatusContext.ToastWarning("No New Items Found");
             return;
         }
         
-        StatusContext.ToastSuccess($"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
+        await StatusContext.ToastSuccess($"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
         
         var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
         DisplayedContentGuids =

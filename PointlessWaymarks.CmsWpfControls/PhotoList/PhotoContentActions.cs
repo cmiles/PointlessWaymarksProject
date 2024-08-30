@@ -46,7 +46,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -56,7 +56,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [NonBlockingCommand]
@@ -66,13 +66,13 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError("Entry is not saved - Skipping?");
+            await StatusContext.ToastError("Entry is not saved - Skipping?");
             return;
         }
 
@@ -101,7 +101,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
         var refreshedData = context.PhotoContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
         if (refreshedData == null)
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
         var newContentWindow = await PhotoContentEditorWindow.CreateInstance(refreshedData);
@@ -116,7 +116,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -136,7 +136,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -146,7 +146,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         await htmlContext.WriteLocalHtml();
 
-        StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+        await StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -158,7 +158,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -172,7 +172,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (historicItems.Count < 1)
         {
-            StatusContext.ToastWarning("No History to Show...");
+            await StatusContext.ToastWarning("No History to Show...");
             return;
         }
 
@@ -191,7 +191,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -210,7 +210,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -394,19 +394,19 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError("Entry is not saved - Skipping?");
+            await StatusContext.ToastError("Entry is not saved - Skipping?");
             return;
         }
 
         if (content.Latitude == null || content.Longitude == null)
         {
-            StatusContext.ToastError("No Location Data?");
+            await StatusContext.ToastError("No Location Data?");
             return;
         }
 
@@ -454,7 +454,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
             if (possibleFile is not { Exists: true })
             {
-                StatusContext.ToastWarning("No Media File Found?");
+                await StatusContext.ToastWarning("No Media File Found?");
                 return;
             }
 
@@ -465,7 +465,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
         }
         catch (Exception e)
         {
-            StatusContext.ToastWarning($"Trouble Showing Image - {e.Message}");
+            await StatusContext.ToastWarning($"Trouble Showing Image - {e.Message}");
         }
     }
 }

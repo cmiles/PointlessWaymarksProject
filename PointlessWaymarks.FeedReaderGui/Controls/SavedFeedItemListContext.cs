@@ -44,7 +44,7 @@ public partial class SavedFeedItemListContext
     {
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -162,7 +162,7 @@ public partial class SavedFeedItemListContext
     {
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("Nothing To Delete?");
+            await StatusContext.ToastWarning("Nothing To Delete?");
             return;
         }
 
@@ -186,7 +186,7 @@ public partial class SavedFeedItemListContext
     {
         if (listItem?.DbItem == null)
         {
-            StatusContext.ToastWarning("This item isn't attached to an active feed...");
+            await StatusContext.ToastWarning("This item isn't attached to an active feed...");
             return;
         }
 
@@ -198,7 +198,7 @@ public partial class SavedFeedItemListContext
 
         if (currentFeed == null)
         {
-            StatusContext.ToastError("Feed Not Found?!?");
+            await StatusContext.ToastError("Feed Not Found?!?");
             return;
         }
 
@@ -213,7 +213,7 @@ public partial class SavedFeedItemListContext
     {
         if (SelectedItem == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -261,7 +261,7 @@ public partial class SavedFeedItemListContext
     {
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -304,13 +304,13 @@ public partial class SavedFeedItemListContext
 
         if (SelectedItem == null)
         {
-            StatusContext.ToastWarning("Feed to Add is Blank?");
+            await StatusContext.ToastWarning("Feed to Add is Blank?");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(SelectedItem.DbItem.Link))
         {
-            StatusContext.ToastWarning("Feed Item has no Link?");
+            await StatusContext.ToastWarning("Feed Item has no Link?");
             return;
         }
 
@@ -378,7 +378,7 @@ public partial class SavedFeedItemListContext
     {
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -397,7 +397,7 @@ public partial class SavedFeedItemListContext
     {
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -476,7 +476,7 @@ public partial class SavedFeedItemListContext
     {
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 

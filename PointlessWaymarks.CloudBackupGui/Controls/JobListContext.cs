@@ -47,7 +47,7 @@ public partial class JobListContext
 
         Clipboard.SetText($""".\PointlessWaymarks.CloudBackupRunner.exe "{settings.DatabaseFile}" {listItem.Id}""");
 
-        StatusContext.ToastSuccess("Command Line Command on Clipboard");
+        await StatusContext.ToastSuccess("Command Line Command on Clipboard");
     }
 
     [BlockingCommand]
@@ -109,7 +109,7 @@ public partial class JobListContext
 
         if (toEdit == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            await StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
 
@@ -216,7 +216,7 @@ public partial class JobListContext
 
         if (toDelete == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Delete?");
+            await StatusContext.ToastWarning("Nothing Selected to Delete?");
             return;
         }
 
@@ -247,7 +247,7 @@ public partial class JobListContext
 
         if (toEdit == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            await StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
 
@@ -265,7 +265,7 @@ public partial class JobListContext
 
         if (SelectedJob?.DbJob == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            await StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
 
@@ -305,7 +305,7 @@ public partial class JobListContext
 
         if (toEdit == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            await StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
 
@@ -363,7 +363,7 @@ public partial class JobListContext
 
         if (string.IsNullOrWhiteSpace(userChoice))
         {
-            StatusContext.ToastWarning("No File Selected? New Db Cancelled...");
+            await StatusContext.ToastWarning("No File Selected? New Db Cancelled...");
             return;
         }
 
@@ -373,7 +373,7 @@ public partial class JobListContext
 
         if (!userDatabaseFile.Directory?.Exists ?? false)
         {
-            StatusContext.ToastError("Directory for New Database Doesn't Exist?");
+            await StatusContext.ToastError("Directory for New Database Doesn't Exist?");
             return;
         }
 
@@ -381,7 +381,7 @@ public partial class JobListContext
 
         if (!result.success)
         {
-            StatusContext.ToastError($"Trouble Creating New Database - {result.message}");
+            await StatusContext.ToastError($"Trouble Creating New Database - {result.message}");
             return;
         }
 
@@ -516,7 +516,7 @@ public partial class JobListContext
     {
         if (toRun == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Run?");
+            await StatusContext.ToastWarning("Nothing Selected to Run?");
             return;
         }
 
@@ -528,7 +528,7 @@ public partial class JobListContext
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             await Program.Main([CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "auto"]));
 
-        StatusContext.ToastSuccess("Starting Backup Runner...");
+        await StatusContext.ToastSuccess("Starting Backup Runner...");
     }
 
     [NonBlockingCommand]
@@ -536,7 +536,7 @@ public partial class JobListContext
     {
         if (toRun == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Run?");
+            await StatusContext.ToastWarning("Nothing Selected to Run?");
             return;
         }
 
@@ -548,7 +548,7 @@ public partial class JobListContext
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>
             await Program.Main([CloudBackupContext.CurrentDatabaseFileName, toRun.Id.ToString(), "new"]));
 
-        StatusContext.ToastSuccess("Starting Backup Runner...");
+        await StatusContext.ToastSuccess("Starting Backup Runner...");
     }
 
     public Task Setup()
@@ -588,7 +588,7 @@ public partial class JobListContext
             catch (Exception e)
             {
                 Log.Error(e, $"Trouble Adding Job Items from {CurrentDatabase}");
-                StatusContext.ToastError("Trouble Adding Job...");
+                await StatusContext.ToastError("Trouble Adding Job...");
             }
 
         await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);

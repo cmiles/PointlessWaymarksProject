@@ -40,7 +40,7 @@ public partial class ActivityLogMonthlySummaryWindow
     {
         if (row == null)
         {
-            StatusContext.ToastError("No Row Selected?");
+            await StatusContext.ToastError("No Row Selected?");
             return;
         }
 

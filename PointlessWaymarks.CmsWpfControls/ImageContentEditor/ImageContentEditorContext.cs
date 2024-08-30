@@ -130,13 +130,13 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (!newFile.Exists)
         {
-            StatusContext.ToastError("File doesn't exist?");
+            await StatusContext.ToastError("File doesn't exist?");
             return;
         }
         
         if (!ImageGenerator.ImageFileTypeIsSupported(newFile))
         {
-            StatusContext.ToastError("Only jpeg files are supported...");
+            await StatusContext.ToastError("Only jpeg files are supported...");
             return;
         }
         
@@ -208,7 +208,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
         
@@ -218,7 +218,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         Clipboard.SetText(linkString);
         
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
     
     private async Task LoadData(ImageContent? toLoad, bool skipMediaDirectoryCheck = false)
@@ -346,14 +346,14 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("The Photo must be saved before creating a Point.");
+            await StatusContext.ToastError("The Photo must be saved before creating a Point.");
             return;
         }
         
         if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
             OptionalLocationEntry.LongitudeEntry!.UserValue == null)
         {
-            StatusContext.ToastError("Latitude or Longitude is missing?");
+            await StatusContext.ToastError("Latitude or Longitude is missing?");
             return;
         }
         
@@ -364,7 +364,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (!latitudeValidation.Valid || !longitudeValidation.Valid)
         {
-            StatusContext.ToastError("Latitude/Longitude is not valid?");
+            await StatusContext.ToastError("Latitude/Longitude is not valid?");
             return;
         }
         
@@ -399,7 +399,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (SelectedFile == null)
         {
-            StatusContext.ToastError("No File Selected?");
+            await StatusContext.ToastError("No File Selected?");
             return;
         }
         
@@ -407,7 +407,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (!SelectedFile.Exists)
         {
-            StatusContext.ToastError("File doesn't appear to exist?");
+            await StatusContext.ToastError("File doesn't appear to exist?");
             return;
         }
         
@@ -447,7 +447,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (SelectedFile == null)
         {
-            StatusContext.ToastError("No File Selected? There must be a image to Save...");
+            await StatusContext.ToastError("No File Selected? There must be a image to Save...");
             return;
         }
         
@@ -520,7 +520,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Please save the content first...");
+            await StatusContext.ToastError("Please save the content first...");
             return;
         }
         
@@ -539,7 +539,7 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
         
         if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
-            StatusContext.ToastError("No Selected File or Selected File no longer exists?");
+            await StatusContext.ToastError("No Selected File or Selected File no longer exists?");
             return;
         }
         

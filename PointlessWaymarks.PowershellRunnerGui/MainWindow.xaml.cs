@@ -289,7 +289,7 @@ public partial class MainWindow
 
         if (string.IsNullOrWhiteSpace(userChoice))
         {
-            StatusContext.ToastWarning("No File Selected? New Db Cancelled...");
+            await StatusContext.ToastWarning("No File Selected? New Db Cancelled...");
             return;
         }
 
@@ -299,7 +299,7 @@ public partial class MainWindow
 
         if (!userDatabaseFile.Directory?.Exists ?? false)
         {
-            StatusContext.ToastError("Directory for New Database Doesn't Exist?");
+            await StatusContext.ToastError("Directory for New Database Doesn't Exist?");
             return;
         }
 
@@ -307,7 +307,7 @@ public partial class MainWindow
 
         if (!result.success)
         {
-            StatusContext.ToastError($"Trouble Creating New Database - {result.message}");
+            await StatusContext.ToastError($"Trouble Creating New Database - {result.message}");
             return;
         }
 

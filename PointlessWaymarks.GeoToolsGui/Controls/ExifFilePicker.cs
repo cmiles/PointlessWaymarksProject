@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
@@ -52,7 +52,7 @@ public static class ExifFilePicker
 
         if (string.IsNullOrWhiteSpace(possibleFile))
         {
-            statusContext.ToastWarning("No ExifTool.exe found...");
+            await statusContext.ToastWarning("No ExifTool.exe found...");
             return (false, string.Empty);
         }
 
@@ -60,7 +60,7 @@ public static class ExifFilePicker
 
         if (!possibleNewExifTool.Exists)
         {
-            statusContext.ToastWarning($"Selected File {possibleNewExifTool} does not exist?");
+            await statusContext.ToastWarning($"Selected File {possibleNewExifTool} does not exist?");
             return (false, string.Empty);
         }
 

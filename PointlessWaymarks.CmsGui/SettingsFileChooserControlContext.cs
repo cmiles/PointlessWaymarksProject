@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
@@ -43,7 +43,7 @@ public partial class SettingsFileChooserControlContext
 
         if (!possibleFile.Exists)
         {
-            StatusContext.ToastError("File doesn't exist?");
+            await StatusContext.ToastError("File doesn't exist?");
             return;
         }
 
@@ -71,7 +71,7 @@ public partial class SettingsFileChooserControlContext
 
         if (!settingsFileListItem.SettingsFile.Exists)
         {
-            StatusContext.ToastWarning("File doesn't appear to currently exist...");
+            await StatusContext.ToastWarning("File doesn't appear to currently exist...");
             return;
         }
 
@@ -124,7 +124,7 @@ public partial class SettingsFileChooserControlContext
 
         if (string.IsNullOrWhiteSpace(UserNewFileName))
         {
-            StatusContext.ToastError("Please fill in a file name...");
+            await StatusContext.ToastError("Please fill in a file name...");
             return;
         }
 
@@ -132,7 +132,7 @@ public partial class SettingsFileChooserControlContext
 
         if (!FileAndFolderTools.IsValidWindowsFileSystemFilename(UserNewFileName))
         {
-            StatusContext.ToastError("File name is not valid - avoid special characters...");
+            await StatusContext.ToastError("File name is not valid - avoid special characters...");
             return;
         }
 

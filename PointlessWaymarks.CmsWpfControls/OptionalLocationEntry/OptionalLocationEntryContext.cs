@@ -89,13 +89,13 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
     {
         if (LatitudeEntry!.HasValidationIssues || LongitudeEntry!.HasValidationIssues)
         {
-            StatusContext.ToastError("Lat Long is not valid");
+            await StatusContext.ToastError("Lat Long is not valid");
             return;
         }
         
         if (LatitudeEntry.UserValue == null || LongitudeEntry.UserValue == null)
         {
-            StatusContext.ToastError("Lat Long is not set");
+            await StatusContext.ToastError("Lat Long is not set");
             return;
         }
         
@@ -112,13 +112,13 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
         var featureToCheck = await FeatureFromPoint();
         if (featureToCheck == null)
         {
-            StatusContext.ToastError("No valid Lat/Long to check?");
+            await StatusContext.ToastError("No valid Lat/Long to check?");
             return [];
         }
         
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
             return [];
         }
@@ -129,7 +129,7 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
         
         if (!possibleTags.Any())
         {
-            StatusContext.ToastWarning("No tags found...");
+            await StatusContext.ToastWarning("No tags found...");
             return [];
         }
         

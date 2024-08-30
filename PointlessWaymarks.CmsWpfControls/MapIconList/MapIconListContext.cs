@@ -95,7 +95,7 @@ public partial class MapIconListContext
             await StatusContext.ShowMessageWithOkButton("Error Adding Default Icons",
                 $"{string.Join(Environment.NewLine, errorList)}");
         else
-            StatusContext.ToastSuccess($"Added {defaultIconsToAdd.Count} Icons");
+            await StatusContext.ToastSuccess($"Added {defaultIconsToAdd.Count} Icons");
     }
 
     [BlockingCommand]
@@ -242,7 +242,7 @@ public partial class MapIconListContext
 
         await MapIconGenerator.GenerateMapIconsFile();
 
-        StatusContext.ToastSuccess($"Deleted {historicEntry.IconName}");
+        await StatusContext.ToastSuccess($"Deleted {historicEntry.IconName}");
     }
 
     private async Task FilterList()
@@ -307,13 +307,13 @@ public partial class MapIconListContext
 
         if (!toSave.HasChanges)
         {
-            StatusContext.ToastWarning("No Changes to Save?");
+            await StatusContext.ToastWarning("No Changes to Save?");
             return;
         }
 
         if (toSave.HasValidationIssues)
         {
-            StatusContext.ToastError("Can't Save - Validation Issues");
+            await StatusContext.ToastError("Can't Save - Validation Issues");
             return;
         }
 
@@ -331,6 +331,6 @@ public partial class MapIconListContext
         if (saveResult.IsT1)
             await StatusContext.ShowMessageWithOkButton($"Error Saving {toAdd.IconName}", saveResult.AsT1.Value);
         else
-            StatusContext.ToastSuccess($"Saved {toAdd.IconName}");
+            await StatusContext.ToastSuccess($"Saved {toAdd.IconName}");
     }
 }

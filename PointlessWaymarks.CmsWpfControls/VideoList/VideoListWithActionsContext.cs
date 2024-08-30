@@ -101,7 +101,7 @@ public partial class VideoListWithActionsContext
 
         HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
 
-        StatusContext.ToastSuccess("Email Html on Clipboard");
+        await StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
     [BlockingCommand]
@@ -142,9 +142,9 @@ public partial class VideoListWithActionsContext
         Clipboard.SetText(finalString);
 
         if (showNoImageWarning)
-            StatusContext.ToastWarning("Not all Videos had a main image - some bracket codes are text links...");
+            await StatusContext.ToastWarning("Not all Videos had a main image - some bracket codes are text links...");
         else
-            StatusContext.ToastSuccess($"To Clipboard {finalString}");
+            await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -160,7 +160,7 @@ public partial class VideoListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]

@@ -132,7 +132,7 @@ public partial class LocationBoundsChooserContext : IWebViewMessenger
 
         if (MapBounds == null)
         {
-            StatusContext.ToastError("No Map Bounds?");
+            await StatusContext.ToastError("No Map Bounds?");
             return;
         }
 
@@ -140,11 +140,11 @@ public partial class LocationBoundsChooserContext : IWebViewMessenger
 
         if (!searchResult.Any())
         {
-            StatusContext.ToastWarning("No New Items Found");
+            await StatusContext.ToastWarning("No New Items Found");
             return;
         }
 
-        StatusContext.ToastSuccess(
+        await StatusContext.ToastSuccess(
             $"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
 
         var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());

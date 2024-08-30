@@ -141,7 +141,7 @@ public partial class MainWindow
 
         if (generationResults.All(x => !x.HasError))
         {
-            StatusContext.ToastSuccess("No problems with Bracket Code Content Ids Found!");
+            await StatusContext.ToastSuccess("No problems with Bracket Code Content Ids Found!");
             return;
         }
 
@@ -332,7 +332,7 @@ public partial class MainWindow
         await ConfirmAllImageContent();
         await ConfirmAllFileContent();
 
-        StatusContext.ToastSuccess("All HTML Generation Finished");
+        await StatusContext.ToastSuccess("All HTML Generation Finished");
     }
 
     [BlockingCommand]
@@ -483,7 +483,7 @@ public partial class MainWindow
 
         if (!newDirectory.Exists)
         {
-            StatusContext.ToastError("Directory doesn't exist?");
+            await StatusContext.ToastError("Directory doesn't exist?");
             return;
         }
 
@@ -614,7 +614,7 @@ public partial class MainWindow
 
         if (string.IsNullOrWhiteSpace(settingReturn.userInput))
         {
-            StatusContext.ToastError("Error with Settings File? No name?");
+            await StatusContext.ToastError("Error with Settings File? No name?");
             return;
         }
 

@@ -105,7 +105,7 @@ public partial class ScriptJobListContext
 
         if (toDelete == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Delete?");
+            await StatusContext.ToastWarning("Nothing Selected to Delete?");
             return;
         }
 
@@ -156,7 +156,7 @@ public partial class ScriptJobListContext
 
         if (toEdit == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -167,7 +167,7 @@ public partial class ScriptJobListContext
 
         if (topRun == null)
         {
-            StatusContext.ToastWarning("No Runs to Compare?");
+            await StatusContext.ToastWarning("No Runs to Compare?");
             return;
         }
 
@@ -181,7 +181,7 @@ public partial class ScriptJobListContext
 
         if (toEdit == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Edit?");
+            await StatusContext.ToastWarning("Nothing Selected to Edit?");
             return;
         }
 
@@ -316,7 +316,7 @@ public partial class ScriptJobListContext
 
         if (toRun == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Run?");
+            await StatusContext.ToastWarning("Nothing Selected to Run?");
             return;
         }
 
@@ -333,7 +333,7 @@ public partial class ScriptJobListContext
 
         if (!currentSelection.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected to Run?");
+            await StatusContext.ToastWarning("Nothing Selected to Run?");
             return;
         }
 
@@ -349,7 +349,7 @@ public partial class ScriptJobListContext
 
         if (toRun == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to Run?");
+            await StatusContext.ToastWarning("Nothing Selected to Run?");
             return;
         }
 
@@ -411,7 +411,7 @@ public partial class ScriptJobListContext
 
         if (toShow == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -425,7 +425,7 @@ public partial class ScriptJobListContext
 
         if (toShow == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -436,7 +436,7 @@ public partial class ScriptJobListContext
 
         if (topRun == null)
         {
-            StatusContext.ToastWarning("No Runs to Compare?");
+            await StatusContext.ToastWarning("No Runs to Compare?");
             return;
         }
 
@@ -450,7 +450,7 @@ public partial class ScriptJobListContext
 
         if (job == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -465,7 +465,7 @@ public partial class ScriptJobListContext
 
         if (toShow == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -479,7 +479,7 @@ public partial class ScriptJobListContext
 
         if (!Items.Any())
         {
-            StatusContext.ToastWarning("Nothing to Show?");
+            await StatusContext.ToastWarning("Nothing to Show?");
             return;
         }
 
@@ -494,7 +494,7 @@ public partial class ScriptJobListContext
 
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -509,7 +509,7 @@ public partial class ScriptJobListContext
 
         if (toRun == null)
         {
-            StatusContext.ToastWarning("Nothing Selected to View?");
+            await StatusContext.ToastWarning("Nothing Selected to View?");
             return;
         }
 

@@ -114,7 +114,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (string.IsNullOrWhiteSpace(LineGeoJson))
         {
-            StatusContext.ToastError("No current line?");
+            await StatusContext.ToastError("No current line?");
             return;
         }
 
@@ -122,13 +122,13 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (featureToCheck == null)
         {
-            StatusContext.ToastError("No valid Line check?");
+            await StatusContext.ToastError("No valid Line check?");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
             return;
         }
@@ -139,7 +139,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (!possibleTags.Any())
         {
-            StatusContext.ToastWarning("No tags found...");
+            await StatusContext.ToastWarning("No tags found...");
             return;
         }
 
@@ -232,7 +232,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (!newFile.Exists)
         {
-            StatusContext.ToastError("File doesn't exist?");
+            await StatusContext.ToastError("File doesn't exist?");
             return;
         }
 
@@ -240,7 +240,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (tracksList.Count < 1)
         {
-            StatusContext.ToastError("No Tracks in GPX File?");
+            await StatusContext.ToastError("No Tracks in GPX File?");
             return;
         }
 
@@ -260,7 +260,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             }
             else
             {
-                StatusContext.ToastError("Track not found?");
+                await StatusContext.ToastError("Track not found?");
                 return;
             }
         }
@@ -304,7 +304,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (string.IsNullOrWhiteSpace(clipboardText))
         {
-            StatusContext.ToastError("Blank/Empty Clipboard?");
+            await StatusContext.ToastError("Blank/Empty Clipboard?");
             return;
         }
 
@@ -328,7 +328,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (string.IsNullOrWhiteSpace(LineGeoJson))
         {
-            StatusContext.ToastWarning("No Line?");
+            await StatusContext.ToastWarning("No Line?");
             return;
         }
 
@@ -344,7 +344,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
 
@@ -354,7 +354,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         Clipboard.SetText(linkString);
 
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
     public async Task LoadData(LineContent? toLoad)
@@ -486,7 +486,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (string.IsNullOrWhiteSpace(LineGeoJson))
         {
-            StatusContext.ToastError("Nothing to preview?");
+            await StatusContext.ToastError("Nothing to preview?");
             return;
         }
 
@@ -534,7 +534,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (string.IsNullOrWhiteSpace(LineGeoJson))
         {
-            StatusContext.ToastError("There is no line data?");
+            await StatusContext.ToastError("There is no line data?");
             return;
         }
 
@@ -584,7 +584,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (string.IsNullOrWhiteSpace(LineGeoJson))
         {
-            StatusContext.ToastError("No Line to Update Stats From?");
+            await StatusContext.ToastError("No Line to Update Stats From?");
             return;
         }
 
@@ -606,7 +606,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Please save the content first...");
+            await StatusContext.ToastError("Please save the content first...");
             return;
         }
 

@@ -302,7 +302,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
 
         if (HasValidationIssues)
         {
-            StatusContext.ToastError("Please fix validation issues before saving");
+            await StatusContext.ToastError("Please fix validation issues before saving");
             return;
         }
 

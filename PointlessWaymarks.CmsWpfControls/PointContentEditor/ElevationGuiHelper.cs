@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.SpatialTools;
+using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon.Status;
 using Serilog;
 
@@ -26,7 +26,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
 
                 if (elevationResult != null)
                 {
-                    statusContext.ToastSuccess(
+                    await statusContext.ToastSuccess(
                         $"Found elevation of {elevationResult} from Open Topo Data - www.opentopodata.org - NED data set");
 
                     return elevationResult.Value;
@@ -46,11 +46,11 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
                 {
                     Log.Error("Unexpected Null return from an Open Topo Data Mapzen Request to {0}, {1}", latitude,
                         longitude);
-                    statusContext.ToastError("Elevation Exception - unexpected Null return...");
+                    await statusContext.ToastError("Elevation Exception - unexpected Null return...");
                     return null;
                 }
 
-                statusContext.ToastSuccess(
+                await statusContext.ToastSuccess(
                     $"Found elevation of {elevationResult} from Open Topo Data - www.opentopodata.org - Mapzen data set");
 
                 return elevationResult.Value;
@@ -58,10 +58,10 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor
             catch (Exception e)
             {
                 Log.Error(e, "Open Topo Data Mapzen Request for {0}, {1}", latitude, longitude);
-                statusContext.ToastError($"Elevation Exception - {e.Message}");
+                await statusContext.ToastError($"Elevation Exception - {e.Message}");
             }
 
-            statusContext.ToastError("Elevation - could not get a value...");
+            await statusContext.ToastError("Elevation - could not get a value...");
             return null;
         }
     }

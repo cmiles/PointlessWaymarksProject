@@ -93,7 +93,7 @@ public partial class MenuLinkEditorContext
 
         if (listItem == null)
         {
-            StatusContext.ToastError("No item?");
+            await StatusContext.ToastError("No item?");
             return;
         }
 
@@ -171,7 +171,7 @@ public partial class MenuLinkEditorContext
 
         if (listItem == null)
         {
-            StatusContext.ToastError("No item?");
+            await StatusContext.ToastError("No item?");
             return;
         }
 
@@ -195,7 +195,7 @@ public partial class MenuLinkEditorContext
 
         if (listItem == null)
         {
-            StatusContext.ToastError("No item?");
+            await StatusContext.ToastError("No item?");
             return;
         }
 
@@ -231,13 +231,13 @@ public partial class MenuLinkEditorContext
 
         if (!withChanges.Any())
         {
-            StatusContext.ToastError("No entries have changed?");
+            await StatusContext.ToastError("No entries have changed?");
             return;
         }
 
         if (withChanges.Any(x => string.IsNullOrWhiteSpace(x.UserLink)))
         {
-            StatusContext.ToastError("All Entries must have a value.");
+            await StatusContext.ToastError("All Entries must have a value.");
             return;
         }
 
@@ -270,7 +270,7 @@ public partial class MenuLinkEditorContext
 
         await context.SaveChangesAsync(true);
 
-        StatusContext.ToastSuccess("Saved Changes");
+        await StatusContext.ToastSuccess("Saved Changes");
     }
 
     public List<MenuLinkListItem> SelectedListItems()

@@ -85,7 +85,7 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
 
         var setUpdateFormatOk = await newContext.BodyContentFormat.TrySelectContentChoice(dbEntry.BodyContentFormat);
 
-        if (!setUpdateFormatOk) newContext.StatusContext.ToastWarning("Trouble loading Format from Db...");
+        if (!setUpdateFormatOk) await newContext.StatusContext.ToastWarning("Trouble loading Format from Db...");
 
         newContext.CheckForChangesAndValidationIssues();
 

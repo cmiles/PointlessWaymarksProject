@@ -19,7 +19,7 @@ public static class FeedReaderEncryptionHelper
 
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {
-            statusContext.ToastError("Feed Reader Basic Auth Key Entry Canceled - Key can not be blank");
+            await statusContext.ToastError("Feed Reader Basic Auth Key Entry Canceled - Key can not be blank");
             return;
         }
 

@@ -160,7 +160,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning("Garmin Connect Credential Entry Cancelled");
+            await StatusContext.ToastWarning("Garmin Connect Credential Entry Cancelled");
             await UpdateCredentialsNote();
             return;
         }
@@ -178,7 +178,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {
-            StatusContext.ToastError("Garmin Connect Password Entry Cancelled - password can not be blank");
+            await StatusContext.ToastError("Garmin Connect Password Entry Cancelled - password can not be blank");
             await UpdateCredentialsNote();
             return;
         }
@@ -195,7 +195,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (FilesToTagFileList?.Files == null || !FilesToTagFileList.Files.Any())
         {
-            StatusContext.ToastError("No Files to Tag Selected?");
+            await StatusContext.ToastError("No Files to Tag Selected?");
             return;
         }
 
@@ -206,7 +206,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (string.IsNullOrWhiteSpace(credentials.userName) || string.IsNullOrWhiteSpace(credentials.password))
         {
-            StatusContext.ToastError("No valid Garmin Connect Credentials Found?");
+            await StatusContext.ToastError("No valid Garmin Connect Credentials Found?");
             return;
         }
 
@@ -215,7 +215,7 @@ public partial class ConnectBasedGeoTaggerContext
         if (string.IsNullOrWhiteSpace(Settings.ArchiveDirectory) ||
             !Directory.Exists(Settings.ArchiveDirectory))
         {
-            StatusContext.ToastError($"Archive Directory {Settings.ArchiveDirectory} Not Found/Valid?");
+            await StatusContext.ToastError($"Archive Directory {Settings.ArchiveDirectory} Not Found/Valid?");
             return;
         }
 
@@ -301,7 +301,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (FilesToTagFileList?.SelectedFiles == null)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -309,13 +309,13 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (!frozenSelected.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
         if (frozenSelected.Count > 10)
         {
-            StatusContext.ToastWarning("Sorry - dumping metadata limited to 10 files at once...");
+            await StatusContext.ToastWarning("Sorry - dumping metadata limited to 10 files at once...");
             return;
         }
 
@@ -324,7 +324,7 @@ public partial class ConnectBasedGeoTaggerContext
             loopFile.Refresh();
             if (!loopFile.Exists)
             {
-                StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
+                await StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
                 continue;
             }
 
@@ -418,7 +418,7 @@ public partial class ConnectBasedGeoTaggerContext
         await ThreadSwitcher.ResumeBackgroundAsync();
         GarminConnectCredentialTools.RemoveGarminConnectCredentials();
         await UpdateCredentialsNote();
-        StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
+        await StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
     }
 
     private async Task<string> ResetMapGeoJsonDto()
@@ -437,18 +437,18 @@ public partial class ConnectBasedGeoTaggerContext
     }
 
     [NonBlockingCommand]
-    public Task SendResultFilesToFeatureIntersectTagger()
+    public async Task SendResultFilesToFeatureIntersectTagger()
     {
         if (WriteToFileResults?.FileResults == null || WriteToFileResults.FileResults.Count == 0)
         {
-            StatusContext.ToastError("No Results to Send");
-            return Task.CompletedTask;
+            await StatusContext.ToastError("No Results to Send");
+            return;
         }
 
         WeakReferenceMessenger.Default.Send(new FeatureIntersectFileAddRequestMessage((this,
             WriteToFileResults.FileResults.Select(x => x.FileName).ToList())));
 
-        return Task.CompletedTask;
+        return;
     }
 
     [NonBlockingCommand]
@@ -460,7 +460,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (!ArchiveDirectoryExists)
         {
-            StatusContext.ToastError("Directory Does Not Exist - can not show...");
+            await StatusContext.ToastError("Directory Does Not Exist - can not show...");
             return;
         }
 
@@ -491,7 +491,7 @@ public partial class ConnectBasedGeoTaggerContext
 
         if (PreviewResults == null)
         {
-            StatusContext.ToastError("No Results to Write?");
+            await StatusContext.ToastError("No Results to Write?");
             return;
         }
 

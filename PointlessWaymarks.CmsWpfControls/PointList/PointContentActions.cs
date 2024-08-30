@@ -44,7 +44,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -54,7 +54,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -64,13 +64,13 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError($"Point {content.Title} - Entry is not saved - Skipping?");
+            await StatusContext.ToastError($"Point {content.Title} - Entry is not saved - Skipping?");
             return;
         }
 
@@ -98,7 +98,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
         var refreshedData = context.PointContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
         if (refreshedData == null)
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
         var newContentWindow = await PointContentEditorWindow.CreateInstance(refreshedData);
@@ -113,7 +113,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -134,7 +134,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -144,7 +144,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (fullItem == null)
         {
-            StatusContext.ToastError("Item no longer exists in DB?");
+            await StatusContext.ToastError("Item no longer exists in DB?");
             return;
         }
 
@@ -152,7 +152,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         await htmlContext.WriteLocalHtml();
 
-        StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+        await StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
     public StatusControlContext StatusContext { get; set; }
@@ -164,7 +164,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -178,7 +178,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (historicItems.Count < 1)
         {
-            StatusContext.ToastWarning("No History to Show...");
+            await StatusContext.ToastWarning("No History to Show...");
             return;
         }
 
@@ -197,7 +197,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -217,7 +217,7 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -268,13 +268,13 @@ public partial class PointContentActions : IContentActions<PointContentDto>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError("Entry is not saved - Skipping?");
+            await StatusContext.ToastError("Entry is not saved - Skipping?");
             return;
         }
 

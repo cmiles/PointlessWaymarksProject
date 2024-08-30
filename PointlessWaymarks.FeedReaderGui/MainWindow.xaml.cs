@@ -226,7 +226,7 @@ public partial class MainWindow
 
         if (!Directory.Exists(folderPicker.SelectedPath))
         {
-            StatusContext.ToastError($"Selected Directory Does Not Exist? {folderPicker.SelectedPath}");
+            await StatusContext.ToastError($"Selected Directory Does Not Exist? {folderPicker.SelectedPath}");
             return;
         }
 
@@ -237,7 +237,7 @@ public partial class MainWindow
 
         if (string.IsNullOrWhiteSpace(userFileBase.Item2))
         {
-            StatusContext.ToastError("File name is blank?");
+            await StatusContext.ToastError("File name is blank?");
             return;
         }
 
@@ -247,7 +247,7 @@ public partial class MainWindow
 
         if (string.IsNullOrWhiteSpace(baseFile))
         {
-            StatusContext.ToastError("File name without extension is blank?");
+            await StatusContext.ToastError("File name without extension is blank?");
             return;
         }
 
@@ -257,7 +257,7 @@ public partial class MainWindow
 
         if (uniqueFileName == null)
         {
-            StatusContext.ToastError($"Trouble creating a valid file? {folderPicker.SelectedPath} - {cleanedFileName}");
+            await StatusContext.ToastError($"Trouble creating a valid file? {folderPicker.SelectedPath} - {cleanedFileName}");
             return;
         }
 
@@ -267,7 +267,7 @@ public partial class MainWindow
         }
         catch (Exception e)
         {
-            StatusContext.ToastError($"Problem with File... {e.Message}");
+            await StatusContext.ToastError($"Problem with File... {e.Message}");
             return;
         }
 

@@ -46,7 +46,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -56,7 +56,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -66,13 +66,13 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError($"GeoJson {content.Title} - Entry is not saved - Skipping?");
+            await StatusContext.ToastError($"GeoJson {content.Title} - Entry is not saved - Skipping?");
             return;
         }
 
@@ -100,7 +100,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
         var refreshedData = context.GeoJsonContents.SingleOrDefault(x => x.ContentId == content.ContentId);
 
         if (refreshedData == null)
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -119,7 +119,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -140,7 +140,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -150,7 +150,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         await htmlContext.WriteLocalHtml();
 
-        StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+        await StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -162,7 +162,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -176,7 +176,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (historicItems.Count < 1)
         {
-            StatusContext.ToastWarning("No History to Show...");
+            await StatusContext.ToastWarning("No History to Show...");
             return;
         }
 
@@ -195,7 +195,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -214,7 +214,7 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -249,13 +249,13 @@ public partial class GeoJsonContentActions : IContentActions<GeoJsonContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError("Entry is not saved - Skipping?");
+            await StatusContext.ToastError("Entry is not saved - Skipping?");
             return;
         }
 

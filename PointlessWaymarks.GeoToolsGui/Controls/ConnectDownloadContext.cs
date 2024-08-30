@@ -107,7 +107,7 @@ public partial class ConnectDownloadContext
 
         if (toDownload == null)
         {
-            StatusContext.ToastError("Null Archive Directory?");
+            await StatusContext.ToastError("Null Archive Directory?");
             return;
         }
 
@@ -115,7 +115,7 @@ public partial class ConnectDownloadContext
 
         if (!ArchiveDirectoryExists)
         {
-            StatusContext.ToastError("The Archive Directory Must Exist to Download Activities...");
+            await StatusContext.ToastError("The Archive Directory Must Exist to Download Activities...");
             return;
         }
 
@@ -126,7 +126,7 @@ public partial class ConnectDownloadContext
 
         if (string.IsNullOrWhiteSpace(credentials.userName) || string.IsNullOrWhiteSpace(credentials.password))
         {
-            StatusContext.ToastError("Current Garmin Connect Credentials don't appear to be valid?");
+            await StatusContext.ToastError("Current Garmin Connect Credentials don't appear to be valid?");
             return;
         }
 
@@ -141,7 +141,7 @@ public partial class ConnectDownloadContext
             new ConnectGpxService { ConnectUsername = credentials.userName, ConnectPassword = credentials.password },
             StatusContext.ProgressTracker(), cancelToken);
 
-        StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
+        await StatusContext.ToastSuccess($"Downloaded {toDownload.ArchivedJson.Name} {toDownload.ArchivedGpx?.Name}");
     }
 
     [BlockingCommand]
@@ -154,7 +154,7 @@ public partial class ConnectDownloadContext
 
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning("Garmin Connect Credential Entry Cancelled");
+            await StatusContext.ToastWarning("Garmin Connect Credential Entry Cancelled");
             await UpdateCredentialsNote();
             return;
         }
@@ -172,7 +172,7 @@ public partial class ConnectDownloadContext
 
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {
-            StatusContext.ToastError("Garmin Connect Password Entry Cancelled - password can not be blank");
+            await StatusContext.ToastError("Garmin Connect Password Entry Cancelled - password can not be blank");
             await UpdateCredentialsNote();
             return;
         }
@@ -262,7 +262,7 @@ public partial class ConnectDownloadContext
         await ThreadSwitcher.ResumeBackgroundAsync();
         GarminConnectCredentialTools.RemoveGarminConnectCredentials();
         await UpdateCredentialsNote();
-        StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
+        await StatusContext.ToastWarning("Removed any Garmin Connect Credentials!");
     }
 
     [BlockingCommand]
@@ -304,7 +304,7 @@ public partial class ConnectDownloadContext
 
         if (!ArchiveDirectoryExists)
         {
-            StatusContext.ToastError("Directory Does Not Exist - can not show...");
+            await StatusContext.ToastError("Directory Does Not Exist - can not show...");
             return;
         }
 
@@ -320,13 +320,13 @@ public partial class ConnectDownloadContext
 
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            StatusContext.ToastError("No Filename to Show?");
+            await StatusContext.ToastError("No Filename to Show?");
             return;
         }
 
         if (!File.Exists(fileName.Trim()))
         {
-            StatusContext.ToastError($"{fileName} does not exist?");
+            await StatusContext.ToastError($"{fileName} does not exist?");
             return;
         }
 
@@ -341,7 +341,7 @@ public partial class ConnectDownloadContext
 
         if (toShow == null)
         {
-            StatusContext.ToastError("Null Archive Directory?");
+            await StatusContext.ToastError("Null Archive Directory?");
             return;
         }
 
@@ -349,7 +349,7 @@ public partial class ConnectDownloadContext
 
         if (!ArchiveDirectoryExists)
         {
-            StatusContext.ToastError("A valid Archive Directory must be set to show a GPX file...");
+            await StatusContext.ToastError("A valid Archive Directory must be set to show a GPX file...");
             return;
         }
 
@@ -357,7 +357,7 @@ public partial class ConnectDownloadContext
 
         if (toShow.ArchivedGpx is not { Exists: true })
         {
-            StatusContext.ToastError("Could not find or download GPX file...");
+            await StatusContext.ToastError("Could not find or download GPX file...");
             return;
         }
 

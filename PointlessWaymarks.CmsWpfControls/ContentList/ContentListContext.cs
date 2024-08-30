@@ -213,7 +213,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (string.IsNullOrWhiteSpace(finalString))
         {
-            StatusContext.ToastSuccess("No Bracket Codes Found?");
+            await StatusContext.ToastSuccess("No Bracket Codes Found?");
             return;
         }
 
@@ -221,7 +221,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
+        await StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
     }
 
     public static async Task<List<object>> CreatedOnDayFilter(DateTime? createdOn)
@@ -810,7 +810,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (string.IsNullOrWhiteSpace(individualCodes))
         {
-            StatusContext.ToastSuccess("No Bracket Codes Found?");
+            await StatusContext.ToastSuccess("No Bracket Codes Found?");
             return;
         }
 
@@ -820,7 +820,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
+        await StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
     }
 
     private async Task PossibleMainImageUpdateDataNotificationReceived(InterProcessDataNotification? translatedMessage)
@@ -895,12 +895,12 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
         if (!spatialContent.Any())
         {
-            StatusContext.ToastError("No Spatial Content Selected?");
+            await StatusContext.ToastError("No Spatial Content Selected?");
             return;
         }
 
         if (spatialContent.Count != currentSelected.Count)
-            StatusContext.ToastWarning(
+            await StatusContext.ToastWarning(
                 $"{currentSelected.Count - spatialContent.Count} Selected Items not sent to the map - no spatial data...");
 
         cancelToken.ThrowIfCancellationRequested();
@@ -936,7 +936,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             if (!fileInfo.Exists)
             {
-                StatusContext.ToastError($"File {loopFile} doesn't exist?");
+                await StatusContext.ToastError($"File {loopFile} doesn't exist?");
                 continue;
             }
 
@@ -945,7 +945,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 var newEditor = await FileContentEditorWindow.CreateInstance(new FileInfo(loopFile));
                 await newEditor.PositionWindowAndShowOnUiThread();
 
-                statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
+                await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
 
                 continue;
             }
@@ -989,14 +989,14 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     var photoEditorWindow = await PhotoContentEditorWindow.CreateInstance(new FileInfo(loopFile));
                     await photoEditorWindow.PositionWindowAndShowOnUiThread();
 
-                    statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
+                    await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
                 }
                 else
                 {
                     var imageEditorWindow = await ImageContentEditorWindow.CreateInstance(null, new FileInfo(loopFile));
                     await imageEditorWindow.PositionWindowAndShowOnUiThread();
 
-                    statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
+                    await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
                 }
             }
 
@@ -1005,7 +1005,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 var newEditor = await VideoContentEditorWindow.CreateInstance(new FileInfo(loopFile));
                 await newEditor.PositionWindowAndShowOnUiThread();
 
-                statusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Video Editor");
+                await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Video Editor");
             }
         }
     }

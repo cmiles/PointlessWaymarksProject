@@ -48,7 +48,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -60,7 +60,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -70,13 +70,13 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
         if (content.Id < 1)
         {
-            StatusContext.ToastError($"File {content.Title} - Entry is not saved - Skipping?");
+            await StatusContext.ToastError($"File {content.Title} - Entry is not saved - Skipping?");
             return;
         }
 
@@ -105,7 +105,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (refreshedData == null)
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
             return;
         }
@@ -122,7 +122,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -142,7 +142,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -152,7 +152,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         await htmlContext.WriteLocalHtml();
 
-        StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
+        await StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -164,7 +164,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -178,7 +178,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (historicItems.Count < 1)
         {
-            StatusContext.ToastWarning("No History to Show...");
+            await StatusContext.ToastWarning("No History to Show...");
             return;
         }
 
@@ -197,7 +197,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -216,7 +216,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (content == null)
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -250,13 +250,13 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (listItem == null)
         {
-            StatusContext.ToastError("Nothing Items to Open?");
+            await StatusContext.ToastError("Nothing Items to Open?");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(listItem.OriginalFileName))
         {
-            StatusContext.ToastError("No File?");
+            await StatusContext.ToastError("No File?");
             return;
         }
 
@@ -264,7 +264,7 @@ public partial class FileContentActions : IContentActions<FileContent>
 
         if (toOpen is not { Exists: true })
         {
-            StatusContext.ToastError("File doesn't exist?");
+            await StatusContext.ToastError("File doesn't exist?");
             return;
         }
 

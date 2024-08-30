@@ -30,7 +30,7 @@ public static class ImageExtractionHelpers
         {
             if (string.IsNullOrWhiteSpace(loopSelected.OriginalFileName))
             {
-                statusContext.ToastError($"File Content without Original File? {loopSelected.Title ?? "Unknown Title"}...");
+                await statusContext.ToastError($"File Content without Original File? {loopSelected.Title ?? "Unknown Title"}...");
                 continue;
             }
 
@@ -62,7 +62,7 @@ public static class ImageExtractionHelpers
 
         if (!toProcess.Any())
         {
-            statusContext.ToastError("No PDFs found? This process can only generate PDF previews...");
+            await statusContext.ToastError("No PDFs found? This process can only generate PDF previews...");
             return;
         }
 
@@ -70,7 +70,7 @@ public static class ImageExtractionHelpers
         {
             if (destinationFile.Directory == null)
             {
-                statusContext.ToastError($"Problem with {destinationFile.FullName} - Directory is Null?");
+                await statusContext.ToastError($"Problem with {destinationFile.FullName} - Directory is Null?");
                 continue;
             }
 
@@ -159,7 +159,7 @@ public static class ImageExtractionHelpers
 
         if (destinationFile.Directory == null)
         {
-            statusContext.ToastError($"Problem with {destinationFile.FullName} - Directory is Null?");
+            await statusContext.ToastError($"Problem with {destinationFile.FullName} - Directory is Null?");
             return (null, null);
         }
 
@@ -292,7 +292,7 @@ public static class ImageExtractionHelpers
 
         if (!toProcess.Any())
         {
-            statusContext.ToastError("No MP4s found? This process can only generate MP4 previews...");
+            await statusContext.ToastError("No MP4s found? This process can only generate MP4 previews...");
             return;
         }
 

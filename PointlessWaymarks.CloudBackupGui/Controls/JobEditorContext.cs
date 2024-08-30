@@ -112,7 +112,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         if (ExcludedDirectories.Any(x =>
                 x.FullName.Equals(selectedDirectory.FullName, StringComparison.InvariantCultureIgnoreCase)))
         {
-            StatusContext.ToastError("Directory already exists in the list.");
+            await StatusContext.ToastError("Directory already exists in the list.");
             return;
         }
         
@@ -128,14 +128,14 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (string.IsNullOrWhiteSpace(UserDirectoryPatternEntry.UserValue))
         {
-            StatusContext.ToastError("A blank pattern, or a pattern with only white space is not valid");
+            await StatusContext.ToastError("A blank pattern, or a pattern with only white space is not valid");
             return;
         }
         
         if (ExcludedDirectoryPatterns.Contains(UserDirectoryPatternEntry.UserValue.Trim(),
                 StringComparer.InvariantCultureIgnoreCase))
         {
-            StatusContext.ToastError("Pattern already exists - patterns are case insensitive.");
+            await StatusContext.ToastError("Pattern already exists - patterns are case insensitive.");
             return;
         }
         
@@ -152,14 +152,14 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (string.IsNullOrWhiteSpace(UserFilePatternEntry.UserValue))
         {
-            StatusContext.ToastError("A blank pattern, or a pattern with only white space is not valid");
+            await StatusContext.ToastError("A blank pattern, or a pattern with only white space is not valid");
             return;
         }
         
         if (ExcludedFilePatterns.Contains(UserFilePatternEntry.UserValue.Trim(),
                 StringComparer.InvariantCultureIgnoreCase))
         {
-            StatusContext.ToastError("Pattern already exists - patterns are case insensitive.");
+            await StatusContext.ToastError("Pattern already exists - patterns are case insensitive.");
             return;
         }
         
@@ -442,7 +442,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (!newKeyEntry.Item1)
         {
-            StatusContext.ToastWarning("Cloud Credential Entry Cancelled");
+            await StatusContext.ToastWarning("Cloud Credential Entry Cancelled");
             return;
         }
         
@@ -459,7 +459,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (string.IsNullOrWhiteSpace(cleanedSecret))
         {
-            StatusContext.ToastError("Cloud Credential Entry Canceled - secret can not be blank");
+            await StatusContext.ToastError("Cloud Credential Entry Canceled - secret can not be blank");
             return;
         }
         
@@ -477,7 +477,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             
             if (string.IsNullOrWhiteSpace(cleanedServiceUrl))
             {
-                StatusContext.ToastError("Cloud Credential Entry Canceled - Service URL can not be blank");
+                await StatusContext.ToastError("Cloud Credential Entry Canceled - Service URL can not be blank");
                 return;
             }
             
@@ -567,7 +567,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (UserInitialDirectoryEntry.HasValidationIssues)
         {
-            StatusContext.ToastError("The initial directory has validation issues - please correct before continuing.");
+            await StatusContext.ToastError("The initial directory has validation issues - please correct before continuing.");
             return;
         }
         
@@ -575,7 +575,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (!frozenInitialLocalDirectory.Exists)
         {
-            StatusContext.ToastError("The initial directory does not exist - please correct before continuing.");
+            await StatusContext.ToastError("The initial directory does not exist - please correct before continuing.");
             return;
         }
         
@@ -596,7 +596,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (frozenSelection == null)
         {
-            StatusContext.ToastError("Nothing selected to Remove?");
+            await StatusContext.ToastError("Nothing selected to Remove?");
             return;
         }
         
@@ -614,7 +614,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (string.IsNullOrWhiteSpace(frozenSelection))
         {
-            StatusContext.ToastError("Nothing selected to Remove?");
+            await StatusContext.ToastError("Nothing selected to Remove?");
             return;
         }
         
@@ -632,7 +632,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         
         if (string.IsNullOrWhiteSpace(frozenSelection))
         {
-            StatusContext.ToastError("Nothing selected to Remove?");
+            await StatusContext.ToastError("Nothing selected to Remove?");
             return;
         }
         
@@ -657,13 +657,13 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
     {
         if (HasValidationIssues)
         {
-            StatusContext.ToastError("Please correct all issues before saving.");
+            await StatusContext.ToastError("Please correct all issues before saving.");
             return;
         }
         
         if (!HasChanges)
         {
-            StatusContext.ToastWarning("No Changes to Save?");
+            await StatusContext.ToastWarning("No Changes to Save?");
             return;
         }
         

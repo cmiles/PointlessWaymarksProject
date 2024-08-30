@@ -95,7 +95,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         if (string.IsNullOrWhiteSpace(GeoJsonText))
         {
-            StatusContext.ToastError("No current line?");
+            await StatusContext.ToastError("No current line?");
             return;
         }
 
@@ -103,13 +103,13 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         if (!featuresToCheck.Any())
         {
-            StatusContext.ToastError("No features in the GeoJson check?");
+            await StatusContext.ToastError("No features in the GeoJson check?");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 "To use this feature the Feature Intersect Settings file must be set in the Site Settings...");
             return;
         }
@@ -122,7 +122,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         if (!possibleTags.Any())
         {
-            StatusContext.ToastWarning("No tags found...");
+            await StatusContext.ToastWarning("No tags found...");
             return;
         }
 
@@ -198,7 +198,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         if (!newFile.Exists)
         {
-            StatusContext.ToastError("File doesn't exist?");
+            await StatusContext.ToastError("File doesn't exist?");
             return;
         }
 
@@ -234,7 +234,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         if (string.IsNullOrWhiteSpace(clipboardText))
         {
-            StatusContext.ToastError("Blank/Empty Clipboard?");
+            await StatusContext.ToastError("Blank/Empty Clipboard?");
             return;
         }
 
@@ -256,7 +256,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
 
@@ -266,7 +266,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         Clipboard.SetText(linkString);
 
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
     public async Task LoadData(GeoJsonContent? toLoad)
@@ -328,7 +328,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         if (string.IsNullOrWhiteSpace(GeoJsonText))
         {
-            StatusContext.ToastError("Nothing to preview?");
+            await StatusContext.ToastError("Nothing to preview?");
             return;
         }
 
@@ -378,7 +378,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
 
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Please save the content first...");
+            await StatusContext.ToastError("Please save the content first...");
             return;
         }
 

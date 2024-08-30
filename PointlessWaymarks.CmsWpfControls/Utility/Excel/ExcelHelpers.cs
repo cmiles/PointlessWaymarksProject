@@ -40,7 +40,7 @@ public static class ExcelHelpers
         
         if (!newFile.Exists)
         {
-            statusContext.ToastError("File doesn't exist?");
+            await statusContext.ToastError("File doesn't exist?");
             return;
         }
         
@@ -83,7 +83,7 @@ public static class ExcelHelpers
             return;
         }
         
-        statusContext.ToastSuccess(
+        await statusContext.ToastSuccess(
             $"Imported {contentImportResult.ToUpdate.Count} items with changes from {newFile.FullName}");
     }
     
@@ -132,7 +132,7 @@ public static class ExcelHelpers
             return;
         }
         
-        statusContext.ToastSuccess($"Imported {contentImportResult.ToUpdate.Count} items with changes from Excel");
+        await statusContext.ToastSuccess($"Imported {contentImportResult.ToUpdate.Count} items with changes from Excel");
     }
     
     public static async Task<FileInfo?> PointContentToExcel(List<Guid> toDisplay, string fileName,

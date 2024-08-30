@@ -99,7 +99,7 @@ public partial class BatchListContext
 
         if (!SelectedBatches.Any())
         {
-            StatusContext.ToastWarning("Nothing Selected to Delete?");
+            await StatusContext.ToastWarning("Nothing Selected to Delete?");
             return;
         }
 

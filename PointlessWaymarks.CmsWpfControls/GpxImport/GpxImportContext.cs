@@ -197,7 +197,7 @@ public partial class GpxImportContext : IWebViewMessenger
 
         if (!possibleFile.Exists)
         {
-            StatusContext.ToastError("File doesn't exist?");
+            await StatusContext.ToastError("File doesn't exist?");
             return;
         }
 
@@ -432,7 +432,7 @@ public partial class GpxImportContext : IWebViewMessenger
 
         if (!Items.Any())
         {
-            StatusContext.ToastError("Nothing to import?");
+            await StatusContext.ToastError("Nothing to import?");
             return;
         }
 
@@ -440,7 +440,7 @@ public partial class GpxImportContext : IWebViewMessenger
 
         if (!importItems.Any())
         {
-            StatusContext.ToastError("Nothing marked to Import?");
+            await StatusContext.ToastError("Nothing marked to Import?");
             return;
         }
 
@@ -704,7 +704,7 @@ public partial class GpxImportContext : IWebViewMessenger
 
         if (!fileInfo.Exists)
         {
-            StatusContext.ToastError("File does not exist?");
+            await StatusContext.ToastError("File does not exist?");
             return;
         }
 
@@ -879,7 +879,7 @@ public partial class GpxImportContext : IWebViewMessenger
 
         if (!frozenSelected.Any())
         {
-            StatusContext.ToastWarning("Nothing to Remove?");
+            await StatusContext.ToastWarning("Nothing to Remove?");
             return;
         }
 
@@ -909,7 +909,7 @@ public partial class GpxImportContext : IWebViewMessenger
 
         if (!SelectedItems?.Any() ?? true)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 
@@ -926,7 +926,7 @@ public partial class GpxImportContext : IWebViewMessenger
 
         if (!SelectedItems?.Any() ?? true)
         {
-            StatusContext.ToastWarning("Nothing Selected?");
+            await StatusContext.ToastWarning("Nothing Selected?");
             return;
         }
 

@@ -104,14 +104,14 @@ public partial class PointListWithActionsContext
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
-            StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
+            await StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
             return;
         }
 
         var settingsFileInfo = new FileInfo(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile);
         if (!settingsFileInfo.Exists)
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"The Settings File for the Feature Intersection {settingsFileInfo.FullName} doesn't exist?");
             return;
         }
@@ -250,7 +250,7 @@ public partial class PointListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"GeoJson Points To Clipboard for {frozenSelected.Count} Points");
+        await StatusContext.ToastSuccess($"GeoJson Points To Clipboard for {frozenSelected.Count} Points");
     }
 
     [NonBlockingCommand]
@@ -265,7 +265,7 @@ public partial class PointListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
     
     [NonBlockingCommand]
@@ -280,7 +280,7 @@ public partial class PointListWithActionsContext
         
         Clipboard.SetText(finalString);
         
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -355,6 +355,6 @@ public partial class PointListWithActionsContext
 
         Clipboard.SetText(pointList.ToString());
 
-        StatusContext.ToastSuccess($"Points To Clipboard for {frozenSelected.Count} Points");
+        await StatusContext.ToastSuccess($"Points To Clipboard for {frozenSelected.Count} Points");
     }
 }

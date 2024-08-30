@@ -263,7 +263,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         if (!ListContext.Items.Any())
         {
-            StatusContext.ToastError("No Items?");
+            await StatusContext.ToastError("No Items?");
             return;
         }
 
@@ -315,7 +315,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         if (!filteredItems.Any())
         {
-            StatusContext.ToastError("No Visible Items?");
+            await StatusContext.ToastError("No Visible Items?");
             return;
         }
 
@@ -364,7 +364,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         if (MapBounds == null)
         {
-            StatusContext.ToastError("No Map Bounds?");
+            await StatusContext.ToastError("No Map Bounds?");
             return;
         }
 
@@ -402,7 +402,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         if (MapBounds == null)
         {
-            StatusContext.ToastError("No Map Bounds?");
+            await StatusContext.ToastError("No Map Bounds?");
             return;
         }
 
@@ -412,7 +412,7 @@ public partial class ContentMapContext : IWebViewMessenger
 
         if (searchResultGuids.All(x => currentGuids.Contains(x)))
         {
-            StatusContext.ToastWarning("No New Items Found");
+            await StatusContext.ToastWarning("No New Items Found");
             return;
         }
 

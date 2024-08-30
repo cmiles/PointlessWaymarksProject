@@ -118,7 +118,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
 
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
 
@@ -128,7 +128,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
 
         Clipboard.SetText(linkString);
 
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
 
     public async Task LoadData(NoteContent? toLoad)
@@ -205,7 +205,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
 
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Please save the content first...");
+            await StatusContext.ToastError("Please save the content first...");
             return;
         }
 

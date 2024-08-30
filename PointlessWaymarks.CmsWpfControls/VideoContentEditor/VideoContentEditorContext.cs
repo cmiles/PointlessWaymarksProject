@@ -161,13 +161,13 @@ Notes:
         
         if (!newFile.Exists)
         {
-            StatusContext.ToastError("Video doesn't exist?");
+            await StatusContext.ToastError("Video doesn't exist?");
             return;
         }
         
         if (!VideoGenerator.VideoFileTypeIsSupported(newFile))
         {
-            StatusContext.ToastError("Only JPEGs are supported...");
+            await StatusContext.ToastError("Only JPEGs are supported...");
             return;
         }
         
@@ -290,7 +290,7 @@ Notes:
     {
         if (UserMainPictureEntryContent == null)
         {
-            StatusContext.ToastWarning("No Picture to Edit?");
+            await StatusContext.ToastWarning("No Picture to Edit?");
             return;
         }
         
@@ -312,7 +312,7 @@ Notes:
             return;
         }
         
-        StatusContext.ToastWarning("Didn't find the expected Photo/Image to edit?");
+        await StatusContext.ToastWarning("Didn't find the expected Photo/Image to edit?");
     }
     
     [BlockingCommand]
@@ -330,7 +330,7 @@ Notes:
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Sorry - please save before getting link...");
+            await StatusContext.ToastError("Sorry - please save before getting link...");
             return;
         }
         
@@ -340,7 +340,7 @@ Notes:
         
         Clipboard.SetText(linkString);
         
-        StatusContext.ToastSuccess($"To Clipboard: {linkString}");
+        await StatusContext.ToastSuccess($"To Clipboard: {linkString}");
     }
     
     private async Task LoadData(VideoContent? toLoad, bool skipMediaDirectoryCheck = false)
@@ -519,7 +519,7 @@ Notes:
         
         if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
-            StatusContext.ToastError("No Selected Video or Selected Video no longer exists?");
+            await StatusContext.ToastError("No Selected Video or Selected Video no longer exists?");
             return;
         }
         
@@ -536,7 +536,7 @@ Notes:
         
         if (SelectedFile is not { Exists: true, Directory.Exists: true })
         {
-            StatusContext.ToastWarning("No Selected Video or Selected Video no longer exists?");
+            await StatusContext.ToastWarning("No Selected Video or Selected Video no longer exists?");
             return;
         }
         
@@ -550,14 +550,14 @@ Notes:
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("The Photo must be saved before creating a Point.");
+            await StatusContext.ToastError("The Photo must be saved before creating a Point.");
             return;
         }
         
         if (OptionalLocationEntry!.LatitudeEntry!.UserValue == null ||
             OptionalLocationEntry.LongitudeEntry!.UserValue == null)
         {
-            StatusContext.ToastError("Latitude or Longitude is missing?");
+            await StatusContext.ToastError("Latitude or Longitude is missing?");
             return;
         }
         
@@ -568,7 +568,7 @@ Notes:
         
         if (!latitudeValidation.Valid || !longitudeValidation.Valid)
         {
-            StatusContext.ToastError("Latitude/Longitude is not valid?");
+            await StatusContext.ToastError("Latitude/Longitude is not valid?");
             return;
         }
         
@@ -614,7 +614,7 @@ Notes:
     {
         if (SelectedFile is not { Exists: true } || !SelectedFile.Extension.ToUpperInvariant().Contains("MP4"))
         {
-            StatusContext.ToastError("Please selected a valid mp4 file");
+            await StatusContext.ToastError("Please selected a valid mp4 file");
             return;
         }
         
@@ -645,7 +645,7 @@ Notes:
         
         if (SelectedFile == null)
         {
-            StatusContext.ToastError("No File Selected? There must be a video to Save...");
+            await StatusContext.ToastError("No File Selected? There must be a video to Save...");
             return;
         }
         
@@ -756,7 +756,7 @@ Notes:
         
         if (DbEntry.Id < 1)
         {
-            StatusContext.ToastError("Please save the content first...");
+            await StatusContext.ToastError("Please save the content first...");
             return;
         }
         
@@ -773,7 +773,7 @@ Notes:
     {
         if (UserMainPictureEntryContent == null)
         {
-            StatusContext.ToastWarning("No Picture to View?");
+            await StatusContext.ToastWarning("No Picture to View?");
             return;
         }
         
@@ -785,7 +785,7 @@ Notes:
             
             if (possibleVideo is not { Exists: true })
             {
-                StatusContext.ToastWarning("No Media Video Found?");
+                await StatusContext.ToastWarning("No Media Video Found?");
                 return;
             }
             
@@ -802,7 +802,7 @@ Notes:
             
             if (possibleVideo is not { Exists: true })
             {
-                StatusContext.ToastWarning("No Media Video Found?");
+                await StatusContext.ToastWarning("No Media Video Found?");
                 return;
             }
             
@@ -813,7 +813,7 @@ Notes:
             return;
         }
         
-        StatusContext.ToastWarning("Didn't find the expected Photo/Image to view?");
+        await StatusContext.ToastWarning("Didn't find the expected Photo/Image to view?");
     }
     
     [BlockingCommand]

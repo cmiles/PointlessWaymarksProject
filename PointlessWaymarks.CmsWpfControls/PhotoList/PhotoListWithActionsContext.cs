@@ -113,7 +113,7 @@ public partial class PhotoListWithActionsContext
 
         if (!SelectedListItems().Any())
         {
-            StatusContext.ToastError("Nothing Selected?");
+            await StatusContext.ToastError("Nothing Selected?");
             return;
         }
 
@@ -121,14 +121,14 @@ public partial class PhotoListWithActionsContext
 
         if (string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile))
         {
-            StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
+            await StatusContext.ToastError("The Settings File for the Feature Intersection is blank?");
             return;
         }
 
         var settingsFileInfo = new FileInfo(UserSettingsSingleton.CurrentSettings().FeatureIntersectionTagSettingsFile);
         if (!settingsFileInfo.Exists)
         {
-            StatusContext.ToastError(
+            await StatusContext.ToastError(
                 $"The Settings File for the Feature Intersection {settingsFileInfo.FullName} doesn't exist?");
             return;
         }
@@ -272,7 +272,7 @@ public partial class PhotoListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -287,7 +287,7 @@ public partial class PhotoListWithActionsContext
 
         HtmlClipboardHelpers.CopyToClipboard(emailHtml, emailHtml);
 
-        StatusContext.ToastSuccess("Email Html on Clipboard");
+        await StatusContext.ToastSuccess("Email Html on Clipboard");
     }
 
     [NonBlockingCommand]
@@ -343,7 +343,7 @@ public partial class PhotoListWithActionsContext
 
         Clipboard.SetText(finalString);
 
-        StatusContext.ToastSuccess($"To Clipboard {finalString}");
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
     }
 
     [BlockingCommand]
@@ -599,7 +599,7 @@ public partial class PhotoListWithActionsContext
 
         if (string.IsNullOrWhiteSpace(singleSelected.DbEntry.OriginalFileName))
         {
-            StatusContext.ToastError("Original File Name is Blank? This is unusual...");
+            await StatusContext.ToastError("Original File Name is Blank? This is unusual...");
             return;
         }
 
