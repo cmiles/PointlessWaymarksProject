@@ -71,6 +71,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.WindowsTools", "PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj", "{B71DE8EB-C6BE-4C13-9709-C81AB5B57D3B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PointlessWaymarksTools", "PointlessWaymarksTools", "{2F5AF64D-0D0F-4A6B-A1D9-E0CF751447C1}"
+	ProjectSection(SolutionItems) = preProject
+		PointlessWaymarksTools\README.md = PointlessWaymarksTools\README.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.SpatialTools", "PointlessWaymarksTools\PointlessWaymarks.SpatialTools\PointlessWaymarks.SpatialTools.csproj", "{67E06F75-F83B-4FCC-851C-F98A2ED4155A}"
 EndProject
