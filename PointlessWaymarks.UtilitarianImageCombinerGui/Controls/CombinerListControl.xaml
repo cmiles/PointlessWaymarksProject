@@ -1,0 +1,273 @@
+<UserControl
+    x:Class="PointlessWaymarks.UtilitarianImageCombinerGui.Controls.CombinerListControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dd="urn:gong-wpf-dragdrop"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:controls="clr-namespace:PointlessWaymarks.UtilitarianImageCombinerGui.Controls"
+    d:DataContext="{d:DesignInstance controls:CombinerListContext}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <valueConverters:ImageCacheConverter x:Key="ImageCache" />
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Margin="4,8,4,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <GroupBox Grid.Column="0" Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="Bold">List Actions</TextBlock>
+                </GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Button Width="90" Command="{Binding AddViaFileChooserCommand}">
+                        Add Images
+                    </Button>
+                    <Button Width="90" Command="{Binding ClearListCommand}">Clear List</Button>
+                    <Button Width="90" Command="{Binding RemoveSelectedItemsCommand}">Clear Selected</Button>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox
+                Grid.Column="1"
+                Margin="6,0,0,0"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="Bold">Individual Image Settings</TextBlock>
+                </GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ItemMaxWidthEntryContext}" />
+                    <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ItemMaxHeightEntryContext}" />
+                </StackPanel>
+            </GroupBox>
+            <GroupBox
+                Grid.Column="2"
+                Margin="6,0,0,0"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="Bold">Final Image</TextBlock>
+                </GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding FinalImageJpegQuality}" />
+                </StackPanel>
+            </GroupBox>
+            <GroupBox
+                Grid.Column="3"
+                Margin="6,0,0,0"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="Bold">Help</TextBlock>
+                </GroupBox.Header>
+                <Button Width="90" Command="{Binding ShowHelpWindowCommand}">Help/About</Button>
+            </GroupBox>
+        </Grid>
+        <GroupBox
+            Grid.Row="1"
+            Margin="4,0,4,0"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox.Header>
+                <TextBlock Margin="0,4,0,0" FontWeight="Bold">Images to Combine</TextBlock>
+            </GroupBox.Header>
+            <ListBox
+                HorizontalContentAlignment="Stretch"
+                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
+                dd:DragDrop.DropHandler="{Binding}"
+                dd:DragDrop.IsDragSource="True"
+                dd:DragDrop.IsDropTarget="True"
+                BorderThickness="0"
+                ItemsSource="{Binding Items}"
+                ScrollViewer.CanContentScroll="False"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                SelectedItem="{Binding SelectedItem}"
+                SelectionMode="Extended">
+                <ListBox.InputBindings>
+                    <KeyBinding Key="Delete" Command="{Binding RemoveSelectedItemsCommand}" />
+                </ListBox.InputBindings>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type controls:CombinerListListItem}">
+                        <Border
+                            BorderBrush="LightGray"
+                            BorderThickness="2"
+                            CornerRadius="4">
+                            <Grid Margin="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image
+                                    Grid.Column="0"
+                                    MaxWidth="400"
+                                    MaxHeight="200"
+                                    Source="{Binding FileFullName, Converter={StaticResource ImageCache}}">
+                                    <Image.InputBindings>
+                                        <MouseBinding
+                                            Command="{Binding Data.OpenFileCommand, Source={StaticResource Proxy}}"
+                                            CommandParameter="{Binding .}"
+                                            Gesture="LeftDoubleClick" />
+                                    </Image.InputBindings>
+                                </Image>
+                                <Grid Grid.Column="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.Resources>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Width" Value="130" />
+                                            <Setter Property="Height" Value="30" />
+                                        </Style>
+                                    </Grid.Resources>
+                                    <TextBox
+                                        Margin="10,2,2,2"
+                                        FontWeight="DemiBold"
+                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                        Text="{Binding FileFullName}"
+                                        TextWrapping="Wrap" />
+                                    <WrapPanel
+                                        Grid.Row="1"
+                                        Margin="14,6,4,4"
+                                        Orientation="Horizontal">
+                                        <Button Command="{Binding Data.RotateLeftCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Image
+                                                    Width="16"
+                                                    VerticalAlignment="Center"
+                                                    Source="{svgc:SvgImage Source=/Icons/rotate-left.svg,
+                                                                           AppName=PointlessWaymarks.WpfCommon}"
+                                                    ToolTip="A to Z Sorting" />
+                                                <TextBlock
+                                                    Grid.Column="1"
+                                                    Margin="4"
+                                                    VerticalAlignment="Center">
+                                                    Rotate Left
+                                                </TextBlock>
+                                            </Grid>
+                                        </Button>
+                                        <Button Command="{Binding Data.RotateRightCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Image
+                                                    Width="16"
+                                                    VerticalAlignment="Center"
+                                                    Source="{svgc:SvgImage Source=/Icons/rotate-right.svg,
+                                                                           AppName=PointlessWaymarks.WpfCommon}"
+                                                    ToolTip="A to Z Sorting" />
+                                                <TextBlock
+                                                    Grid.Column="1"
+                                                    Margin="4"
+                                                    VerticalAlignment="Center">
+                                                    Rotate Right
+                                                </TextBlock>
+                                            </Grid>
+                                        </Button>
+                                        <Button Command="{Binding Data.RemoveItemCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Remove from List</Button>
+                                        <Button Command="{Binding Data.ShowInExplorerCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Show in Explorer</Button>
+                                        <Button Command="{Binding Data.OpenFileCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">View Image</Button>
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Row="2" Margin="14,6,4,4">
+                                        <GroupBox Header="Dimensions">
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0} x {1}">
+                                                        <Binding Path="ImageWidth" />
+                                                        <Binding Path="ImageHeight" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </GroupBox>
+                                        <GroupBox Header="Title" Visibility="{Binding Title, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
+                                            <TextBlock Text="{Binding Title}" />
+                                        </GroupBox>
+                                        <GroupBox Header="Created By" Visibility="{Binding CreatedBy, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
+                                            <TextBlock Text="{Binding CreatedBy}" />
+                                        </GroupBox>
+                                        <GroupBox Header="Created On" Visibility="{Binding CreatedOn, Converter={StaticResource NullToCollapsedVisibility}}">
+                                            <TextBlock Text="{Binding CreatedOn}" />
+                                        </GroupBox>
+                                        <GroupBox Header="Location" Visibility="{Binding Latitude, Converter={StaticResource NullToCollapsedVisibility}}">
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0:N3}, {1:N3}">
+                                                        <Binding Path="Latitude" />
+                                                        <Binding Path="Longitude" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </GroupBox>
+                                        <GroupBox Header="Elevation" Visibility="{Binding Elevation, Converter={StaticResource NullToCollapsedVisibility}}">
+                                            <TextBlock HorizontalAlignment="Center" Text="{Binding Elevation, StringFormat='{}{0:N0} feet'}" />
+                                        </GroupBox>
+                                    </WrapPanel>
+                                    <GroupBox
+                                        Grid.Row="3"
+                                        Margin="14,0,4,4"
+                                        Header="Summary"
+                                        Visibility="{Binding Summary, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
+                                        <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" />
+                                    </GroupBox>
+                                    <GroupBox
+                                        Grid.Row="4"
+                                        Margin="14,0,4,4"
+                                        Header="Tags"
+                                        Visibility="{Binding Tags, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
+                                        <TextBlock Text="{Binding Tags}" TextWrapping="Wrap" />
+                                    </GroupBox>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+        <GroupBox
+            Grid.Row="2"
+            Height="60"
+            Margin="4,0,4,8"
+            Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox.Header>
+                <TextBlock Margin="0,4,0,0" FontWeight="Bold">Combine</TextBlock>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button Command="{Binding CombineImagesVerticallyCommand}">Combine Vertically</Button>
+                <Button Grid.Column="1" Command="{Binding CombineImagesHorizontallyCommand}">Combine Horizontally</Button>
+                <Button Grid.Column="2" Command="{Binding CombineImagesGridCommand}">Combine to Grid</Button>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

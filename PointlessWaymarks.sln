@@ -83,6 +83,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PowerShel
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PowerShellRunnerGui", "PointlessWaymarks.PowerShellRunnerGui\PointlessWaymarks.PowerShellRunnerGui.csproj", "{D8A3BD32-2EB6-4A75-A110-AB9723467A94}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.UtilitarianImageCombinerGui", "PointlessWaymarks.UtilitarianImageCombinerGui\PointlessWaymarks.UtilitarianImageCombinerGui.csproj", "{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -217,6 +219,10 @@ Global
 		{D8A3BD32-2EB6-4A75-A110-AB9723467A94}.Debug|x64.Build.0 = Debug|x64
 		{D8A3BD32-2EB6-4A75-A110-AB9723467A94}.Release|x64.ActiveCfg = Release|x64
 		{D8A3BD32-2EB6-4A75-A110-AB9723467A94}.Release|x64.Build.0 = Release|x64
+		{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}.Debug|x64.ActiveCfg = Debug|x64
+		{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}.Debug|x64.Build.0 = Debug|x64
+		{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}.Release|x64.ActiveCfg = Release|x64
+		{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
