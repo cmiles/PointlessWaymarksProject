@@ -63,8 +63,7 @@ public partial class MainWindow
 
         HelpTabContext = new HelpDisplayContext([
             HelpText,
-            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
-            HelpMarkdown.SoftwareUsedBlock
+            HelpMarkdown.CombinedAboutToolsAndPackages
         ]);
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>

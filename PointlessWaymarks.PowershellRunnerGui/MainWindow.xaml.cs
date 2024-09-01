@@ -413,8 +413,7 @@ public partial class MainWindow
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
         HelpContext = new HelpDisplayContext([
             HelpText,
-            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
-            HelpMarkdown.SoftwareUsedBlock
+            HelpMarkdown.CombinedAboutToolsAndPackages
         ]);
 
         _ = MainTimerCheckForNewRuns();

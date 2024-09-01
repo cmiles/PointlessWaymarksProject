@@ -99,8 +99,7 @@ public partial class MainWindow
 
         HelpContext = new HelpDisplayContext([
             HelpText,
-            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription,
-            HelpMarkdown.SoftwareUsedBlock
+            HelpMarkdown.CombinedAboutToolsAndPackages
         ]);
 
         SettingsContext = new AppSettingsContext();

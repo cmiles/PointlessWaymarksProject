@@ -143,7 +143,10 @@ I am incredibly grateful to the all the people and projects that make it possibl
  - [ReSharper: The Visual Studio Extension for .NET Developers by JetBrains](https://www.jetbrains.com/resharper/)
  - [GitHub Copilot · Your AI pair programmer · GitHub](https://github.com/features/copilot)
  - [Metalama: A Framework for Clean & Concise Code in C#](https://www.postsharp.net/metalama)
+ - [Xavalon/XamlStyler: Visual Studio extension to help format your XAML source code](https://github.com/Xavalon/XamlStyler)
  - [PowerShell](https://github.com/PowerShell/PowerShell)
+ - [tareqimbasher/NetPad: A cross-platform C# editor and playground.](https://github.com/tareqimbasher/NetPad)
+ - [dotnet-script/dotnet-script: Run C# scripts from the .NET CLI.](https://github.com/dotnet-script/dotnet-script)
  - [AutoHotkey](https://www.autohotkey.com/)
  - [Beyond Compare](https://www.scootersoftware.com/)
  - [Compact-Log-Format-Viewer: A cross platform tool to read & query JSON aka CLEF log files created by Serilog](https://github.com/warrenbuckley/Compact-Log-Format-Viewer)
@@ -152,7 +155,6 @@ I am incredibly grateful to the all the people and projects that make it possibl
  - [Fork - a fast and friendly git client for Mac and Windows](https://git-fork.com/)
  - [grepWin: A powerful and fast search tool using regular expressions](https://github.com/stefankueng/grepWin)
  - [Inno Setup](https://jrsoftware.org/isinfo.php)
- - [LINQPad - The .NET Programmer's Playground](https://www.linqpad.net/)
  - [Greenfish Icon Editor Pro](http://greenfishsoftware.org/gfie.php)
  - [Notepad++](https://notepad-plus-plus.org/)
  - [RegexBuddy: Learn, Create, Understand, Test, Use and Save Regular Expression](https://www.regexbuddy.com/)
@@ -187,6 +189,7 @@ I am incredibly grateful to the all the people and projects that make it possibl
  - [Raleway - Google Fonts](https://fonts.google.com/specimen/Raleway/about)
  - [drewnoakes/xmp-core-dotnet: .NET library for working with the Extensible Metadata Platform (XMP)](https://github.com/drewnoakes/xmp-core-dotnet/) - The goto C# library if you want to read/write XMP files.
  - [GitHub - miromannino/Justified-Gallery: Javascript library to help creating high quality justified galleries of images.](https://github.com/miromannino/Justified-Gallery). MIT License.
+ - [sungaila/PDFtoImage: A .NET library to render PDF files into images.](https://github.com/sungaila/PDFtoImage) - Uses the [pdfium](https://pdfium.googlesource.com/pdfium/) and [SkiaSharp](https://github.com/mono/SkiaSharp) to render PDFs to images. MIT License.
 
 **Wpf:**
  - [dfinke/PowerShellConsole: Create a PowerShell Console using the AvalonEdit control](https://github.com/dfinke/PowerShellConsole/tree/master) - Used code from this project to create an AvalonEdit based PowerShell control for the PowerShell Script Runner Project. Apache License 2.0.

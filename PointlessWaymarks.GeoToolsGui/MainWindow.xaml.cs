@@ -90,7 +90,7 @@ public partial class MainWindow
         FeatureIntersectContext = await FeatureIntersectTaggerContext.CreateInstance(StatusContext, WindowStatus);
         GarminConnectDownloadContext = await ConnectDownloadContext.CreateInstance(StatusContext, WindowStatus);
         AboutContext = new HelpDisplayContext([
-            HelpMarkdown.PointlessWaymarksAllProjectsQuickDescription, HelpMarkdown.SoftwareUsedBlock
+            HelpMarkdown.CombinedAboutToolsAndPackages
         ]);
         SettingsContext = new AppSettingsContext();
 
