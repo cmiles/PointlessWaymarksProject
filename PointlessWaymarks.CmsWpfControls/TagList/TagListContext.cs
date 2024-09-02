@@ -79,13 +79,9 @@ public partial class TagListContext
         return contentTypeString;
     }
 
-    public static async Task<TagListContext> CreateInstance(StatusControlContext? context, bool loadInBackground = true)
+    public static async Task<TagListContext> CreateInstance(StatusControlContext? statusContext, bool loadInBackground = true)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var factoryContext = context ?? new StatusControlContext();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
         return new TagListContext(factoryContext, [], loadInBackground);
     }

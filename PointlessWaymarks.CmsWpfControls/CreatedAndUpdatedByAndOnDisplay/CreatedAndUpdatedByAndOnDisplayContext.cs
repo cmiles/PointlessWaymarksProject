@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -96,9 +96,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
     public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(StatusControlContext? statusContext,
         ICreatedAndLastUpdateOnAndBy dbEntry)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
         var factoryCreatedByContext = StringDataEntryContext.CreateInstance();
         factoryCreatedByContext.ValidationFunctions = [CommonContentValidation.ValidateCreatedBy];

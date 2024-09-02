@@ -25,7 +25,9 @@ public partial class ScriptJobRunListWindow
 
         var windowTitle = "Script Job Run List";
 
-        var factoryContext = new StatusControlContext();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryJobRunListContext =
             await ScriptJobRunListContext.CreateInstance(factoryContext, jobFilter, databaseFile);

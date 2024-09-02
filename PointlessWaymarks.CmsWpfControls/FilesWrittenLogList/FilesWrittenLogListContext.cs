@@ -136,11 +136,8 @@ public partial class FilesWrittenLogListContext
     public static async Task<FilesWrittenLogListContext> CreateInstance(StatusControlContext? statusContext,
         bool loadInBackground)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-        var factoryContext = statusContext ?? new StatusControlContext();
-        
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         var factoryGenerationChoices = new ObservableCollection<FileWrittenLogListDateTimeFilterChoice>();
         var factoryItems = new ObservableCollection<FilesWrittenLogListListItem>();
         

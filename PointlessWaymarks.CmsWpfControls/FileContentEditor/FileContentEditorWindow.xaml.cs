@@ -9,6 +9,7 @@ using PointlessWaymarks.WpfCommon.Status;
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class FileContentEditorWindow
 {
     /// <summary>

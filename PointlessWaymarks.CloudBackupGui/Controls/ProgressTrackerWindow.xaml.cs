@@ -9,7 +9,8 @@ namespace PointlessWaymarks.CloudBackupGui.Controls;
 ///     Interaction logic for ProgressTrackerWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
-public partial class ProgressTrackerWindow : Window
+[StaThreadConstructorGuard]
+public partial class ProgressTrackerWindow
 {
     public ProgressTrackerWindow()
     {

@@ -141,11 +141,11 @@ public partial class ConnectBasedGeoTaggerContext
     public static async Task<ConnectBasedGeoTaggerContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryStatusContext = statusContext ?? new StatusControlContext();
-
-        var control = new ConnectBasedGeoTaggerContext(factoryStatusContext, windowStatus);
+        var control = new ConnectBasedGeoTaggerContext(factoryContext, windowStatus);
         await control.Load();
         return control;
     }

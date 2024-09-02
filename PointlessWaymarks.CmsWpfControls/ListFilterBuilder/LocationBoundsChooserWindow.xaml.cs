@@ -11,6 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 ///     Interaction logic for LocationBoundsChooserWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class LocationBoundsChooserWindow
 {
     public LocationBoundsChooserWindow()

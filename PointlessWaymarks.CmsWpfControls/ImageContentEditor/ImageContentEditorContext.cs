@@ -149,7 +149,10 @@ public partial class ImageContentEditorContext : IHasChanges, IHasValidationIssu
     public static async Task<ImageContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         ImageContent? contentToLoad = null, FileInfo? initialImage = null)
     {
-        var newContext = new ImageContentEditorContext(statusContext ?? new StatusControlContext(),
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var newContext = new ImageContentEditorContext(factoryContext,
             NewContentModels.InitializeImageContent(contentToLoad));
         if (initialImage is { Exists: true }) newContext.InitialImage = initialImage;
         await newContext.LoadData(contentToLoad);

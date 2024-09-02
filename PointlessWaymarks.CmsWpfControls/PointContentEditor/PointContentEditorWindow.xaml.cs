@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -11,6 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 ///     Interaction logic for PointContentEditorWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class PointContentEditorWindow
 {
     /// <summary>

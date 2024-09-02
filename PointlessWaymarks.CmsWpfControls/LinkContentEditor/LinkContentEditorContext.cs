@@ -63,9 +63,10 @@ public partial class LinkContentEditorContext : IHasChanges, IHasValidationIssue
     public static async Task<LinkContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         LinkContent? linkContent = null, bool extractDataOnLoad = false)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var newControl = new LinkContentEditorContext(statusContext ?? new StatusControlContext(),
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var newControl = new LinkContentEditorContext(factoryContext,
             NewContentModels.InitializeLinkContent(linkContent));
         await newControl.LoadData(linkContent, extractDataOnLoad);
         return newControl;

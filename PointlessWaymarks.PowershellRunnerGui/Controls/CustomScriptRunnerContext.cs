@@ -48,20 +48,22 @@ public partial class CustomScriptRunnerContext
     public static async Task<CustomScriptRunnerContext> CreateInstance(StatusControlContext? statusContext,
         string databaseFile)
     {
+
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
         var factoryScriptEntry = StringDataEntryNoIndicatorsContext.CreateInstance();
         factoryScriptEntry.Title = "PowerShell Script";
         factoryScriptEntry.HelpText =
             "Enter a PowerShell Script to run.";
 
-        var factoryContext = new CustomScriptRunnerContext
+        var factoryModel = new CustomScriptRunnerContext
         {
-            StatusContext = statusContext ?? new StatusControlContext(),
+            StatusContext = factoryContext,
             UserScriptEntryContext = factoryScriptEntry,
             Items = [],
             _databaseFile = databaseFile,
@@ -70,15 +72,15 @@ public partial class CustomScriptRunnerContext
             ScriptJobRunId = ArbitraryScriptRunnerIdGuid()
         };
 
-        factoryContext.BuildCommands();
+        factoryModel.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher
+        factoryModel.DataNotificationsProcessor = new NotificationCatcher
         {
-            ProgressNotification = factoryContext.ProcessProgressNotification,
-            StateNotification = factoryContext.ProcessStateNotification
+            ProgressNotification = factoryModel.ProcessProgressNotification,
+            StateNotification = factoryModel.ProcessStateNotification
         };
 
-        return factoryContext;
+        return factoryModel;
     }
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)

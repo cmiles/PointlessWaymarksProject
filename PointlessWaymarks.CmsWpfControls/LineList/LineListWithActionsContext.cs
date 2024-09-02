@@ -253,9 +253,9 @@ public partial class LineListWithActionsContext
     public static async Task<LineListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var factoryContext = statusContext ?? new StatusControlContext();
+        await ThreadSwitcher.ResumeBackgroundAsync();
         var factoryListContext =
             await ContentListContext.CreateInstance(factoryContext, new LineListLoader(100),
                 [Db.ContentTypeDisplayStringForLine], windowStatus);

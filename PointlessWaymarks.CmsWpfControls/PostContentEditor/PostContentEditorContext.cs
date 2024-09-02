@@ -93,9 +93,11 @@ If your intent is just to put a single piece of content onto the main page of th
     public static async Task<PostContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PostContent? toLoad = null)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        var newContext = new PostContentEditorContext(statusContext ?? new StatusControlContext(),
+        var newContext = new PostContentEditorContext(factoryContext,
             NewContentModels.InitializePostContent(toLoad));
         await newContext.LoadData(toLoad);
         return newContext;

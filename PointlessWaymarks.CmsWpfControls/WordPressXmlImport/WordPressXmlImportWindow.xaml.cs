@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
@@ -9,6 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 ///     Interaction logic for WordPressXmlImportWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class WordPressXmlImportWindow
 {
     private WordPressXmlImportWindow()

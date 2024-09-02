@@ -10,6 +10,7 @@ using PointlessWaymarks.WpfCommon.Status;
 namespace PointlessWaymarks.CmsWpfControls.ContentFormat;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class ContentFormatChooserContext : IHasChanges, IHasValidationIssues
 {
     private ContentFormatEnum _selectedContentFormat;

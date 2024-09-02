@@ -249,9 +249,10 @@ public partial class PhotoListWithActionsContext
     public static async Task<PhotoListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, IContentListLoader? listLoader, bool loadInBackground = true)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
             await ContentListContext.CreateInstance(factoryContext, listLoader ?? new PhotoListLoader(100),
                 [Db.ContentTypeDisplayStringForPhoto],

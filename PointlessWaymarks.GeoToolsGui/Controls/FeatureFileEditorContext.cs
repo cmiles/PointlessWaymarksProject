@@ -11,6 +11,7 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class FeatureFileEditorContext
 {
     private List<FeatureFileContext> _existingFeatureFileViewModels;

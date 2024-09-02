@@ -15,6 +15,7 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class FeaturePointDetailContext : IHasChanges, IHasValidationIssues,
     IPointDetailEditor,
     ICheckForChangesAndValidation

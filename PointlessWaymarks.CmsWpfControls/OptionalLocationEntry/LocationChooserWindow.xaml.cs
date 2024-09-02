@@ -7,6 +7,7 @@ using PointlessWaymarks.WpfCommon.Status;
 namespace PointlessWaymarks.CmsWpfControls.OptionalLocationEntry;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class LocationChooserWindow
 {
     public LocationChooserWindow()

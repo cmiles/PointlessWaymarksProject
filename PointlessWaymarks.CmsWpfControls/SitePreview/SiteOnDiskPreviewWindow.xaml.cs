@@ -10,6 +10,7 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 ///     Interaction logic for SiteOnDiskPreviewWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class SiteOnDiskPreviewWindow
 {
     private static PreviewServer? _previewServer;

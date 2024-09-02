@@ -74,7 +74,7 @@ public partial class ScriptJobRunOutputDiffContext
             allRunsTranslated.Add(toAdd);
         }
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
         var factoryLeftRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
         var factoryRightRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
@@ -110,9 +110,9 @@ public partial class ScriptJobRunOutputDiffContext
             factorySelectedRightRun = factoryRightRuns.SingleOrDefault(x => x.PersistentId == initialRightScript);
         }
 
-        var factoryContext = new ScriptJobRunOutputDiffContext
+        var factoryModel = new ScriptJobRunOutputDiffContext
         {
-            StatusContext = statusContext ?? new StatusControlContext(),
+            StatusContext = factoryContext,
             LeftRuns = factoryLeftRuns,
             RightRuns = factoryRightRuns,
             SelectedLeftRun = factorySelectedLeftRun,
@@ -123,18 +123,18 @@ public partial class ScriptJobRunOutputDiffContext
             _jobId = jobId
         };
 
-        factoryContext.BuildCommands();
+        factoryModel.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher
+        factoryModel.DataNotificationsProcessor = new NotificationCatcher
         {
-            JobDataNotification = factoryContext.ProcessJobDataUpdateNotification,
-            RunDataNotification = factoryContext.ProcessRunDataUpdateNotification
+            JobDataNotification = factoryModel.ProcessJobDataUpdateNotification,
+            RunDataNotification = factoryModel.ProcessRunDataUpdateNotification
         };
 
-        factoryContext.LeftScrollItem = factorySelectedLeftRun;
-        factoryContext.RightScrollItem = factorySelectedRightRun;
+        factoryModel.LeftScrollItem = factorySelectedLeftRun;
+        factoryModel.RightScrollItem = factorySelectedRightRun;
 
-        return factoryContext;
+        return factoryModel;
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

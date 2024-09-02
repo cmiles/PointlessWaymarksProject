@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +14,7 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class ActivityLogMonthlySummaryWindow
 {
     public ActivityLogMonthlySummaryWindow(List<ActivityLogMonthlyStatRow> statRows)

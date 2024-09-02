@@ -84,9 +84,10 @@ public partial class PostListWithActionsContext
     public static async Task<PostListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListContext =
             await ContentListContext.CreateInstance(factoryContext, new PostListLoader(100),
                 [Db.ContentTypeDisplayStringForPost], windowStatus);

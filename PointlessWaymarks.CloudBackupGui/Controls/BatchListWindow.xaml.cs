@@ -6,6 +6,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.CloudBackupGui.Controls;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class BatchListWindow
 {
     public BatchListWindow()

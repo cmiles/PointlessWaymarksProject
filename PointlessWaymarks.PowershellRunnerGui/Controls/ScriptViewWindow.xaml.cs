@@ -28,7 +28,9 @@ public partial class ScriptViewWindow
 
         var windowTitle = "Script Viewer";
 
-        var factoryContext = new StatusControlContext();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryJobRunContext =
             await ScriptViewContext.CreateInstance(factoryContext, jobId, databaseFile);

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentGeneration;
@@ -53,9 +53,11 @@ public partial class TagExclusionEditorContext
     public static async Task<TagExclusionEditorContext> CreateInstance(StatusControlContext? statusContext,
         bool loadInBackground = true)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        return new TagExclusionEditorContext(statusContext ?? new StatusControlContext(),
+        return new TagExclusionEditorContext(factoryContext,
             [], loadInBackground);
     }
 

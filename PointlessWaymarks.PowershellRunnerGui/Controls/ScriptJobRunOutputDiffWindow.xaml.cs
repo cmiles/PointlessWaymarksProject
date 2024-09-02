@@ -40,7 +40,9 @@ public partial class ScriptJobRunOutputDiffWindow
             windowTitle = $"{leftJob.Name} - Output Run Diff";
         }
 
-        var factoryContext = new StatusControlContext();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryDiffContext =
             await ScriptJobRunOutputDiffContext.CreateInstance(factoryContext, initialLeftScriptJobRun, initialRightScript, databaseFile);

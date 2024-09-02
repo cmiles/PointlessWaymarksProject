@@ -22,7 +22,7 @@ public partial class ScriptProgressContext
     public List<IScriptMessageItem> SelectedItems { get; set; } = [];
     public required StatusControlContext StatusContext { get; set; }
 
-    public static async Task<ScriptProgressContext> CreateInstance(StatusControlContext? context,
+    public static async Task<ScriptProgressContext> CreateInstance(StatusControlContext? statusContext,
         List<Guid> jobIdFilter, List<Guid> runIdFilter, string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -30,28 +30,24 @@ public partial class ScriptProgressContext
         _databaseFile = databaseFile;
         _dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var factoryStatusContext = context ?? new StatusControlContext();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        var factoryContext = new ScriptProgressContext
+        var factoryModel = new ScriptProgressContext
         {
-            StatusContext = factoryStatusContext, Items = [], ScriptJobIdFilter = jobIdFilter,
+            StatusContext = factoryContext, Items = [], ScriptJobIdFilter = jobIdFilter,
             ScriptJobRunIdFilter = runIdFilter
         };
 
-        factoryContext.BuildCommands();
+        factoryModel.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher
+        factoryModel.DataNotificationsProcessor = new NotificationCatcher
         {
-            ProgressNotification = factoryContext.ProcessProgressNotification,
-            StateNotification = factoryContext.ProcessStateNotification,
-            ErrorNotification = factoryContext.ProcessErrorNotification
+            ProgressNotification = factoryModel.ProcessProgressNotification,
+            StateNotification = factoryModel.ProcessStateNotification,
+            ErrorNotification = factoryModel.ProcessErrorNotification
         };
 
-        return factoryContext;
+        return factoryModel;
     }
 
     private async Task ProcessErrorNotification(DataNotifications.InterProcessProcessingError arg)

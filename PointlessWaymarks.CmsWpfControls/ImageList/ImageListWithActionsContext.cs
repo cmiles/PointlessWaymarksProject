@@ -15,6 +15,7 @@ namespace PointlessWaymarks.CmsWpfControls.ImageList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class ImageListWithActionsContext
 {
     private ImageListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
@@ -81,9 +82,9 @@ public partial class ImageListWithActionsContext
     public static async Task<ImageListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var factoryContext = statusContext ?? new StatusControlContext();
+        await ThreadSwitcher.ResumeBackgroundAsync();
         var factoryListContext =
             await ContentListContext.CreateInstance(factoryContext, new ImageListLoader(100),
                 [Db.ContentTypeDisplayStringForImage], windowStatus);

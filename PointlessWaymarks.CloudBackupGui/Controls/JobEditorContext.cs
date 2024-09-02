@@ -226,7 +226,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         }
     }
     
-    public static async Task<JobEditorContext> CreateInstance(StatusControlContext? context, BackupJob initialJob,
+    public static async Task<JobEditorContext> CreateInstance(StatusControlContext? statusContext, BackupJob initialJob,
         string databaseFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -237,8 +237,8 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
         await db.Entry(initialJob).Collection(x => x.ExcludedDirectoryNamePatterns).LoadAsync();
         await db.Entry(initialJob).Collection(x => x.ExcludedFileNamePatterns).LoadAsync();
         
-        var statusContext = context ?? new StatusControlContext();
-        
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         var nameEntry = StringDataEntryContext.CreateInstance();
         nameEntry.Title = "Job Name";
         nameEntry.HelpText =
@@ -298,7 +298,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             }
         ];
         
-        var initialDirectoryEntry = ExistingDirectoryDataEntryContext.CreateInstance(statusContext);
+        var initialDirectoryEntry = await ExistingDirectoryDataEntryContext.CreateInstance(factoryContext);
         initialDirectoryEntry.Title = "Initial Local Directory";
         initialDirectoryEntry.HelpText = "Pick a single starting directory for the backup";
         initialDirectoryEntry.ReferenceValue = initialJob.LocalDirectory;
@@ -416,7 +416,7 @@ public partial class JobEditorContext : IHasChanges, IHasValidationIssues,
             ExcludedDirectoryPatternsOriginal = dbExcludedDirectoryPatterns,
             ExcludedFilePatterns = excludedFilePatterns,
             ExcludedFilePatternsOriginal = dbExcludedFilePatterns,
-            StatusContext = statusContext,
+            StatusContext = factoryContext,
             UserInitialDirectoryEntry = initialDirectoryEntry,
             UserAwsRegionEntry = regionsDataEntry,
             UserCloudProviderEntry = cloudProviderDataEntry,

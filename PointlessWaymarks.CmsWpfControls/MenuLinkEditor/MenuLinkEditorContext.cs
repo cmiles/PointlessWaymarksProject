@@ -50,22 +50,18 @@ public partial class MenuLinkEditorContext
     }
 
 
-    public static Task<MenuLinkEditorContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<MenuLinkEditorContext> CreateInstance(StatusControlContext? statusContext,
         bool loadInBackground = true)
     {
-        ThreadSwitcher.ResumeBackgroundAsync();
-
-        var factoryContext = statusContext ?? new StatusControlContext();
-
-        ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
         var factoryItems = new ObservableCollection<MenuLinkListItem>();
 
-        ThreadSwitcher.ResumeBackgroundAsync();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var toReturn = new MenuLinkEditorContext(factoryContext, factoryItems, loadInBackground);
 
-        return Task.FromResult(toReturn);
+        return toReturn;
     }
 
     [BlockingCommand]

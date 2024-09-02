@@ -369,9 +369,10 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext? statusContext,
         MapComponent? mapComponent)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        var factoryContext = statusContext ?? new StatusControlContext();
         var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
         
         await ThreadSwitcher.ResumeForegroundAsync();

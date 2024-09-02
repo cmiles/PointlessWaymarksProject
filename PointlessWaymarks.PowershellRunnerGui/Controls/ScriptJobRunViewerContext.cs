@@ -29,6 +29,10 @@ public partial class ScriptJobRunViewerContext
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
         var run = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
 
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         if (run != null)
         {
             var jobId = run.ScriptJobPersistentId;
@@ -36,9 +40,9 @@ public partial class ScriptJobRunViewerContext
 
             var toAdd = ScriptJobRunGuiView.CreateInstance(run, job, key);
 
-            var factoryContext = new ScriptJobRunViewerContext
+            var factoryModel = new ScriptJobRunViewerContext
             {
-                StatusContext = statusContext ?? new StatusControlContext(),
+                StatusContext = factoryContext,
                 Run = run,
                 Job = job,
                 RunView = toAdd,
@@ -47,19 +51,19 @@ public partial class ScriptJobRunViewerContext
                 DbId = dbId
             };
 
-            factoryContext.DataNotificationsProcessor = new NotificationCatcher
+            factoryModel.DataNotificationsProcessor = new NotificationCatcher
             {
-                JobDataNotification = factoryContext.ProcessJobDataUpdateNotification,
-                RunDataNotification = factoryContext.ProcessRunDataUpdateNotification
+                JobDataNotification = factoryModel.ProcessJobDataUpdateNotification,
+                RunDataNotification = factoryModel.ProcessRunDataUpdateNotification
             };
 
-            return factoryContext;
+            return factoryModel;
         }
         else
         {
             var toReturn = new ScriptJobRunViewerContext
             {
-                StatusContext = statusContext ?? new StatusControlContext(),
+                StatusContext = factoryContext,
                 Run = null,
                 Job = null,
                 RunView = null

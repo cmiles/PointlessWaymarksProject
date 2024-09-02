@@ -22,6 +22,7 @@ namespace PointlessWaymarks.PowerShellRunnerGui;
 /// </summary>
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class MainWindow
 {
     private readonly PeriodicTimer _cronNextTimer = new(TimeSpan.FromSeconds(60));

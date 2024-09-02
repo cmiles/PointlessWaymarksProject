@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 
@@ -8,6 +8,7 @@ namespace PointlessWaymarks.CmsWpfControls.MarkdownViewer;
 ///     Interaction logic for MarkdownViewerWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class MarkdownViewerWindow
 {
     private MarkdownViewerWindow()

@@ -26,6 +26,7 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class FileBasedGeoTaggerContext
 {
     public FileBasedGeoTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)

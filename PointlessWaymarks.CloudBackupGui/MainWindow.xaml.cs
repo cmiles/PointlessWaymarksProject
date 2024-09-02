@@ -10,6 +10,7 @@ using Serilog;
 namespace PointlessWaymarks.CloudBackupGui;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class MainWindow
 {
     public readonly string HelpText =

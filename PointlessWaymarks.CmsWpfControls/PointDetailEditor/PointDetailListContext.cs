@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -67,9 +67,11 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
     public static async Task<PointDetailListContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new PointDetailListContext(statusContext ?? new StatusControlContext(),
+        var newControl = new PointDetailListContext(factoryContext,
             [], new ObservableCollectionListSource<string>());
 
         await ThreadSwitcher.ResumeBackgroundAsync();

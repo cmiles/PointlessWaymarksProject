@@ -77,9 +77,10 @@ public partial class ContentFolderContext : IStringWithDropdownDataEntryContext
     public static async Task<ContentFolderContext> CreateInstance(StatusControlContext? statusContext,
         ITitleSummarySlugFolder dbEntry)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryContext = statusContext ?? new StatusControlContext();
         var initialFolderList = await Db.FolderNamesFromContent(dbEntry);
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -94,9 +95,10 @@ public partial class ContentFolderContext : IStringWithDropdownDataEntryContext
 
     public static async Task<ContentFolderContext> CreateInstanceForAllGeoTypes(StatusControlContext? statusContext)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryContext = statusContext ?? new StatusControlContext();
         var loader = Db.FolderNamesFromGeoContent;
         var initialFolderList = await loader();
 

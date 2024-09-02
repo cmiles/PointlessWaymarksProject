@@ -77,9 +77,10 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
     public static async Task<ContentMapIconContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        var factoryContext = statusContext ?? new StatusControlContext();
         var loader = DbIconChoices;
         var initialMapIconList = await DbIconChoices();
         

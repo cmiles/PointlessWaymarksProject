@@ -9,6 +9,7 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class AllContentListWithActionsContext
 {
     private AllContentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
@@ -33,7 +34,10 @@ public partial class AllContentListWithActionsContext
     public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
     {
+        await ThreadSwitcher.ResumeForegroundAsync();
         var factoryStatusContext = statusContext ?? new StatusControlContext();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
         var factoryListContext =
             await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), [],
                 windowStatus);
@@ -44,10 +48,12 @@ public partial class AllContentListWithActionsContext
     public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         IContentListLoader reportFilter, bool loadInBackground = true)
     {
-        var factoryStatusContext = statusContext ?? new StatusControlContext();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter, []);
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        return new AllContentListWithActionsContext(factoryStatusContext, null, factoryListContext, loadInBackground);
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, reportFilter, []);
+
+        return new AllContentListWithActionsContext(factoryContext, null, factoryListContext, loadInBackground);
     }
 
     public async Task LoadData()

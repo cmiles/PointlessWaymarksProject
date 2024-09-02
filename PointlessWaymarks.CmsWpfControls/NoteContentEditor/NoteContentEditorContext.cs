@@ -73,7 +73,10 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
     public static async Task<NoteContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         NoteContent? noteContent)
     {
-        var newControl = new NoteContentEditorContext(statusContext ?? new StatusControlContext(),
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+        var newControl = new NoteContentEditorContext(factoryContext,
             await NewContentModels.InitializeNoteContent(noteContent));
         await newControl.LoadData(noteContent);
         return newControl;

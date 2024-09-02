@@ -46,6 +46,7 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class ContentListContext : IDragSource, IDropTarget
 {
     private ContentListContext(StatusControlContext? statusContext,
@@ -242,11 +243,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public static async Task<ContentListContext> CreateInstance(StatusControlContext? statusContext,
         IContentListLoader loader, List<string> searchBuilderContentTypes, WindowIconStatus? windowStatus = null)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
         var factoryObservable = new ObservableCollection<IContentListItem>();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
-        var factoryContext = statusContext ?? new StatusControlContext();
         var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
         var factorySearchBuilder = await ListFilterBuilderContext.CreateInstance(searchBuilderContentTypes);
 

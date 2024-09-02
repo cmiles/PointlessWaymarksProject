@@ -133,12 +133,17 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public static async Task<GeoJsonContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         GeoJsonContent? geoJsonContent)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
         var factoryIcons = await MapIconGenerator.SerializedMapIcons();
 
-        var newControl = new GeoJsonContentEditorContext(statusContext ?? new StatusControlContext(),
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newControl = new GeoJsonContentEditorContext(factoryContext,
             NewContentModels.InitializeGeoJsonContent(geoJsonContent), factoryIcons);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
         await newControl.LoadData(geoJsonContent);
         return newControl;
     }

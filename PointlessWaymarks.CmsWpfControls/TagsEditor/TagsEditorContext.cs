@@ -50,14 +50,14 @@ public partial class TagsEditorContext : IHasChanges, IHasValidationIssues,
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
 
-    public static Task<TagsEditorContext> CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
+    public static async Task<TagsEditorContext> CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
     {
-        var factoryContext = statusContext ?? new StatusControlContext();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
         var newItem = new TagsEditorContext(factoryContext, dbEntry);
         newItem.CheckForChangesAndValidationIssues();
 
-        return Task.FromResult(newItem);
+        return newItem;
     }
 
     private List<string> DbTagList()

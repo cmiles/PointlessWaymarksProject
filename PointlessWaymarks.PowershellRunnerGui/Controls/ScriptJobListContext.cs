@@ -43,11 +43,11 @@ public partial class ScriptJobListContext
     {
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var factoryContext = new ScriptJobListContext
+        var factoryModel = new ScriptJobListContext
         {
-            StatusContext = statusContext ?? new StatusControlContext(),
+            StatusContext = factoryContext,
             Items = [],
             DatabaseFile = databaseFile,
             ListSort = new ColumnSortControlContext
@@ -76,26 +76,26 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        factoryContext.BuildCommands();
-        await factoryContext.RefreshList();
+        factoryModel.BuildCommands();
+        await factoryModel.RefreshList();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher
+        factoryModel.DataNotificationsProcessor = new NotificationCatcher
         {
-            JobDataNotification = factoryContext.ProcessJobDataUpdateNotification
+            JobDataNotification = factoryModel.ProcessJobDataUpdateNotification
         };
 
-        factoryContext.UpdateCronExpressionInformation();
+        factoryModel.UpdateCronExpressionInformation();
 
-        _ = factoryContext.UpdateCronNextRun();
+        _ = factoryModel.UpdateCronNextRun();
 
         await ListContextSortHelpers.SortList(
-            factoryContext.ListSort.SortDescriptions(), factoryContext.Items);
+            factoryModel.ListSort.SortDescriptions(), factoryModel.Items);
 
-        factoryContext.ListSort.SortUpdated += (_, list) =>
-            factoryContext.StatusContext.RunFireAndForgetNonBlockingTask(() =>
-                ListContextSortHelpers.SortList(list, factoryContext.Items));
+        factoryModel.ListSort.SortUpdated += (_, list) =>
+            factoryModel.StatusContext.RunFireAndForgetNonBlockingTask(() =>
+                ListContextSortHelpers.SortList(list, factoryModel.Items));
 
-        return factoryContext;
+        return factoryModel;
     }
 
     [BlockingCommand]

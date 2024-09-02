@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -6,6 +6,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.FeedReaderGui.Controls;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class FeedListWindow
 {
     public FeedListWindow()

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.LlamaAspects;
@@ -9,6 +9,7 @@ using PointlessWaymarks.WpfCommon.Status;
 namespace PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class VideoContentEditorWindow
 {
     /// <summary>

@@ -81,9 +81,10 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
     public static async Task<ContentMapMarkerColorContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryContext = statusContext ?? new StatusControlContext();
         var loader = ColorChoicesAsync;
 
         await ThreadSwitcher.ResumeForegroundAsync();

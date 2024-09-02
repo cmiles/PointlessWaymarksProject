@@ -194,10 +194,12 @@ Photo Content Notes:
     
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
         
         var newContext =
-            new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
+            new PhotoContentEditorContext(factoryContext, PhotoContent.CreateInstance());
         await newContext.LoadData(null);
         return newContext;
     }
@@ -205,10 +207,12 @@ Photo Content Notes:
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         FileInfo initialPhoto)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
         
         var newContext =
-            new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance())
+            new PhotoContentEditorContext(factoryContext, PhotoContent.CreateInstance())
                 { StatusContext = { BlockUi = true } };
         
         if (initialPhoto is { Exists: true }) newContext.InitialPhoto = initialPhoto;
@@ -222,10 +226,12 @@ Photo Content Notes:
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PhotoContent? toLoad)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
         
         var newContext =
-            new PhotoContentEditorContext(statusContext ?? new StatusControlContext(), PhotoContent.CreateInstance());
+            new PhotoContentEditorContext(factoryContext, PhotoContent.CreateInstance());
         await newContext.LoadData(toLoad);
         return newContext;
     }

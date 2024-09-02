@@ -115,9 +115,8 @@ public partial class MapIconListContext
 
     public static async Task<MapIconListContext> CreateInstance(StatusControlContext? statusContext)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var factoryContext = statusContext ?? new StatusControlContext();
         var factoryItems = new ObservableCollection<MapIconListListItem>();
         var factoryListSelection = await ContentListSelected<MapIconListListItem>.CreateInstance(factoryContext);
 

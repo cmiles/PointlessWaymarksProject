@@ -32,9 +32,13 @@ public partial class ScriptViewContext
 
         var job = await db.ScriptJobs.SingleAsync(x => x.PersistentId == jobPersistentId);
 
-        var factoryContext = new ScriptViewContext
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryModel = new ScriptViewContext
         {
-            StatusContext = statusContext ?? new StatusControlContext(),
+            StatusContext = factoryContext,
             DbEntry = job,
             TranslatedScript = job.Script.Decrypt(key),
             _key = key,
@@ -42,12 +46,12 @@ public partial class ScriptViewContext
             _dbId = dbId
         };
 
-        factoryContext.IpcNotifications = new NotificationCatcher
+        factoryModel.IpcNotifications = new NotificationCatcher
         {
-            JobDataNotification = factoryContext.ProcessJobDataUpdateNotification
+            JobDataNotification = factoryModel.ProcessJobDataUpdateNotification
         };
 
-        return factoryContext;
+        return factoryModel;
     }
 
     private async Task ProcessJobDataUpdateNotification(DataNotifications.InterProcessJobDataNotification arg)

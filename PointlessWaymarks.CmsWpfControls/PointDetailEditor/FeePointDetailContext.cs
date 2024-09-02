@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Text.Json;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -14,6 +14,7 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class FeePointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
     ICheckForChangesAndValidation
 {

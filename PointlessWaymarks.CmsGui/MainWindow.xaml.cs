@@ -51,6 +51,7 @@ namespace PointlessWaymarks.CmsGui;
 /// </summary>
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class MainWindow
 {
     private readonly string _currentDateVersion;

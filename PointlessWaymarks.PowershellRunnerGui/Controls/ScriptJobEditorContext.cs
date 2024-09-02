@@ -132,14 +132,14 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var newContext = new ScriptJobEditorContext
+        var factoryModel = new ScriptJobEditorContext
         {
             DatabaseFile = databaseFile,
             DbEntry = initialScriptJob,
             DeleteRunsAfterMonthsEntry = deleteAfterEntry,
-            StatusContext = statusContext ?? new StatusControlContext(),
+            StatusContext = factoryContext,
             NameEntry = nameEntry,
             DescriptionEntry = descriptionEntry,
             AllowSimultaneousRunsEntry = allowSimultaneousRunsEntry,
@@ -150,15 +150,15 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             _dbId = dbId
         };
 
-        cronEntry.PropertyChanged += newContext.CronExpressionChanged;
+        cronEntry.PropertyChanged += factoryModel.CronExpressionChanged;
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        await newContext.Setup(initialScriptJob);
+        await factoryModel.Setup(initialScriptJob);
 
-        _ = newContext.UpdateCronNextRun();
+        _ = factoryModel.UpdateCronNextRun();
 
-        return newContext;
+        return factoryModel;
     }
 
     private void CronExpressionChanged(object? sender, PropertyChangedEventArgs e)

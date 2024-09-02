@@ -72,11 +72,11 @@ public partial class ScriptJobRunListContext
         var factoryScriptViewerContext = StringDataEntryNoIndicatorsContext.CreateInstance();
         factoryScriptViewerContext.Title = "Script";
 
-        await ThreadSwitcher.ResumeForegroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var factoryContext = new ScriptJobRunListContext
+        var factoryModel = new ScriptJobRunListContext
         {
-            StatusContext = statusContext ?? new StatusControlContext(),
+            StatusContext = factoryContext,
             Items = new ObservableCollection<ScriptJobRunGuiView>(runList),
             JobFilter = jobFilter,
             FilterDescription = filterDescription,
@@ -88,15 +88,15 @@ public partial class ScriptJobRunListContext
             _dbId = dbId
         };
 
-        factoryContext.BuildCommands();
+        factoryModel.BuildCommands();
 
-        factoryContext.DataNotificationsProcessor = new NotificationCatcher
+        factoryModel.DataNotificationsProcessor = new NotificationCatcher
         {
-            JobDataNotification = factoryContext.ProcessJobUpdateNotification,
-            RunDataNotification = factoryContext.ProcessRunUpdateNotification
+            JobDataNotification = factoryModel.ProcessJobUpdateNotification,
+            RunDataNotification = factoryModel.ProcessRunUpdateNotification
         };
 
-        return factoryContext;
+        return factoryModel;
     }
 
     [BlockingCommand]

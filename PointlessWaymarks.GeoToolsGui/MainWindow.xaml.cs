@@ -16,6 +16,7 @@ namespace PointlessWaymarks.GeoToolsGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class MainWindow
 {
     private readonly string _currentDateVersion;

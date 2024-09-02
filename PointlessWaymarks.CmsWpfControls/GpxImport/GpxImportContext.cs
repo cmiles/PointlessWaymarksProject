@@ -226,9 +226,9 @@ public partial class GpxImportContext : IWebViewMessenger
 
     public static async Task<GpxImportContext> CreateInstance(StatusControlContext? statusContext)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var factoryContext = statusContext ?? new StatusControlContext();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryFolderEntry = await ContentFolderContext.CreateInstanceForAllGeoTypes(factoryContext);
         factoryFolderEntry.Title = "Folder for All Imports";

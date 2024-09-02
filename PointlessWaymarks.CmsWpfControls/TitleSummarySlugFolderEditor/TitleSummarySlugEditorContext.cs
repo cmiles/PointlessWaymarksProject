@@ -116,9 +116,9 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
         ITitleSummarySlugFolder dbEntry, string? customTitleCommandText, RelayCommand? customTitleCommand,
         Func<TitleSummarySlugEditorContext, bool>? customTitleCheckToEnable)
     {
-        await ThreadSwitcher.ResumeBackgroundAsync();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
-        var factoryContext = statusContext ?? new StatusControlContext();
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryTitleEntry = await StringDataEntryTypes.CreateTitleInstance(dbEntry);
 

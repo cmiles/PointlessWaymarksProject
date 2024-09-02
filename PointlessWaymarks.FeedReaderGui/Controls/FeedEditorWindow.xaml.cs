@@ -11,6 +11,7 @@ namespace PointlessWaymarks.FeedReaderGui.Controls;
 ///     Interaction logic for FeedEditorWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class FeedEditorWindow : Window
 {
     public FeedEditorWindow()

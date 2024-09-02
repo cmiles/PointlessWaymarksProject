@@ -1,4 +1,4 @@
-﻿using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -8,6 +8,7 @@ using PointlessWaymarks.WpfCommon.Status;
 namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class LinkContentEditorWindow
 {
     /// <summary>

@@ -11,6 +11,7 @@ namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 ///     Interaction logic for MapComponentEditorWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class MapComponentEditorWindow
 {
     /// <summary>

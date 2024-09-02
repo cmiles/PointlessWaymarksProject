@@ -22,6 +22,7 @@ namespace PointlessWaymarks.SiteViewerGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
+[StaThreadConstructorGuard]
 public partial class MainWindow
 {
     public MainWindow(string? localFolder, string? siteUrl, string? siteName, string? initialPage)

@@ -37,14 +37,17 @@ public partial class MapIconListWindow
     /// <returns></returns>
     public static async Task<MapIconListWindow> CreateInstance()
     {
-        var factoryStatus = new StatusControlContext();
-        var factoryContext = await MapIconListContext.CreateInstance(factoryStatus);
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var factoryModel = await MapIconListContext.CreateInstance(factoryContext);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new MapIconListWindow(factoryContext, factoryStatus);
+        var window = new MapIconListWindow(factoryModel, factoryContext);
 
-        factoryStatus.RunFireAndForgetBlockingTask(factoryContext.LoadData);
+        factoryContext.RunFireAndForgetBlockingTask(factoryModel.LoadData);
 
         return window;
     }

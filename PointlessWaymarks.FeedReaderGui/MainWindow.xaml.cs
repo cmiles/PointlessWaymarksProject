@@ -18,6 +18,7 @@ namespace PointlessWaymarks.FeedReaderGui;
 /// </summary>
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
+[StaThreadConstructorGuard]
 public partial class MainWindow
 {
     public readonly string HelpText =
@@ -79,7 +80,7 @@ public partial class MainWindow
     public FeedListContext? FeedListTabContext { get; set; }
     public HelpDisplayContext HelpTabContext { get; set; }
     public string InfoTitle { get; set; }
-    public SavedFeedItemListContext SavedFeedItemListTabContext { get; set; }
+    public SavedFeedItemListContext? SavedFeedItemListTabContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
 

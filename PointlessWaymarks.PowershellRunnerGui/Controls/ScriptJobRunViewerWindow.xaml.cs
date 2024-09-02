@@ -40,7 +40,9 @@ public partial class ScriptJobRunViewerWindow
                 $"Job Script Run {jobRun.PersistentId} - {jobRun.StartedOnUtc.ToLocalTime()} - Job: {job?.Name}";
         }
 
-        var factoryContext = new StatusControlContext();
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryJobRunContext =
             await ScriptJobRunViewerContext.CreateInstance(factoryContext, scriptJobRunId, databaseFile);

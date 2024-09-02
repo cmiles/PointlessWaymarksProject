@@ -123,9 +123,11 @@ public partial class UserSettingsEditorContext
     public static async Task<UserSettingsEditorContext> CreateInstance(StatusControlContext? statusContext,
         UserSettings toLoad)
     {
+        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
         
-        return new UserSettingsEditorContext(statusContext ?? new StatusControlContext(), toLoad);
+        return new UserSettingsEditorContext(factoryContext, toLoad);
     }
     
     [BlockingCommand]

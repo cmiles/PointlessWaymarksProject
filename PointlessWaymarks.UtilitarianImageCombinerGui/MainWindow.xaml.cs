@@ -1,5 +1,6 @@
 using Metalama.Patterns.Observability;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.UtilitarianImageCombinerGui.Controls;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
@@ -13,6 +14,7 @@ namespace PointlessWaymarks.UtilitarianImageCombinerGui;
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
 [Observable]
+[StaThreadConstructorGuard]
 public partial class MainWindow
 {
     public MainWindow()
