@@ -5,4 +5,5 @@ $ErrorActionPreference = "Stop"
 .\Publish-CloudBackup.ps1
 .\Publish-FeedReader.ps1
 .\Publish-PowerShellRunner.ps1
+.\Publish-UtilitarianImageCombinerGui.ps1
 .\Publish-Tasks.ps1
