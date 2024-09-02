@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
@@ -82,17 +82,17 @@ public partial class SiteChooserContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryContext = statusContext ?? new StatusControlContext();
-
         var recentFiles = recentSettingFiles.Split("|").ToList();
 
         await ThreadSwitcher.ResumeForegroundAsync();
+
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         var factoryItems = new ObservableCollection<object>();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var context = new SiteChooserContext(factoryContext, factoryItems, recentFiles);
+        var context = new SiteChooserContext(factoryStatusContext, factoryItems, recentFiles);
 
         await context.LoadData();
 

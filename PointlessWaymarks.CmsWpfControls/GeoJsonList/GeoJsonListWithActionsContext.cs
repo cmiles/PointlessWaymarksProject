@@ -205,15 +205,15 @@ public partial class GeoJsonListWithActionsContext
     public static async Task<GeoJsonListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new GeoJsonListLoader(100),
+            await ContentListContext.CreateInstance(factoryStatusContext, new GeoJsonListLoader(100),
                 [Db.ContentTypeDisplayStringForGeoJson], windowStatus);
 
-        return new GeoJsonListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+        return new GeoJsonListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     [BlockingCommand]

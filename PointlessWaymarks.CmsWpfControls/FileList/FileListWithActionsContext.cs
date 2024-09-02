@@ -103,15 +103,15 @@ public partial class FileListWithActionsContext : IListSelectionWithContext<File
     public static async Task<FileListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new FileListLoader(100),
+            await ContentListContext.CreateInstance(factoryStatusContext, new FileListLoader(100),
                 [Db.ContentTypeDisplayStringForFile], windowStatus);
 
-        return new FileListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+        return new FileListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     [BlockingCommand]

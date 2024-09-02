@@ -30,12 +30,11 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class FeatureIntersectTaggerContext
 {
-    public FeatureIntersectTaggerContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+    public FeatureIntersectTaggerContext(StatusControlContext statusContext, WindowIconStatus? windowStatus)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
         WindowStatus = windowStatus ?? new WindowIconStatus();
 
         BuildCommands();

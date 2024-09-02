@@ -14,12 +14,11 @@ public partial class MarkdownViewerWindow
     private MarkdownViewerWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
     public string MarkdownContent { get; set; } = string.Empty;
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; } = string.Empty;
 
     public static async Task<MarkdownViewerWindow> CreateInstance(string windowTitle, string markdown)
@@ -28,7 +27,8 @@ public partial class MarkdownViewerWindow
         return new MarkdownViewerWindow
         {
             MarkdownContent = markdown,
-            WindowTitle = windowTitle
+            WindowTitle = windowTitle,
+            StatusContext = await StatusControlContext.CreateInstance()
         };
     }
 }

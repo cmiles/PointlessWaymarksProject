@@ -12,35 +12,34 @@ public partial class FeedListWindow
     public FeedListWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
     public FeedListContext? FeedContext { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<FeedListWindow> CreateInstance(string dbFile)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
+        factoryStatusContext.BlockUi = true;
+
         var window = new FeedListWindow
         {
-            StatusContext =
-            {
-                BlockUi = true
-            }
+            StatusContext = factoryStatusContext
         };
 
         window.PositionWindowAndShow();
-        
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.StatusContext.Progress("Feed List - Creating Context");
 
         window.FeedContext = await FeedListContext.CreateInstance(window.StatusContext, dbFile);
-        
+
         window.StatusContext.BlockUi = false;
-        
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         return window;

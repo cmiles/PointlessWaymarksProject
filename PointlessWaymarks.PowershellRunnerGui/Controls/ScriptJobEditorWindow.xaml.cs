@@ -17,13 +17,12 @@ public partial class ScriptJobEditorWindow
     private ScriptJobEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public ScriptJobEditorContext? JobContext { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will
@@ -35,7 +34,7 @@ public partial class ScriptJobEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new ScriptJobEditorWindow();
+        var window = new ScriptJobEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

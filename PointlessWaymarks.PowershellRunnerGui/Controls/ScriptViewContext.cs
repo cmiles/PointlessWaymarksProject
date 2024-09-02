@@ -24,6 +24,8 @@ public partial class ScriptViewContext
     public static async Task<ScriptViewContext> CreateInstance(StatusControlContext? statusContext,
         Guid jobPersistentId, string databaseFile)
     {
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
@@ -32,13 +34,9 @@ public partial class ScriptViewContext
 
         var job = await db.ScriptJobs.SingleAsync(x => x.PersistentId == jobPersistentId);
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
         var factoryModel = new ScriptViewContext
         {
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             DbEntry = job,
             TranslatedScript = job.Script.Decrypt(key),
             _key = key,

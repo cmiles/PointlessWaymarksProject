@@ -12,23 +12,23 @@ public partial class FeedItemListWindow
     public FeedItemListWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
     public FeedItemListContext? ItemsContext { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
 
-    public static async Task<FeedItemListWindow> CreateInstance(string dbFile, List<Guid>? feedList = null, bool showUnread = false)
+    public static async Task<FeedItemListWindow> CreateInstance(string dbFile, List<Guid>? feedList = null,
+        bool showUnread = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
+        factoryStatusContext.BlockUi = true;
+
         var window = new FeedItemListWindow
         {
-            StatusContext =
-            {
-                BlockUi = true
-            }
+            StatusContext = factoryStatusContext
         };
 
         window.PositionWindowAndShow();
@@ -37,7 +37,8 @@ public partial class FeedItemListWindow
 
         window.StatusContext.Progress("Feed Items List - Creating Context");
 
-        window.ItemsContext = await FeedItemListContext.CreateInstance(window.StatusContext, dbFile, feedList, showUnread);
+        window.ItemsContext =
+            await FeedItemListContext.CreateInstance(window.StatusContext, dbFile, feedList, showUnread);
 
         window.StatusContext.BlockUi = false;
 

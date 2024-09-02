@@ -18,12 +18,11 @@ public partial class SiteOnDiskPreviewWindow
     private SiteOnDiskPreviewWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
     public SitePreviewContext? PreviewContext { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will
@@ -35,7 +34,7 @@ public partial class SiteOnDiskPreviewWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new SiteOnDiskPreviewWindow();
+        var window = new SiteOnDiskPreviewWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

@@ -9,13 +9,12 @@ namespace PointlessWaymarks.CmsWpfControls.AllContentList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class AllContentListWithActionsContext
 {
-    private AllContentListWithActionsContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
+    private AllContentListWithActionsContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
         ContentListContext factoryListContext, bool loadInBackground = true)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
         WindowStatus = windowStatus;
 
         CommonCommands = new CmsCommonCommands(StatusContext, WindowStatus);
@@ -34,8 +33,7 @@ public partial class AllContentListWithActionsContext
     public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus)
     {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        var factoryStatusContext = statusContext ?? new StatusControlContext();
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
         var factoryListContext =
@@ -48,12 +46,12 @@ public partial class AllContentListWithActionsContext
     public static async Task<AllContentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         IContentListLoader reportFilter, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, reportFilter, []);
+        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter, []);
 
-        return new AllContentListWithActionsContext(factoryContext, null, factoryListContext, loadInBackground);
+        return new AllContentListWithActionsContext(factoryStatusContext, null, factoryListContext, loadInBackground);
     }
 
     public async Task LoadData()

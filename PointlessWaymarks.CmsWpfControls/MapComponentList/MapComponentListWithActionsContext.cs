@@ -51,15 +51,15 @@ public partial class MapComponentListWithActionsContext
     public static async Task<MapComponentListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new MapComponentListLoader(100),
+            await ContentListContext.CreateInstance(factoryStatusContext, new MapComponentListLoader(100),
                 [Db.ContentTypeDisplayStringForMap], windowStatus);
 
-        return new MapComponentListWithActionsContext(factoryContext, windowStatus, factoryListContext,
+        return new MapComponentListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext,
             loadInBackground);
     }
 

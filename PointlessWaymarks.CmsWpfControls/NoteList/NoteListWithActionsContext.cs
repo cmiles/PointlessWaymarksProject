@@ -52,15 +52,15 @@ public partial class NoteListWithActionsContext
     public static async Task<NoteListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new NoteListLoader(100),
+            await ContentListContext.CreateInstance(factoryStatusContext, new NoteListLoader(100),
                 [Db.ContentTypeDisplayStringForNote], windowStatus);
 
-        return new NoteListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+        return new NoteListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     [BlockingCommand]

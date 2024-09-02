@@ -506,9 +506,11 @@ public partial class ListFilterBuilderContext
 
     public static async Task<ListFilterBuilderContext> CreateInstance(List<string> typesForSearch)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
 
-        var newContext = new ListFilterBuilderContext(factoryContext)
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newContext = new ListFilterBuilderContext(factoryStatusContext)
         {
             GeneralBuilderItems = [],
             LineBuilderItems = [],

@@ -15,14 +15,13 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 public partial class ParkingPointDetailContext : IHasChanges, IHasValidationIssues,
     IPointDetailEditor,
     ICheckForChangesAndValidation
 {
-    private ParkingPointDetailContext(StatusControlContext? statusContext)
+    private ParkingPointDetailContext(StatusControlContext statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         DbEntry = PointDetail.CreateInstance();
         DetailData = new Parking();

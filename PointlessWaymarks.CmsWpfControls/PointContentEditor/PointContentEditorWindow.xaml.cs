@@ -21,14 +21,13 @@ public partial class PointContentEditorWindow
     private PointContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
         WindowTitle = $"Point Editor - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public PointContentEditorContext? PointContent { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; }
 
     /// <summary>
@@ -41,7 +40,7 @@ public partial class PointContentEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new PointContentEditorWindow();
+        var window = new PointContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

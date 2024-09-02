@@ -21,14 +21,13 @@ public partial class GeoJsonContentEditorWindow
     private GeoJsonContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
         WindowTitle = $"GeoJson Editor - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public GeoJsonContentEditorContext? GeoJsonContent { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; }
 
     /// <summary>
@@ -41,7 +40,7 @@ public partial class GeoJsonContentEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new GeoJsonContentEditorWindow();
+        var window = new GeoJsonContentEditorWindow() { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

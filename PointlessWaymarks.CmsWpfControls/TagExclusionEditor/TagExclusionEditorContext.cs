@@ -53,11 +53,11 @@ public partial class TagExclusionEditorContext
     public static async Task<TagExclusionEditorContext> CreateInstance(StatusControlContext? statusContext,
         bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        return new TagExclusionEditorContext(factoryContext,
+        return new TagExclusionEditorContext(factoryStatusContext,
             [], loadInBackground);
     }
 

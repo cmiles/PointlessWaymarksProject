@@ -24,22 +24,20 @@ public partial class ScriptViewWindow
 
     public static async Task CreateInstance(Guid jobId, string databaseFile)
     {
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var windowTitle = "Script Viewer";
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
         var factoryJobRunContext =
-            await ScriptViewContext.CreateInstance(factoryContext, jobId, databaseFile);
+            await ScriptViewContext.CreateInstance(factoryStatusContext, jobId, databaseFile);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new ScriptViewWindow
         {
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             ScriptContext = factoryJobRunContext,
             WindowTitle = windowTitle
         };

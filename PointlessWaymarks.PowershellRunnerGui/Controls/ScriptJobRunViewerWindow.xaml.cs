@@ -26,6 +26,8 @@ public partial class ScriptJobRunViewerWindow
 
     public static async Task CreateInstance(Guid scriptJobRunId, string databaseFile)
     {
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
@@ -40,18 +42,14 @@ public partial class ScriptJobRunViewerWindow
                 $"Job Script Run {jobRun.PersistentId} - {jobRun.StartedOnUtc.ToLocalTime()} - Job: {job?.Name}";
         }
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
         var factoryJobRunContext =
-            await ScriptJobRunViewerContext.CreateInstance(factoryContext, scriptJobRunId, databaseFile);
+            await ScriptJobRunViewerContext.CreateInstance(factoryStatusContext, scriptJobRunId, databaseFile);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new ScriptJobRunViewerWindow
         {
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             JobRunContext = factoryJobRunContext,
             WindowTitle = windowTitle
         };

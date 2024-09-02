@@ -17,10 +17,9 @@ namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class LocationBoundsChooserContext : IWebViewMessenger
 {
-    public LocationBoundsChooserContext(StatusControlContext statusContext, GeoSearchContext searchContext,
+    private LocationBoundsChooserContext(StatusControlContext statusContext, GeoSearchContext searchContext,
         string serializedMapIcons)
     {
         StatusContext = statusContext;
@@ -52,7 +51,6 @@ public partial class LocationBoundsChooserContext : IWebViewMessenger
             ToWebView.Enqueue(new JsonData { Json = serializedData });
         };
     }
-
 
     public bool BroadcastLatLongChange { get; set; } = true;
     public List<Guid> DisplayedContentGuids { get; set; } = [];

@@ -226,20 +226,20 @@ public partial class GpxImportContext : IWebViewMessenger
 
     public static async Task<GpxImportContext> CreateInstance(StatusControlContext? statusContext)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryFolderEntry = await ContentFolderContext.CreateInstanceForAllGeoTypes(factoryContext);
+        var factoryFolderEntry = await ContentFolderContext.CreateInstanceForAllGeoTypes(factoryStatusContext);
         factoryFolderEntry.Title = "Folder for All Imports";
 
-        var factoryTagEntry = await TagsEditorContext.CreateInstance(factoryContext, null);
+        var factoryTagEntry = await TagsEditorContext.CreateInstance(factoryStatusContext, null);
 
         var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newContext = new GpxImportContext(factoryContext, [],
+        var newContext = new GpxImportContext(factoryStatusContext, [],
             [], factoryFolderEntry, factoryTagEntry, factoryMapIcons);
 
         return newContext;

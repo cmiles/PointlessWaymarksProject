@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Controls;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
@@ -8,7 +7,6 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
-using TypeSupport.Extensions;
 
 namespace PointlessWaymarks.CmsWpfControls.LineList;
 
@@ -17,24 +15,20 @@ namespace PointlessWaymarks.CmsWpfControls.LineList;
 [StaThreadConstructorGuard]
 public partial class ActivityLogMonthlySummaryWindow
 {
-    public ActivityLogMonthlySummaryWindow(List<ActivityLogMonthlyStatRow> statRows)
+    public ActivityLogMonthlySummaryWindow()
 
     {
         InitializeComponent();
-
-        StatusContext = new StatusControlContext();
-
-        Items = new ObservableCollection<ActivityLogMonthlyStatRow>(statRows);
 
         BuildCommands();
 
         DataContext = this;
     }
 
-    public ObservableCollection<ActivityLogMonthlyStatRow> Items { get; set; }
+    public required ObservableCollection<ActivityLogMonthlyStatRow> Items { get; set; }
     public ActivityLogMonthlyStatRow? SelectedItem { get; set; }
     public List<ActivityLogMonthlyStatRow> SelectedItems { get; set; } = [];
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
 
     [BlockingCommand]
     public async Task ContentMap(ActivityLogMonthlyStatRow? row)
@@ -67,6 +61,17 @@ public partial class ActivityLogMonthlySummaryWindow
         await mapWindow.PositionWindowAndShowOnUiThread();
     }
 
+    public static async Task<ActivityLogMonthlySummaryWindow> CreateInstance(List<ActivityLogMonthlyStatRow> statRows)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        return new ActivityLogMonthlySummaryWindow
+        {
+            StatusContext = await StatusControlContext.CreateInstance(),
+            Items = new ObservableCollection<ActivityLogMonthlyStatRow>(statRows)
+        };
+    }
+
     public static async Task<ActivityLogMonthlySummaryWindow> CreateInstance(List<Guid> lineContentIds)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -75,7 +80,8 @@ public partial class ActivityLogMonthlySummaryWindow
 
         var lines = await db.LineContents
             .Where(x => lineContentIds.Contains(x.ContentId) && x.RecordingStartedOn != null &&
-                        x.RecordingEndedOn != null && x.RecordingStartedOn < x.RecordingEndedOn && x.IncludeInActivityLog).AsNoTracking()
+                        x.RecordingEndedOn != null && x.RecordingStartedOn < x.RecordingEndedOn &&
+                        x.IncludeInActivityLog).AsNoTracking()
             .ToListAsync();
 
         var grouped = lines.GroupBy(x =>
@@ -102,9 +108,7 @@ public partial class ActivityLogMonthlySummaryWindow
             LineContentIds = x.Select(x => x.ContentId).ToList()
         }).ToList();
 
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        return new ActivityLogMonthlySummaryWindow(reportRows);
+        return await CreateInstance(reportRows);
     }
 
     public ActivityLogMonthlyStatRow? SelectedListItem()

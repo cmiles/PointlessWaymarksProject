@@ -21,14 +21,13 @@ public partial class LineContentEditorWindow
     private LineContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
         WindowTitle = $"Line Editor - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public LineContentEditorContext? LineContent { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; }
 
     /// <summary>
@@ -41,7 +40,7 @@ public partial class LineContentEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new LineContentEditorWindow();
+        var window = new LineContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

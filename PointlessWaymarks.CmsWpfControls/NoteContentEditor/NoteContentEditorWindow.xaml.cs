@@ -21,14 +21,13 @@ public partial class NoteContentEditorWindow
     private NoteContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
         WindowTitle = $"Note Editor - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public NoteContentEditorContext? NoteContent { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; }
 
     /// <summary>
@@ -41,7 +40,7 @@ public partial class NoteContentEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new NoteContentEditorWindow();
+        var window = new NoteContentEditorWindow {StatusContext = await StatusControlContext.CreateInstance()};
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

@@ -67,11 +67,11 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
     public static async Task<PointDetailListContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
-
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new PointDetailListContext(factoryContext,
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
+        var newControl = new PointDetailListContext(factoryStatusContext,
             [], new ObservableCollectionListSource<string>());
 
         await ThreadSwitcher.ResumeBackgroundAsync();

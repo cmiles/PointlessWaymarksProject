@@ -11,15 +11,14 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class FeatureFileEditorContext
 {
     private List<FeatureFileContext> _existingFeatureFileViewModels;
 
-    public FeatureFileEditorContext(StatusControlContext? statusContext, FeatureFileContext? featureFile,
+    public FeatureFileEditorContext(StatusControlContext statusContext, FeatureFileContext? featureFile,
         List<FeatureFileContext> existingFeatureFileViewModels)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
         Model = featureFile ?? new FeatureFileContext();
 
         BuildCommands();

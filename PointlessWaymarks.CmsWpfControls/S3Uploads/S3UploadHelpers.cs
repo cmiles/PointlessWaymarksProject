@@ -44,8 +44,9 @@ public static class S3UploadHelpers
                 TaskbarItemProgressState.None));
         }
         
-        await ThreadSwitcher.ResumeForegroundAsync();
-        new S3UploadsWindow(S3CmsTools.S3AccountInformationFromSettings(), toUpload.uploadItems,
-            UserSettingsSingleton.CurrentSettings().SiteName, true).PositionWindowAndShow();
+        var window = await S3UploadsWindow.CreateInstance(S3CmsTools.S3AccountInformationFromSettings(), toUpload.uploadItems,
+            UserSettingsSingleton.CurrentSettings().SiteName, true);
+        
+        await window.PositionWindowAndShowOnUiThread();
     }
 }

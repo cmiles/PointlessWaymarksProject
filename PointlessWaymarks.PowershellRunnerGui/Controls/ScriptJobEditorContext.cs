@@ -17,7 +17,6 @@ using Console = System.Console;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 [GenerateStatusCommands]
 public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation
@@ -55,6 +54,8 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     public static async Task<ScriptJobEditorContext> CreateInstance(StatusControlContext? statusContext,
         ScriptJob initialScriptJob, string databaseFile)
     {
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var nameEntry = StringDataEntryContext.CreateInstance();
@@ -132,14 +133,12 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
 
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
-
-        var factoryModel = new ScriptJobEditorContext
+        var factoryContext = new ScriptJobEditorContext
         {
             DatabaseFile = databaseFile,
             DbEntry = initialScriptJob,
             DeleteRunsAfterMonthsEntry = deleteAfterEntry,
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             NameEntry = nameEntry,
             DescriptionEntry = descriptionEntry,
             AllowSimultaneousRunsEntry = allowSimultaneousRunsEntry,
@@ -150,15 +149,15 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             _dbId = dbId
         };
 
-        cronEntry.PropertyChanged += factoryModel.CronExpressionChanged;
+        cronEntry.PropertyChanged += factoryContext.CronExpressionChanged;
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        await factoryModel.Setup(initialScriptJob);
+        await factoryContext.Setup(initialScriptJob);
 
-        _ = factoryModel.UpdateCronNextRun();
+        _ = factoryContext.UpdateCronNextRun();
 
-        return factoryModel;
+        return factoryContext;
     }
 
     private void CronExpressionChanged(object? sender, PropertyChangedEventArgs e)

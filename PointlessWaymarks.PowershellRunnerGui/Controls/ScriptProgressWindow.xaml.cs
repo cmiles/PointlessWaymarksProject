@@ -75,11 +75,13 @@ public partial class ScriptProgressWindow
             }
         }
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
 
         var window = new ScriptProgressWindow
         {
-            FilterDescription = filterDescription, StatusContext = factoryContext,
+            FilterDescription = filterDescription, StatusContext = factoryStatusContext,
             _databaseFile = databaseFile, _dbId = dbId
         };
 

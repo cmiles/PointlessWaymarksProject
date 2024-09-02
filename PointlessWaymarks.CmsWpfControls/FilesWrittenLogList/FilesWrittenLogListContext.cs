@@ -136,12 +136,14 @@ public partial class FilesWrittenLogListContext
     public static async Task<FilesWrittenLogListContext> CreateInstance(StatusControlContext? statusContext,
         bool loadInBackground)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         var factoryGenerationChoices = new ObservableCollection<FileWrittenLogListDateTimeFilterChoice>();
         var factoryItems = new ObservableCollection<FilesWrittenLogListListItem>();
         
-        return new FilesWrittenLogListContext(factoryContext, loadInBackground, factoryGenerationChoices, factoryItems);
+        return new FilesWrittenLogListContext(factoryStatusContext, loadInBackground, factoryGenerationChoices, factoryItems);
     }
     
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs? e)
@@ -190,12 +192,11 @@ public partial class FilesWrittenLogListContext
         
         await S3CmsTools.S3UploaderItemsToS3UploaderJsonFile(toTransfer, fileName);
         
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
         var newUploadWindow =
-            new S3UploadsWindow(S3CmsTools.S3AccountInformationFromSettings(), toTransfer,
+            await S3UploadsWindow.CreateInstance(S3CmsTools.S3AccountInformationFromSettings(), toTransfer,
                 UserSettingsSingleton.CurrentSettings().SiteName, autoStartUpload);
-        newUploadWindow.PositionWindowAndShow();
+
+        await newUploadWindow.PositionWindowAndShowOnUiThread();
     }
     
     private async Task FileItemsToS3UploaderJsonFile(List<FilesWrittenLogListListItem> items)
@@ -472,13 +473,13 @@ public partial class FilesWrittenLogListContext
             await ThreadSwitcher.ResumeForegroundAsync();
             
             var newUploaderWindow =
-                new S3UploadsWindow(S3CmsTools.S3AccountInformationFromSettings(),
+                await S3UploadsWindow.CreateInstance(S3CmsTools.S3AccountInformationFromSettings(),
                     await items.ToAsyncEnumerable().SelectAwait(async x =>
                             await S3Tools.UploadRequest(new FileInfo(x.FileFullName), x.S3Key, x.BucketName, x.ServiceUrl,
                                 x.Note))
                         .ToListAsync(), UserSettingsSingleton.CurrentSettings().SiteName,
                     false);
-            newUploaderWindow.PositionWindowAndShow();
+            await newUploaderWindow.PositionWindowAndShowOnUiThread();
         }
         catch (Exception e)
         {
@@ -573,16 +574,14 @@ public partial class FilesWrittenLogListContext
             }
         }
         
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
-        var newUploadWindow = new S3DeletionsWindow(S3CmsTools.S3AccountInformationFromSettings(), results
+        var newUploadWindow = await S3DeletionsWindow.CreateInstance(S3CmsTools.S3AccountInformationFromSettings(), results
             .S3KeysToDelete.Select(x =>
                 new S3DeletionsItem
                 {
                     AmazonObjectKey = x, BucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket
                 }).ToList());
         
-        newUploadWindow.PositionWindowAndShow();
+        await newUploadWindow.PositionWindowAndShowOnUiThread();
     }
     
     [BlockingCommand]
@@ -618,12 +617,10 @@ public partial class FilesWrittenLogListContext
             await StatusContext.ToastSuccess("No Missing Files or Size Mismatches Found");
             return;
         }
-        
-        await ThreadSwitcher.ResumeForegroundAsync();
-        
-        var newUploadWindow = new S3UploadsWindow(S3CmsTools.S3AccountInformationFromSettings(), toUpload,
+
+        var newUploadWindow = await S3UploadsWindow.CreateInstance(S3CmsTools.S3AccountInformationFromSettings(), toUpload,
             UserSettingsSingleton.CurrentSettings().SiteName, false);
-        newUploadWindow.PositionWindowAndShow();
+        await newUploadWindow.PositionWindowAndShowOnUiThread();
     }
     
     public string ToTransformedFileString(string fileBase)

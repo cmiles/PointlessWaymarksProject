@@ -24,12 +24,11 @@ namespace PointlessWaymarks.CmsWpfControls.PhotoList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class PhotoContentActions : IContentActions<PhotoContent>
 {
-    public PhotoContentActions(StatusControlContext? statusContext)
+    public PhotoContentActions(StatusControlContext statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
         BuildCommands();
     }
 

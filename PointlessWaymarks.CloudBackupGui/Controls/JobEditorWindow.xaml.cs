@@ -1,4 +1,3 @@
-using System.Windows;
 using PointlessWaymarks.CloudBackupData.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -17,13 +16,12 @@ public partial class JobEditorWindow
     private JobEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public JobEditorContext? JobContext { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
 
     /// <summary>
     ///     Creates a new instance - this method can be called from any thread and will
@@ -35,7 +33,7 @@ public partial class JobEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new JobEditorWindow();
+        var window = new JobEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

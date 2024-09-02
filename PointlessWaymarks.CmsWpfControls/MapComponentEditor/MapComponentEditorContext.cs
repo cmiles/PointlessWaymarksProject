@@ -369,17 +369,19 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
     public static async Task<MapComponentEditorContext> CreateInstance(StatusControlContext? statusContext,
         MapComponent? mapComponent)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
         
         var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
         
+        var factoryListSelection = await ContentListSelected<IMapElementListItem>.CreateInstance(factoryStatusContext);
+
         await ThreadSwitcher.ResumeForegroundAsync();
-        var factoryListSelection = await ContentListSelected<IMapElementListItem>.CreateInstance(factoryContext);
+
         var factoryMapList = new ObservableCollection<IMapElementListItem>();
         
-        var newControl = new MapComponentEditorContext(factoryContext, factoryListSelection, factoryMapList,
+        var newControl = new MapComponentEditorContext(factoryStatusContext, factoryListSelection, factoryMapList,
             NewContentModels.InitializeMapComponent(mapComponent), factoryMapIcons);
         await newControl.LoadData(mapComponent);
         

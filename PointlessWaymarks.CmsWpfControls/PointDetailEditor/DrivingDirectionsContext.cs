@@ -14,14 +14,13 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 public partial class DrivingDirectionsPointDetailContext : IHasChanges, IHasValidationIssues,
     IPointDetailEditor,
     ICheckForChangesAndValidation
 {
-    private DrivingDirectionsPointDetailContext(StatusControlContext? statusContext)
+    private DrivingDirectionsPointDetailContext(StatusControlContext statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         DbEntry = PointDetail.CreateInstance();
         DetailData = new DrivingDirections();

@@ -19,13 +19,12 @@ public partial class VideoContentEditorWindow
     private VideoContentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
         WindowTitle = $"Video Editor - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
     public VideoContentEditorContext? VideoContent { get; set; }
     public string WindowTitle { get; set; }
 
@@ -38,7 +37,7 @@ public partial class VideoContentEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new VideoContentEditorWindow();
+        var window = new VideoContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -77,7 +76,7 @@ public partial class VideoContentEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new VideoContentEditorWindow();
+        var window = new VideoContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -117,7 +116,7 @@ public partial class VideoContentEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new VideoContentEditorWindow();
+        var window = new VideoContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

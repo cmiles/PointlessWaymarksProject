@@ -21,22 +21,20 @@ public partial class ScriptJobRunListWindow
 
     public static async Task CreateInstance(List<Guid> jobFilter, string databaseFile)
     {
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var windowTitle = "Script Job Run List";
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
         var factoryJobRunListContext =
-            await ScriptJobRunListContext.CreateInstance(factoryContext, jobFilter, databaseFile);
+            await ScriptJobRunListContext.CreateInstance(factoryStatusContext, jobFilter, databaseFile);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new ScriptJobRunListWindow
         {
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             JobRunListContext = factoryJobRunListContext,
             WindowTitle = windowTitle
         };

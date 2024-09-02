@@ -20,12 +20,11 @@ namespace PointlessWaymarks.GeoToolsGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class ConnectDownloadContext
 {
-    public ConnectDownloadContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus)
+    public ConnectDownloadContext(StatusControlContext statusContext, WindowIconStatus? windowStatus)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
         WindowStatus = windowStatus ?? new WindowIconStatus();
 
         BuildCommands();

@@ -96,7 +96,9 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
     public static async Task<CreatedAndUpdatedByAndOnDisplayContext> CreateInstance(StatusControlContext? statusContext,
         ICreatedAndLastUpdateOnAndBy dbEntry)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryCreatedByContext = StringDataEntryContext.CreateInstance();
         factoryCreatedByContext.ValidationFunctions = [CommonContentValidation.ValidateCreatedBy];
@@ -125,7 +127,7 @@ public partial class CreatedAndUpdatedByAndOnDisplayContext : IHasChanges, IHasV
         factoryUpdatedByEntry.ReferenceValue = dbEntry.LastUpdatedBy ?? string.Empty;
         factoryUpdatedByEntry.UserValue = dbEntry.LastUpdatedBy ?? string.Empty;
 
-        var newInstance = new CreatedAndUpdatedByAndOnDisplayContext(factoryContext, dbEntry, factoryCreatedByContext,
+        var newInstance = new CreatedAndUpdatedByAndOnDisplayContext(factoryStatusContext, dbEntry, factoryCreatedByContext,
             factoryUpdatedByEntry);
 
         newInstance.CheckForChangesAndValidationIssues();

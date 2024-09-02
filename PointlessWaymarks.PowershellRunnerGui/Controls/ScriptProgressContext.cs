@@ -8,7 +8,6 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class ScriptProgressContext
 {
     private static string _databaseFile = string.Empty;
@@ -30,24 +29,26 @@ public partial class ScriptProgressContext
         _databaseFile = databaseFile;
         _dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        var factoryModel = new ScriptProgressContext
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
+        var factoryContext = new ScriptProgressContext
         {
-            StatusContext = factoryContext, Items = [], ScriptJobIdFilter = jobIdFilter,
+            StatusContext = factoryStatusContext, Items = [], ScriptJobIdFilter = jobIdFilter,
             ScriptJobRunIdFilter = runIdFilter
         };
 
-        factoryModel.BuildCommands();
+        factoryContext.BuildCommands();
 
-        factoryModel.DataNotificationsProcessor = new NotificationCatcher
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
         {
-            ProgressNotification = factoryModel.ProcessProgressNotification,
-            StateNotification = factoryModel.ProcessStateNotification,
-            ErrorNotification = factoryModel.ProcessErrorNotification
+            ProgressNotification = factoryContext.ProcessProgressNotification,
+            StateNotification = factoryContext.ProcessStateNotification,
+            ErrorNotification = factoryContext.ProcessErrorNotification
         };
 
-        return factoryModel;
+        return factoryContext;
     }
 
     private async Task ProcessErrorNotification(DataNotifications.InterProcessProcessingError arg)

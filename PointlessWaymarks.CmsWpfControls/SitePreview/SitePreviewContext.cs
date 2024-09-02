@@ -9,13 +9,12 @@ namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class SitePreviewContext : DependencyObject
 {
     public SitePreviewContext(string siteUrl, string localSiteFolder, string siteName, string previewServerHost,
-        StatusControlContext? statusContext, string initialUrl = "")
+        StatusControlContext statusContext, string initialUrl = "")
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         BuildCommands();
 

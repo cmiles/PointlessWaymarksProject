@@ -75,13 +75,13 @@ public partial class BodyContentEditorContext : IHasChanges, IHasValidationIssue
     public static async Task<BodyContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         IBodyContent dbEntry)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryChooser = await ContentFormatChooserContext.CreateInstance(factoryContext);
+        var factoryChooser = await ContentFormatChooserContext.CreateInstance(factoryStatusContext);
 
-        var newContext = new BodyContentEditorContext(factoryContext, dbEntry, factoryChooser);
+        var newContext = new BodyContentEditorContext(factoryStatusContext, dbEntry, factoryChooser);
 
         var setUpdateFormatOk = await newContext.BodyContentFormat.TrySelectContentChoice(dbEntry.BodyContentFormat);
 

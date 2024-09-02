@@ -9,7 +9,6 @@ namespace PointlessWaymarks.CmsWpfControls.GeoSearch;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class GeoSearchContext
 {
     public GeoSearchContext(StatusControlContext statusContext)

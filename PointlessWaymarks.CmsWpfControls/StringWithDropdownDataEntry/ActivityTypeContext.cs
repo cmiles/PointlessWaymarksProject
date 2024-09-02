@@ -78,7 +78,7 @@ public partial class ActivityTypeContext : IStringWithDropdownDataEntryContext
     public static async Task<ActivityTypeContext> CreateInstance(StatusControlContext? statusContext,
         LineContent dbEntry)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -86,7 +86,7 @@ public partial class ActivityTypeContext : IStringWithDropdownDataEntryContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new ActivityTypeContext(factoryContext, dbEntry,
+        var newControl = new ActivityTypeContext(factoryStatusContext, dbEntry,
             async () => await Db.ActivityTypesFromLines(), initialFolderList);
 
         newControl.CheckForChangesAndValidate();

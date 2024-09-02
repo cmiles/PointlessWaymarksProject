@@ -26,12 +26,11 @@ namespace PointlessWaymarks.CmsWpfControls.WordPressXmlImport;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class WordPressXmlImportContext
 {
-    public WordPressXmlImportContext(StatusControlContext? statusContext)
+    public WordPressXmlImportContext(StatusControlContext statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         BuildCommands();
 

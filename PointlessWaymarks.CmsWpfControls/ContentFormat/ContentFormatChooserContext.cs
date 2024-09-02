@@ -10,14 +10,13 @@ using PointlessWaymarks.WpfCommon.Status;
 namespace PointlessWaymarks.CmsWpfControls.ContentFormat;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 public partial class ContentFormatChooserContext : IHasChanges, IHasValidationIssues
 {
     private ContentFormatEnum _selectedContentFormat;
 
-    private ContentFormatChooserContext(StatusControlContext? statusContext)
+    private ContentFormatChooserContext(StatusControlContext statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
         ContentFormatChoices = Enum.GetValues(typeof(ContentFormatEnum)).Cast<ContentFormatEnum>().ToList();
 
         _selectedContentFormat = ContentFormatChoices.First();

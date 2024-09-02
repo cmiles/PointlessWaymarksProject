@@ -39,15 +39,14 @@ namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class FileContentEditorContext : IHasChangesExtended, IHasValidationIssues,
     ICheckForChangesAndValidation
 {
     public EventHandler? RequestContentEditorWindowClose;
 
-    private FileContentEditorContext(StatusControlContext? statusContext, FileContent dbEntry)
+    private FileContentEditorContext(StatusControlContext statusContext, FileContent dbEntry)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         BuildCommands();
 

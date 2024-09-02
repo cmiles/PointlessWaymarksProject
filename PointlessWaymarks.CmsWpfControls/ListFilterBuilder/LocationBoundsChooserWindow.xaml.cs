@@ -17,12 +17,11 @@ public partial class LocationBoundsChooserWindow
     public LocationBoundsChooserWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
     public LocationBoundsChooserContext? LocationChooser { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; } = "Location Bounds Chooser";
 
     private async void CancelButton_OnClick(object sender, RoutedEventArgs e)
@@ -53,7 +52,8 @@ public partial class LocationBoundsChooserWindow
         var window = new LocationBoundsChooserWindow
         {
             WindowTitle =
-                $"Location Chooser{(string.IsNullOrEmpty(chooseForName) ? "" : $" - {chooseForName}")} - {UserSettingsSingleton.CurrentSettings().SiteName}"
+                $"Location Chooser{(string.IsNullOrEmpty(chooseForName) ? "" : $" - {chooseForName}")} - {UserSettingsSingleton.CurrentSettings().SiteName}",
+            StatusContext = await StatusControlContext.CreateInstance()
         };
 
         await ThreadSwitcher.ResumeBackgroundAsync();

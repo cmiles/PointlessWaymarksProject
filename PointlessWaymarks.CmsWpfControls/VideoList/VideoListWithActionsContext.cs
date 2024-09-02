@@ -79,15 +79,15 @@ public partial class VideoListWithActionsContext
     public static async Task<VideoListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new VideoListLoader(100),
+            await ContentListContext.CreateInstance(factoryStatusContext, new VideoListLoader(100),
                 [Db.ContentTypeDisplayStringForVideo], windowStatus);
 
-        return new VideoListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+        return new VideoListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     [BlockingCommand]

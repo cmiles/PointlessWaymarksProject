@@ -32,15 +32,15 @@ public partial class GpxImportWindow
     /// <returns></returns>
     public static async Task<GpxImportWindow> CreateInstance(string? initialImportFile)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var importContext = await GpxImportContext.CreateInstance(factoryContext);
+        var importContext = await GpxImportContext.CreateInstance(factoryStatusContext);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new GpxImportWindow(factoryContext, importContext);
+        var window = new GpxImportWindow(factoryStatusContext, importContext);
 
         if (string.IsNullOrWhiteSpace(initialImportFile))
             await window.ImportContext.ChooseAndLoadFile();

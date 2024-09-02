@@ -77,7 +77,7 @@ public partial class ContentFolderContext : IStringWithDropdownDataEntryContext
     public static async Task<ContentFolderContext> CreateInstance(StatusControlContext? statusContext,
         ITitleSummarySlugFolder dbEntry)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -85,7 +85,7 @@ public partial class ContentFolderContext : IStringWithDropdownDataEntryContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new ContentFolderContext(factoryContext, dbEntry,
+        var newControl = new ContentFolderContext(factoryStatusContext, dbEntry,
             async () => await Db.FolderNamesFromContent(dbEntry), initialFolderList);
 
         newControl.CheckForChangesAndValidate();
@@ -95,7 +95,7 @@ public partial class ContentFolderContext : IStringWithDropdownDataEntryContext
 
     public static async Task<ContentFolderContext> CreateInstanceForAllGeoTypes(StatusControlContext? statusContext)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -104,7 +104,7 @@ public partial class ContentFolderContext : IStringWithDropdownDataEntryContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new ContentFolderContext(factoryContext, null, loader, initialFolderList);
+        var newControl = new ContentFolderContext(factoryStatusContext, null, loader, initialFolderList);
 
         newControl.OnlyIncludeDataNotificationsForTypes =
             [DataNotificationContentType.GeoJson, DataNotificationContentType.Line, DataNotificationContentType.Point];

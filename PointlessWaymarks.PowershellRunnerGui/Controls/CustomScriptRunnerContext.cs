@@ -8,7 +8,6 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 [GenerateStatusCommands]
 public partial class CustomScriptRunnerContext
 {
@@ -48,22 +47,20 @@ public partial class CustomScriptRunnerContext
     public static async Task<CustomScriptRunnerContext> CreateInstance(StatusControlContext? statusContext,
         string databaseFile)
     {
-
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
-
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
 
         var factoryScriptEntry = StringDataEntryNoIndicatorsContext.CreateInstance();
         factoryScriptEntry.Title = "PowerShell Script";
         factoryScriptEntry.HelpText =
             "Enter a PowerShell Script to run.";
 
-        var factoryModel = new CustomScriptRunnerContext
+        var factoryContext = new CustomScriptRunnerContext
         {
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             UserScriptEntryContext = factoryScriptEntry,
             Items = [],
             _databaseFile = databaseFile,
@@ -72,15 +69,15 @@ public partial class CustomScriptRunnerContext
             ScriptJobRunId = ArbitraryScriptRunnerIdGuid()
         };
 
-        factoryModel.BuildCommands();
+        factoryContext.BuildCommands();
 
-        factoryModel.DataNotificationsProcessor = new NotificationCatcher
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
         {
-            ProgressNotification = factoryModel.ProcessProgressNotification,
-            StateNotification = factoryModel.ProcessStateNotification
+            ProgressNotification = factoryContext.ProcessProgressNotification,
+            StateNotification = factoryContext.ProcessStateNotification
         };
 
-        return factoryModel;
+        return factoryContext;
     }
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)

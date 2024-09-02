@@ -4,6 +4,7 @@ using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
 
@@ -52,9 +53,11 @@ public partial class TagsEditorContext : IHasChanges, IHasValidationIssues,
 
     public static async Task<TagsEditorContext> CreateInstance(StatusControlContext? statusContext, ITag? dbEntry)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
-        var newItem = new TagsEditorContext(factoryContext, dbEntry);
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newItem = new TagsEditorContext(factoryStatusContext, dbEntry);
         newItem.CheckForChangesAndValidationIssues();
 
         return newItem;

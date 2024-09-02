@@ -54,12 +54,12 @@ public partial class SettingsFileChooserControlContext
     public static async Task<SettingsFileChooserControlContext> CreateInstance(StatusControlContext statusContext,
         string recentSettingFiles)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
-
-        var context = new SettingsFileChooserControlContext(factoryContext,
-            recentSettingFiles?.Split("|").ToList() ?? []);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var context = new SettingsFileChooserControlContext(factoryStatusContext,
+            recentSettingFiles?.Split("|").ToList() ?? []);
 
         await context.LoadData();
 

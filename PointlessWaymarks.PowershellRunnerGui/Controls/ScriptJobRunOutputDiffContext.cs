@@ -74,7 +74,9 @@ public partial class ScriptJobRunOutputDiffContext
             allRunsTranslated.Add(toAdd);
         }
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         var factoryLeftRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
         var factoryRightRuns = new ObservableCollection<ScriptJobRunGuiView>(allRunsTranslated);
@@ -110,9 +112,9 @@ public partial class ScriptJobRunOutputDiffContext
             factorySelectedRightRun = factoryRightRuns.SingleOrDefault(x => x.PersistentId == initialRightScript);
         }
 
-        var factoryModel = new ScriptJobRunOutputDiffContext
+        var factoryContext = new ScriptJobRunOutputDiffContext
         {
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             LeftRuns = factoryLeftRuns,
             RightRuns = factoryRightRuns,
             SelectedLeftRun = factorySelectedLeftRun,
@@ -123,18 +125,18 @@ public partial class ScriptJobRunOutputDiffContext
             _jobId = jobId
         };
 
-        factoryModel.BuildCommands();
+        factoryContext.BuildCommands();
 
-        factoryModel.DataNotificationsProcessor = new NotificationCatcher
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
         {
-            JobDataNotification = factoryModel.ProcessJobDataUpdateNotification,
-            RunDataNotification = factoryModel.ProcessRunDataUpdateNotification
+            JobDataNotification = factoryContext.ProcessJobDataUpdateNotification,
+            RunDataNotification = factoryContext.ProcessRunDataUpdateNotification
         };
 
-        factoryModel.LeftScrollItem = factorySelectedLeftRun;
-        factoryModel.RightScrollItem = factorySelectedRightRun;
+        factoryContext.LeftScrollItem = factorySelectedLeftRun;
+        factoryContext.RightScrollItem = factorySelectedRightRun;
 
-        return factoryModel;
+        return factoryContext;
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

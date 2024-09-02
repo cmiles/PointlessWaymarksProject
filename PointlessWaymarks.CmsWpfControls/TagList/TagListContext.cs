@@ -81,9 +81,11 @@ public partial class TagListContext
 
     public static async Task<TagListContext> CreateInstance(StatusControlContext? statusContext, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
-        return new TagListContext(factoryContext, [], loadInBackground);
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        return new TagListContext(factoryStatusContext, [], loadInBackground);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)

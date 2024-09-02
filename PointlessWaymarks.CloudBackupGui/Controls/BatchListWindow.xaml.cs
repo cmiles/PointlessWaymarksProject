@@ -12,32 +12,29 @@ public partial class BatchListWindow
     public BatchListWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
     }
 
-    public string JobName { get; set; } = string.Empty;
-
     public BatchListContext? BatchContext { get; set; }
-
-    public StatusControlContext StatusContext { get; set; }
+    public string JobName { get; set; } = string.Empty;
+    public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<BatchListWindow> CreateInstanceAndShow(int jobId,
         string jobName)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
+        factoryStatusContext.BlockUi = true;
+
         var window = new BatchListWindow
         {
-            StatusContext =
-            {
-                BlockUi = true
-            },
+            StatusContext = factoryStatusContext,
             JobName = jobName
         };
 
         window.PositionWindowAndShow();
-        
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.StatusContext.Progress("Batch List - Creating Context");
@@ -48,7 +45,7 @@ public partial class BatchListWindow
         window.BatchContext.CloseWindowRequest += (sender, args) => window.Close();
 
         window.StatusContext.BlockUi = false;
-        
+
         await ThreadSwitcher.ResumeForegroundAsync();
 
         return window;

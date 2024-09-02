@@ -22,16 +22,14 @@ public partial class ScriptJobRunViewerContext
     public static async Task<ScriptJobRunViewerContext> CreateInstance(StatusControlContext? statusContext,
         Guid scriptJobRunId, string databaseFile)
     {
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var db = await PowerShellRunnerDbContext.CreateInstance(databaseFile);
         var key = await ObfuscationKeyHelpers.GetObfuscationKey(databaseFile);
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
         var run = await db.ScriptJobRuns.SingleOrDefaultAsync(x => x.PersistentId == scriptJobRunId);
-
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
 
         if (run != null)
         {
@@ -40,9 +38,9 @@ public partial class ScriptJobRunViewerContext
 
             var toAdd = ScriptJobRunGuiView.CreateInstance(run, job, key);
 
-            var factoryModel = new ScriptJobRunViewerContext
+            var factoryContext = new ScriptJobRunViewerContext
             {
-                StatusContext = factoryContext,
+                StatusContext = factoryStatusContext,
                 Run = run,
                 Job = job,
                 RunView = toAdd,
@@ -51,19 +49,19 @@ public partial class ScriptJobRunViewerContext
                 DbId = dbId
             };
 
-            factoryModel.DataNotificationsProcessor = new NotificationCatcher
+            factoryContext.DataNotificationsProcessor = new NotificationCatcher
             {
-                JobDataNotification = factoryModel.ProcessJobDataUpdateNotification,
-                RunDataNotification = factoryModel.ProcessRunDataUpdateNotification
+                JobDataNotification = factoryContext.ProcessJobDataUpdateNotification,
+                RunDataNotification = factoryContext.ProcessRunDataUpdateNotification
             };
 
-            return factoryModel;
+            return factoryContext;
         }
         else
         {
             var toReturn = new ScriptJobRunViewerContext
             {
-                StatusContext = factoryContext,
+                StatusContext = factoryStatusContext,
                 Run = null,
                 Job = null,
                 RunView = null

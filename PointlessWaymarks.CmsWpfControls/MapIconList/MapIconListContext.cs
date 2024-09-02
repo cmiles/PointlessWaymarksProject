@@ -115,12 +115,14 @@ public partial class MapIconListContext
 
     public static async Task<MapIconListContext> CreateInstance(StatusControlContext? statusContext)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         var factoryItems = new ObservableCollection<MapIconListListItem>();
-        var factoryListSelection = await ContentListSelected<MapIconListListItem>.CreateInstance(factoryContext);
+        var factoryListSelection = await ContentListSelected<MapIconListListItem>.CreateInstance(factoryStatusContext);
 
-        return new MapIconListContext(factoryItems, factoryContext, factoryListSelection);
+        return new MapIconListContext(factoryItems, factoryStatusContext, factoryListSelection);
     }
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)

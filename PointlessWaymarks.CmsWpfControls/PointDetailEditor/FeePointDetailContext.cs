@@ -14,13 +14,12 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 public partial class FeePointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
     ICheckForChangesAndValidation
 {
-    private FeePointDetailContext(StatusControlContext? statusContext)
+    private FeePointDetailContext(StatusControlContext statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         DbEntry = PointDetail.CreateInstance();
         DetailData = new Fee();

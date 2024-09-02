@@ -30,14 +30,13 @@ namespace PointlessWaymarks.CmsWpfControls.ContentMap;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class ContentMapContext : IWebViewMessenger
 {
-    private ContentMapContext(StatusControlContext? statusContext, WindowIconStatus? windowStatus,
+    private ContentMapContext(StatusControlContext statusContext, WindowIconStatus? windowStatus,
         ContentListContext factoryListContext, string serializedMapIcons, GeoSearchContext factoryLocationSearchContext,
         bool loadInBackground = true)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
         WindowStatus = windowStatus;
 
         FromWebView = new WorkQueue<FromWebViewMessage>
@@ -94,19 +93,19 @@ public partial class ContentMapContext : IWebViewMessenger
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new AllContentListLoader(100), [],
+            await ContentListContext.CreateInstance(factoryStatusContext, new AllContentListLoader(100), [],
                 windowStatus);
         var factoryIcons = await MapIconGenerator.SerializedMapIcons();
-        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryContext);
+        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryStatusContext);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var toReturn = new ContentMapContext(factoryContext, windowStatus, factoryListContext, factoryIcons,
+        var toReturn = new ContentMapContext(factoryStatusContext, windowStatus, factoryListContext, factoryIcons,
             factoryLocationSearchContext,
             loadInBackground);
         toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;
@@ -117,17 +116,17 @@ public partial class ContentMapContext : IWebViewMessenger
     public static async Task<ContentMapContext> CreateInstance(StatusControlContext? statusContext,
         IContentListLoader reportFilter, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var factoryListContext = await ContentListContext.CreateInstance(factoryContext, reportFilter, []);
+        var factoryListContext = await ContentListContext.CreateInstance(factoryStatusContext, reportFilter, []);
         var factoryIcons = await MapIconGenerator.SerializedMapIcons();
-        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryContext);
+        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryStatusContext);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var toReturn = new ContentMapContext(factoryContext, null, factoryListContext, factoryIcons,
+        var toReturn = new ContentMapContext(factoryStatusContext, null, factoryListContext, factoryIcons,
             factoryLocationSearchContext,
             loadInBackground);
         toReturn.ListContext.ItemsView().CollectionChanged += toReturn.ItemsViewOnCollectionChanged;

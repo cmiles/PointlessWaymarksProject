@@ -46,16 +46,15 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class ContentListContext : IDragSource, IDropTarget
 {
-    private ContentListContext(StatusControlContext? statusContext,
+    private ContentListContext(StatusControlContext statusContext,
         ObservableCollection<IContentListItem> factoryContentListItems,
         ContentListSelected<IContentListItem> factoryListSelection, ListFilterBuilderContext factoryListFilterBuilder,
         IContentListLoader loader,
         WindowIconStatus? windowStatus = null)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         StatusContext.PropertyChanged += StatusContextOnPropertyChanged;
 
@@ -243,11 +242,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public static async Task<ContentListContext> CreateInstance(StatusControlContext? statusContext,
         IContentListLoader loader, List<string> searchBuilderContentTypes, WindowIconStatus? windowStatus = null)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
         var factoryObservable = new ObservableCollection<IContentListItem>();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
-        var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryContext);
+        var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryStatusContext);
         var factorySearchBuilder = await ListFilterBuilderContext.CreateInstance(searchBuilderContentTypes);
 
         return new ContentListContext(statusContext, factoryObservable, factoryListSelection, factorySearchBuilder,

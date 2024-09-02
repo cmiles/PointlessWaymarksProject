@@ -14,7 +14,6 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class ScriptJobRunListContext
 {
     private string _databaseFile = string.Empty;
@@ -72,11 +71,13 @@ public partial class ScriptJobRunListContext
         var factoryScriptViewerContext = StringDataEntryNoIndicatorsContext.CreateInstance();
         factoryScriptViewerContext.Title = "Script";
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        await ThreadSwitcher.ResumeForegroundAsync();
 
-        var factoryModel = new ScriptJobRunListContext
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
+        var factoryContext = new ScriptJobRunListContext
         {
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             Items = new ObservableCollection<ScriptJobRunGuiView>(runList),
             JobFilter = jobFilter,
             FilterDescription = filterDescription,
@@ -88,15 +89,15 @@ public partial class ScriptJobRunListContext
             _dbId = dbId
         };
 
-        factoryModel.BuildCommands();
+        factoryContext.BuildCommands();
 
-        factoryModel.DataNotificationsProcessor = new NotificationCatcher
+        factoryContext.DataNotificationsProcessor = new NotificationCatcher
         {
-            JobDataNotification = factoryModel.ProcessJobUpdateNotification,
-            RunDataNotification = factoryModel.ProcessRunUpdateNotification
+            JobDataNotification = factoryContext.ProcessJobUpdateNotification,
+            RunDataNotification = factoryContext.ProcessRunUpdateNotification
         };
 
-        return factoryModel;
+        return factoryContext;
     }
 
     [BlockingCommand]

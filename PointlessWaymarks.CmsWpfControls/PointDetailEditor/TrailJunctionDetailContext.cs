@@ -15,13 +15,12 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 public partial class TrailJunctionPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
     ICheckForChangesAndValidation
 {
-    private TrailJunctionPointDetailContext(StatusControlContext? statusContext)
+    private TrailJunctionPointDetailContext(StatusControlContext statusContext)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
 
         DbEntry = PointDetail.CreateInstance();
         DetailData = new TrailJunction();

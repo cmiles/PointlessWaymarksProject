@@ -56,15 +56,15 @@ public partial class LinkListWithActionsContext
     public static async Task<LinkListWithActionsContext> CreateInstance(StatusControlContext? statusContext,
         WindowIconStatus? windowStatus = null, bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryListContext =
-            await ContentListContext.CreateInstance(factoryContext, new LinkListLoader(100),
+            await ContentListContext.CreateInstance(factoryStatusContext, new LinkListLoader(100),
                 [Db.ContentTypeDisplayStringForLink], windowStatus);
 
-        return new LinkListWithActionsContext(factoryContext, windowStatus, factoryListContext, loadInBackground);
+        return new LinkListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
     }
 
     [BlockingCommand]

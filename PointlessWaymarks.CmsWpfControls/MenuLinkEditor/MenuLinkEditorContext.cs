@@ -53,13 +53,15 @@ public partial class MenuLinkEditorContext
     public static async Task<MenuLinkEditorContext> CreateInstance(StatusControlContext? statusContext,
         bool loadInBackground = true)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         var factoryItems = new ObservableCollection<MenuLinkListItem>();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var toReturn = new MenuLinkEditorContext(factoryContext, factoryItems, loadInBackground);
+        var toReturn = new MenuLinkEditorContext(factoryStatusContext, factoryItems, loadInBackground);
 
         return toReturn;
     }

@@ -9,7 +9,6 @@ using PointlessWaymarks.WpfCommon;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 public partial class ScriptJobListListItem
 {
     private readonly int _numberOfRunsToShow = 5;

@@ -21,14 +21,13 @@ public partial class MapComponentEditorWindow
     private MapComponentEditorWindow()
     {
         InitializeComponent();
-        StatusContext = new StatusControlContext();
         DataContext = this;
         WindowTitle = $"Map Editor - {UserSettingsSingleton.CurrentSettings().SiteName}";
     }
 
     public WindowAccidentalClosureHelper? AccidentalCloserHelper { get; set; }
     public MapComponentEditorContext? MapComponentContent { get; set; }
-    public StatusControlContext StatusContext { get; set; }
+    public required StatusControlContext StatusContext { get; set; }
     public string WindowTitle { get; set; }
 
     /// <summary>
@@ -41,7 +40,7 @@ public partial class MapComponentEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new MapComponentEditorWindow();
+        var window = new MapComponentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

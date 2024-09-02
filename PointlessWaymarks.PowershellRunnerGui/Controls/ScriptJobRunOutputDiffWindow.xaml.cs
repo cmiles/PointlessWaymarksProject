@@ -12,7 +12,6 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 ///     diff.
 /// </summary>
 [NotifyPropertyChanged]
-[StaThreadConstructorGuard]
 public partial class ScriptJobRunOutputDiffWindow
 {
     public ScriptJobRunOutputDiffWindow()
@@ -28,6 +27,8 @@ public partial class ScriptJobRunOutputDiffWindow
 
     public static async Task CreateInstance(Guid initialLeftScriptJobRun, Guid? initialRightScript, string databaseFile)
     {
+        var factoryStatusContext = await StatusControlContext.CreateInstance();
+
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var windowTitle = "Script Job Run Output Diff";
@@ -40,18 +41,14 @@ public partial class ScriptJobRunOutputDiffWindow
             windowTitle = $"{leftJob.Name} - Output Run Diff";
         }
 
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance();
-
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
         var factoryDiffContext =
-            await ScriptJobRunOutputDiffContext.CreateInstance(factoryContext, initialLeftScriptJobRun, initialRightScript, databaseFile);
+            await ScriptJobRunOutputDiffContext.CreateInstance(factoryStatusContext, initialLeftScriptJobRun, initialRightScript, databaseFile);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new ScriptJobRunOutputDiffWindow
         {
-            StatusContext = factoryContext,
+            StatusContext = factoryStatusContext,
             DiffContext = factoryDiffContext,
             WindowTitle = windowTitle
         };

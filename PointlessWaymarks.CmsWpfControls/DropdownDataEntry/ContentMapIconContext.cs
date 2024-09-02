@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.Database;
@@ -18,7 +17,7 @@ namespace PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
 public partial class ContentMapIconContext : IDropdownDataEntryContext
 {
     private ContentMapIconContext(StatusControlContext statusContext, Func<Task<List<DropDownDataChoice>>> loader,
-        PointContent dbEntry, List<DropDownDataChoice> initialIconNameList)
+        PointContent dbEntry, ObservableCollection<DropDownDataChoice> initialIconNameList)
     {
         StatusContext = statusContext;
         
@@ -30,7 +29,7 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
         
         GetCurrentIconNames = loader;
         
-        ExistingChoices = new ObservableCollection<DropDownDataChoice>(initialIconNameList);
+        ExistingChoices = initialIconNameList;
         ReferenceValue = dbEntry.MapIconName ?? string.Empty;
         UserValue = dbEntry.MapIconName ?? string.Empty;
         
@@ -77,7 +76,7 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
     public static async Task<ContentMapIconContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
         
@@ -86,7 +85,7 @@ public partial class ContentMapIconContext : IDropdownDataEntryContext
         
         await ThreadSwitcher.ResumeForegroundAsync();
         
-        var newControl = new ContentMapIconContext(factoryContext, loader, dbEntry, initialMapIconList);
+        var newControl = new ContentMapIconContext(factoryStatusContext, loader, dbEntry, new ObservableCollection<DropDownDataChoice>(initialMapIconList));
         
         newControl.CheckForChangesAndValidate();
         

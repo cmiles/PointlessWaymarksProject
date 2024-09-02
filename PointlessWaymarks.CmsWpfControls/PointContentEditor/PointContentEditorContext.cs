@@ -194,14 +194,14 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public static async Task<PointContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PointContent? pointContent)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
-        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryContext);
+        var factoryLocationSearchContext = await GeoSearchContext.CreateInstance(factoryStatusContext);
 
-        var newControl = new PointContentEditorContext(factoryContext,
+        var newControl = new PointContentEditorContext(factoryStatusContext,
             NewContentModels.InitializePointContent(pointContent), factoryMapIcons, factoryLocationSearchContext);
         await newControl.LoadData(pointContent);
         return newControl;

@@ -13,7 +13,7 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
 {
     private ContentMapMarkerColorContext(StatusControlContext statusContext,
         Func<Task<List<DropDownDataChoice>>> loader,
-        PointContent dbEntry)
+        PointContent dbEntry, ObservableCollection<DropDownDataChoice> colorChoices)
     {
         StatusContext = statusContext;
 
@@ -23,7 +23,7 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
 
         GetCurrentMapMarkerColors = loader;
 
-        ExistingChoices = new ObservableCollection<DropDownDataChoice>(ColorChoices());
+        ExistingChoices = colorChoices;
         ReferenceValue = dbEntry.MapMarkerColor ?? string.Empty;
         UserValue = dbEntry.MapMarkerColor ?? string.Empty;
 
@@ -81,7 +81,7 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
     public static async Task<ContentMapMarkerColorContext> CreateInstance(StatusControlContext? statusContext,
         PointContent dbEntry)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -89,7 +89,7 @@ public partial class ContentMapMarkerColorContext : IDropdownDataEntryContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var newControl = new ContentMapMarkerColorContext(factoryContext, loader, dbEntry);
+        var newControl = new ContentMapMarkerColorContext(factoryStatusContext, loader, dbEntry, new ObservableCollection<DropDownDataChoice>(await ColorChoicesAsync()));
 
         newControl.CheckForChangesAndValidate();
 

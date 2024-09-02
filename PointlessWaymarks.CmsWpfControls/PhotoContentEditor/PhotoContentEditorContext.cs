@@ -194,12 +194,12 @@ Photo Content Notes:
     
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
         
         var newContext =
-            new PhotoContentEditorContext(factoryContext, PhotoContent.CreateInstance());
+            new PhotoContentEditorContext(factoryStatusContext, PhotoContent.CreateInstance());
         await newContext.LoadData(null);
         return newContext;
     }
@@ -207,12 +207,12 @@ Photo Content Notes:
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         FileInfo initialPhoto)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
         
         var newContext =
-            new PhotoContentEditorContext(factoryContext, PhotoContent.CreateInstance())
+            new PhotoContentEditorContext(factoryStatusContext, PhotoContent.CreateInstance())
                 { StatusContext = { BlockUi = true } };
         
         if (initialPhoto is { Exists: true }) newContext.InitialPhoto = initialPhoto;
@@ -226,12 +226,12 @@ Photo Content Notes:
     public static async Task<PhotoContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         PhotoContent? toLoad)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
         
         var newContext =
-            new PhotoContentEditorContext(factoryContext, PhotoContent.CreateInstance());
+            new PhotoContentEditorContext(factoryStatusContext, PhotoContent.CreateInstance());
         await newContext.LoadData(toLoad);
         return newContext;
     }

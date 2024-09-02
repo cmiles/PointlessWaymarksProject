@@ -150,13 +150,13 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public static async Task<LineContentEditorContext> CreateInstance(StatusControlContext? statusContext,
         LineContent? lineContent)
     {
-        var factoryContext = await StatusControlContext.ResumeForegroundAsyncAndCreateInstance(statusContext);
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var factoryMapIcons = await MapIconGenerator.SerializedMapIcons();
 
-        var newControl = new LineContentEditorContext(factoryContext,
+        var newControl = new LineContentEditorContext(factoryStatusContext,
             NewContentModels.InitializeLineContent(lineContent), factoryMapIcons);
         await newControl.LoadData(lineContent);
         return newControl;

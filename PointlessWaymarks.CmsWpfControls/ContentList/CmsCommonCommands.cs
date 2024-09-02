@@ -46,12 +46,11 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-[StaThreadConstructorGuard]
 public partial class CmsCommonCommands
 {
-    public CmsCommonCommands(StatusControlContext? statusContext, WindowIconStatus? windowStatus = null)
+    public CmsCommonCommands(StatusControlContext statusContext, WindowIconStatus? windowStatus = null)
     {
-        StatusContext = statusContext ?? new StatusControlContext();
+        StatusContext = statusContext;
         WindowStatus = windowStatus;
 
         BuildCommands();
