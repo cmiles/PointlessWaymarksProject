@@ -85,6 +85,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.PowerShel
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.UtilitarianImageCombinerGui", "PointlessWaymarks.UtilitarianImageCombinerGui\PointlessWaymarks.UtilitarianImageCombinerGui.csproj", "{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.UtilitarianImageCombiner", "PointlessWaymarks.UtilitarianImageCombiner\PointlessWaymarks.UtilitarianImageCombiner.csproj", "{375EC916-F49C-4F99-9EB6-3D9537C87A7C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.UtilitarianImage", "PointlessWaymarks.UtilitarianImage\PointlessWaymarks.UtilitarianImage.csproj", "{DDB6BB88-3843-4960-9846-A39D76D5B8FA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.UtilitarianImageTests", "PointlessWaymarks.UtilitarianImageTests\PointlessWaymarks.UtilitarianImageTests.csproj", "{BB1F5410-13E0-4B5E-9CAC-1E024142CBC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -223,6 +229,18 @@ Global
 		{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}.Debug|x64.Build.0 = Debug|x64
 		{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}.Release|x64.ActiveCfg = Release|x64
 		{A31E72BA-1A6E-4C83-AD0A-52ACB25A527A}.Release|x64.Build.0 = Release|x64
+		{375EC916-F49C-4F99-9EB6-3D9537C87A7C}.Debug|x64.ActiveCfg = Debug|x64
+		{375EC916-F49C-4F99-9EB6-3D9537C87A7C}.Debug|x64.Build.0 = Debug|x64
+		{375EC916-F49C-4F99-9EB6-3D9537C87A7C}.Release|x64.ActiveCfg = Release|x64
+		{375EC916-F49C-4F99-9EB6-3D9537C87A7C}.Release|x64.Build.0 = Release|x64
+		{DDB6BB88-3843-4960-9846-A39D76D5B8FA}.Debug|x64.ActiveCfg = Debug|x64
+		{DDB6BB88-3843-4960-9846-A39D76D5B8FA}.Debug|x64.Build.0 = Debug|x64
+		{DDB6BB88-3843-4960-9846-A39D76D5B8FA}.Release|x64.ActiveCfg = Release|x64
+		{DDB6BB88-3843-4960-9846-A39D76D5B8FA}.Release|x64.Build.0 = Release|x64
+		{BB1F5410-13E0-4B5E-9CAC-1E024142CBC5}.Debug|x64.ActiveCfg = Debug|x64
+		{BB1F5410-13E0-4B5E-9CAC-1E024142CBC5}.Debug|x64.Build.0 = Debug|x64
+		{BB1F5410-13E0-4B5E-9CAC-1E024142CBC5}.Release|x64.ActiveCfg = Release|x64
+		{BB1F5410-13E0-4B5E-9CAC-1E024142CBC5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
