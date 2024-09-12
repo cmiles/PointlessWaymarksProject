@@ -4,6 +4,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.MapComponentEditor;
 
@@ -36,11 +37,13 @@ public partial class MapComponentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<MapComponentEditorWindow> CreateInstance(MapComponent? toLoad)
+    public static async Task<MapComponentEditorWindow> CreateInstance(MapComponent? toLoad, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new MapComponentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

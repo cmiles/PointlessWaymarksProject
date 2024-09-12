@@ -4,6 +4,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PointContentEditor;
 
@@ -36,11 +37,13 @@ public partial class PointContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PointContentEditorWindow> CreateInstance(PointContent? toLoad)
+    public static async Task<PointContentEditorWindow> CreateInstance(PointContent? toLoad, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new PointContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

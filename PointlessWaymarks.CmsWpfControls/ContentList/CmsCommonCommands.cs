@@ -444,8 +444,7 @@ public partial class CmsCommonCommands
                 }
                 else
                 {
-                    var editor = await LineContentEditorWindow.CreateInstance(newEntry);
-                    await editor.PositionWindowAndShowOnUiThread();
+                    var editor = await LineContentEditorWindow.CreateInstance(newEntry, true);
                 }
 
                 statusContext.Progress(

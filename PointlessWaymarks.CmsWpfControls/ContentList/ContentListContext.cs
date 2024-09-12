@@ -941,20 +941,24 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             if (fileContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                var newEditor = await FileContentEditorWindow.CreateInstance(new FileInfo(loopFile));
-                await newEditor.PositionWindowAndShowOnUiThread();
+                StatusContext.RunNonBlockingTask(async () =>
+                {
+                    var newEditor = await FileContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
 
-                await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
-
+                    await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
+                });
                 continue;
             }
 
             if (lineContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                await CmsCommonCommands.NewLineContentFromFilesBase(fileInfo.AsList(), false, false,
-                    CancellationToken.None,
-                    StatusContext,
-                    WindowStatus);
+                StatusContext.RunNonBlockingTask(async () =>
+                {
+                    await CmsCommonCommands.NewLineContentFromFilesBase(fileInfo.AsList(), false, false,
+                        CancellationToken.None,
+                        StatusContext,
+                        WindowStatus);
+                });
                 continue;
             }
 
@@ -982,29 +986,37 @@ public partial class ContentListContext : IDragSource, IDropTarget
                     throw;
                 }
 
-
                 if (!string.IsNullOrWhiteSpace(make) || !string.IsNullOrWhiteSpace(model))
                 {
-                    var photoEditorWindow = await PhotoContentEditorWindow.CreateInstance(new FileInfo(loopFile));
-                    await photoEditorWindow.PositionWindowAndShowOnUiThread();
+                    StatusContext.RunNonBlockingTask(async () =>
+                    {
+                        await PhotoContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
 
-                    await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
+                        await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
+                    });
                 }
                 else
                 {
-                    var imageEditorWindow = await ImageContentEditorWindow.CreateInstance(null, new FileInfo(loopFile));
-                    await imageEditorWindow.PositionWindowAndShowOnUiThread();
+                    StatusContext.RunNonBlockingTask(async () =>
+                    {
+                        var imageEditorWindow =
+                            await ImageContentEditorWindow.CreateInstance(null, new FileInfo(loopFile), true);
 
-                    await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
+                        await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
+                    });
                 }
+
+                continue;
             }
 
             if (videoContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
             {
-                var newEditor = await VideoContentEditorWindow.CreateInstance(new FileInfo(loopFile));
-                await newEditor.PositionWindowAndShowOnUiThread();
+                StatusContext.RunNonBlockingTask(async () =>
+                {
+                    var newEditor = await VideoContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
 
-                await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Video Editor");
+                    await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Video Editor");
+                });
             }
         }
     }

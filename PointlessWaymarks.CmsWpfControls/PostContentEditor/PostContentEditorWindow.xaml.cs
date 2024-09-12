@@ -4,6 +4,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PostContentEditor;
 
@@ -33,11 +34,13 @@ public partial class PostContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PostContentEditorWindow> CreateInstance(PostContent? toLoad = null)
+    public static async Task<PostContentEditorWindow> CreateInstance(PostContent? toLoad = null, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new PostContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

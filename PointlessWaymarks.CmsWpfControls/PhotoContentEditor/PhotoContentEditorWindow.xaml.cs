@@ -5,6 +5,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 
@@ -34,11 +35,13 @@ public partial class PhotoContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PhotoContentEditorWindow> CreateInstance()
+    public static async Task<PhotoContentEditorWindow> CreateInstance(bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new PhotoContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -69,11 +72,13 @@ public partial class PhotoContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PhotoContentEditorWindow> CreateInstance(FileInfo initialPhoto)
+    public static async Task<PhotoContentEditorWindow> CreateInstance(FileInfo initialPhoto, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new PhotoContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if(positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -104,7 +109,7 @@ public partial class PhotoContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<PhotoContentEditorWindow> CreateInstance(PhotoContent? toLoad)
+    public static async Task<PhotoContentEditorWindow> CreateInstance(PhotoContent? toLoad, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -113,6 +118,8 @@ public partial class PhotoContentEditorWindow
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         window.PhotoContent = await PhotoContentEditorContext.CreateInstance(window.StatusContext, toLoad);
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         window.WindowTitle =
             $"Photo Editor - {UserSettingsSingleton.CurrentSettings().SiteName} - {window.PhotoContent.TitleSummarySlugFolder.TitleEntry.UserValue}";

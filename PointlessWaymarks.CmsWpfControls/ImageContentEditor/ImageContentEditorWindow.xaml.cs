@@ -5,6 +5,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 
@@ -35,11 +36,13 @@ public partial class ImageContentEditorWindow
     /// </summary>
     /// <returns></returns>
     public static async Task<ImageContentEditorWindow> CreateInstance(ImageContent? contentToLoad = null,
-        FileInfo? initialImage = null)
+        FileInfo? initialImage = null, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new ImageContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

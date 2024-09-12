@@ -5,6 +5,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 
@@ -33,11 +34,13 @@ public partial class VideoContentEditorWindow
     ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<VideoContentEditorWindow> CreateInstance()
+    public static async Task<VideoContentEditorWindow> CreateInstance(bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new VideoContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -72,11 +75,13 @@ public partial class VideoContentEditorWindow
     ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<VideoContentEditorWindow> CreateInstance(FileInfo initialFile)
+    public static async Task<VideoContentEditorWindow> CreateInstance(FileInfo initialFile, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new VideoContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -112,11 +117,13 @@ public partial class VideoContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<VideoContentEditorWindow> CreateInstance(VideoContent? toLoad)
+    public static async Task<VideoContentEditorWindow> CreateInstance(VideoContent? toLoad, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new VideoContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

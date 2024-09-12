@@ -5,6 +5,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.FileContentEditor;
 
@@ -33,11 +34,13 @@ public partial class FileContentEditorWindow
     ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<FileContentEditorWindow> CreateInstance()
+    public static async Task<FileContentEditorWindow> CreateInstance(bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new FileContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -68,11 +71,13 @@ public partial class FileContentEditorWindow
     ///     switch to the UI thread as needed.
     /// </summary>
     /// <returns></returns>
-    public static async Task<FileContentEditorWindow> CreateInstance(FileInfo initialFile)
+    public static async Task<FileContentEditorWindow> CreateInstance(FileInfo initialFile, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new FileContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -104,11 +109,13 @@ public partial class FileContentEditorWindow
     ///     PositionWindowAndShowOnUiThread() from the WindowInitialPositionHelpers.
     /// </summary>
     /// <returns></returns>
-    public static async Task<FileContentEditorWindow> CreateInstance(FileContent toLoad)
+    public static async Task<FileContentEditorWindow> CreateInstance(FileContent toLoad, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new FileContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 

@@ -4,6 +4,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.LinkContentEditor;
 
@@ -34,11 +35,13 @@ public partial class LinkContentEditorWindow
     /// </summary>
     /// <returns></returns>
     public static async Task<LinkContentEditorWindow> CreateInstance(LinkContent? toLoad,
-        bool extractDataFromLink = false)
+        bool extractDataFromLink = false, bool positionAndShowWindow = false)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var window = new LinkContentEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+        
+        if (positionAndShowWindow) window.PositionWindowAndShow();
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
