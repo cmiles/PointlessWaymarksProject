@@ -258,7 +258,7 @@
                                         Style="{StaticResource ReadOnlyTextBoxStyle}"
                                         TextWrapping="Wrap">
                                         <TextBox.Text>
-                                            <MultiBinding StringFormat="{}{0} --Simultaneous Runs Allowed: {1} --Script Job Run information  automatically deleted after {2} months.">
+                                            <MultiBinding StringFormat="{}{0} --Simultaneous Runs Allowed: {1} --Script Job Run information automatically deleted after {2} months.">
                                                 <Binding Path="DbEntry.Description" />
                                                 <Binding Path="DbEntry.AllowSimultaneousRuns" />
                                                 <Binding Path="DbEntry.DeleteScriptJobRunsAfterMonths" />
