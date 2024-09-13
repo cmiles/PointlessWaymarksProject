@@ -25,6 +25,8 @@ public partial class CombinerListContext : IDropTarget
 {
     public required List<ColorNameAndSkColor> BackgroundColors { get; set; }
     public required ConversionDataEntryNoChangeIndicatorContext<int> FinalImageJpegQuality { get; set; }
+    public required ConversionDataEntryNoChangeIndicatorContext<int?> GridColumnEntryContext { get; set; }
+    public required ConversionDataEntryNoChangeIndicatorContext<int?> GridRowEntryContext { get; set; }
     public required ConversionDataEntryNoChangeIndicatorContext<int> ItemMaxHeightEntryContext { get; set; }
     public required ConversionDataEntryNoChangeIndicatorContext<int> ItemMaxWidthEntryContext { get; set; }
     public required ObservableCollection<CombinerListListItem> Items { get; set; }
@@ -112,7 +114,7 @@ public partial class CombinerListContext : IDropTarget
                 {
                     var fileInfo = new FileInfo(file);
                     var newFile = await Combiner.PdfToJpeg(file, ItemMaxWidthEntryContext.UserValue,
-                        FinalImageJpegQuality.UserValue, SelectedBackgroundColor?.Color ?? SKColors.White);
+                        FinalImageJpegQuality.UserValue, SelectedBackgroundColor?.SkiaColor ?? SKColors.White);
                     listItems.Add(await CombinerListListItem.CreateInstance(newFile, StatusContext));
                 }
                 else
@@ -193,7 +195,6 @@ public partial class CombinerListContext : IDropTarget
         var currentSettings = ImageCombinerGuiSettingTools.ReadSettings();
         if (!string.IsNullOrWhiteSpace(currentSettings.SaveToDirectory))
             saveDialog.FileName = $"{currentSettings.SaveToDirectory}\\";
-        ;
 
         if (!saveDialog.ShowDialog() ?? true) return;
 
@@ -203,8 +204,9 @@ public partial class CombinerListContext : IDropTarget
 
         var combinedImage = await Combiner.CombineImagesInGrid(frozenItems.Select(x => x.FileFullName).ToList(),
             maxWidth,
-            maxHeight, newFilename, FinalImageJpegQuality.UserValue, SelectedBackgroundColor?.Color ?? SKColors.Black,
-            StatusContext.ProgressTracker());
+            maxHeight, newFilename, FinalImageJpegQuality.UserValue,
+            SelectedBackgroundColor?.SkiaColor ?? SKColors.Black,
+            StatusContext.ProgressTracker(), GridRowEntryContext.UserValue, GridColumnEntryContext.UserValue);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -242,7 +244,8 @@ public partial class CombinerListContext : IDropTarget
 
         var combinedImage = await Combiner.CombineImagesHorizontal(frozenItems.Select(x => x.FileFullName).ToList(),
             maxWidth,
-            maxHeight, newFilename, FinalImageJpegQuality.UserValue, SelectedBackgroundColor?.Color ?? SKColors.Black,
+            maxHeight, newFilename, FinalImageJpegQuality.UserValue,
+            SelectedBackgroundColor?.SkiaColor ?? SKColors.Black,
             StatusContext.ProgressTracker());
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -281,7 +284,8 @@ public partial class CombinerListContext : IDropTarget
 
         var combinedImage = await Combiner.CombineImagesVertical(frozenItems.Select(x => x.FileFullName).ToList(),
             maxWidth,
-            maxHeight, newFilename, FinalImageJpegQuality.UserValue, SelectedBackgroundColor?.Color ?? SKColors.Black,
+            maxHeight, newFilename, FinalImageJpegQuality.UserValue,
+            SelectedBackgroundColor?.SkiaColor ?? SKColors.Black,
             StatusContext.ProgressTracker());
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -317,6 +321,22 @@ public partial class CombinerListContext : IDropTarget
             "The quality of the final jpeg image. 0 is the lowest quality, 100 is the highest.";
         finalImageJpegQuality.UserText = "95";
 
+        var gridRowEntry =
+            await ConversionDataEntryNoChangeIndicatorContext<int?>.CreateInstance(
+                ConversionDataEntryHelpers.IntNullableConversion);
+        gridRowEntry.Title = "Grid Rows";
+        gridRowEntry.HelpText =
+            "The number of Rows for the Grid - a blank or zero means this will be automatically calculated.";
+        gridRowEntry.UserText = "";
+
+        var gridColumnEntry =
+            await ConversionDataEntryNoChangeIndicatorContext<int?>.CreateInstance(
+                ConversionDataEntryHelpers.IntNullableConversion);
+        gridColumnEntry.Title = "Grid Columns";
+        gridColumnEntry.HelpText =
+            "The number of Rows for the Grid - a blank or zero means this will be automatically calculated.";
+        gridColumnEntry.UserText = "";
+
         var newContext = new CombinerListContext
         {
             StatusContext = statusContext,
@@ -324,8 +344,13 @@ public partial class CombinerListContext : IDropTarget
             ItemMaxHeightEntryContext = itemMaxHeightEntryContext,
             ItemMaxWidthEntryContext = itemMaxWidthEntryContext,
             FinalImageJpegQuality = finalImageJpegQuality,
-            BackgroundColors = GetAllSKColors()
+            BackgroundColors = GetAllSKColors(),
+            GridRowEntryContext = gridRowEntry,
+            GridColumnEntryContext = gridColumnEntry
         };
+
+        var blackColor = newContext.BackgroundColors.FirstOrDefault(x => x.ColorName.Equals("Black"));
+        if (blackColor is not null) newContext.SelectedBackgroundColor = blackColor;
 
         newContext.BuildCommands();
 
@@ -335,12 +360,16 @@ public partial class CombinerListContext : IDropTarget
     public static List<ColorNameAndSkColor> GetAllSKColors()
     {
         var skColorsType = typeof(SKColors);
-        var colorProperties = skColorsType.GetProperties(BindingFlags.Static | BindingFlags.Public);
+        var colorProperties = skColorsType.GetFields(BindingFlags.Static | BindingFlags.Public);
 
         var colorList = colorProperties
-            .Where(prop => prop.PropertyType == typeof(SKColor))
+            .Where(prop => prop.FieldType == typeof(SKColor))
             .Where(prop => (SKColor)(prop.GetValue(null) ?? SKColors.Transparent) != SKColors.Transparent)
-            .Select(prop => new ColorNameAndSkColor { ColorName = prop.Name, Color = (SKColor)prop.GetValue(null) })
+            .Select(prop => new ColorNameAndSkColor
+            {
+                ColorName = prop.Name, SkiaColor = (SKColor)prop.GetValue(null),
+                Color = ((SKColor)prop.GetValue(null)).ToString()
+            })
             .ToList();
 
         return colorList.OrderBy(x => x.ColorName).ToList();
@@ -442,11 +471,5 @@ public partial class CombinerListContext : IDropTarget
         await ThreadSwitcher.ResumeForegroundAsync();
 
         await ProcessHelpers.OpenExplorerWindowForFile(toShow.FileFullName);
-    }
-
-    public record ColorNameAndSkColor
-    {
-        public SKColor Color { get; set; }
-        public string ColorName { get; set; }
     }
 }

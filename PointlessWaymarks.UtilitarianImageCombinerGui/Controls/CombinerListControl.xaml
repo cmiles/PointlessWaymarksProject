@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:controls="clr-namespace:PointlessWaymarks.UtilitarianImageCombinerGui.Controls"
     xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dd="urn:gong-wpf-dragdrop"
@@ -10,10 +11,9 @@
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:controls="clr-namespace:PointlessWaymarks.UtilitarianImageCombinerGui.Controls"
     d:DataContext="{d:DesignInstance controls:CombinerListContext}"
     d:DesignHeight="450"
-    d:DesignWidth="800"
+    d:DesignWidth="900"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -30,14 +30,8 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Margin="4,8,4,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <GroupBox Grid.Column="0" Style="{StaticResource UiComponentGroupBoxStyle}">
+        <WrapPanel Margin="4,8,4,0">
+            <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">List Actions</TextBlock>
                 </GroupBox.Header>
@@ -49,10 +43,7 @@
                     <Button Width="90" Command="{Binding RemoveSelectedItemsCommand}">Clear Selected</Button>
                 </StackPanel>
             </GroupBox>
-            <GroupBox
-                Grid.Column="1"
-                Margin="6,0,0,0"
-                Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox Margin="6,0,0,0" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">Individual Image Settings</TextBlock>
                 </GroupBox.Header>
@@ -61,33 +52,56 @@
                     <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ItemMaxHeightEntryContext}" />
                 </StackPanel>
             </GroupBox>
-            <GroupBox
-                Grid.Column="2"
-                Margin="6,0,0,0"
-                Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox Margin="6,0,0,0" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">Final Image</TextBlock>
                 </GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
-                    <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding FinalImageJpegQuality}" />
+                    <conversionDataEntry:ConversionDataEntryControl
+                        Margin="0,1,0,0"
+                        VerticalAlignment="Top"
+                        DataContext="{Binding FinalImageJpegQuality}" />
+                    <StackPanel VerticalAlignment="Top">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" ToolTip="Background Color for the Final Document">Background Color</Label>
+                        <ComboBox
+                            Name="DropdownEntryComboBox"
+                            Margin="8,0,4,4"
+                            VerticalAlignment="Center"
+                            IsEditable="False"
+                            ItemsSource="{Binding BackgroundColors}"
+                            SelectedItem="{Binding SelectedBackgroundColor}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type controls:ColorNameAndSkColor}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Rectangle
+                                            Width="16"
+                                            Height="16"
+                                            Margin="0,2,2,2"
+                                            Fill="{Binding Color}" />
+                                        <TextBlock
+                                            Margin="6,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding ColorName}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
-            <GroupBox
-                Grid.Column="3"
-                Margin="6,0,0,0"
-                Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox Margin="6,0,0,0" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">Help</TextBlock>
                 </GroupBox.Header>
                 <Button Width="90" Command="{Binding ShowHelpWindowCommand}">Help/About</Button>
             </GroupBox>
-        </Grid>
+        </WrapPanel>
         <GroupBox
             Grid.Row="1"
             Margin="4,0,4,0"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <GroupBox.Header>
-                <TextBlock Margin="0,4,0,0" FontWeight="Bold">Images to Combine</TextBlock>
+                <TextBlock FontWeight="Bold">Images to Combine</TextBlock>
             </GroupBox.Header>
             <ListBox
                 HorizontalContentAlignment="Stretch"
@@ -250,24 +264,53 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
-        <GroupBox
-            Grid.Row="2"
-            Height="60"
-            Margin="4,0,4,8"
-            Style="{StaticResource UiComponentGroupBoxStyle}">
-            <GroupBox.Header>
-                <TextBlock Margin="0,4,0,0" FontWeight="Bold">Combine</TextBlock>
-            </GroupBox.Header>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Button Command="{Binding CombineImagesVerticallyCommand}">Combine Vertically</Button>
-                <Button Grid.Column="1" Command="{Binding CombineImagesHorizontallyCommand}">Combine Horizontally</Button>
-                <Button Grid.Column="2" Command="{Binding CombineImagesGridCommand}">Combine to Grid</Button>
-            </Grid>
-        </GroupBox>
+        <Grid Grid.Row="2" Height="90">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GroupBox Margin="4" Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="Bold">Images to Combine</TextBlock>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Button Command="{Binding CombineImagesVerticallyCommand}">Combine - Vertical</Button>
+                    <Button Grid.Column="1" Command="{Binding CombineImagesHorizontallyCommand}">Combine - Horizontal</Button>
+                </Grid>
+            </GroupBox>
+            <GroupBox
+                Grid.Column="1"
+                Margin="4"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="Bold">Grid</TextBlock>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <conversionDataEntry:ConversionDataEntryControl
+                        Grid.Column="0"
+                        Margin="4"
+                        DataContext="{Binding GridRowEntryContext}" />
+                    <conversionDataEntry:ConversionDataEntryControl
+                        Grid.Column="1"
+                        Margin="4"
+                        DataContext="{Binding GridColumnEntryContext}" />
+                    <Button
+                        Grid.Column="2"
+                        Margin="8,0,0,0"
+                        Command="{Binding CombineImagesGridCommand}">
+                        Combine - Grid
+                    </Button>
+                </Grid>
+            </GroupBox>
+        </Grid>
     </Grid>
 </UserControl>

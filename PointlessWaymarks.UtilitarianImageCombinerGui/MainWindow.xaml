@@ -10,7 +10,7 @@
     xmlns:controls="clr-namespace:PointlessWaymarks.UtilitarianImageCombinerGui.Controls"
     xmlns:utilitarianImageCombinerGui="clr-namespace:PointlessWaymarks.UtilitarianImageCombinerGui"
     Title="{Binding InfoTitle}"
-    Width="800"
+    Width="900"
     Height="450"
     d:DataContext="{d:DesignInstance utilitarianImageCombinerGui:MainWindow}"
     mc:Ignorable="d">
