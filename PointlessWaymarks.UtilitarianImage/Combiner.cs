@@ -136,7 +136,7 @@ public static class Combiner
         foreach (var img in images) img.Dispose();
         combinedImage.Dispose();
 
-        return outputFileFullName;
+        return outputFileName;
     }
 
     private static SKBitmap DrawImage(SKBitmap image, int maxWidth, int maxHeight)
