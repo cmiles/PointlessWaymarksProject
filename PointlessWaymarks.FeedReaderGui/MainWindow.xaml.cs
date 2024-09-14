@@ -60,7 +60,7 @@ public partial class MainWindow
 
         DataContext = this;
 
-        UpdateMessageContext = new ProgramUpdateMessageContext();
+        UpdateMessageContext = new ProgramUpdateMessageContext(StatusContext);
 
         HelpTabContext = new HelpDisplayContext([
             HelpText,
@@ -93,16 +93,12 @@ public partial class MainWindow
 
         if (string.IsNullOrEmpty(currentDateVersion)) return;
 
-        var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
+        var (dateString, setupFile) = await ProgramInfoTools.LatestInstaller(
             settings.ProgramUpdateDirectory,
             "PointlessWaymarksFeedReaderSetup");
 
         Log.Information(
-            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
-
-        if (string.IsNullOrWhiteSpace(dateString) || setupFile is not { Exists: true }) return;
-
-        if (string.Compare(currentDateVersion, dateString, StringComparison.OrdinalIgnoreCase) >= 0) return;
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile ?? string.Empty}");
 
         await UpdateMessageContext.LoadData(currentDateVersion, dateString, setupFile);
     }

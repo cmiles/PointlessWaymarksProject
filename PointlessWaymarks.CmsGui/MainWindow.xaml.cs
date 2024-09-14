@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Json;
@@ -89,7 +88,7 @@ public partial class MainWindow
 
         PropertyChanged += OnPropertyChanged;
 
-        UpdateMessageContext = new ProgramUpdateMessageContext();
+        UpdateMessageContext = new ProgramUpdateMessageContext(StatusContext);
 
         BuildCommands();
 
@@ -156,16 +155,12 @@ public partial class MainWindow
 
         if (string.IsNullOrEmpty(currentDateVersion)) return;
 
-        var (dateString, setupFile) = ProgramInfoTools.LatestInstaller(
+        var (dateString, setupFile) = await ProgramInfoTools.LatestInstaller(
             UserSettingsSingleton.CurrentSettings().ProgramUpdateLocation,
             "PointlessWaymarksCmsSetup");
 
         Log.Information(
-            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {UserSettingsSingleton.CurrentSettings().ProgramUpdateLocation}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile?.FullName ?? string.Empty}");
-
-        if (string.IsNullOrWhiteSpace(dateString) || setupFile is not { Exists: true }) return;
-
-        if (string.Compare(currentDateVersion, dateString, StringComparison.OrdinalIgnoreCase) >= 0) return;
+            $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {UserSettingsSingleton.CurrentSettings().ProgramUpdateLocation}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile ?? string.Empty}");
 
         await UpdateMessageContext.LoadData(currentDateVersion, dateString, setupFile);
     }
