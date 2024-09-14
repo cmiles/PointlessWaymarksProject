@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="PointlessWaymarksPowerShellRunnerIcon.ico" />
-      <None Remove="PowerShellEditor\PowerShell.xshd" />
+        <None Remove="PointlessWaymarksPowerShellRunnerIcon.ico" />
+        <None Remove="PowerShellEditor\PowerShell.xshd" />
     </ItemGroup>
 
     <ItemGroup>
@@ -18,8 +18,15 @@
         </AssemblyAttribute>
     </ItemGroup>
 
+    <PropertyGroup>
+        <GitVersion>false</GitVersion>
+        <Version>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</Version>
+        <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</AssemblyVersion>
+        <FileVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</FileVersion>
+    </PropertyGroup>
+
     <ItemGroup>
-      <EmbeddedResource Include="PowerShellEditor\PowerShell.xshd" />
+        <EmbeddedResource Include="PowerShellEditor\PowerShell.xshd" />
     </ItemGroup>
 
     <ItemGroup>
@@ -34,24 +41,27 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PointlessWaymarks.PowerShellRunnerData\PointlessWaymarks.PowerShellRunnerData.csproj" />
-        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
-        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarks.PowerShellRunnerData\PointlessWaymarks.PowerShellRunnerData.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Resource Include="PointlessWaymarksPowerShellRunnerIcon.ico">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
+        <Resource Include="PointlessWaymarksPowerShellRunnerIcon.ico">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Resource>
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="PowerShellRunnerInstallerTopRightImage.bmp">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="PowerShellRunnerLeftInstallerImage.bmp">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="PowerShellRunnerInstallerTopRightImage.bmp">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="PowerShellRunnerLeftInstallerImage.bmp">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

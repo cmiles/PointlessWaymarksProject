@@ -1,50 +1,59 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <ApplicationIcon>PointlessWaymarksCmsAutomationIcon.ico</ApplicationIcon>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <ApplicationIcon>PointlessWaymarksCmsAutomationIcon.ico</ApplicationIcon>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="GitInfo" Version="3.3.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Metalama.Framework" Version="2024.2.24" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="GitInfo" Version="3.3.5">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Metalama.Framework" Version="2024.2.24" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
-      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="PointlessWaymarksCmsAutomationIcon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
+    <PropertyGroup>
+        <GitVersion>false</GitVersion>
+        <Version>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</Version>
+        <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</AssemblyVersion>
+        <FileVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</FileVersion>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Update="PhotoPickupSettingsSample.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="README.md">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="README_Task-PhotoPickup.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <Resource Include="PointlessWaymarksCmsAutomationIcon.ico">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Resource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="PhotoPickupSettingsSample.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="README.md">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <None Update="README_Task-PhotoPickup.md">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
 </Project>

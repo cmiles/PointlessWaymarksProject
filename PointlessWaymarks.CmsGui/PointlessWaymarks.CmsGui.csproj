@@ -1,45 +1,52 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <UseWPF>true</UseWPF>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>PointlessWaymarksCmsIcon.ico</ApplicationIcon>
-    <Nullable>disable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <UseWPF>true</UseWPF>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>PointlessWaymarksCmsIcon.ico</ApplicationIcon>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
-      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="PointlessWaymarksCmsIcon.ico" />
-  </ItemGroup>
+    <PropertyGroup>
+        <GitVersion>false</GitVersion>
+        <Version>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</Version>
+        <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</AssemblyVersion>
+        <FileVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</FileVersion>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="GitInfo" Version="3.3.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Jot" Version="2.1.17" />
-    <PackageReference Include="Metalama.Framework" Version="2024.2.24" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="PointlessWaymarksCmsIcon.ico" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+        <PackageReference Include="GitInfo" Version="3.3.5">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Jot" Version="2.1.17" />
+        <PackageReference Include="Metalama.Framework" Version="2024.2.24" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.CmsWpfControls\PointlessWaymarks.CmsWpfControls.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="..\.editorconfig" Link=".editorconfig" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="PointlessWaymarksCmsIcon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PointlessWaymarks.CmsWpfControls\PointlessWaymarks.CmsWpfControls.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Resource Include="PointlessWaymarksCmsIcon.ico">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Resource>
+    </ItemGroup>
 
 </Project>

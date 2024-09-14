@@ -1,32 +1,47 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-      <OutputType>WinExe</OutputType>
-      <UseWPF>true</UseWPF>
-      <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>UtilitarianImageCombinerGuiIcon.ico</ApplicationIcon>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <UseWPF>true</UseWPF>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>UtilitarianImageCombinerGuiIcon.ico</ApplicationIcon>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="UtilitarianImageCombinerGuiIcon.ico" />
-  </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Jot" Version="2.1.17" />
-    <PackageReference Include="Metalama.Framework" Version="2024.2.24" />
-    <PackageReference Include="Metalama.Patterns.Observability" Version="2024.2.24" />
-  </ItemGroup>
+    <PropertyGroup>
+        <GitVersion>false</GitVersion>
+        <Version>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</Version>
+        <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</AssemblyVersion>
+        <FileVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</FileVersion>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.UtilitarianImage\PointlessWaymarks.UtilitarianImage.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="UtilitarianImageCombinerGuiIcon.ico" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="UtilitarianImageCombinerGuiIcon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Jot" Version="2.1.17" />
+        <PackageReference Include="Metalama.Framework" Version="2024.2.24" />
+        <PackageReference Include="Metalama.Patterns.Observability" Version="2024.2.24" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PointlessWaymarks.UtilitarianImage\PointlessWaymarks.UtilitarianImage.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarksTools\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Resource Include="UtilitarianImageCombinerGuiIcon.ico">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Resource>
+    </ItemGroup>
 
 </Project>
