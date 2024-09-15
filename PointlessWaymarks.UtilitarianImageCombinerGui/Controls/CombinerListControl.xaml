@@ -89,12 +89,6 @@
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Margin="6,0,0,0" Style="{StaticResource UiComponentGroupBoxStyle}">
-                <GroupBox.Header>
-                    <TextBlock FontWeight="Bold">Help</TextBlock>
-                </GroupBox.Header>
-                <Button Width="90" Command="{Binding ShowHelpWindowCommand}">Help/About</Button>
-            </GroupBox>
         </WrapPanel>
         <GroupBox
             Grid.Row="1"

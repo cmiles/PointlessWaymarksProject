@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.IO;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
@@ -16,7 +15,6 @@ public partial class AppSettingsContext
 
     public required string ProgramUpdateLocation { get; set; }
     public required PowerShellRunnerGuiSettings Settings { get; set; }
-    public bool ShowUpdateLocationExistsWarning { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
 
@@ -26,13 +24,10 @@ public partial class AppSettingsContext
 
         if (nameof(ProgramUpdateLocation).Equals(e.PropertyName))
         {
-            ValidateProgramUpdateLocation();
-
             Settings.ProgramUpdateDirectory = ProgramUpdateLocation;
 #pragma warning disable CS4014
-            if (!ShowUpdateLocationExistsWarning)
-                //Allow call to continue without waiting and write settings
-                PowerShellRunnerGuiSettingTools.WriteSettings(Settings);
+            //Allow call to continue without waiting and write settings
+            PowerShellRunnerGuiSettingTools.WriteSettings(Settings);
 #pragma warning restore CS4014
         }
     }
@@ -50,15 +45,6 @@ public partial class AppSettingsContext
             ProgramUpdateLocation = factorySettings.ProgramUpdateDirectory
         };
 
-        factoryContext.ValidateProgramUpdateLocation();
-
         return factoryContext;
-    }
-
-    private void ValidateProgramUpdateLocation()
-    {
-        if (string.IsNullOrWhiteSpace(ProgramUpdateLocation)) ShowUpdateLocationExistsWarning = false;
-
-        ShowUpdateLocationExistsWarning = !Directory.Exists(ProgramUpdateLocation);
     }
 }

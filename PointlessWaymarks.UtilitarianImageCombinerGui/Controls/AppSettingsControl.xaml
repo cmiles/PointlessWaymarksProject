@@ -1,13 +1,12 @@
 <UserControl
-    x:Class="PointlessWaymarks.CloudBackupGui.Controls.AppSettingsControl"
+    x:Class="PointlessWaymarks.UtilitarianImageCombinerGui.Controls.AppSettingsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="clr-namespace:PointlessWaymarks.CloudBackupGui.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarks.UtilitarianImageCombinerGui.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DataContext="{d:DesignInstance controls:AppSettingsContext}"
-    d:DesignHeight="300"
-    d:DesignWidth="300"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
     mc:Ignorable="d">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />

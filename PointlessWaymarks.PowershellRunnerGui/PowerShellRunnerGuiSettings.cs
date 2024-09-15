@@ -7,5 +7,5 @@ public partial class PowerShellRunnerGuiSettings
 {
     public string DatabaseFile { get; set; } = string.Empty;
     public string? LastDirectory { get; set; } = string.Empty;
-    public string ProgramUpdateDirectory { get; set; } = @"M:\PointlessWaymarksPublications";
+    public string ProgramUpdateDirectory { get; set; } = @"https://software.pointlesswaymarks.com/Software/PointlessWaymarksSoftwareList.json";
 }

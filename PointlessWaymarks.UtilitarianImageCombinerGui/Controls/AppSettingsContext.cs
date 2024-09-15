@@ -1,14 +1,14 @@
 using System.ComponentModel;
 using PointlessWaymarks.LlamaAspects;
 
-namespace PointlessWaymarks.CloudBackupGui.Controls;
+namespace PointlessWaymarks.UtilitarianImageCombinerGui.Controls;
 
 [NotifyPropertyChanged]
 public partial class AppSettingsContext
 {
     public AppSettingsContext()
     {
-        Settings = CloudBackupGuiSettingTools.ReadSettings();
+        Settings = ImageCombinerGuiSettingTools.ReadSettings();
 
         ProgramUpdateLocation = Settings.ProgramUpdateDirectory;
 
@@ -16,7 +16,7 @@ public partial class AppSettingsContext
     }
 
     public string ProgramUpdateLocation { get; set; }
-    public CloudBackupGuiSettings Settings { get; set; }
+    public ImageCombinerGuiSettings Settings { get; set; }
 
     private void AppSettingsContext_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -27,7 +27,7 @@ public partial class AppSettingsContext
             Settings.ProgramUpdateDirectory = ProgramUpdateLocation;
 #pragma warning disable CS4014
             //Allow call to continue without waiting and write settings
-            CloudBackupGuiSettingTools.WriteSettings(Settings);
+            ImageCombinerGuiSettingTools.WriteSettings(Settings);
 #pragma warning restore CS4014
         }
     }

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
 using PointlessWaymarks.CommonTools;
 
@@ -9,7 +9,7 @@ public static class GeoToolsGuiSettingTools
     public static GeoToolsGuiSettings ReadSettings()
     {
         var settingsFileName = Path.Combine(FileLocationTools.DefaultStorageDirectory().FullName,
-            "SiteViewerGuiSettings.json");
+            "PwGeoToolsSettings.json");
         var settingsFile = new FileInfo(settingsFileName);
 
         if (settingsFile.Exists)
@@ -30,8 +30,8 @@ public static class GeoToolsGuiSettingTools
 
         if (settingsFile.Exists) settingsFile.Delete();
 
-        var serializedNewSettings = JsonSerializer.Serialize(settings);
         await using var stream = File.Create(settingsFile.FullName);
-        await JsonSerializer.SerializeAsync(stream, serializedNewSettings);
+        await JsonSerializer.SerializeAsync(stream, settings);
+        await stream.DisposeAsync();
     }
 }

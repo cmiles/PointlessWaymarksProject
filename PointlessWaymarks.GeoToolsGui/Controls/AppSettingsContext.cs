@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.IO;
+using System.ComponentModel;
 using PointlessWaymarks.LlamaAspects;
 
 namespace PointlessWaymarks.GeoToolsGui.Controls;
@@ -14,13 +13,10 @@ public partial class AppSettingsContext
         ProgramUpdateLocation = Settings.ProgramUpdateDirectory;
 
         PropertyChanged += AppSettingsContext_PropertyChanged;
-
-        ValidateProgramUpdateLocation();
     }
 
     public string ProgramUpdateLocation { get; set; }
     public GeoToolsGuiSettings Settings { get; set; }
-    public bool ShowUpdateLocationExistsWarning { get; set; }
 
     private void AppSettingsContext_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -28,21 +24,11 @@ public partial class AppSettingsContext
 
         if (nameof(ProgramUpdateLocation).Equals(e.PropertyName))
         {
-            ValidateProgramUpdateLocation();
-
             Settings.ProgramUpdateDirectory = ProgramUpdateLocation;
 #pragma warning disable CS4014
-            if (!ShowUpdateLocationExistsWarning)
-                //Allow call to continue without waiting and write settings
-                GeoToolsGuiSettingTools.WriteSettings(Settings);
+            //Allow call to continue without waiting and write settings
+            GeoToolsGuiSettingTools.WriteSettings(Settings);
 #pragma warning restore CS4014
         }
-    }
-
-    private void ValidateProgramUpdateLocation()
-    {
-        if (string.IsNullOrWhiteSpace(ProgramUpdateLocation)) ShowUpdateLocationExistsWarning = false;
-
-        ShowUpdateLocationExistsWarning = !Directory.Exists(ProgramUpdateLocation);
     }
 }

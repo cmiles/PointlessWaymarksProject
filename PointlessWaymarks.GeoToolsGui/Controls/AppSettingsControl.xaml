@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.GeoToolsGui.Controls.AppSettingsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -18,12 +18,6 @@
             <Grid Margin="4">
                 <StackPanel Orientation="Vertical">
                     <TextBox Text="{Binding ProgramUpdateLocation, Delay=400, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock
-                        Margin="8,4,4,4"
-                        FontWeight="Bold"
-                        Visibility="{Binding ShowUpdateLocationExistsWarning, Converter={StaticResource BooleanToVisibility}}">
-                        ! The Directory Does Not Exist !
-                    </TextBlock>
                     <TextBlock Margin="8,4,4,4" TextWrapping="Wrap">
                         The Program Update Location is
                         the Directory where the program will look for an updated installer/setup file.
