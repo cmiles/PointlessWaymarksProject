@@ -9,7 +9,7 @@ using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.WindowsTools;
 using Serilog;
 
-namespace PointlessWaymarks.Task.PhotoPickup;
+namespace PointlessWaymarks.CmsTask.PhotoPickup;
 
 public class PhotoPickup
 {

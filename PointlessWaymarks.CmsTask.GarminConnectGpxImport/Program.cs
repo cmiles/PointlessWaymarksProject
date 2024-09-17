@@ -2,8 +2,8 @@
 
 using System.Reflection;
 using Microsoft.Extensions.Logging;
+using PointlessWaymarks.CmsTask.GarminConnectGpxImport;
 using PointlessWaymarks.CommonTools;
-using PointlessWaymarks.Task.GarminConnectGpxImport;
 using PointlessWaymarks.VaultfuscationTools;
 using PointlessWaymarks.WindowsTools;
 using Serilog;

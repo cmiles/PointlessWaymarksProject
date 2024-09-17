@@ -1,6 +1,6 @@
 using PointlessWaymarks.VaultfuscationTools;
 
-namespace PointlessWaymarks.Task.MemoriesEmail;
+namespace PointlessWaymarks.CmsTask.MemoriesEmail;
 
 public record MemoriesSmtpEmailFromWebSettings : ISettingsFileType
 {

@@ -30,19 +30,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.ExcelInte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.SiteViewerGui", "PointlessWaymarks.SiteViewerGui\PointlessWaymarks.SiteViewerGui.csproj", "{C913970C-2489-402D-9F3A-08F0BE806F6A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.MemoriesEmail", "PointlessWaymarks.Task.MemoriesEmail\PointlessWaymarks.Task.MemoriesEmail.csproj", "{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsTask.MemoriesEmail", "PointlessWaymarks.CmsTask.MemoriesEmail\PointlessWaymarks.CmsTask.MemoriesEmail.csproj", "{057D3F70-A452-4FCE-B9FC-90E0D9F8592A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.GarminConnectGpxImport", "PointlessWaymarks.Task.GarminConnectGpxImport\PointlessWaymarks.Task.GarminConnectGpxImport.csproj", "{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsTask.GarminConnectGpxImport", "PointlessWaymarks.CmsTask.GarminConnectGpxImport\PointlessWaymarks.CmsTask.GarminConnectGpxImport.csproj", "{05C70B49-DF03-4ABA-A92D-124EF63A2F3E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.FeatureIntersectionTags", "PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj", "{83CAE91D-FE3E-4853-BB68-6A4A5E7742F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.PhotoPickup", "PointlessWaymarks.Task.PhotoPickup\PointlessWaymarks.Task.PhotoPickup.csproj", "{69770B90-F127-45C3-ACAD-CB6629099F8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsTask.PhotoPickup", "PointlessWaymarks.CmsTask.PhotoPickup\PointlessWaymarks.CmsTask.PhotoPickup.csproj", "{69770B90-F127-45C3-ACAD-CB6629099F8D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoTaggingService", "PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj", "{FD87100A-D437-41FC-8645-06E826FF758F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.GeoToolsGui", "PointlessWaymarks.GeoToolsGui\PointlessWaymarks.GeoToolsGui.csproj", "{5D4DC0E4-3B1D-45B6-8DA4-024960924DCC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.Task.PublishSiteToS3", "PointlessWaymarks.Task.PublishSiteToS3\PointlessWaymarks.Task.PublishSiteToS3.csproj", "{90F89730-2157-4827-BB16-0537AC8743C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CmsTask.PublishSiteToS3", "PointlessWaymarks.CmsTask.PublishSiteToS3\PointlessWaymarks.CmsTask.PublishSiteToS3.csproj", "{90F89730-2157-4827-BB16-0537AC8743C0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PointlessWaymarks.CloudBackupGui", "PointlessWaymarks.CloudBackupGui\PointlessWaymarks.CloudBackupGui.csproj", "{C20A58B2-4582-4E63-9893-472C5D0923D7}"
 EndProject

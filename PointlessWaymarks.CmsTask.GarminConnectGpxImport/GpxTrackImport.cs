@@ -13,7 +13,7 @@ using PointlessWaymarks.WindowsTools;
 using Polly;
 using Serilog;
 
-namespace PointlessWaymarks.Task.GarminConnectGpxImport;
+namespace PointlessWaymarks.CmsTask.GarminConnectGpxImport;
 
 public class GpxTrackImport
 {

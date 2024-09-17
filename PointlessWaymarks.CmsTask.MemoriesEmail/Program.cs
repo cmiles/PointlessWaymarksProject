@@ -2,8 +2,8 @@
 
 using System.Reflection;
 using Microsoft.Extensions.Logging;
+using PointlessWaymarks.CmsTask.MemoriesEmail;
 using PointlessWaymarks.CommonTools;
-using PointlessWaymarks.Task.MemoriesEmail;
 using PointlessWaymarks.VaultfuscationTools;
 using PointlessWaymarks.WindowsTools;
 using Serilog;

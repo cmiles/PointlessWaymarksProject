@@ -1,6 +1,6 @@
 using PointlessWaymarks.VaultfuscationTools;
 
-namespace PointlessWaymarks.Task.PublishSiteToS3;
+namespace PointlessWaymarks.CmsTask.PublishSiteToS3;
 
 public class PublishToS3Settings : ISettingsFileType
 {

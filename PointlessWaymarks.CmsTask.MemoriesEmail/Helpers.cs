@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.Task.MemoriesEmail;
+namespace PointlessWaymarks.CmsTask.MemoriesEmail;
 
 public static class Helpers
 {

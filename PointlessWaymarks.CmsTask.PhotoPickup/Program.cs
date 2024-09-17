@@ -2,8 +2,8 @@
 
 using System.Reflection;
 using Microsoft.Extensions.Logging;
+using PointlessWaymarks.CmsTask.PhotoPickup;
 using PointlessWaymarks.CommonTools;
-using PointlessWaymarks.Task.PhotoPickup;
 using PointlessWaymarks.VaultfuscationTools;
 using PointlessWaymarks.WindowsTools;
 using Serilog;

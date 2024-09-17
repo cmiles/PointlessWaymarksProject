@@ -1,6 +1,6 @@
 using PointlessWaymarks.VaultfuscationTools;
 
-namespace PointlessWaymarks.Task.PhotoPickup;
+namespace PointlessWaymarks.CmsTask.PhotoPickup;
 
 public class PhotoPickupSettings : ISettingsFileType
 {

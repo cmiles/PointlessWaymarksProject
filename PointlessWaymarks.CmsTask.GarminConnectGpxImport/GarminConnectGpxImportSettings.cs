@@ -1,6 +1,6 @@
 using PointlessWaymarks.VaultfuscationTools;
 
-namespace PointlessWaymarks.Task.GarminConnectGpxImport;
+namespace PointlessWaymarks.CmsTask.GarminConnectGpxImport;
 
 public class GarminConnectGpxImportSettings : ISettingsFileType
 {

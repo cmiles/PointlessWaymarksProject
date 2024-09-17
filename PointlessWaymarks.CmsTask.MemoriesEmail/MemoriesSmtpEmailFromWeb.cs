@@ -9,7 +9,7 @@ using PointlessWaymarks.WindowsTools;
 using Serilog;
 using ContentType = System.Net.Mime.ContentType;
 
-namespace PointlessWaymarks.Task.MemoriesEmail;
+namespace PointlessWaymarks.CmsTask.MemoriesEmail;
 
 public class MemoriesSmtpEmailFromWeb
 {
