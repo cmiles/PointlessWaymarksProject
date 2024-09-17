@@ -12,7 +12,7 @@ using Serilog.Extensions.Logging;
 LogTools.StandardStaticLoggerForProgramDirectory("GarminConnectGpxImport");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
-    "PointlessWaymarks.Task.GarminConnectGpxImport Starting");
+    "PointlessWaymarks.CmsTask.GarminConnectGpxImport Starting");
 
 Console.WriteLine(
     $"Garmin Connect Gpx Import - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");

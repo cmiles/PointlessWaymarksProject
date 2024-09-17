@@ -12,7 +12,7 @@ using Serilog.Extensions.Logging;
 LogTools.StandardStaticLoggerForProgramDirectory("PhotoPickup");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
-    "PointlessWaymarks.Task.PhotoPickup Starting");
+    "PointlessWaymarks.CmsTask.PhotoPickup Starting");
 
 Console.WriteLine($"Photo Pickup - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 

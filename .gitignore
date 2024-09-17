@@ -354,4 +354,3 @@ README_*.md
 *.TaskCanvasSL
 nuget.exe
 BuildTools/PointlessWaymarks.PublishReadmeHelper.exe
-PointlessWaymarks.Task.PhotoPickup/PointlessWaymarks.Task.PhotoPickup.args.json

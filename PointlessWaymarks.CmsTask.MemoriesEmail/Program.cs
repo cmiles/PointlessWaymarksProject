@@ -12,7 +12,7 @@ using Serilog.Extensions.Logging;
 LogTools.StandardStaticLoggerForProgramDirectory("MemoriesEmail");
 
 Log.ForContext("args", Helpers.SafeObjectDump(args)).Information(
-    "PointlessWaymarks.Task.MemoriesEmail Starting");
+    "PointlessWaymarks.CmsTask.MemoriesEmail Starting");
 
 Console.WriteLine($"Memories Email - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");
 

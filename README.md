@@ -108,21 +108,21 @@ Part of the project are a number of 'Tasks' - these are Console Applications tha
 
 ### 'Memories' Email
 
-The 'PointlessWaymarks.Task.MemoriesEmail' console app can generate an email with links to items created in previous years on the site. The app is driven by a settings file where you can setup the years back, email settings and what site to get information from. This program can be setup in the Windows Task Scheduler to run daily for fun/interesting emails about past content! [More Information](PointlessWaymarks.Task.MemoriesEmail/README.md)
+The 'PointlessWaymarks.CmsTask.MemoriesEmail' console app can generate an email with links to items created in previous years on the site. The app is driven by a settings file where you can setup the years back, email settings and what site to get information from. This program can be setup in the Windows Task Scheduler to run daily for fun/interesting emails about past content! [More Information](PointlessWaymarks.CmsTask.MemoriesEmail/README.md)
 
 ![Memories Email](PointlessWaymarks.CmsScreenShots/MemoriesEmail.jpg "Memories Email")
 
 ### Photo Pickup
 
-The 'PointlessWaymarks.Task.PhotoPickup' console app is designed to pickup photographs from a local folder and add them to a site. Setup to run daily in the Windows Task Scheduler this can be an easy way to process a batch of photographs with having to even open the CMS program and combined with a sync program like Dropbox this can be an easy way to add photographs from a mobile device. [More Information](PointlessWaymarks.Task.PhotoPickup/README.md)
+The 'PointlessWaymarks.CmsTask.PhotoPickup' console app is designed to pickup photographs from a local folder and add them to a site. Setup to run daily in the Windows Task Scheduler this can be an easy way to process a batch of photographs with having to even open the CMS program and combined with a sync program like Dropbox this can be an easy way to add photographs from a mobile device. [More Information](PointlessWaymarks.CmsTask.PhotoPickup/README.md)
 
 ### Garmin Connect GPX Import
 
-The 'PointlessWaymarks.Task.GarminConnectGpxImport' console app can download Activitites with location information from Garmin Connect and, optionally, import them into a Pointless Waymarks CMS Site as Line Content. In no way is any part of the Pointless Waymarks Project desgined as a replacement for any part of Garmin Connect - but if you care about the landscape, your history and adventures it is likely worth archiving your Garmin Connect data locally so that you have/own it no matter what happens with Garmin Connect and your Garmin Connect account. This is also an easy way to create Line Content in a Pointless Waymarks CMS site. [More Information](PointlessWaymarks.Task.GarminConnectGpxImport/README.md)
+The 'PointlessWaymarks.CmsTask.GarminConnectGpxImport' console app can download Activitites with location information from Garmin Connect and, optionally, import them into a Pointless Waymarks CMS Site as Line Content. In no way is any part of the Pointless Waymarks Project desgined as a replacement for any part of Garmin Connect - but if you care about the landscape, your history and adventures it is likely worth archiving your Garmin Connect data locally so that you have/own it no matter what happens with Garmin Connect and your Garmin Connect account. This is also an easy way to create Line Content in a Pointless Waymarks CMS site. [More Information](PointlessWaymarks.CmsTask.GarminConnectGpxImport/README.md)
 
 ### Publish Site to S3
 
-The 'PointlessWaymarks.Task.PublishSiteToS3' console app detects changes, generates the site and publishes the site to S3 (Amazon S3, Cloudflare R2, Wasabi). [More Information](PointlessWaymarks.Task.PublishSiteToS3/README.md)
+The 'PointlessWaymarks.CmsTask.PublishSiteToS3' console app detects changes, generates the site and publishes the site to S3 (Amazon S3, Cloudflare R2, Wasabi). [More Information](PointlessWaymarks.CmsTask.PublishSiteToS3/README.md)
 
 ## InnoSetup Based Installers and Program Update Notifications
 

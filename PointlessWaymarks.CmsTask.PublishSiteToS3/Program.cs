@@ -10,7 +10,7 @@ using Serilog.Extensions.Logging;
 LogTools.StandardStaticLoggerForProgramDirectory("PublishToS3");
 
 Log.ForContext("args", args.SafeObjectDump()).Information(
-    "PointlessWaymarks.Task.PublishToS3 Starting");
+    "PointlessWaymarks.CmsTask.PublishToS3 Starting");
 
 Console.WriteLine(
     $"Publish Site To Amazon S3 - Build {ProgramInfoTools.GetBuildDate(Assembly.GetExecutingAssembly())}");

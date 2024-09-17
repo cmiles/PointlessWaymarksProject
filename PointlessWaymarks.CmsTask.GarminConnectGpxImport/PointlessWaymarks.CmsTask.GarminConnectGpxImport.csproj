@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="PointlessWaymarks.Task.GarminConnectGpxImport.args.json" />
+        <None Remove="PointlessWaymarks.CmsTask.GarminConnectGpxImport.args.json" />
         <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
     </ItemGroup>
 
