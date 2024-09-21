@@ -286,7 +286,7 @@ public partial class GpxImportContext : IWebViewMessenger
         }
 
         var newLine =
-            await LineGenerator.NewFromGpxTrack(toImport.RouteInformation, false, StatusContext.ProgressTracker());
+            await LineGenerator.NewFromGpxTrack(toImport.RouteInformation, false, false, StatusContext.ProgressTracker());
 
         newLine.ContentId = Guid.NewGuid();
         newLine.Title = toImport.UserContentName;

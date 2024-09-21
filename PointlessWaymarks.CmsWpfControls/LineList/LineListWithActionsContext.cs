@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Xml;
+using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Features;
 using NetTopologySuite.IO;
@@ -13,6 +15,7 @@ using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
@@ -69,7 +72,11 @@ public partial class LineListWithActionsContext
             },
             new ContextMenuItemData
             {
-                ItemName = "Save Gpx File", ItemCommand = SelectedToGpxFileCommand
+                ItemName = "Save Selected to Gpx File - Single File", ItemCommand = SelectedToGpxFileCommand
+            },
+            new ContextMenuItemData
+            {
+                ItemName = "Save Selected to Gpx File - Individual Files", ItemCommand = SelectedToGpxFilesCommand
             },
             new ContextMenuItemData
             {
@@ -318,6 +325,77 @@ public partial class LineListWithActionsContext
 
     [BlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
+    public async Task LineStatsToExcelForSelected()
+    {
+        var selectedItems = SelectedListItems();
+        StatusContext.Progress($"Starting transfer of {selectedItems.Count} to Excel");
+
+        var file = Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
+            $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss}---{FileAndFolderTools.TryMakeFilenameValid("LineStatistics")}.xlsx");
+
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var projectedItems = selectedItems.Select(x => new
+        {
+            x.DbEntry.Folder,
+            x.DbEntry.Title,
+            x.DbEntry.LineDistance,
+            x.DbEntry.ClimbElevation,
+            x.DbEntry.DescentElevation,
+            x.DbEntry.MinimumElevation,
+            x.DbEntry.MaximumElevation,
+            x.DbEntry.Tags,
+            Url = settings.LinePageUrl(x.DbEntry)
+        });
+
+        StatusContext.Progress($"File Name: {file}");
+
+        StatusContext.Progress("Creating Workbook");
+
+        var wb = new XLWorkbook();
+        var ws = wb.Worksheets.Add("Exported Data");
+
+        StatusContext.Progress("Inserting Data");
+
+        var table = ws.Cell(1, 1).InsertTable(projectedItems);
+
+        StatusContext.Progress("Applying Formatting");
+
+        foreach (var loopRow in table.DataRange.Rows())
+            loopRow.Cell(2).SetHyperlink(new XLHyperlink(loopRow.Cell(9).GetString()));
+
+        table.DataRange.Column(3).Style.NumberFormat.Format = "#0.0";
+        table.DataRange.Column(4).Style.NumberFormat.Format = "#,##0";
+        table.DataRange.Column(5).Style.NumberFormat.Format = "#,##0";
+        table.DataRange.Column(6).Style.NumberFormat.Format = "#,##0";
+        table.DataRange.Column(7).Style.NumberFormat.Format = "#,##0";
+        table.Column(9).Delete();
+
+        ws.Columns().AdjustToContents();
+
+        foreach (var loopColumn in ws.ColumnsUsed().Where(x => x.Width > 70))
+        {
+            loopColumn.Width = 70;
+            loopColumn.Style.Alignment.WrapText = true;
+        }
+
+        ws.Rows().AdjustToContents();
+
+        foreach (var loopRow in ws.RowsUsed().Where(x => x.Height > 70))
+            loopRow.Height = 70;
+
+        StatusContext.Progress($"Saving Excel File {file}");
+
+        wb.SaveAs(file);
+
+        StatusContext.Progress($"Opening Excel File {file}");
+
+        var ps = new ProcessStartInfo(file) { UseShellExecute = true, Verb = "open" };
+        Process.Start(ps);
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
     private async Task LinkBracketCodesToClipboardForSelected()
     {
         var finalString = SelectedListItems().Aggregate(string.Empty,
@@ -370,7 +448,11 @@ public partial class LineListWithActionsContext
 
         var trackList = frozenSelected.Select(x => GpxTools.GpxTrackFromLineFeature(x.DbEntry.FeatureFromGeoJsonLine()!,
             x.DbEntry.RecordingStartedOnUtc, x.DbEntry.Title ?? "New Track", string.Empty,
-            x.DbEntry.Summary ?? string.Empty)).ToList();
+            x.DbEntry.Title!.Replace(".", string.Empty)
+                .Contains(x.DbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty),
+                    StringComparison.OrdinalIgnoreCase)
+                ? string.Empty
+                : x.DbEntry.Summary ?? string.Empty)).ToList();
 
         var fileStream = new FileStream(fileName, FileMode.OpenOrCreate);
 
@@ -378,6 +460,52 @@ public partial class LineListWithActionsContext
         await using var xmlWriter = XmlWriter.Create(fileStream, writerSettings);
         GpxWriter.Write(xmlWriter, null, new GpxMetadata("Pointless Waymarks CMS"), null, null, trackList, null);
         xmlWriter.Close();
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    private async Task SelectedToGpxFiles()
+    {
+        var frozenSelected = SelectedListItems();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var fileDialog = new VistaFolderBrowserDialog() { Multiselect = false };
+        var fileDialogResult = fileDialog.ShowDialog();
+
+        if (!(fileDialogResult ?? false)) return;
+
+        var directory = new DirectoryInfo(fileDialog.SelectedPath);
+
+        if (!directory.Exists)
+        {
+            await StatusContext.ToastError("Directory doesn't exist?");
+            return;
+        }
+
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        foreach (var loopSelected in frozenSelected)
+        {
+            var trackList = GpxTools.GpxTrackFromLineFeature(loopSelected.DbEntry.FeatureFromGeoJsonLine()!,
+                loopSelected.DbEntry.RecordingStartedOnUtc, loopSelected.DbEntry.Title ?? "New Track", string.Empty,
+                loopSelected.DbEntry.Summary ?? string.Empty).AsList();
+
+            var fileName = UniqueFileTools.UniqueFile(directory, $"{loopSelected.DbEntry.Title!}.gpx");
+
+            if (fileName is null)
+            {
+                await StatusContext.ToastError($"Couldn't create a unique file name for {loopSelected.DbEntry.Title}?");
+                continue;
+            }
+
+            var fileStream = new FileStream(fileName.FullName, FileMode.OpenOrCreate);
+
+            var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true, CloseOutput = true };
+            await using var xmlWriter = XmlWriter.Create(fileStream, writerSettings);
+            GpxWriter.Write(xmlWriter, null, new GpxMetadata("Pointless Waymarks CMS"), null, null, trackList, null);
+            xmlWriter.Close();
+        }
     }
 
     [BlockingCommand]

@@ -1,9 +1,8 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.GpxImport.GpxImportControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:columnSort="clr-namespace:PointlessWaymarks.WpfCommon.ColumnSort;assembly=PointlessWaymarks.WpfCommon"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.GpxImport"
@@ -13,7 +12,6 @@
     xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance local:GpxImportContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -200,7 +198,7 @@
                             </WrapPanel>
                             <WrapPanel Style="{StaticResource ImportImportChoiceContainer}">
                                 <CheckBox IsChecked="{Binding MarkedForImport}" Style="{StaticResource ImportImportChoiceItem}">
-                                    ImportS
+                                    Import
                                 </CheckBox>
                                 <CheckBox IsChecked="{Binding ReplaceElevationOnImport}" Style="{StaticResource ImportImportChoiceItem}">
                                     Replace Elevation on Import

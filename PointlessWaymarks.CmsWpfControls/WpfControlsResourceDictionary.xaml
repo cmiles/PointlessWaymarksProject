@@ -1,4 +1,4 @@
-﻿<ResourceDictionary
+<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
@@ -623,10 +623,7 @@
                         <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
                         <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
-                        <WrapPanel
-                            Margin="4,4,0,0"
-                            Orientation="Horizontal"
-                            Visibility="{Binding DbEntry, Converter={StaticResource LineListHasRecordedOnVisibility}}">
+                        <WrapPanel Margin="4,4,0,0" Orientation="Horizontal">
                             <WrapPanel.Resources>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Margin" Value="14,0,0,0" />
@@ -638,7 +635,7 @@
                             <TextBlock Text="{Binding DbEntry.DescentElevation, StringFormat='Descent: {0}\''}" />
                             <TextBlock Text="{Binding DbEntry.MaximumElevation, StringFormat='Max Elevation: {0}\''}" />
                             <TextBlock Text="{Binding DbEntry.MinimumElevation, StringFormat='Min Elevation: {0}\''}" />
-                            <TextBlock Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}, StringFormat='Time: {0}'}" />
+                            <TextBlock Text="{Binding DbEntry, Converter={StaticResource LineRecordedOnToString}, StringFormat='Time: {0}'}" Visibility="{Binding DbEntry, Converter={StaticResource LineListHasRecordedOnVisibility}}" />
                         </WrapPanel>
                         <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
                         <WrapPanel

@@ -239,58 +239,45 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         }
 
         var tracksList = await GpxTools.TracksFromGpxFile(newFile, StatusContext.ProgressTracker());
+        var routesList = await GpxTools.RoutesFromGpxFile(newFile, StatusContext.ProgressTracker());
 
-        if (tracksList.Count < 1)
+        if (tracksList.Count + routesList.Count < 1)
         {
-            await StatusContext.ToastError("No Tracks in GPX File?");
+            await StatusContext.ToastError("No Tracks or Routes in GPX File?");
             return;
         }
 
-        GpxTools.GpxTrackInformation trackToImport;
-
-        if (tracksList.Count > 1)
+        if (tracksList.Count == 1 && routesList.Count == 0)
         {
-            var importTrackName = await StatusContext.ShowMessage("Choose Track",
-                "The GPX file contains more than 1 track - choose the track to import:",
-                tracksList.Select(x => x.Name).ToList());
-
-            var possibleSelectedTrack = tracksList.Where(x => x.Name == importTrackName).ToList();
-
-            if (possibleSelectedTrack.Count == 1)
-            {
-                trackToImport = possibleSelectedTrack.Single();
-            }
-            else
-            {
-                await StatusContext.ToastError("Track not found?");
-                return;
-            }
-        }
-        else
-        {
-            trackToImport = tracksList.First();
+            await UpdateLineFromTrack(tracksList.Single(), replaceElevations, updateStats);
+            return;
         }
 
-        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder!.TitleEntry.UserValue))
-            TitleSummarySlugFolder.TitleEntry.UserValue = trackToImport.Name;
-        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
-            TitleSummarySlugFolder.SummaryEntry.UserValue = trackToImport.Description;
-        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.FolderEntry.UserValue) &&
-            trackToImport.StartsOnLocal != null)
-            TitleSummarySlugFolder.FolderEntry.UserValue = trackToImport.StartsOnLocal.Value.Year.ToString();
-
-        LineGeoJson = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackToImport.Track,
-            replaceElevations, StatusContext.ProgressTracker());
-
-        if (updateStats)
+        if (routesList.Count == 1 && tracksList.Count == 0)
         {
-            await UpdateStatistics();
-
-            RecordingStartedOnEntry!.UserText =
-                trackToImport.StartsOnLocal?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
-            RecordingEndedOnEntry!.UserText =
-                trackToImport.EndsOnLocal?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+            await UpdateLineFromRoute(routesList.Single(), replaceElevations, updateStats);
+            return;
         }
+
+        var importRouteTrackName = await StatusContext.ShowMessage("Choose Track",
+            "The GPX file contains more than 1 track/route - choose which to import:",
+            tracksList.Select(x => $"{x.Name} (track)").Concat(routesList.Select(x => $"{x.Name} (route)")).ToList());
+
+        if (string.IsNullOrWhiteSpace(importRouteTrackName)) return;
+
+        var cleanedRouteTrackName = importRouteTrackName.Replace(" (track)", "").Replace(" (route)", "").Trim();
+
+        var possibleSelectedTrack = tracksList.Where(x => x.Name.Trim() == importRouteTrackName).ToList();
+        var possibleSelectedRoute = routesList.Where(x => x.Name.Trim() == importRouteTrackName).ToList();
+
+        if (possibleSelectedTrack.Count == 1)
+            await UpdateLineFromTrack(possibleSelectedTrack.Single(), replaceElevations, updateStats);
+
+        if (possibleSelectedRoute.Count == 1)
+            await UpdateLineFromRoute(possibleSelectedRoute.Single(), replaceElevations, updateStats);
+
+        await StatusContext.ToastError("Track not found?");
+        return;
     }
 
     [BlockingCommand]
@@ -496,12 +483,15 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
         var points = (await BracketCodePoints.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
         var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
-        var pointExternalDirectionsLinks = (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
+        var pointExternalDirectionsLinks =
+            (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(BodyContent.UserValue))
+            .Cast<object>();
         var geoJson = (await BracketCodeGeoJson.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
         var geoJsonLinks =
             (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
 
-        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(photos.Concat(photoLinks).Concat(points).Concat(pointExternalDirectionsLinks)
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(photos.Concat(photoLinks).Concat(points)
+            .Concat(pointExternalDirectionsLinks)
             .Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList());
 
         var lineAsFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(LineGeoJson);
@@ -576,6 +566,45 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private async Task UpdateLineFromRoute(GpxTools.GpxRouteInformation routeToImport, bool replaceElevations,
+        bool updateStats)
+    {
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder!.TitleEntry.UserValue))
+            TitleSummarySlugFolder.TitleEntry.UserValue = routeToImport.Name;
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
+            TitleSummarySlugFolder.SummaryEntry.UserValue = routeToImport.Description;
+
+        LineGeoJson = await LineTools.GeoJsonWithLineStringFromCoordinateList(routeToImport.Track,
+            replaceElevations, StatusContext.ProgressTracker());
+
+        if (updateStats) await UpdateStatistics();
+    }
+
+    private async Task UpdateLineFromTrack(GpxTools.GpxTrackInformation trackToImport, bool replaceElevations,
+        bool updateStats)
+    {
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder!.TitleEntry.UserValue))
+            TitleSummarySlugFolder.TitleEntry.UserValue = trackToImport.Name;
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.SummaryEntry.UserValue))
+            TitleSummarySlugFolder.SummaryEntry.UserValue = trackToImport.Description;
+        if (string.IsNullOrWhiteSpace(TitleSummarySlugFolder.FolderEntry.UserValue) &&
+            trackToImport.StartsOnLocal != null)
+            TitleSummarySlugFolder.FolderEntry.UserValue = trackToImport.StartsOnLocal.Value.Year.ToString();
+
+        LineGeoJson = await LineTools.GeoJsonWithLineStringFromCoordinateList(trackToImport.Track,
+            replaceElevations, StatusContext.ProgressTracker());
+
+        if (updateStats)
+        {
+            await UpdateStatistics();
+
+            RecordingStartedOnEntry!.UserText =
+                trackToImport.StartsOnLocal?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
+            RecordingEndedOnEntry!.UserText =
+                trackToImport.EndsOnLocal?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
         }
     }
 

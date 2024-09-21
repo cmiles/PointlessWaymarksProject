@@ -362,7 +362,8 @@ public partial class CmsCommonCommands
 
         if (!autoSaveAndClose && selectedFiles.Count > 10)
         {
-            await statusContext.ToastError("Opening new content in an editor window is limited to 10 files at a time...");
+            await statusContext.ToastError(
+                "Opening new content in an editor window is limited to 10 files at a time...");
             return;
         }
 
@@ -408,10 +409,14 @@ public partial class CmsCommonCommands
                 TaskbarItemProgressState.Normal, (decimal)outerLoopCounter / (selectedFileInfos.Count + 1)));
 
             var tracksList = await GpxTools.TracksFromGpxFile(loopFile, statusContext.ProgressTracker());
+            var routesList = await GpxTools.RoutesFromGpxFile(loopFile, statusContext.ProgressTracker());
 
-            if (tracksList.Count < 1 || tracksList.All(x => x.Track.Count < 2))
+            var noValidTracks = tracksList.Count < 1 || tracksList.All(x => x.Track.Count < 2);
+            var noValidRoutes = routesList.Count < 1 || routesList.All(x => x.Track.Count < 2);
+
+            if (noValidTracks && noValidRoutes)
             {
-                await statusContext.ToastWarning($"No Tracks in {loopFile.Name}? Skipping...");
+                await statusContext.ToastWarning($"No Tracks/Routes in {loopFile.Name}? Skipping...");
                 continue;
             }
 
@@ -449,6 +454,47 @@ public partial class CmsCommonCommands
 
                 statusContext.Progress(
                     $"New Line Editor - {loopFile.FullName} - Track {innerLoopCounter} of {tracksList.Count}");
+            }
+
+            if (routesList.Count < 1 || routesList.All(x => x.Track.Count < 2))
+            {
+                await statusContext.ToastWarning($"No Routes in {loopFile.Name}? Skipping...");
+                continue;
+            }
+
+            innerLoopCounter = 0;
+
+            foreach (var loopRoutes in routesList.Where(x => x.Track.Count > 1))
+            {
+                innerLoopCounter++;
+
+                var newEntry = await LineGenerator.NewFromGpxTrack(loopRoutes, false, skipFeatureIntersectionTagging, statusContext.ProgressTracker());
+
+                if (autoSaveAndClose)
+                {
+                    var (saveGenerationReturn, _) =
+                        await LineGenerator.SaveAndGenerateHtml(newEntry, DateTime.Now,
+                            statusContext.ProgressTracker());
+
+                    if (saveGenerationReturn.HasError)
+                    {
+                        var editor = await LineContentEditorWindow.CreateInstance(newEntry);
+                        await editor.PositionWindowAndShowOnUiThread();
+#pragma warning disable 4014
+                        //Allow execution to continue so Automation can continue
+                        editor.StatusContext.ShowMessageWithOkButton("Problem Saving",
+                            saveGenerationReturn.GenerationNote);
+#pragma warning restore 4014
+                        continue;
+                    }
+                }
+                else
+                {
+                    var editor = await LineContentEditorWindow.CreateInstance(newEntry, true);
+                }
+
+                statusContext.Progress(
+                    $"New Line Editor - {loopFile.FullName} - Track {innerLoopCounter} of {routesList.Count}");
             }
         }
     }
@@ -581,7 +627,8 @@ public partial class CmsCommonCommands
 
         if (!autoSaveAndClose && selectedFiles.Count > 10)
         {
-            await StatusContext.ToastError("Opening new content in an editor window is limited to 10 photos at a time...");
+            await StatusContext.ToastError(
+                "Opening new content in an editor window is limited to 10 photos at a time...");
             return;
         }
 
