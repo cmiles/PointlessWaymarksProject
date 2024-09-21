@@ -14,7 +14,7 @@
 #define MyAppName "Pointless Waymarks Utilitarian Image Combiner"
 #define MyAppDefaultDirName "PointlessWaymarksUtilitarianImageCombinerGui"
 #define MyAppExeName "PointlessWaymarks.UtilitarianImageCombinerGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksUtilitarianImageCombiner-Setup--"
+#define MyAppOutputBaseFilename "PointlessWaymarks-UtilitarianImageCombinerGui-Setup--"
 #define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.UtilitarianImageCombinerGui\*"
 
 [Setup]

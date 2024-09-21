@@ -14,7 +14,7 @@
 #define MyAppName "Pointless Waymarks PowerShell Runner"
 #define MyAppDefaultDirName "PointlessWaymarksPowerShellRunner"
 #define MyAppExeName "PointlessWaymarks.PowerShellRunnerGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksPowerShellRunner-Setup--"
+#define MyAppOutputBaseFilename "PointlessWaymarks-PowerShellRunnerGui-Setup--"
 #define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.PowerShellRunnerGui\*"
 
 [Setup]

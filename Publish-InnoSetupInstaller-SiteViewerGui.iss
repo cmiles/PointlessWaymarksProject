@@ -14,7 +14,7 @@
 #define MyAppName "Pointless Waymarks Site Viewer"
 #define MyAppDefaultDirName "PointlessWaymarksSiteViewer"
 #define MyAppExeName "PointlessWaymarks.SiteViewerGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksSiteViewer-Setup--"
+#define MyAppOutputBaseFilename "PointlessWaymarks-SiteViewerGui-Setup--"
 #define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.SiteViewerGui\*"
 
 [Setup]

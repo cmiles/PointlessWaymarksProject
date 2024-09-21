@@ -14,7 +14,7 @@
 #define MyAppName "Pointless Waymarks Feed Reader"
 #define MyAppDefaultDirName "PointlessWaymarksFeedReader"
 #define MyAppExeName "PointlessWaymarks.FeedReaderGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksFeedReader-Setup--"
+#define MyAppOutputBaseFilename "PointlessWaymarks-FeedReaderGui-Setup--"
 #define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.FeedReaderGui\*"
 
 [Setup]

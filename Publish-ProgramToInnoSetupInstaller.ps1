@@ -33,7 +33,7 @@ $fileVersionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($exePath
 $versionHour = [math]::Floor($fileVersionInfo.FilePrivatePart / 100)
 $versionMinute = $fileVersionInfo.FilePrivatePart - ($versionHour * 100)
 $versionDate = New-Object DateTime($fileVersionInfo.FileMajorPart, $fileVersionInfo.FileMinorPart, $fileVersionInfo.FileBuildPart, $hour, $minute, 0)
-$publishVersion = "{0}-{1}-{2}-{3}-{4}" -f $versionDate.ToString("yyyy"), $versionDate.ToString("MM"), $versionDate.ToString("MM"), $versionHour.ToString("00"), $versionMinute.ToString("00")
+$publishVersion = "{0}-{1}-{2}-{3}-{4}" -f $versionDate.ToString("yyyy"), $versionDate.ToString("MM"), $versionDate.ToString("dd"), $versionHour.ToString("00"), $versionMinute.ToString("00")
 
 Write-Host "Publish Version: $publishVersion"
 

@@ -14,7 +14,7 @@
 #define MyAppName "Pointless Waymarks CMS"
 #define MyAppDefaultDirName "PointlessWaymarksCms"
 #define MyAppExeName "PointlessWaymarks.CmsGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksCms-Setup--"
+#define MyAppOutputBaseFilename "PointlessWaymarks-CmsGui-Setup--"
 #define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.CmsGui\*"
 
 [Setup]

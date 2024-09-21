@@ -14,7 +14,7 @@
 #define MyAppName "Pointless Waymarks GeoTools"
 #define MyAppDefaultDirName "PointlessWaymarksGeoTools"
 #define MyAppExeName "PointlessWaymarks.GeoToolsGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksGeoTools-Setup--"
+#define MyAppOutputBaseFilename "PointlessWaymarks-GeoToolsGui-Setup--"
 #define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.GeoToolsGui\*"
 
 [Setup]

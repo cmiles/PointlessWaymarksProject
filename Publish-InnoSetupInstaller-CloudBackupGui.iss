@@ -14,7 +14,7 @@
 #define MyAppName "Pointless Waymarks Cloud Backup"
 #define MyAppDefaultDirName "PointlessWaymarksCloudBackup"
 #define MyAppExeName "PointlessWaymarks.CloudBackupGui.exe"
-#define MyAppOutputBaseFilename "PointlessWaymarksCloudBackup-Setup--"
+#define MyAppOutputBaseFilename "PointlessWaymarks-CloudBackupGui-Setup--"
 #define MyAppFilesSource "M:\PointlessWaymarksPublications\PointlessWaymarks.CloudBackupGui\*"
 
 [Setup]
