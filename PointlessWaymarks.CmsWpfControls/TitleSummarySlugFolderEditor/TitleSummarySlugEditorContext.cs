@@ -134,6 +134,8 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
 
         newItem.CheckForChangesAndValidationIssues();
 
+        newItem.CheckForChangesToTitleToFunctionStates();
+
         return newItem;
     }
 
