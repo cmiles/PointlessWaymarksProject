@@ -1503,15 +1503,6 @@ public static class UserSettingsUtilities
         {
             readResult.SiteName = "New Site";
             hasUpdates = true;
-
-            //2024-9-15: Assume that if there is a missing site name we are setting up a 
-            //new site and inject the default update location - we can't run
-            //this update 'always' in case someone has cleared the update location.
-            if (string.IsNullOrWhiteSpace(readResult.ProgramUpdateLocation))
-            {
-                readResult.ProgramUpdateLocation =
-                    @"https://software.pointlesswaymarks.com/Software/PointlessWaymarksSoftwareList.json";
-            }
         }
 
         if (string.IsNullOrWhiteSpace(readResult.SiteDomainName))
@@ -1640,6 +1631,8 @@ public static class UserSettingsUtilities
         newSettings.LatitudeDefault = ProjectDefaultLatitude;
         newSettings.LongitudeDefault = ProjectDefaultLongitude;
         newSettings.NumberOfItemsOnMainSitePage = 4;
+        newSettings.ProgramUpdateLocation =
+            @"https://software.pointlesswaymarks.com/Software/PointlessWaymarksSoftwareList.json";
         newSettings.SettingsId = Guid.NewGuid();
 
         SettingsFileFullName =
