@@ -37,7 +37,8 @@ public partial class ScriptJobRunListContext
     public required StatusControlContext StatusContext { get; set; }
 
     public static async Task<ScriptJobRunListContext> CreateInstance(StatusControlContext? statusContext,
-        List<Guid> jobFilter, string databaseFile, Func<ScriptJobRun, bool>? runFilter = null, string? runFilterDescription = null)
+        List<Guid> jobFilter, string databaseFile, Func<ScriptJobRun, bool>? runFilter = null,
+        string? runFilterDescription = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -170,6 +171,35 @@ public partial class ScriptJobRunListContext
         await ScriptJobRunOutputDiffWindow.CreateInstance(SelectedItems[0].PersistentId, null, _databaseFile);
     }
 
+    [NonBlockingCommand]
+    public async Task EditJobOfSelectedRun()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItem == null)
+        {
+            await StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        if (SelectedItem.Job == null)
+        {
+            await StatusContext.ToastError("No Job Found for Selected Run - perhaps the Job no longer exists?");
+            return;
+        }
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var currentJob = db.ScriptJobs.SingleOrDefault(x => x.PersistentId == SelectedItem.Job.PersistentId);
+
+        if (currentJob == null)
+        {
+            await StatusContext.ToastError("No Job Found for Selected Run - perhaps the Job no longer exists?");
+            return;
+        }
+
+        await ScriptJobEditorWindow.CreateInstance(currentJob, _databaseFile);
+    }
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
@@ -227,7 +257,7 @@ public partial class ScriptJobRunListContext
 
         if (dbRun == null) return;
 
-        if(!RunFilter(dbRun)) return;
+        if (!RunFilter(dbRun)) return;
 
         var dbJob = await db.ScriptJobs.SingleOrDefaultAsync(x => x.PersistentId == dbRun.ScriptJobPersistentId);
 
