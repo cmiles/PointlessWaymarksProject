@@ -26,7 +26,7 @@
     </Window.Resources>
     <Grid>
         <Grid
-            Margin="564,2,4,0"
+            Margin="708,2,4,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
@@ -58,8 +58,11 @@
             <TabItem Header="Run List - Errors">
                 <controls:ScriptJobRunListControl DataContext="{Binding ErrorRunListContext}" />
             </TabItem>
-            <TabItem Header="Custom Script">
+            <TabItem Header="PowerShell Custom Script">
                 <controls:CustomScriptRunnerControl DataContext="{Binding ArbitraryRunnerContext}" />
+            </TabItem>
+            <TabItem Header="C# Custom Script">
+                <controls:CsCustomScriptRunnerControl DataContext="{Binding CsArbitraryRunnerContext}" />
             </TabItem>
             <TabItem Header="All Progress">
                 <controls:ScriptProgressControl DataContext="{Binding ProgressContext}" />

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Devlooped.CredentialManager" Version="2.5.0.1" />
+    <PackageReference Include="Dotnet.Script.Core" Version="1.5.0" />
+  </ItemGroup>
+
+</Project>

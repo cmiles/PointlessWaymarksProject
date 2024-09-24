@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Text;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.PowerShellRunnerData;
@@ -12,8 +13,9 @@ internal class CustomScriptRunExecution
     internal required Guid DbId;
     internal required Guid JobId;
     internal required Guid RunId;
-    internal required string ScriptToRun;
     internal required string RunnerIdentifier;
+    internal required ScriptType ScriptStyle;
+    internal required string ScriptToRun;
 
     internal CustomScriptRunExecution()
     {
@@ -38,7 +40,19 @@ internal class CustomScriptRunExecution
 
         // create a pipeline and feed it the script text
         _pipeline = runSpace.CreatePipeline();
-        _pipeline.Commands.AddScript(ScriptToRun);
+
+        if (ScriptStyle == ScriptType.CsScript)
+        {
+            var byteArray = Encoding.UTF8.GetBytes(ScriptToRun);
+            var base64EncodedString = Convert.ToBase64String(byteArray);
+
+            _pipeline.Commands.AddScript(
+                @"M:\PointlessWaymarksPublications\PointlessWaymarks.PowerShellCsRunner\PointlessWaymarks.PowerShellCsRunner.exe " +
+                base64EncodedString);
+        }
+        else
+            _pipeline.Commands.AddScript(ScriptToRun);
+
         _pipeline.Input.Close();
 
 

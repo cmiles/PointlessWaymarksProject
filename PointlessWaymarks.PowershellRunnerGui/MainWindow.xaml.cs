@@ -50,7 +50,7 @@ public partial class MainWindow
 
         var currentDateVersion = versionInfo.dateVersion;
 
-        StatusContext = new StatusControlContext();
+        StatusContext = new StatusControlContext { BlockUi = true };
 
         DataContext = this;
 
@@ -66,9 +66,14 @@ public partial class MainWindow
         };
     }
 
+    public ScriptJobRunListContext? AllRunListContext { get; set; }
+
     public CustomScriptRunnerContext? ArbitraryRunnerContext { get; set; }
+
+    public CustomScriptRunnerContext CsArbitraryRunnerContext { get; set; }
     public string CurrentDatabase { get; set; } = string.Empty;
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
+    public ScriptJobRunListContext? ErrorRunListContext { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
 
     public string HelpText => """
@@ -81,8 +86,6 @@ public partial class MainWindow
     public string InfoTitle { get; set; }
     public ScriptJobListContext? JobListContext { get; set; }
     public ScriptProgressContext? ProgressContext { get; set; }
-    public ScriptJobRunListContext? AllRunListContext { get; set; }
-    public ScriptJobRunListContext? ErrorRunListContext { get; set; }
     public AppSettingsContext? SettingsContext { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public ProgramUpdateMessageContext UpdateMessageContext { get; set; }
@@ -215,8 +218,12 @@ public partial class MainWindow
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
         AllRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
-        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase, x => x.Errors, "Runs with Errors");
-        ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase,
+            x => x.Errors, "Runs with Errors");
+        ArbitraryRunnerContext =
+            await CustomScriptRunnerContext.CreateInstance(ScriptType.PowerShell, null, CurrentDatabase);
+        CsArbitraryRunnerContext =
+            await CustomScriptRunnerContext.CreateInstance(ScriptType.CsScript, null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
     }
@@ -245,7 +252,7 @@ public partial class MainWindow
 
     private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
-        StatusContext.RunFireAndForgetWithToastOnError(Setup);
+        StatusContext.RunBlockingTask(Setup);
     }
 
     [BlockingCommand]
@@ -322,8 +329,12 @@ public partial class MainWindow
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
         AllRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
-        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase, x => x.Errors, "Runs with Errors");
-        ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase,
+            x => x.Errors, "Runs with Errors");
+        ArbitraryRunnerContext =
+            await CustomScriptRunnerContext.CreateInstance(ScriptType.PowerShell, null, CurrentDatabase);
+        CsArbitraryRunnerContext =
+            await CustomScriptRunnerContext.CreateInstance(ScriptType.CsScript, null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
     }
@@ -404,8 +415,12 @@ public partial class MainWindow
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
         AllRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
-        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase, x => x.Errors, "Runs with Errors");
-        ArbitraryRunnerContext = await CustomScriptRunnerContext.CreateInstance(null, CurrentDatabase);
+        ErrorRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase,
+            x => x.Errors, "Runs with Errors");
+        ArbitraryRunnerContext =
+            await CustomScriptRunnerContext.CreateInstance(ScriptType.PowerShell, null, CurrentDatabase);
+        CsArbitraryRunnerContext =
+            await CustomScriptRunnerContext.CreateInstance(ScriptType.CsScript, null, CurrentDatabase);
         ProgressContext = await ScriptProgressContext.CreateInstance(null, [], [], CurrentDatabase);
         SettingsContext = await AppSettingsContext.CreateInstance(StatusContext);
         HelpContext = new HelpDisplayContext([

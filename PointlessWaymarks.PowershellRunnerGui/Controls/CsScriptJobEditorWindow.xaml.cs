@@ -1,3 +1,4 @@
+using System.Windows;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
@@ -9,13 +10,13 @@ using PointlessWaymarks.WpfCommon.Utility;
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
 /// <summary>
-///     Interaction logic for ScriptJobEditorWindow.xaml
+///     Interaction logic for CsScriptJobEditorWindow.xaml
 /// </summary>
 [NotifyPropertyChanged]
 [StaThreadConstructorGuard]
-public partial class ScriptJobEditorWindow
+public partial class CsScriptJobEditorWindow : Window
 {
-    private ScriptJobEditorWindow()
+    private CsScriptJobEditorWindow()
     {
         InitializeComponent();
         DataContext = this;
@@ -35,11 +36,11 @@ public partial class ScriptJobEditorWindow
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var window = new ScriptJobEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
+        var window = new CsScriptJobEditorWindow { StatusContext = await StatusControlContext.CreateInstance() };
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        window.JobContext = await ScriptJobEditorContext.CreateInstance(window.StatusContext, toLoad, ScriptType.PowerShell, databaseFile);
+        window.JobContext = await ScriptJobEditorContext.CreateInstance(window.StatusContext, toLoad, ScriptType.CsScript, databaseFile);
 
         window.JobContext.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 

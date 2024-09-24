@@ -197,7 +197,7 @@ public partial class ScriptJobRunListContext
             return;
         }
 
-        await ScriptJobEditorWindow.CreateInstance(currentJob, _databaseFile);
+        await ScriptJobEditorLauncher.CreateInstance(currentJob, _databaseFile);
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

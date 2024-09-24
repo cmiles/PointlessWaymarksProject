@@ -39,6 +39,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     public required StringDataEntryContext ScheduleEntry { get; set; }
     public required StringDataEntryContext ScriptEntry { get; set; }
     public required StatusControlContext StatusContext { get; set; }
+    public required ScriptType EditorScriptType { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -52,7 +53,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     public bool HasValidationIssues { get; set; }
 
     public static async Task<ScriptJobEditorContext> CreateInstance(StatusControlContext? statusContext,
-        ScriptJob initialScriptJob, string databaseFile)
+        ScriptJob initialScriptJob, ScriptType scriptTypeForEditor, string databaseFile)
     {
         var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
@@ -145,6 +146,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
             ScheduleEntry = cronEntry,
             ScriptEntry = scriptEntry,
             EnabledEntry = enabledEntry,
+            EditorScriptType = scriptTypeForEditor,
             _databaseFile = databaseFile,
             _dbId = dbId
         };
@@ -244,6 +246,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
         toSave.Script = ScriptEntry.UserValue.Encrypt(obfuscationKey);
         toSave.ScheduleEnabled = EnabledEntry.UserValue;
         toSave.LastEditOn = DateTime.Now;
+        toSave.ScriptType = EditorScriptType.ToString();
 
         await db.SaveChangesAsync();
 

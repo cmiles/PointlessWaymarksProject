@@ -12,4 +12,5 @@ public class ScriptJob
     public Guid PersistentId { get; set; }
     public bool ScheduleEnabled { get; set; }
     public string Script { get; set; } = string.Empty;
+    public string ScriptType { get; set; } = string.Empty;
 }

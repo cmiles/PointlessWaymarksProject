@@ -16,6 +16,8 @@ public partial class CustomScriptRunnerContext
     private Guid _dbId = Guid.Empty;
 
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
+
+    public ScriptType EditorScriptType { get; set; }
     public required ObservableCollection<IScriptMessageItem> Items { get; set; }
     public required Guid ScriptJobId { get; set; }
     public required Guid ScriptJobRunId { get; set; }
@@ -44,7 +46,8 @@ public partial class CustomScriptRunnerContext
         DataNotifications.PublishRunCancelRequest("Custom Script Runner", _dbId, ScriptJobRunId);
     }
 
-    public static async Task<CustomScriptRunnerContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<CustomScriptRunnerContext> CreateInstance(ScriptType scriptType,
+        StatusControlContext? statusContext,
         string databaseFile)
     {
         var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
@@ -54,7 +57,7 @@ public partial class CustomScriptRunnerContext
         var dbId = await PowerShellRunnerDbQuery.DbId(databaseFile);
 
         var factoryScriptEntry = StringDataEntryNoIndicatorsContext.CreateInstance();
-        factoryScriptEntry.Title = "PowerShell Script";
+        factoryScriptEntry.Title = "Script";
         factoryScriptEntry.HelpText =
             "Enter a PowerShell Script to run.";
 
@@ -66,7 +69,8 @@ public partial class CustomScriptRunnerContext
             _databaseFile = databaseFile,
             _dbId = dbId,
             ScriptJobId = ArbitraryScriptRunnerIdGuid(),
-            ScriptJobRunId = ArbitraryScriptRunnerIdGuid()
+            ScriptJobRunId = ArbitraryScriptRunnerIdGuid(),
+            EditorScriptType = scriptType
         };
 
         factoryContext.BuildCommands();
@@ -131,7 +135,7 @@ public partial class CustomScriptRunnerContext
 
         try
         {
-            await PowerShellRunner.ExecuteScript(UserScriptEntryContext.UserValue, _dbId, ScriptJobId, ScriptJobRunId,
+            await PowerShellRunner.ExecuteScript(UserScriptEntryContext.UserValue, EditorScriptType, _dbId, ScriptJobId, ScriptJobRunId,
                 "Custom Script Runner");
         }
         catch (Exception e)

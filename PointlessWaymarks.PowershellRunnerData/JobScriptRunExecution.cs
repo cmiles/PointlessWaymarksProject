@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.PowerShellRunnerData.Models;
@@ -96,7 +97,17 @@ internal class JobScriptRunExecution
 
         try
         {
-            result = await ExecuteScript(job.Script.Decrypt(obfuscationKey), _dbId, job.PersistentId, run.PersistentId,
+            var decryptedScript = job.Script.Decrypt(obfuscationKey);
+
+            if (job.ScriptType == ScriptType.CsScript.ToString())
+            {
+                var byteArray = Encoding.UTF8.GetBytes(decryptedScript);
+                var base64EncodedString = Convert.ToBase64String(byteArray);
+
+                decryptedScript = @"M:\PointlessWaymarksPublications\PointlessWaymarks.PowerShellCsRunner\PointlessWaymarks.PowerShellCsRunner.exe " + base64EncodedString;
+            }
+
+            result = await ExecuteScript(decryptedScript, _dbId, job.PersistentId, run.PersistentId,
                 job.Name);
 
             run.Output = string.Join(Environment.NewLine, result.Value.runLog).Encrypt(obfuscationKey);

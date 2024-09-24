@@ -189,7 +189,7 @@ public partial class ScriptJobListContext
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        await ScriptJobEditorWindow.CreateInstance(toEdit.DbEntry, DatabaseFile);
+        await ScriptJobEditorLauncher.CreateInstance(toEdit.DbEntry, DatabaseFile);
     }
 
     private async Task FilterList()
@@ -218,19 +218,37 @@ public partial class ScriptJobListContext
 
 
     [NonBlockingCommand]
-    public async Task NewJob()
+    public async Task NewPowerShellJob()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var newJob = new ScriptJob
         {
             Name = "New Script Job",
-            LastEditOn = DateTime.Now
+            LastEditOn = DateTime.Now,
+            ScriptType = ScriptType.PowerShell.ToString()
         };
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        await ScriptJobEditorWindow.CreateInstance(newJob, DatabaseFile);
+        await ScriptJobEditorLauncher.CreateInstance(newJob, DatabaseFile);
+    }
+
+    [NonBlockingCommand]
+    public async Task NewCsScriptJob()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newJob = new ScriptJob
+        {
+            Name = "New Script Job",
+            LastEditOn = DateTime.Now,
+            ScriptType = ScriptType.CsScript.ToString()
+        };
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        await ScriptJobEditorLauncher.CreateInstance(newJob, DatabaseFile);
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

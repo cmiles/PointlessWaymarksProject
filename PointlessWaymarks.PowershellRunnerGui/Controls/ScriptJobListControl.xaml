@@ -464,8 +464,12 @@
                     Content="_Refresh"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
-                    Command="{Binding NewJobCommand}"
-                    Content="_New"
+                    Command="{Binding NewPowerShellJobCommand}"
+                    Content="New _PowerShell"
+                    Style="{StaticResource ActionPanelButtonStyle}" />
+                <Button
+                    Command="{Binding NewCsScriptJobCommand}"
+                    Content="_New C# Script"
                     Style="{StaticResource ActionPanelButtonStyle}" />
                 <Button
                     Command="{Binding ViewRunListForAllItemsCommand}"
