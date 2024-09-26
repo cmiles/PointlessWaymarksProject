@@ -1,4 +1,5 @@
 using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel.__Internals;
 using ICSharpCode.AvalonEdit;
 using Microsoft.Xaml.Behaviors;
 
@@ -6,6 +7,9 @@ namespace PointlessWaymarks.PowerShellRunnerGui.PowerShellEditor;
 
 public sealed class AvalonEditRenderedStringBindingBehaviour : Behavior<TextEditor>
 {
+    private string _textFromTextEditor
+        ;
+
     //[c# - Two Way Binding to AvalonEdit Document Text using MVVM - Stack Overflow](https://stackoverflow.com/questions/18964176/two-way-binding-to-avalonedit-document-text-using-mvvm)
     public static readonly DependencyProperty RenderedTextProperty =
         DependencyProperty.Register(nameof(RenderedText), typeof(string),
@@ -21,7 +25,11 @@ public sealed class AvalonEditRenderedStringBindingBehaviour : Behavior<TextEdit
 
     private void AssociatedObjectOnTextChanged(object? sender, EventArgs eventArgs)
     {
-        if (sender is TextEditor { Document: not null } textEditor) RenderedText = textEditor.Document.Text;
+        if (sender is TextEditor { Document: not null } textEditor)
+        {
+            _textFromTextEditor = textEditor.Document.Text;
+            RenderedText = _textFromTextEditor;
+        }
     }
 
     protected override void OnAttached()
@@ -47,8 +55,15 @@ public sealed class AvalonEditRenderedStringBindingBehaviour : Behavior<TextEdit
     {
         var behavior = dependencyObject as AvalonEditRenderedStringBindingBehaviour;
         var editor = behavior?.AssociatedObject;
+        if (editor is null) return;
 
-        if (editor?.Document != null)
+        var newValue = dependencyPropertyChangedEventArgs.NewValue.ToString() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(newValue) && string.IsNullOrWhiteSpace(behavior!._textFromTextEditor)) return;
+
+        if (newValue.Equals(behavior!._textFromTextEditor)) return;
+
+        if (editor.Document != null)
         {
             var caretOffset = editor.CaretOffset;
             editor.Document.Text = dependencyPropertyChangedEventArgs.NewValue != null
