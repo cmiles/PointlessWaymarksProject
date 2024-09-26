@@ -1,26 +1,27 @@
+using System.Text;
 using Dotnet.Script.Core;
 using Dotnet.Script.DependencyModel.Context;
 using Dotnet.Script.DependencyModel.Logging;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using System.Text;
 
 try
 {
+    var directory =
+        new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            @"Pointless Waymarks Project\PsrTemporaryFiles"));
+
+    if (!directory.Exists) directory.Create();
+
     var combineArgs = string.Join("", args);
 
-    // Decode the Base64 string to a byte array
+    // Decode the Base64 string to a byte array and then to a string
     var decodedBytes = Convert.FromBase64String(combineArgs);
-
-    // Convert the byte array to a regular string
     var decodedString = Encoding.UTF8.GetString(decodedBytes);
 
-    var compiler = new ScriptCompiler(LogFactory, true);
-    var runner = new ScriptRunner(compiler, LogFactory, ScriptConsole.Default);
+    var compiler = new ScriptCompiler(EmptyLogFactory, false) { AssemblyLoadContext = new ScriptAssemblyLoadContext() };
+    var runner = new ScriptRunner(compiler, EmptyLogFactory, ScriptConsole.Default);
     var sourceText = SourceText.From(decodedString);
-    var context = new ScriptContext(sourceText, AppContext.BaseDirectory, [], null, OptimizationLevel.Debug,
-        ScriptMode.Eval);
-
+    var context = new ScriptContext(sourceText, directory.FullName, [], scriptMode: ScriptMode.Eval);
     var executeTask = runner.Execute<object>(context).GetAwaiter().GetResult();
 
     if (executeTask is int returnValue) return returnValue;
@@ -35,7 +36,7 @@ catch (Exception e)
     return -1;
 }
 
-Logger LogFactory(Type type)
+Logger EmptyLogFactory(Type type)
 {
     return (_, _, _) => { };
 }
