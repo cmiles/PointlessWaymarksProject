@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
 using SQLitePCL;
+using WinRT;
 
 namespace PointlessWaymarks.CmsData.Database;
 
@@ -804,11 +805,18 @@ public static class Db
         
         var toHistoric = await context.FileContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricFileContent();
@@ -826,7 +834,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     /// <summary>
@@ -840,11 +848,18 @@ public static class Db
         
         var toHistoric = await context.GeoJsonContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.GeoJson,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricGeoJsonContent();
@@ -862,7 +877,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.GeoJson,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     /// <summary>
@@ -876,11 +891,18 @@ public static class Db
         
         var toHistoric = await context.ImageContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricImageContent();
@@ -898,7 +920,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     /// <summary>
@@ -912,11 +934,18 @@ public static class Db
         
         var toHistoric = await context.LineContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Line,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricLineContent();
@@ -934,7 +963,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Line,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     /// <summary>
@@ -949,10 +978,16 @@ public static class Db
         var toHistoric = await context.LinkContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
         
-        if (!toHistoric.Any()) return;
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricLinkContent();
@@ -970,7 +1005,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     /// <summary>
@@ -987,10 +1022,18 @@ public static class Db
         var toHistoric = await context.MapComponents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
         
-        if (!toHistoric.Any()) return;
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Map,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricMapComponent();
@@ -1031,7 +1074,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Map,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
         
         if (elementsToDeleteContentIds.Any())
             DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
@@ -1049,11 +1092,18 @@ public static class Db
         
         var toHistoric = await context.NoteContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricNoteContent();
@@ -1071,7 +1121,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     /// <summary>
@@ -1085,11 +1135,18 @@ public static class Db
         
         var toHistoric = await context.PhotoContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricPhotoContent();
@@ -1107,7 +1164,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     /// <summary>
@@ -1124,11 +1181,18 @@ public static class Db
         
         var toHistoric = await context.PointContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricPointContent();
@@ -1152,7 +1216,9 @@ public static class Db
         
         var relatedDetails = await context.PointDetails.Where(x => x.PointContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
+
+        var relatedDetailsContentIdsToDelete = relatedDetails.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in relatedDetails)
         {
             var newHistoric = new HistoricPointDetail();
@@ -1168,10 +1234,10 @@ public static class Db
         await context.SaveChangesAsync().ConfigureAwait(false);
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Point,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
-            DataNotificationUpdateType.Delete, relatedDetails.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, relatedDetailsContentIdsToDelete);
     }
     
     /// <summary>
@@ -1185,11 +1251,18 @@ public static class Db
         
         var toHistoric = await context.PostContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricPostContent();
@@ -1207,7 +1280,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     /// <summary>
@@ -1242,11 +1315,18 @@ public static class Db
         
         var toHistoric = await context.VideoContents.Where(x => x.ContentId == contentId).ToListAsync()
             .ConfigureAwait(false);
-        
-        if (!toHistoric.Any()) return;
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Video,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
         
         progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
-        
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
         foreach (var loopToHistoric in toHistoric)
         {
             var newHistoric = new HistoricVideoContent();
@@ -1264,7 +1344,7 @@ public static class Db
         progress?.Report($"{toHistoric.First().Title} Deleted");
         
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Video,
-            DataNotificationUpdateType.Delete, toHistoric.Select(x => x.ContentId).ToList());
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
     }
     
     public static async Task<List<FileContent>> FileContentFromBoundingBox(this PointlessWaymarksContext db,
