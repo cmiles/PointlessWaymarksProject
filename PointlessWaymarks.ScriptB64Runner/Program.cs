@@ -27,16 +27,22 @@ try
     if (executeTask is int returnValue) return returnValue;
     if (executeTask is not null) Console.WriteLine(executeTask.ToString());
 
-    return 1;
+    return 0;
 }
 catch (Exception e)
 {
     Console.WriteLine("Exception: ");
     Console.WriteLine(e);
-    return -1;
+    return 1;
 }
 
 Logger EmptyLogFactory(Type type)
 {
-    return (_, _, _) => { };
+    return (level, message, ex) =>
+    {
+        if (level <= LogLevel.Info) return;
+
+        Console.WriteLine($"{level}: {message}");
+        if (ex is not null) Console.WriteLine(ex.ToString());
+    };
 }
