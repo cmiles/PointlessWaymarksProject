@@ -523,16 +523,23 @@ public partial class ScriptJobListContext
     }
 
     [NonBlockingCommand]
-    public async Task ViewScript(ScriptJobListListItem? toRun)
+    public async Task ViewScript(ScriptJobListListItem? toView)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        if (toRun == null)
+        if (toView == null)
         {
             await StatusContext.ToastWarning("Nothing Selected to View?");
             return;
         }
 
-        await ScriptViewWindow.CreateInstance(toRun.DbEntry.PersistentId, DatabaseFile);
+        if (toView.DbEntry.ScriptType == ScriptType.CsScript.ToString())
+        {
+            await CsScriptViewWindow.CreateInstance(toView.DbEntry.PersistentId, DatabaseFile);
+        }
+        else
+        {
+            await ScriptViewWindow.CreateInstance(toView.DbEntry.PersistentId, DatabaseFile);
+        }
     }
 }

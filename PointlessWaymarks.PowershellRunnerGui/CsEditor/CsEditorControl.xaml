@@ -76,6 +76,7 @@
             </StackPanel>
         </StackPanel>
         <editor:RoslynCodeEditor
+            Name="CsCodeEditor"
             Grid.Row="1"
             ContextActionsIcon="{StaticResource Bulb}"
             FontFamily="Consolas"

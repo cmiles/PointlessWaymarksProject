@@ -145,9 +145,11 @@ public partial class MainWindow
 
     public async Task CheckForProgramUpdate(string currentDateVersion)
     {
+        StatusContext.Progress("Checking for Program Update");
+
         var settings = PowerShellRunnerGuiSettingTools.ReadSettings();
 
-        Log.Information(
+        StatusContext.Progress(
             $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}");
 
         if (string.IsNullOrEmpty(currentDateVersion)) return;
@@ -156,7 +158,7 @@ public partial class MainWindow
             settings.ProgramUpdateDirectory,
             "PointlessWaymarks-PowerShellRunnerGui-Setup");
 
-        Log.Information(
+        StatusContext.Progress(
             $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile ?? string.Empty}");
 
         await UpdateMessageContext.LoadData(currentDateVersion, dateString, setupFile);
@@ -389,29 +391,42 @@ public partial class MainWindow
 
     public async Task Setup()
     {
+        StatusContext.Progress("Starting Set Up");
+
         var settings = PowerShellRunnerGuiSettingTools.ReadSettings();
 
         if (string.IsNullOrWhiteSpace(settings.DatabaseFile) || !File.Exists(settings.DatabaseFile))
         {
+            StatusContext.Progress("No Database File Found - Creating New Db");
+
             var newDb = UniqueFileTools.UniqueFile(
                 FileLocationHelpers.DefaultStorageDirectory(), "PointlessWaymarks-PowerShellRunner.db");
             settings.DatabaseFile = newDb!.FullName;
 
             await PowerShellRunnerDbContext.CreateInstanceWithEnsureCreated(newDb.FullName);
 
+            StatusContext.Progress($"No Database File Found - Created {newDb.FullName}, Writing Settings");
+
             await PowerShellRunnerGuiSettingTools.WriteSettings(settings);
         }
         else
         {
+            StatusContext.Progress($"Database {settings.DatabaseFile} Found");
+
             await PowerShellRunnerDbContext.CreateInstanceWithEnsureCreated(settings.DatabaseFile);
         }
 
         CurrentDatabase = settings.DatabaseFile;
 
         _dbId = await PowerShellRunnerDbQuery.DbId(CurrentDatabase);
+
+        StatusContext.Progress("Cleaning Up Orphans");
         _ = PowerShellRunner.CleanUpOrphanRuns(CurrentDatabase, _dbId);
 
+        StatusContext.Progress("Getting Keys");
         await ObfuscationKeyGuiHelpers.GetObfuscationKeyWithUserCreateAsNeeded(StatusContext, CurrentDatabase);
+
+        StatusContext.Progress("Setting Up Controls");
 
         JobListContext = await ScriptJobListContext.CreateInstance(StatusContext, CurrentDatabase);
         AllRunListContext = await ScriptJobRunListContext.CreateInstance(StatusContext, [], CurrentDatabase);
@@ -428,6 +443,7 @@ public partial class MainWindow
             HelpMarkdown.CombinedAboutToolsAndPackages
         ]);
 
+        StatusContext.Progress("Starting Main Timer");
         _ = MainTimerCheckForNewRuns();
 
         StatusContext.RunFireAndForgetNonBlockingTask(async () =>

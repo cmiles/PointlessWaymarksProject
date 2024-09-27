@@ -1,5 +1,5 @@
 <Window
-    x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.ScriptViewWindow"
+    x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.CsScriptViewWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,7 +10,6 @@
     Title="{Binding WindowTitle}"
     Width="800"
     Height="600"
-    d:DataContext="{d:DesignInstance local:ScriptViewWindow}"
     mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
@@ -20,7 +19,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <local:ScriptViewControl DataContext="{Binding ScriptContext}" />
+        <local:CsScriptViewControl DataContext="{Binding ScriptContext}" />
         <status:StatusControl
             Grid.Row="0"
             d:IsHidden="true"

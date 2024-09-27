@@ -53,7 +53,7 @@
             </StackPanel>
         </StackPanel>
         <avalonedit:TextEditor
-            Name="TextEditor"
+            Name="PsCodeEditor"
             Grid.Row="1"
             HorizontalScrollBarVisibility="Disabled"
             SyntaxHighlighting="PowerShell">

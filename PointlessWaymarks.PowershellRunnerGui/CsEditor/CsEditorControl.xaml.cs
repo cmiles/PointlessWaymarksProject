@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Windows.Controls;
+using System.Windows;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using RoslynPad.Editor;
@@ -13,8 +13,12 @@ namespace PointlessWaymarks.PowerShellRunnerGui.CsEditor;
 /// <summary>
 ///     Interaction logic for CsEditorControl.xaml
 /// </summary>
-public partial class CsEditorControl : UserControl
+public partial class CsEditorControl
 {
+    public static readonly DependencyProperty IsReadOnlyProperty = DependencyProperty.Register(
+        nameof(IsReadOnly), typeof(bool), typeof(CsEditorControl),
+        new PropertyMetadata(default(bool), IsReadOnlyPropertyChangedCallback));
+
     private readonly RoslynHost _host;
 
     public CsEditorControl()
@@ -25,7 +29,7 @@ public partial class CsEditorControl : UserControl
         {
             typeof(object).Assembly,
             typeof(Regex).Assembly,
-            typeof(Enumerable).Assembly,
+            typeof(Enumerable).Assembly
         }, imports: ["System.Console", "Internal"]);
 
         _host = new ScriptRunnerRoslynHost(new[]
@@ -33,6 +37,23 @@ public partial class CsEditorControl : UserControl
             Assembly.Load("RoslynPad.Roslyn.Windows"),
             Assembly.Load("RoslynPad.Editor.Windows")
         }, assemblyList);
+    }
+
+    public bool IsReadOnly
+    {
+        get => (bool)GetValue(IsReadOnlyProperty);
+        set => SetValue(IsReadOnlyProperty, value);
+    }
+
+    private static void IsReadOnlyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is CsEditorControl editControl)
+        {
+            if (Application.Current.Dispatcher.CheckAccess())
+                editControl.CsCodeEditor.IsReadOnly = (bool)e.NewValue;
+            else
+                Application.Current.Dispatcher.BeginInvoke(() => editControl.CsCodeEditor.IsReadOnly = (bool)e.NewValue);
+        }
     }
 
     private async void OnItemLoaded(object sender, EventArgs e)

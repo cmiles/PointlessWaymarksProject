@@ -44,6 +44,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\PointlessWaymarks.PowerShellRunnerData\PointlessWaymarks.PowerShellRunnerData.csproj" />
+        <ProjectReference Include="..\PointlessWaymarks.ScriptB64Runner\PointlessWaymarks.ScriptB64Runner.csproj" />
         <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
         <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
     </ItemGroup>

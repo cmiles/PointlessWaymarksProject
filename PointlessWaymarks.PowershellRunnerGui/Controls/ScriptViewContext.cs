@@ -5,6 +5,7 @@ using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -16,10 +17,8 @@ public partial class ScriptViewContext
     private string _key = string.Empty;
     public required ScriptJob DbEntry { get; set; }
     public NotificationCatcher? IpcNotifications { get; set; }
-
+    public required StringDataEntryNoIndicatorsContext ScriptEntry { get; set; }
     public required StatusControlContext StatusContext { get; set; }
-
-    public string TranslatedScript { get; set; } = string.Empty;
 
     public static async Task<ScriptViewContext> CreateInstance(StatusControlContext? statusContext,
         Guid jobPersistentId, string databaseFile)
@@ -34,11 +33,24 @@ public partial class ScriptViewContext
 
         var job = await db.ScriptJobs.SingleAsync(x => x.PersistentId == jobPersistentId);
 
+        var scriptEntry = StringDataEntryNoIndicatorsContext.CreateInstance();
+        scriptEntry.Title = "Script";
+        scriptEntry.ValidationFunctions =
+        [
+            x =>
+            {
+                if (string.IsNullOrWhiteSpace(x))
+                    return Task.FromResult(new IsValid(false, "A Script is required for the Job"));
+                return Task.FromResult(new IsValid(true, string.Empty));
+            }
+        ];
+        scriptEntry.UserValue = job.Script.Decrypt(key);
+
         var factoryModel = new ScriptViewContext
         {
             StatusContext = factoryStatusContext,
             DbEntry = job,
-            TranslatedScript = job.Script.Decrypt(key),
+            ScriptEntry = scriptEntry,
             _key = key,
             _databaseFile = databaseFile,
             _dbId = dbId
@@ -64,6 +76,6 @@ public partial class ScriptViewContext
         if (job == null) return;
 
         DbEntry = job;
-        TranslatedScript = DbEntry.Script.Decrypt(_key);
+        ScriptEntry.UserValue = DbEntry.Script.Decrypt(_key);
     }
 }

@@ -46,9 +46,10 @@ internal class CustomScriptRunExecution
             var byteArray = Encoding.UTF8.GetBytes(ScriptToRun);
             var base64EncodedString = Convert.ToBase64String(byteArray);
 
+            var b64RunnerExecutable = Path.Combine(AppContext.BaseDirectory, "PointlessWaymarks.ScriptB64Runner.exe");
+
             _pipeline.Commands.AddScript(
-                @"M:\PointlessWaymarksPublications\PointlessWaymarks.PowerShellCsRunner\PointlessWaymarks.PowerShellCsRunner.exe " +
-                base64EncodedString);
+                $"{b64RunnerExecutable} {base64EncodedString}");
         }
         else
             _pipeline.Commands.AddScript(ScriptToRun);

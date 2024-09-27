@@ -104,7 +104,9 @@ internal class JobScriptRunExecution
                 var byteArray = Encoding.UTF8.GetBytes(decryptedScript);
                 var base64EncodedString = Convert.ToBase64String(byteArray);
 
-                decryptedScript = @"M:\PointlessWaymarksPublications\PointlessWaymarks.PowerShellCsRunner\PointlessWaymarks.PowerShellCsRunner.exe " + base64EncodedString;
+                var b64RunnerExecutable = Path.Combine(AppContext.BaseDirectory, "PointlessWaymarks.ScriptB64Runner.exe");
+
+                decryptedScript = $"{b64RunnerExecutable} {base64EncodedString}";
             }
 
             result = await ExecuteScript(decryptedScript, _dbId, job.PersistentId, run.PersistentId,
