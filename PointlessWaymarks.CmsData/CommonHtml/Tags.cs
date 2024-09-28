@@ -525,6 +525,7 @@ public static class Tags
     public static HtmlTag PreviousAndNextContentDiv(List<IContentCommon> previousPosts,
         List<IContentCommon> laterPosts)
     {
+        if(!UserSettingsSingleton.CurrentSettings().ShowPreviousNextContent) return HtmlTag.Empty();
         if (!laterPosts.Any() && !previousPosts.Any()) return HtmlTag.Empty();
 
         var hasPreviousPosts = previousPosts.Any();

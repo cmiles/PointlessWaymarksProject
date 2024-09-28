@@ -117,6 +117,8 @@ public static class BodyContentReferences
     public static async Task<HtmlTag> CompactContentTag(IContentCommon content, DateTime? generationVersion,
         IProgress<string>? progress = null)
     {
+        if(!UserSettingsSingleton.CurrentSettings().ShowRelatedContent) return HtmlTag.Empty();
+
         var toSearch = string.Empty;
 
         toSearch += content.BodyContent + content.Summary;
@@ -126,7 +128,7 @@ public static class BodyContentReferences
         return await CompactContentTag(content.ContentId, toSearch, generationVersion, progress).ConfigureAwait(false);
     }
 
-    public static async Task<HtmlTag> CompactContentTag(Guid toCheckFor, string? bodyContentToCheckIn,
+    private static async Task<HtmlTag> CompactContentTag(Guid toCheckFor, string? bodyContentToCheckIn,
         DateTime? generationVersion, IProgress<string>? progress = null)
     {
         var contentCommonList = new List<IContentCommon>();

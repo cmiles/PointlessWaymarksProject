@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.UserSettingsEditor.UserSettingsEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -139,20 +139,6 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=NumberOfItemsOnMainPageTextBox}">
-                            Maximum Number of Items To Show on Main Page
-                        </Label>
-                        <TextBox
-                            Name="NumberOfItemsOnMainPageTextBox"
-                            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                            Text="{Binding EditorSettings.NumberOfItemsOnMainSitePage, UpdateSourceTrigger=PropertyChanged}" />
-                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownNumberOfItemsOnTheMainPage}">
-                            <b:Interaction.Behaviors>
-                                <behaviors:IgnoreMouseWheelBehavior />
-                            </b:Interaction.Behaviors>
-                        </wpf:MarkdownViewer>
-                    </StackPanel>
-                    <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteSummaryTextBox}">
                             Site Sub-title/Summary
                         </Label>
@@ -181,6 +167,66 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultCreatedByTextBox}">
+                            Default Created By Name
+                        </Label>
+                        <TextBox
+                            Name="DefaultCreatedByTextBox"
+                            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                            Text="{Binding EditorSettings.DefaultCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownDefaultCreatedByName}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=NumberOfItemsOnMainPageTextBox}">
+                            Maximum Number of Items To Show on Main Page
+                        </Label>
+                        <TextBox
+                            Name="NumberOfItemsOnMainPageTextBox"
+                            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
+                            Text="{Binding EditorSettings.NumberOfItemsOnMainSitePage, UpdateSourceTrigger=PropertyChanged}" />
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownNumberOfItemsOnTheMainPage}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=ShowRelatedContentCheckBox}">
+                            Content Pages - Show Related Content Block
+                        </Label>
+                        <CheckBox
+                            Name="ShowRelatedContentCheckBox"
+                            Margin="6,0,0,0"
+                            IsChecked="{Binding EditorSettings.ShowRelatedContent, UpdateSourceTrigger=PropertyChanged}">
+                            Show Related Content
+                        </CheckBox>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownShowRelatedContent}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=ShowPreviousNextContentCheckBox}">
+                            Content Pages - Show Previous/Next Content Block
+                        </Label>
+                        <CheckBox
+                            Name="ShowPreviousNextContentCheckBox"
+                            Margin="6,0,0,0"
+                            IsChecked="{Binding EditorSettings.ShowPreviousNextContent, UpdateSourceTrigger=PropertyChanged}">
+                            Show Previous/Next
+                        </CheckBox>
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownShowPreviousNextContent}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteLangTextBox}">
                             Site Lang Attribute
                         </Label>
@@ -203,20 +249,6 @@
                             Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
                             Text="{Binding EditorSettings.SiteDirectionAttribute, UpdateSourceTrigger=PropertyChanged}" />
                         <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownSiteDirAttribute}">
-                            <b:Interaction.Behaviors>
-                                <behaviors:IgnoreMouseWheelBehavior />
-                            </b:Interaction.Behaviors>
-                        </wpf:MarkdownViewer>
-                    </StackPanel>
-                    <StackPanel Orientation="Vertical">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultCreatedByTextBox}">
-                            Default Created By Name
-                        </Label>
-                        <TextBox
-                            Name="DefaultCreatedByTextBox"
-                            Style="{StaticResource DataEntryTextBoxSingleLineStyle}"
-                            Text="{Binding EditorSettings.DefaultCreatedBy, UpdateSourceTrigger=PropertyChanged}" />
-                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownDefaultCreatedByName}">
                             <b:Interaction.Behaviors>
                                 <behaviors:IgnoreMouseWheelBehavior />
                             </b:Interaction.Behaviors>
