@@ -14,11 +14,13 @@ using PointlessWaymarks.CmsData.ExcelImport;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsTests;
 
 public class TestSeries01Ironwood
 {
+    private Application _application;
     public const string ContributorOneName = "Ironwood Enthusiast";
     public const string TestDefaultCreatedBy = "Ironwood Ghost Writer";
     public const string TestSiteAuthors = "Pointless Waymarks Ironwood 'Testers'";
@@ -49,16 +51,22 @@ public class TestSeries01Ironwood
         //sections that must run on the GUI thread to run without issue.
         //
         //https://stackoverflow.com/questions/1106881/using-the-wpf-dispatcher-in-unit-tests
-        var waitForApplicationRun = new TaskCompletionSource<bool>();
-#pragma warning disable 4014
-        Task.Run(() =>
-#pragma warning restore 4014
+
+        var taskScheduler = new StaTaskScheduler(1);
+
+        Task.Factory.StartNew(x =>
         {
-            var application = new Application();
-            application.Startup += (s, e) => { waitForApplicationRun.SetResult(true); };
-            application.Run();
-        });
-        waitForApplicationRun.Task.Wait();
+            _application = new Application();
+            var window = new Window
+            {
+                Height = 300,
+                Width = 600
+            };
+            _application.Dispatcher.Invoke(() => _application.Run(window));
+            ThreadSwitcher.PinnedDispatcher = _application.Dispatcher;
+        }, this, CancellationToken.None, TaskCreationOptions.None, taskScheduler);
+
+        await Task.Delay(3000);
 
         var outSettings = await UserSettingsUtilities.SetupNewSite(
             $"IronwoodForestTestSite-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}", DebugTrackers.DebugProgressTracker());
@@ -412,6 +420,7 @@ public class TestSeries01Ironwood
         newVideo.Slug = SlugTools.CreateSlug(true, metadata.Title);
         newVideo.Folder = metadata.PhotoCreatedOn.Year.ToString("F0");
         newVideo.ShowInMainSiteFeed = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.ShowInMainSiteFeed;
+        newVideo.ShowInSearch = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.ShowInSearch;
 
         newVideo.BodyContent = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.BodyContent;
         newVideo.Tags = IronwoodVideoInfo.BlueSkyAndCloudsVideoContent01.Tags;
@@ -740,6 +749,25 @@ public class TestSeries01Ironwood
             document.QuerySelectorAll(".post-related-posts-container .compact-content-container");
 
         Assert.That(dailyBeforeAfterItems.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task I10_ShowInSearchTest()
+    {
+        var search = UserSettingsSingleton.CurrentSettings().LocalSiteAllContentListFile();
+        var searchText = await File.ReadAllTextAsync(search.FullName);
+        var db = await Db.Context();
+        var aguaBlancaDbContent = db.PhotoContents.Single(x => x.Title == IronwoodPhotoInfo.AguaBlancaContent.Title);
+        Assert.That(searchText.Contains(aguaBlancaDbContent.Slug));
+
+        aguaBlancaDbContent.ShowInSearch = false;
+        await db.SaveChangesAsync();
+
+        await SiteGeneration.ChangedSiteContent(DebugTrackers.DebugProgressTracker());
+
+        searchText = await File.ReadAllTextAsync(search.FullName);
+
+        Assert.That(!searchText.Contains(aguaBlancaDbContent.Slug));
     }
 
     [OneTimeTearDown]

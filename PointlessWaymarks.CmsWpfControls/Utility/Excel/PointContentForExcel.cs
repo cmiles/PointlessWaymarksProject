@@ -25,6 +25,7 @@ public class PointContentDtoForExcel
     public string? MapLabel { get; set; }
     public string? MapMarkerColor { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
+    public bool ShowInSearch { get; set; }
     public string? Slug { get; set; }
     public string? Summary { get; set; }
     public string? Tags { get; set; }

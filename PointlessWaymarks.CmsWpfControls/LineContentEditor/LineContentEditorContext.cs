@@ -13,6 +13,7 @@ using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
@@ -90,6 +91,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public ConversionDataEntryContext<DateTime?>? RecordingStartedOnEntry { get; set; }
     public bool ReplaceElevationOnImport { get; set; }
     public BoolDataEntryContext? ShowContentReferencesOnMapEntry { get; set; }
+    public BoolDataEntryContext ShowInSearch { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
@@ -180,6 +182,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
+        newEntry.ShowInSearch = ShowInSearch.UserValue;
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -356,6 +359,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
+        ShowInSearch = await BoolDataEntryTypes.CreateInstanceForShowInSearch(DbEntry, true);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);

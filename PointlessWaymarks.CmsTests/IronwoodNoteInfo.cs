@@ -27,6 +27,7 @@ public static class IronwoodNoteInfo
             ContentVersion = Db.ContentVersionDateTime(),
             Folder = "IronwoodForest",
             ShowInMainSiteFeed = true,
+            ShowInSearch = true,
             Summary = "Basic links for Ironwood Forest National Monument",
             Tags = "ironwood forest national monument, excluded tag",
             Slug = NoteGenerator.UniqueNoteSlug().Result

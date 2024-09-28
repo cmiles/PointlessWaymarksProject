@@ -144,7 +144,7 @@
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
                             <boolDataEntry:BoolDataEntryControl Margin="4,8,0,0" DataContext="{Binding ShowSizes}" />
-                            <boolDataEntry:BoolDataEntryControl DataContext="{Binding ShowInSearch}" Style="{StaticResource DataEntryBoolStyle}" />
+                            <boolDataEntry:BoolDataEntryControl Margin="4,8,4,0" DataContext="{Binding ShowInSearch}" Style="{StaticResource DataEntryBoolStyle}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding AltTextEntry}" />
                             <optionalLocationEntry:OptionalLocationEntryControl DataContext="{Binding OptionalLocationEntry}" />

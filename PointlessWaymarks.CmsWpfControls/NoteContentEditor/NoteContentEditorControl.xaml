@@ -1,8 +1,9 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.NoteContentEditor.NoteContentEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
+    xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
@@ -38,6 +39,7 @@
                             <stringWithDropdownDataEntry:StringWithDropdownDataEntryControl DataContext="{Binding FolderEntry}" />
                             <stringDataEntry:StringDataEntryControl DataContext="{Binding Summary}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <boolDataEntry:BoolDataEntryControl Margin="4,8,4,0" DataContext="{Binding ShowInSearch}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                             <contentIdViewer:ContentIdViewerControl

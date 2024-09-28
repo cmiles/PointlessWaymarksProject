@@ -22,6 +22,7 @@ public class HistoricPostContent : IUpdateNotes, IContentCommon, IOptionalLocati
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public bool ShowLocation { get; set; }
+    public bool ShowInSearch { get; set; }
     public string? Tags { get; set; }
     public string? Folder { get; set; }
     public string? Slug { get; set; }

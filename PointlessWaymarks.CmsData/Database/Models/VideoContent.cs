@@ -10,7 +10,6 @@ public class VideoContent : IUpdateNotes, IContentCommon, IOptionalLocation
     public string? VideoCreatedBy { get; set; }
     public required DateTime VideoCreatedOn { get; set; }
     public DateTime? VideoCreatedOnUtc { get; set; }
-    
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public required Guid ContentId { get; set; }
@@ -29,6 +28,7 @@ public class VideoContent : IUpdateNotes, IContentCommon, IOptionalLocation
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public bool ShowLocation { get; set; }
+    public bool ShowInSearch { get; set; } = true;
     public string? Tags { get; set; }
     public string? Folder { get; set; }
     public string? Slug { get; set; }
@@ -36,7 +36,7 @@ public class VideoContent : IUpdateNotes, IContentCommon, IOptionalLocation
     public string? Title { get; set; }
     public string? UpdateNotes { get; set; }
     public string? UpdateNotesFormat { get; set; }
-    
+
     public static VideoContent CreateInstance()
     {
         return NewContentModels.InitializeVideoContent(null);

@@ -157,6 +157,7 @@
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <boolDataEntry:BoolDataEntryControl Margin="4,8,4,0" DataContext="{Binding ShowInSearch}" />
                             <boolDataEntry:BoolDataEntryControl Margin="4,8,0,0" DataContext="{Binding ShowSizesEntry}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />

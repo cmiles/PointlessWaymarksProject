@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
-public class HistoricImageContent : IUpdateNotes, IContentCommon, IShowInSearch, IOptionalLocation
+public class HistoricImageContent : IUpdateNotes, IContentCommon, IOptionalLocation
 {
     public string? AltText { get; set; }
     public string? OriginalFileName { get; set; }

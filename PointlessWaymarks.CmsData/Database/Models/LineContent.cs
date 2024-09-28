@@ -11,29 +11,15 @@ namespace PointlessWaymarks.CmsData.Database.Models;
 public class LineContent : IUpdateNotes, IContentCommon
 {
     public string? ActivityType { get; set; }
-    public string? BodyContent { get; set; }
-    public string? BodyContentFormat { get; set; }
     public double ClimbElevation { get; set; }
-    public required Guid ContentId { get; set; }
-    public required DateTime ContentVersion { get; set; }
-    public string? CreatedBy { get; set; }
-    public required DateTime CreatedOn { get; set; }
     public double DescentElevation { get; set; }
-    public required DateTime FeedOn { get; set; }
-    public string? Folder { get; set; }
-    [JsonPropertyOrder(0)] public int Id { get; set; }
     public bool IncludeInActivityLog { get; set; }
     public double InitialViewBoundsMaxLatitude { get; set; }
     public double InitialViewBoundsMaxLongitude { get; set; }
     public double InitialViewBoundsMinLatitude { get; set; }
     public double InitialViewBoundsMinLongitude { get; set; }
-    public bool IsDraft { get; set; }
-    public string? LastUpdatedBy { get; set; }
-    public DateTime? LastUpdatedOn { get; set; }
-    [NotMapped] [JsonIgnore] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
     public string? Line { get; set; }
     public double LineDistance { get; set; }
-    public Guid? MainPicture { get; set; }
     public double MaximumElevation { get; set; }
     public double MinimumElevation { get; set; }
     public bool PublicDownloadLink { get; set; }
@@ -42,10 +28,25 @@ public class LineContent : IUpdateNotes, IContentCommon
     public DateTime? RecordingStartedOn { get; set; }
     public DateTime? RecordingStartedOnUtc { get; set; }
     public bool ShowContentReferencesOnMap { get; set; }
+    public string? BodyContent { get; set; }
+    public string? BodyContentFormat { get; set; }
+    public required Guid ContentId { get; set; }
+    public required DateTime ContentVersion { get; set; }
+    [JsonPropertyOrder(0)] public int Id { get; set; }
+    public string? CreatedBy { get; set; }
+    public required DateTime CreatedOn { get; set; }
+    public string? LastUpdatedBy { get; set; }
+    public DateTime? LastUpdatedOn { get; set; }
+    [NotMapped] [JsonIgnore] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
+    public Guid? MainPicture { get; set; }
+    public required DateTime FeedOn { get; set; }
+    public bool IsDraft { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
+    public bool ShowInSearch { get; set; } = true;
+    public string? Tags { get; set; }
+    public string? Folder { get; set; }
     public string? Slug { get; set; }
     public string? Summary { get; set; }
-    public string? Tags { get; set; }
     public string? Title { get; set; }
     public string? UpdateNotes { get; set; }
     public string? UpdateNotesFormat { get; set; }

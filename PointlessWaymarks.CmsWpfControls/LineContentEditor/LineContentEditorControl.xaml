@@ -21,7 +21,6 @@
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance lineContentEditor:LineContentEditorContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -48,6 +47,7 @@
                             <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
                             <boolDataEntry:BoolDataEntryControl Margin="4,8,4,0" DataContext="{Binding PublicDownloadLinkEntry}" />
                             <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <boolDataEntry:BoolDataEntryControl Margin="4,8,4,0" DataContext="{Binding ShowInSearch}" />
                             <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
                             <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
                             <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />

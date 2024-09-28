@@ -1,7 +1,4 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
-using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
@@ -11,18 +8,14 @@ public class PhotoContent : IUpdateNotes, IContentCommon, IOptionalLocation
     public string? Aperture { get; set; }
     public string? CameraMake { get; set; }
     public string? CameraModel { get; set; }
-    public double? Elevation { get; set; }
     public string? FocalLength { get; set; }
     public int? Iso { get; set; }
-    public double? Latitude { get; set; }
     public string? Lens { get; set; }
     public string? License { get; set; }
-    public double? Longitude { get; set; }
     public string? OriginalFileName { get; set; }
     public string? PhotoCreatedBy { get; set; }
     public required DateTime PhotoCreatedOn { get; set; }
     public DateTime? PhotoCreatedOnUtc { get; set; }
-    public bool ShowLocation { get; set; }
     public bool ShowPhotoSizes { get; set; }
     public string? ShutterSpeed { get; set; }
     public string? BodyContent { get; set; }
@@ -39,6 +32,11 @@ public class PhotoContent : IUpdateNotes, IContentCommon, IOptionalLocation
     public required DateTime FeedOn { get; set; }
     public bool IsDraft { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
+    public double? Elevation { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public bool ShowLocation { get; set; }
+    public bool ShowInSearch { get; set; } = true;
     public string? Tags { get; set; }
     public string? Folder { get; set; }
     public string? Slug { get; set; }
@@ -52,5 +50,4 @@ public class PhotoContent : IUpdateNotes, IContentCommon, IOptionalLocation
     {
         return NewContentModels.InitializePhotoContent(null);
     }
-
 }

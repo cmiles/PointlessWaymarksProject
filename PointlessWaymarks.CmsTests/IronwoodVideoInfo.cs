@@ -25,6 +25,7 @@ public static class IronwoodVideoInfo
             Folder = "2023",
             License = "Public Domain",
             ShowInMainSiteFeed = true,
+            ShowInSearch = true,
             Slug = "2023-january-blue-sky-and-clouds-video",
             Summary = "2023 January Blue Sky and Clouds Video.",
             Tags = "sky",

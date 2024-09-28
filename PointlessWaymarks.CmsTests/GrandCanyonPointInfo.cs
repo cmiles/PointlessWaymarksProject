@@ -23,6 +23,7 @@ public static class GrandCanyonPointInfo
             FeedOn = new DateTime(2020, 9, 18, 7, 16, 16),
             Folder = "GrandCanyon",
             ShowInMainSiteFeed = false,
+            ShowInSearch = true,
             Summary = "A named point on the South Rim of the Grand Canyon",
             Tags = "grand canyon,yuma point",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString(),
@@ -56,6 +57,7 @@ public static class GrandCanyonPointInfo
             FeedOn = new DateTime(2020, 9, 18, 7, 16, 16),
             Folder = "GrandCanyon",
             ShowInMainSiteFeed = false,
+            ShowInSearch = true,
             Summary =
                 "A named point on the South Rim of the Grand Canyon - under the open skies and free flying helicopters.",
             Tags = "grand canyon,yuma point",

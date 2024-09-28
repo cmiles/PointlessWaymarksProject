@@ -27,6 +27,7 @@ public class PointContent : IUpdateNotes, IContentCommon
     public required DateTime FeedOn { get; set; }
     public bool IsDraft { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
+    public bool ShowInSearch { get; set; } = true;
     public string? Tags { get; set; }
     public string? Folder { get; set; }
     public string? Slug { get; set; }

@@ -159,23 +159,23 @@ public static class ContentGalleryPageGenerators
         async Task<List<DateOnly>> DateList()
         {
             //!!Content Type List!!
-            var fileContent = await db.FileContents.Where(x => !x.IsDraft).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+            var fileContent = await db.FileContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
-            var geoJsonContent = await db.GeoJsonContents.Where(x => !x.IsDraft).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+            var geoJsonContent = await db.GeoJsonContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
             var imageContent = await db.ImageContents.Where(x => !x.IsDraft && x.ShowInSearch)
                 .Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date).ToListAsync();
-            var lineContent = await db.LineContents.Where(x => !x.IsDraft).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+            var lineContent = await db.LineContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
-            var noteContent = await db.NoteContents.Where(x => !x.IsDraft).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+            var noteContent = await db.NoteContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
-            var photoContent = await db.PhotoContents.Where(x => !x.IsDraft).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+            var photoContent = await db.PhotoContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
-            var pointContent = await db.PointContents.Where(x => !x.IsDraft).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+            var pointContent = await db.PointContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
-            var postContent = await db.PostContents.Where(x => !x.IsDraft).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+            var postContent = await db.PostContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
-            var videoContent = await db.VideoContents.Where(x => !x.IsDraft).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+            var videoContent = await db.VideoContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)

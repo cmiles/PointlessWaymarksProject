@@ -15,6 +15,7 @@ using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CmsWpfControls.DropdownDataEntry;
 using PointlessWaymarks.CmsWpfControls.GeoSearch;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
@@ -29,6 +30,7 @@ using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
@@ -102,6 +104,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
     public ContentMapMarkerColorContext MapMarkerColorEntry { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public PointDetailListContext? PointDetails { get; set; }
+    public BoolDataEntryContext ShowInSearch { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
@@ -225,6 +228,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
+        newEntry.ShowInSearch = ShowInSearch.UserValue;
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -334,6 +338,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
+        ShowInSearch = await BoolDataEntryTypes.CreateInstanceForShowInSearch(DbEntry, true);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
@@ -537,7 +542,8 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
             return;
         }
 
-        await StatusContext.ToastSuccess($"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
+        await StatusContext.ToastSuccess(
+            $"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
 
         var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
         DisplayedContentGuids =

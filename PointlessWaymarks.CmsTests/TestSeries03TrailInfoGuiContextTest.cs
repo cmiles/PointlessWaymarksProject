@@ -6,11 +6,13 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsWpfControls.FileContentEditor;
+using PointlessWaymarks.WpfCommon;
 
 namespace PointlessWaymarks.CmsTests;
 
 public class TestSeries03TrailInfoGuiContextTest
 {
+    private Application _application;
     public const string TestDefaultCreatedBy = "Trail Notes Ghost Writer";
     public const string TestSiteAuthors = "Pointless Waymarks Trail Notes 'Testers'";
     public const string TestSiteEmailTo = "Trail@Notes.Fake";
@@ -25,21 +27,21 @@ public class TestSeries03TrailInfoGuiContextTest
     [OneTimeSetUp]
     public async Task A00_CreateTestSite()
     {
-        //This is one of the lower answers from the StackOverflow question below - I found this
-        //to be a very easy and understandable way to allow WPF GUI oriented code that contains
-        //sections that must run on the GUI thread to run without issue.
-        //
-        //https://stackoverflow.com/questions/1106881/using-the-wpf-dispatcher-in-unit-tests
-        var waitForApplicationRun = new TaskCompletionSource<bool>();
-#pragma warning disable 4014
-        Task.Run(() =>
-#pragma warning restore 4014
+        var taskScheduler = new StaTaskScheduler(1);
+
+        Task.Factory.StartNew(x =>
         {
-            var application = new Application();
-            application.Startup += (s, e) => { waitForApplicationRun.SetResult(true); };
-            application.Run();
-        });
-        waitForApplicationRun.Task.Wait();
+            _application = new Application();
+            var window = new Window
+            {
+                Height = 300,
+                Width = 600
+            };
+            _application.Dispatcher.Invoke(() => _application.Run(window));
+            ThreadSwitcher.PinnedDispatcher = _application.Dispatcher;
+        }, this, CancellationToken.None, TaskCreationOptions.None, taskScheduler);
+
+        await Task.Delay(3000);
 
         var outSettings = await UserSettingsUtilities.SetupNewSite(
             $"TrailNotesTestSite-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}", DebugTrackers.DebugProgressTracker());

@@ -6,7 +6,6 @@ using System.Windows;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -14,6 +13,7 @@ using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
+using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
@@ -39,7 +39,8 @@ namespace PointlessWaymarks.CmsWpfControls.GeoJsonContentEditor;
 public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIssues,
     ICheckForChangesAndValidation, IWebViewMessenger
 {
-    private GeoJsonContentEditorContext(StatusControlContext statusContext, GeoJsonContent dbEntry, string serializedMapIcons)
+    private GeoJsonContentEditorContext(StatusControlContext statusContext, GeoJsonContent dbEntry,
+        string serializedMapIcons)
     {
         StatusContext = statusContext;
 
@@ -67,19 +68,16 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public GeoJsonContent DbEntry { get; set; }
-    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public string GeoJsonText { get; set; } = string.Empty;
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public BoolDataEntryContext? PublicDownloadLink { get; set; }
     public EventHandler? RequestContentEditorWindowClose { get; set; }
+    public BoolDataEntryContext ShowInSearch { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
-    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
 
     public void CheckForChangesAndValidationIssues()
@@ -87,6 +85,11 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         HasChanges = PropertyScanners.ChildPropertiesHaveChanges(this);
         HasValidationIssues = PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
+    public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
+    public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
 
     [BlockingCommand]
     private async Task AddFeatureIntersectTags()
@@ -164,6 +167,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
         newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
+        newEntry.ShowInSearch = ShowInSearch.UserValue;
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -282,6 +286,7 @@ public partial class GeoJsonContentEditorContext : IHasChanges, IHasValidationIs
             await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry, null, null, null);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
+        ShowInSearch = await BoolDataEntryTypes.CreateInstanceForShowInSearch(DbEntry, true);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);

@@ -95,7 +95,10 @@ public partial class TitleSummarySlugEditorContext : IHasChanges, IHasValidation
             }
 
             TitleToSlugEnabled = SlugTools.CreateSlug(true, TitleEntry.UserValue) != SlugEntry.UserValue;
-            TitleToSummaryEnabled =
+
+            if(string.IsNullOrWhiteSpace(SummaryEntry.UserValue)) TitleToSummaryEnabled = true;
+            else
+                TitleToSummaryEnabled =
                 !(SummaryEntry.UserValue.Equals(TitleEntry.UserValue, StringComparison.OrdinalIgnoreCase) ||
                   (SummaryEntry.UserValue.Length - 1 == TitleEntry.UserValue.Length &&
                    char.IsPunctuation(SummaryEntry.UserValue[^1]) && SummaryEntry.UserValue[..^1]

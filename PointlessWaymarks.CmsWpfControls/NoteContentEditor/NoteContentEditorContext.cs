@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Windows;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -18,6 +17,7 @@ using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
@@ -56,6 +56,8 @@ public partial class NoteContentEditorContext : IHasChanges, IHasValidationIssue
 
 Note Content is like a simplified Post - no title and slug to edit or maintain and no Updates data to maintain. You can always use a Post instead of a note - but you might find it convenient if trying to quickly post a news item or a couple of links to do it as a Note rather than a Post.
 ";
+
+    public BoolDataEntryContext ShowInSearch { get; set; }
 
     public StatusControlContext StatusContext { get; set; }
     public StringDataEntryContext? Summary { get; set; }
@@ -99,6 +101,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
+        newEntry.ShowInSearch = ShowInSearch.UserValue;
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
         newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
@@ -144,6 +147,7 @@ Note Content is like a simplified Post - no title and slug to edit or maintain a
         Summary = await StringDataEntryTypes.CreateSummaryInstance(DbEntry);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
+        ShowInSearch = await BoolDataEntryTypes.CreateInstanceForShowInSearch(DbEntry, true);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);

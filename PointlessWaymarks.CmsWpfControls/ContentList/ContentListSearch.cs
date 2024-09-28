@@ -1,5 +1,6 @@
 using System.Text.Json;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
 using PointlessWaymarks.CmsWpfControls.ImageList;
@@ -344,17 +345,17 @@ public static class ContentListSearch
             searchResultModifier);
     }
 
-    public static ContentListSearchReturn SearchImageShowInSearch(IContentListItem toFilter, string searchString,
+    public static ContentListSearchReturn SearchShowInSearch(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
-        if (toFilter is not ImageListListItem fileItem)
+        if (toFilter.Content() is not IShowInSearch searchItem)
             return new ContentListSearchReturn(
                 new ContentListSearchFunctionReturn(false,
-                    "Image Show In Search on Item that is not a File - Excluding"), searchResultModifier);
+                    "Show In Search on Item that does not have that option - Excluding"), searchResultModifier);
 
         return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterBoolean(fileItem.DbEntry.ShowInSearch, searchString,
-                "File Embed"), searchResultModifier);
+            ContentListSearchFunctions.FilterBoolean(searchItem.ShowInSearch, searchString,
+                "Show in Search"), searchResultModifier);
     }
 
     public static ContentListSearchReturn SearchIncludeInActivityLog(IContentListItem toFilter, string searchString,

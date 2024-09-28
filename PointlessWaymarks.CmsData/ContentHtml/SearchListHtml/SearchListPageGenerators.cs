@@ -16,15 +16,15 @@ public static class SearchListPageGenerators
         {
             //!!Content Type List!!
             var db = Db.Context().Result;
-            var fileContent = db.FileContents.Where(x => !x.IsDraft).Cast<object>().ToList();
-            var geoJsonContent = db.GeoJsonContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+            var fileContent = db.FileContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
+            var geoJsonContent = db.GeoJsonContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
             var imageContent = db.ImageContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
-            var lineContent = db.LineContents.Where(x => !x.IsDraft).Cast<object>().ToList();
-            var noteContent = db.NoteContents.Where(x => !x.IsDraft).Cast<object>().ToList();
-            var photoContent = db.PhotoContents.Where(x => !x.IsDraft).Cast<object>().ToList();
-            var pointContent = db.PointContents.Where(x => !x.IsDraft).Cast<object>().ToList();
-            var postContent = db.PostContents.Where(x => !x.IsDraft).Cast<object>().ToList();
-            var videoContent = db.VideoContents.Where(x => !x.IsDraft).Cast<object>().ToList();
+            var lineContent = db.LineContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
+            var noteContent = db.NoteContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
+            var photoContent = db.PhotoContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
+            var pointContent = db.PointContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
+            var postContent = db.PostContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
+            var videoContent = db.VideoContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
                 .Concat(photoContent).Concat(pointContent).Concat(postContent).Concat(videoContent)
@@ -48,7 +48,7 @@ public static class SearchListPageGenerators
         static List<object> ContentList()
         {
             var db = Db.Context().Result;
-            return db.FileContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+            return db.FileContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
         }
 
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteFileListFile();
@@ -67,7 +67,7 @@ public static class SearchListPageGenerators
         static List<object> ContentList()
         {
             var db = Db.Context().Result;
-            return db.GeoJsonContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+            return db.GeoJsonContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
         }
 
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteGeoJsonListFile();
@@ -107,7 +107,7 @@ public static class SearchListPageGenerators
         static List<object> ContentList()
         {
             var db = Db.Context().Result;
-            return db.LineContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+            return db.LineContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
         }
 
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteLineListFile();
@@ -126,7 +126,7 @@ public static class SearchListPageGenerators
         static List<object> ContentList()
         {
             var db = Db.Context().Result;
-            return db.NoteContents.Where(x => !x.IsDraft).ToList().OrderByDescending(x => x.Title).Cast<object>()
+            return db.NoteContents.Where(x => !x.IsDraft && x.ShowInSearch).ToList().OrderByDescending(x => x.Title).Cast<object>()
                 .ToList();
         }
 
@@ -146,7 +146,7 @@ public static class SearchListPageGenerators
         static List<object> ContentList()
         {
             var db = Db.Context().Result;
-            return db.PhotoContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+            return db.PhotoContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
         }
 
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoListFile();
@@ -165,7 +165,7 @@ public static class SearchListPageGenerators
         static List<object> ContentList()
         {
             var db = Db.Context().Result;
-            return db.PointContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+            return db.PointContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
         }
 
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePointListFile();
@@ -184,7 +184,7 @@ public static class SearchListPageGenerators
         static List<object> ContentList()
         {
             var db = Db.Context().Result;
-            return db.PostContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+            return db.PostContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
         }
 
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePostListFile();
@@ -286,7 +286,7 @@ public static class SearchListPageGenerators
         static List<object> ContentList()
         {
             var db = Db.Context().Result;
-            return db.VideoContents.Where(x => !x.IsDraft).OrderBy(x => x.Title).Cast<object>().ToList();
+            return db.VideoContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
         }
 
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteVideoListFile();

@@ -520,6 +520,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchLastUpdatedBy;
             else if (searchString.StartsWith("IN MAIN SITE FEED:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchInMainSiteFeed;
+            else if (searchString.StartsWith("SHOW IN SEARCH:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchShowInSearch;
             else if (searchString.StartsWith("TAGS:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchTags;
             else if (searchString.StartsWith("SLUG:", StringComparison.InvariantCultureIgnoreCase))
@@ -550,8 +552,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchPhotoPosition;
             else if (searchString.StartsWith("SHOW PICTURE SIZES:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchPictureShowSizes;
-            else if (searchString.StartsWith("IMAGE IN SEARCH:", StringComparison.InvariantCultureIgnoreCase))
-                searchFilterFunction = ContentListSearch.SearchImageShowInSearch;
             else if (searchString.StartsWith("MILES:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchMiles;
             else if (searchString.StartsWith("MIN ELEVATION:", StringComparison.InvariantCultureIgnoreCase))

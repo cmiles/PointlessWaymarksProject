@@ -26,6 +26,7 @@ public class FileContent : IUpdateNotes, IContentCommon, IOptionalLocation
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public bool ShowLocation { get; set; }
+    public bool ShowInSearch { get; set; } = true;
     public string? Tags { get; set; }
     public string? Folder { get; set; }
     public string? Slug { get; set; }
@@ -33,7 +34,7 @@ public class FileContent : IUpdateNotes, IContentCommon, IOptionalLocation
     public string? Title { get; set; }
     public string? UpdateNotes { get; set; }
     public string? UpdateNotesFormat { get; set; }
-    
+
     public static FileContent CreateInstance()
     {
         return NewContentModels.InitializeFileContent(null);

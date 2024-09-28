@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
-public class ImageContent : IUpdateNotes, IContentCommon, IShowInSearch, IOptionalLocation
+public class ImageContent : IUpdateNotes, IContentCommon, IOptionalLocation
 {
     public string? AltText { get; set; }
     public string? OriginalFileName { get; set; }
@@ -25,7 +25,7 @@ public class ImageContent : IUpdateNotes, IContentCommon, IShowInSearch, IOption
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public bool ShowLocation { get; set; }
-    public bool ShowInSearch { get; set; }
+    public bool ShowInSearch { get; set; } = true;
     public string? Tags { get; set; }
     public string? Folder { get; set; }
     public string? Slug { get; set; }

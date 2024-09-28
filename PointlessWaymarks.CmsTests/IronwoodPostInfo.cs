@@ -29,6 +29,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
             ContentVersion = Db.ContentVersionDateTime(),
             Folder = "IronwoodForest",
             ShowInMainSiteFeed = true,
+            ShowInSearch = true,
             Summary = "Basic information for Ironwood Forest National Monument",
             Tags = "ironwood forest national monument, excluded tag",
             UpdateNotesFormat = ContentFormatDefaults.Content.ToString()

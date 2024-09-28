@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using PointlessWaymarks.CmsData.Database.Models;
-
 namespace PointlessWaymarks.CmsWpfControls.Utility.Excel;
 
 public class GeoJsonContentForExcel
@@ -24,6 +21,7 @@ public class GeoJsonContentForExcel
     public Guid? MainPicture { get; set; }
     public bool PublicDownloadLink { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
+    public bool ShowInSearch { get; set; }
     public string? Slug { get; set; }
     public string? Summary { get; set; }
     public string? Tags { get; set; }

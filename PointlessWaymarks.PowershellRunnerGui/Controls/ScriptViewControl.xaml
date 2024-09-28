@@ -30,7 +30,7 @@
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding DbEntry.Name}" />
         <GroupBox Grid.Row="1" Header="PowerShell Script">
-            <powerShellEditor:PowerShellEditorControl IsReadOnly="True" DataContext="{Binding ScriptEntry}"></powerShellEditor:PowerShellEditorControl>
+            <powerShellEditor:PowerShellEditorControl DataContext="{Binding ScriptEntry}" IsReadOnly="True" />
         </GroupBox>
     </Grid>
 </UserControl>

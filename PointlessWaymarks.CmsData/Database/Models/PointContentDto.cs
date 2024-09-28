@@ -20,7 +20,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     public string? BodyContentFormat { get; set; }
     public Guid ContentId { get; set; }
     public DateTime ContentVersion { get; set; }
-    public int Id { get; set; } = -1;
+    public int Id { get; set; } = 0;
     public string? CreatedBy { get; set; }
     public DateTime CreatedOn { get; set; }
     public string? LastUpdatedBy { get; set; }
@@ -30,6 +30,7 @@ public class PointContentDto : IUpdateNotes, IContentCommon
     public DateTime FeedOn { get; set; }
     public bool IsDraft { get; set; }
     public bool ShowInMainSiteFeed { get; set; }
+    public bool ShowInSearch { get; set; } = true;
     public string? Tags { get; set; }
     public string? Folder { get; set; }
     public string? Slug { get; set; }

@@ -98,6 +98,7 @@ Notes:
     public bool SelectedFileHasValidationIssues { get; set; }
     public bool SelectedFileNameHasInvalidCharacters { get; set; }
     public string? SelectedFileValidationMessage { get; set; }
+    public BoolDataEntryContext ShowInSearch { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
@@ -179,12 +180,14 @@ Notes:
         StatusContext.Progress($"File load - {SelectedFile.FullName} ");
     }
 
-    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<FileContentEditorContext> CreateInstance(StatusControlContext statusContext,
         FileInfo? initialFile = null)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new FileContentEditorContext(statusContext, FileContent.CreateInstance())
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
+        var newContext = new FileContentEditorContext(factoryStatusContext, FileContent.CreateInstance())
             { StatusContext = { BlockUi = true } };
 
         if (initialFile is { Exists: true }) newContext.InitialFile = initialFile;
@@ -200,7 +203,9 @@ Notes:
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var newContext = new FileContentEditorContext(statusContext, FileContent.CreateInstance());
+        var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
+
+        var newContext = new FileContentEditorContext(factoryStatusContext, FileContent.CreateInstance());
         await newContext.LoadData(initialContent);
         return newContext;
     }
@@ -231,6 +236,7 @@ Notes:
         newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
+        newEntry.ShowInSearch = ShowInSearch.UserValue;
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -384,6 +390,7 @@ Notes:
             "there will be a viewer/player for the file. This option is only available if 'Show Public" +
             "Download Link' is checked and not all content types are supported.";
 
+
         TitleSummarySlugFolder = await TitleSummarySlugEditorContext.CreateInstance(StatusContext, DbEntry,
             "To File Name",
             AutoRenameSelectedFileBasedOnTitleCommand,
@@ -391,6 +398,7 @@ Notes:
                 SelectedFile != null && !Path.GetFileNameWithoutExtension(SelectedFile.Name)
                     .Equals(SlugTools.CreateSlug(false, x.TitleEntry.UserValue), StringComparison.OrdinalIgnoreCase));
         MainSiteFeed = await ContentSiteFeedAndIsDraftContext.CreateInstance(StatusContext, DbEntry);
+        ShowInSearch = await BoolDataEntryTypes.CreateInstanceForShowInSearch(DbEntry, true);
         CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
         ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
         UpdateNotes = await UpdateNotesEditorContext.CreateInstance(StatusContext, DbEntry);

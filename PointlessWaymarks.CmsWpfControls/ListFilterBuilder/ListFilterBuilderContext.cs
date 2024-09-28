@@ -66,6 +66,10 @@ public partial class ListFilterBuilderContext
             },
             new ListFilterBuilderFilterAdd
             {
+                Description = "Show In Search", AddFilterCommand = AddShowInSearchSearchFilterCommand, AppliesTo = []
+            },
+            new ListFilterBuilderFilterAdd
+            {
                 Description = "Bounds", AddFilterCommand = AddMultiBoundsFilterCommand,
                 AppliesTo =
                 [
@@ -107,11 +111,6 @@ public partial class ListFilterBuilderContext
             {
                 Description = "File - File Embed", AddFilterCommand = AddFileFileEmbedSearchFilterCommand,
                 AppliesTo = [Db.ContentTypeDisplayStringForFile]
-            },
-            new ListFilterBuilderFilterAdd
-            {
-                Description = "Image - In Search", AddFilterCommand = AddImageShowInSearchSearchFilterCommand,
-                AppliesTo = [Db.ContentTypeDisplayStringForImage]
             },
             new ListFilterBuilderFilterAdd
             {
@@ -327,9 +326,9 @@ public partial class ListFilterBuilderContext
     }
 
     [NonBlockingCommand]
-    public async Task AddImageShowInSearchSearchFilter()
+    public async Task AddShowInSearchSearchFilter()
     {
-        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "Image In Search" });
+        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "ShowInSearch" });
     }
 
     [NonBlockingCommand]
