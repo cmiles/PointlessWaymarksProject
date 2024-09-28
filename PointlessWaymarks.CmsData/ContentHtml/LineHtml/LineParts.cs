@@ -120,23 +120,31 @@ public static class LineParts
         outerContainer.Children.Add(new DivTag().AddClasses("photo-detail-label-tag", "info-list-label")
             .Text("Details:"));
 
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:F2} Miles", "line-detail", "distance",
-            dbEntry.LineDistance.ToString("F2")));
+        if (dbEntry.LineDistance < .1)
+        {
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N2} Miles", "line-detail", "distance",
+                dbEntry.LineDistance.ToString("F2")));
+        }
+        else
+        {
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N1} Miles", "line-detail", "distance",
+                dbEntry.LineDistance.ToString("F1")));
+        }
 
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MinimumElevation:F0}' Min Elevation", "line-detail",
+        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MinimumElevation:N0}' Min Elevation", "line-detail",
             "minimum-elevation", dbEntry.MaximumElevation.ToString("F0")));
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MaximumElevation:F0}' Max Elevation", "line-detail",
+        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MaximumElevation:N0}' Max Elevation", "line-detail",
             "maximum-elevation", dbEntry.MaximumElevation.ToString("F0")));
 
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.ClimbElevation:F0}' Climbing", "line-detail",
-            "climbing", dbEntry.ClimbElevation.ToString("F0")));
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.DescentElevation:F0}' Descent", "line-detail",
+        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.ClimbElevation:N0}' Climbing", "line-detail",
+            "climbing", dbEntry.ClimbElevation.ToString("N0")));
+        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.DescentElevation:N0}' Descent", "line-detail",
             "descent", dbEntry.DescentElevation.ToString("F0")));
 
         if (dbEntry.PublicDownloadLink)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineGpxDownloadUrl(dbEntry), "GPX",
+            outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineGpxDownloadUrl(dbEntry), "Download GPX",
                 "line-detail", "line-data", dbEntry.DescentElevation.ToString("F0")));
         }
 
@@ -156,11 +164,16 @@ public static class LineParts
     {
         var outerContainer = new DivTag().AddClasses("photo-details-container", "info-list-container");
 
-        outerContainer.Children.Add(new DivTag().AddClasses("photo-detail-label-tag", "info-list-label")
-            .Text("Details:"));
-
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:F2} Miles", "line-detail", "distance",
-            dbEntry.LineDistance.ToString("F2")));
+        if (dbEntry.LineDistance < .1)
+        {
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N2} Miles", "line-detail", "distance",
+                dbEntry.LineDistance.ToString("F2")));
+        }
+        else
+        {
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N1} Miles", "line-detail", "distance",
+                dbEntry.LineDistance.ToString("F1")));
+        }
 
         var duration = LineDurationInHoursAndMinutes(dbEntry);
 
@@ -176,15 +189,15 @@ public static class LineParts
                     "pace-in-mph", mph.ToString("F1")));
         }
 
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.ClimbElevation:F0}' Climbing", "line-detail",
+        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.ClimbElevation:N0}' Climbing", "line-detail",
             "climbing", dbEntry.ClimbElevation.ToString("F0")));
 
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.DescentElevation:F0}' Descent", "line-detail",
+        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.DescentElevation:N0}' Descent", "line-detail",
             "descent", dbEntry.DescentElevation.ToString("F0")));
 
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MinimumElevation:F0}' Min Elevation", "line-detail",
+        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MinimumElevation:N0}' Min Elevation", "line-detail",
             "minimum-elevation", dbEntry.MaximumElevation.ToString("F0")));
-        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MaximumElevation:F0}' Max Elevation", "line-detail",
+        outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MaximumElevation:N0}' Max Elevation", "line-detail",
             "maximum-elevation", dbEntry.MaximumElevation.ToString("F0")));
 
         if (dbEntry.RecordingStartedOn.HasValue)
@@ -198,7 +211,7 @@ public static class LineParts
         if (dbEntry.PublicDownloadLink)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineGpxDownloadUrl(dbEntry), "GPX",
+            outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineGpxDownloadUrl(dbEntry), "Download GPX",
                 "line-detail", "line-data", dbEntry.DescentElevation.ToString("F0")));
         }
 

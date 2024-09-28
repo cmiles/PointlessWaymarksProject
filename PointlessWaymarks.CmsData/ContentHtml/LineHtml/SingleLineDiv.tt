@@ -6,7 +6,7 @@
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#= LineParts.LineDivAndScript(DbEntry) #>
     <#= LineParts.LineElevationChartDivAndScript(DbEntry) #>
-    <#= Tags.PostBodyDiv(DbEntry).Result #>
     <#= LineParts.LineStatisticsWithContentDiv(DbEntry).ToString() #>
+    <#= Tags.PostBodyDiv(DbEntry).Result #>
     <#= BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
 </div>
