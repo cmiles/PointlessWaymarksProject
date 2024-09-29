@@ -99,7 +99,7 @@ internal class JobScriptRunExecution
         {
             var decryptedScript = job.Script.Decrypt(obfuscationKey);
 
-            if (job.ScriptType == ScriptType.CsScript.ToString())
+            if (job.ScriptType == ScriptKind.CsScript.ToString())
             {
                 var byteArray = Encoding.UTF8.GetBytes(decryptedScript);
                 var base64EncodedString = Convert.ToBase64String(byteArray);

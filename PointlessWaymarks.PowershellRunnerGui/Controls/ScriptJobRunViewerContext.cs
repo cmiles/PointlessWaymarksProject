@@ -4,6 +4,7 @@ using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 
@@ -11,15 +12,16 @@ namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
 public partial class ScriptJobRunViewerContext
 {
     private string _databaseFile = string.Empty;
-    public Guid DbId = Guid.Empty;
     private string _key = string.Empty;
+    public Guid DbId = Guid.Empty;
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
     public ScriptJob? Job { get; set; }
     public ScriptJobRun? Run { get; set; }
     public ScriptJobRunGuiView? RunView { get; set; }
+    public required StringDataEntryNoChangeIndicatorContext? ScriptView { get; set; }
     public required StatusControlContext StatusContext { get; set; }
 
-    public static async Task<ScriptJobRunViewerContext> CreateInstance(StatusControlContext? statusContext,
+    public static async Task<ScriptJobRunViewerContext?> CreateInstance(StatusControlContext statusContext,
         Guid scriptJobRunId, string databaseFile)
     {
         var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
@@ -38,12 +40,17 @@ public partial class ScriptJobRunViewerContext
 
             var toAdd = ScriptJobRunGuiView.CreateInstance(run, job, key);
 
+            var scriptViewContext = StringDataEntryNoChangeIndicatorContext.CreateInstance();
+            scriptViewContext.UserValue = toAdd.TranslatedScript;
+            scriptViewContext.Title = "Script";
+
             var factoryContext = new ScriptJobRunViewerContext
             {
                 StatusContext = factoryStatusContext,
                 Run = run,
                 Job = job,
                 RunView = toAdd,
+                ScriptView = scriptViewContext,
                 _key = key,
                 _databaseFile = databaseFile,
                 DbId = dbId
@@ -64,7 +71,8 @@ public partial class ScriptJobRunViewerContext
                 StatusContext = factoryStatusContext,
                 Run = null,
                 Job = null,
-                RunView = null
+                RunView = null,
+                ScriptView = null
             };
 
             await toReturn.StatusContext.ShowMessageWithOkButton(

@@ -40,7 +40,7 @@ public partial class CsScriptJobEditorWindow : Window
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        window.JobContext = await ScriptJobEditorContext.CreateInstance(window.StatusContext, toLoad, ScriptType.CsScript, databaseFile);
+        window.JobContext = await ScriptJobEditorContext.CreateInstance(window.StatusContext, toLoad, ScriptKind.CsScript, databaseFile);
 
         window.JobContext.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 

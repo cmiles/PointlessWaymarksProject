@@ -1,6 +1,8 @@
 using System.ComponentModel;
+using Flurl.Util;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.PowerShellRunnerData;
 using PointlessWaymarks.PowerShellRunnerData.Models;
 
 namespace PointlessWaymarks.PowerShellRunnerGui.Controls;
@@ -24,6 +26,7 @@ public partial class ScriptJobRunGuiView
     public required Guid PersistentId { get; set; }
     public string RunType { get; set; } = string.Empty;
     public string Script { get; set; } = string.Empty;
+    public ScriptKind ScriptType { get; set; }
     public required Guid ScriptJobPersistentId { get; set; }
     public required DateTime StartedOn { get; set; }
     public required DateTime StartedOnUtc { get; set; }
@@ -32,6 +35,9 @@ public partial class ScriptJobRunGuiView
 
     public static ScriptJobRunGuiView CreateInstance(ScriptJobRun run, ScriptJob? job, string key)
     {
+        var scriptType = ScriptKind.PowerShell;
+        if(run.RunType == ScriptKind.CsScript.ToString()) scriptType = ScriptKind.CsScript;
+
         var newView = new ScriptJobRunGuiView
         {
             CompletedOn = run.CompletedOnUtc?.ToLocalTime(),
@@ -44,6 +50,7 @@ public partial class ScriptJobRunGuiView
             PersistentId = run.PersistentId,
             RunType = run.RunType,
             Script = run.Script,
+            ScriptType = scriptType,
             ScriptJobPersistentId = run.ScriptJobPersistentId,
             StartedOn = run.StartedOnUtc.ToLocalTime(),
             StartedOnUtc = run.StartedOnUtc,

@@ -19,7 +19,7 @@ public partial class CustomScriptRunnerContext
 
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
 
-    public ScriptType EditorScriptType { get; set; }
+    public ScriptKind EditorScriptType { get; set; }
     public required ObservableCollection<IScriptMessageItem> Items { get; set; }
     public required Guid ScriptJobId { get; set; }
     public required Guid ScriptJobRunId { get; set; }
@@ -48,7 +48,7 @@ public partial class CustomScriptRunnerContext
         DataNotifications.PublishRunCancelRequest("Custom Script Runner", _dbId, ScriptJobRunId);
     }
 
-    public static async Task<CustomScriptRunnerContext> CreateInstance(ScriptType scriptType,
+    public static async Task<CustomScriptRunnerContext> CreateInstance(ScriptKind scriptType,
         StatusControlContext? statusContext,
         string databaseFile)
     {

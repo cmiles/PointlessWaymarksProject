@@ -39,7 +39,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     public required StringDataEntryContext ScheduleEntry { get; set; }
     public required StringDataEntryContext ScriptEntry { get; set; }
     public required StatusControlContext StatusContext { get; set; }
-    public required ScriptType EditorScriptType { get; set; }
+    public required ScriptKind EditorScriptType { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -53,7 +53,7 @@ public partial class ScriptJobEditorContext : IHasChanges, IHasValidationIssues,
     public bool HasValidationIssues { get; set; }
 
     public static async Task<ScriptJobEditorContext> CreateInstance(StatusControlContext? statusContext,
-        ScriptJob initialScriptJob, ScriptType scriptTypeForEditor, string databaseFile)
+        ScriptJob initialScriptJob, ScriptKind scriptTypeForEditor, string databaseFile)
     {
         var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 

@@ -226,7 +226,7 @@ public partial class ScriptJobListContext
         {
             Name = "New Script Job",
             LastEditOn = DateTime.Now,
-            ScriptType = ScriptType.PowerShell.ToString()
+            ScriptType = ScriptKind.PowerShell.ToString()
         };
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -243,7 +243,7 @@ public partial class ScriptJobListContext
         {
             Name = "New Script Job",
             LastEditOn = DateTime.Now,
-            ScriptType = ScriptType.CsScript.ToString()
+            ScriptType = ScriptKind.CsScript.ToString()
         };
 
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -533,7 +533,7 @@ public partial class ScriptJobListContext
             return;
         }
 
-        if (toView.DbEntry.ScriptType == ScriptType.CsScript.ToString())
+        if (toView.DbEntry.ScriptType == ScriptKind.CsScript.ToString())
         {
             await CsScriptViewWindow.CreateInstance(toView.DbEntry.PersistentId, DatabaseFile);
         }

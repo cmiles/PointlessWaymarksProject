@@ -39,7 +39,7 @@ public partial class ScriptJobEditorWindow
 
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        window.JobContext = await ScriptJobEditorContext.CreateInstance(window.StatusContext, toLoad, ScriptType.PowerShell, databaseFile);
+        window.JobContext = await ScriptJobEditorContext.CreateInstance(window.StatusContext, toLoad, ScriptKind.PowerShell, databaseFile);
 
         window.JobContext.RequestContentEditorWindowClose += (_, _) => { window.Dispatcher?.Invoke(window.Close); };
 

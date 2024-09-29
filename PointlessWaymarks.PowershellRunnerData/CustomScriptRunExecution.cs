@@ -14,7 +14,7 @@ internal class CustomScriptRunExecution
     internal required Guid JobId;
     internal required Guid RunId;
     internal required string RunnerIdentifier;
-    internal required ScriptType ScriptStyle;
+    internal required ScriptKind ScriptStyle;
     internal required string ScriptToRun;
 
     internal CustomScriptRunExecution()
@@ -41,7 +41,7 @@ internal class CustomScriptRunExecution
         // create a pipeline and feed it the script text
         _pipeline = runSpace.CreatePipeline();
 
-        if (ScriptStyle == ScriptType.CsScript)
+        if (ScriptStyle == ScriptKind.CsScript)
         {
             var byteArray = Encoding.UTF8.GetBytes(ScriptToRun);
             var base64EncodedString = Convert.ToBase64String(byteArray);

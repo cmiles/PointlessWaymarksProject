@@ -1,9 +1,8 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.PowerShellRunnerGui.Controls.ScriptJobRunViewerControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
-    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:csEditor="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.CsEditor"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarks.PowerShellRunnerGui.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -17,6 +16,18 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <local:ScriptJobRunViewerEditorTemplateSelector x:Key="ScriptEditorTemplateSelector">
+                <local:ScriptJobRunViewerEditorTemplateSelector.PowerShellEditorTemplate>
+                    <DataTemplate>
+                        <powerShellEditor:PowerShellEditorControl DataContext="{Binding ScriptView}" IsReadOnly="True" />
+                    </DataTemplate>
+                </local:ScriptJobRunViewerEditorTemplateSelector.PowerShellEditorTemplate>
+                <local:ScriptJobRunViewerEditorTemplateSelector.CsEditorTemplate>
+                    <DataTemplate>
+                        <csEditor:CsEditorControl DataContext="{Binding ScriptView}" IsReadOnly="True" />
+                    </DataTemplate>
+                </local:ScriptJobRunViewerEditorTemplateSelector.CsEditorTemplate>
+            </local:ScriptJobRunViewerEditorTemplateSelector>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -76,17 +87,10 @@
                 <RowDefinition Height="Auto" MaxHeight="250" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <GroupBox Margin="4" Header="Script">
-                <avalonedit:TextEditor
-                    Name="TextEditor"
-                    HorizontalScrollBarVisibility="Disabled"
-                    IsReadOnly="True"
-                    SyntaxHighlighting="PowerShell">
-                    <b:Interaction.Behaviors>
-                        <powerShellEditor:AvalonEditRenderedStringBindingBehaviour RenderedText="{Binding RunView.TranslatedScript, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </b:Interaction.Behaviors>
-                </avalonedit:TextEditor>
-            </GroupBox>
+            <ContentControl
+                Margin="4"
+                Content="{Binding .}"
+                ContentTemplateSelector="{StaticResource ScriptEditorTemplateSelector}" />
             <GroupBox
                 Grid.Row="1"
                 Margin="4"

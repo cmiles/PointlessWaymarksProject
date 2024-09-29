@@ -1,6 +1,6 @@
 namespace PointlessWaymarks.PowerShellRunnerData;
 
-public enum ScriptType
+public enum ScriptKind
 {
     PowerShell,
     CsScript

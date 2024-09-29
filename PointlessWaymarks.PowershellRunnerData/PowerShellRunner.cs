@@ -27,7 +27,7 @@ public class PowerShellRunner
         return await runner.ExecuteJob();
     }
 
-    public static async Task<(bool errors, List<string> runLog)> ExecuteScript(string toInvoke, ScriptType type, Guid databaseId,
+    public static async Task<(bool errors, List<string> runLog)> ExecuteScript(string toInvoke, ScriptKind type, Guid databaseId,
         Guid jobId, Guid runId,
         string identifier)
     {

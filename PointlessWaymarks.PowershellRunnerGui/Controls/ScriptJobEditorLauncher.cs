@@ -16,13 +16,13 @@ public static class ScriptJobEditorLauncher
     {
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        var editorScriptType = ScriptType.PowerShell;
+        var editorScriptType = ScriptKind.PowerShell;
 
-        if (Enum.TryParse(toLoad.ScriptType, out ScriptType parsedScriptType)) editorScriptType = parsedScriptType;
+        if (Enum.TryParse(toLoad.ScriptType, out ScriptKind parsedScriptType)) editorScriptType = parsedScriptType;
 
-        if (editorScriptType == ScriptType.PowerShell)
+        if (editorScriptType == ScriptKind.PowerShell)
             await ScriptJobEditorWindow.CreateInstance(toLoad, databaseFile);
-        else if (editorScriptType == ScriptType.CsScript)
+        else if (editorScriptType == ScriptKind.CsScript)
             await CsScriptJobEditorWindow.CreateInstance(toLoad, databaseFile);
     }
 }
