@@ -353,6 +353,7 @@ public partial class MainWindow
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             _windowCloseOk = true;
+            await Log.CloseAndFlushAsync();
             Close();
         }
 
@@ -379,6 +380,7 @@ public partial class MainWindow
 
         await ThreadSwitcher.ResumeForegroundAsync();
         _windowCloseOk = true;
+        await Log.CloseAndFlushAsync();
         Close();
     }
 
