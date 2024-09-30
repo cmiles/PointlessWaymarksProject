@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="PointlessWaymarks.GeoToolsGui.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,6 +17,7 @@
     d:DataContext="{d:DesignInstance geoToolsGui:MainWindow}"
     ui:ThemeManager.IsThemeAware="True"
     ui:WindowHelper.UseModernWindowStyle="True"
+    Closing="MainWindow_OnClosing"
     Icon="PointlessWaymarksGeoToolsIcon.ico"
     mc:Ignorable="d">
     <Grid>

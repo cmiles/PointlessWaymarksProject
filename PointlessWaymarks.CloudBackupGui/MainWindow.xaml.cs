@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using PointlessWaymarks.CloudBackupGui.Controls;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -18,7 +19,7 @@ public partial class MainWindow
         ## Pointless Waymarks Cloud Backup
 
         **This program uses either Amazon S3 or Cloudflare R2 - these are NOT free and while they have different pricing models they both charge based on what you use (bandwidth, storage, requests...) without simple fixed cost or cost limit options! This means that incorrect configurations, user errors or not fully understanding their cost models can quickly generate unexpected HUGE costs!!**
-        
+
         **Using this program WILL ABSOLUTELY INCUR CHARGES on your S3 Account and it WILL NOT help you calculate, estimate, limit or manage those costs!!! In general this is a well understood part of setting up and using S3 but be warned...**
 
         **This program stores your S3 Access Keys in the Windows Credential Manager. This could expose your keys to malicious programs running under your login - it is up to you to decide if this is too much of a security risk. Unfortunately it is difficult to create a system where a autonomous program runs without your interaction and with complete security...**
@@ -34,11 +35,11 @@ public partial class MainWindow
         This project DOES NOT manage, check, test or create S3 buckets/resources for you and can not help you setup your S3 resources correctly or securely. If you are not a current S3 user the good news is that there is quite a bit of information online about setting up and managing S3 accounts. The bad news is that it can be quite complex to get the right setup and mistakes can be very costly both in terms of money and the privacy and security of your data!
 
         To use this program you will need to create an S3 Bucket and the related keys that allow access.
-        
+
         ## How it Works
 
         Backup Jobs are saved into a database. Each Backup must start from a single directory and can exclude directories and files as needed.
-        
+
         You can run jobs from this program or use the Cloud Backup Runner to run Backup Jobs from the Command Line or in a scheduling program like Windows Task Scheduler. Use the Max Runtime setting to ensure that the job doesn't run longer than expected - for example you could schedule an 11pm run with a 6 hour runtime to ensure the job doesn't use your bandwidth during normal working hours.
                         
         To determine what uploads and deletions need to take place the program will use the setting in the Backup Job (starting directory, excluded directories and files...), scan all the local files and, depending on runtime settings, compare those files to either db information or a scan of the S3 Files. The needed uploads/copies/deletes will be saved as a Transfer Batch in the database. File comparisons are done using the MD5 hash of the file.
@@ -142,5 +143,10 @@ public partial class MainWindow
     private async Task LoadData()
     {
         ListContext = await JobListContext.CreateInstance(StatusContext);
+    }
+
+    private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Log.CloseAndFlush();
     }
 }

@@ -1,9 +1,9 @@
+using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Web.WebView2.Core;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsWpfControls.Server;
@@ -188,6 +188,11 @@ public partial class MainWindow
         InfoTitle += $" - {PreviewContext.SiteMappingNote}";
 
         PreviewContext.NewWindowRequestedAction = NewWindowRequestedAction;
+    }
+
+    private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Log.CloseAndFlush();
     }
 
     private async Task NewAdditionalTab(string requestedAddress)

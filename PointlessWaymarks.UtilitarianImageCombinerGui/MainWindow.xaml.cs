@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Metalama.Patterns.Observability;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
@@ -96,6 +97,11 @@ public partial class MainWindow
             $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {settings.ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile ?? string.Empty}");
 
         await UpdateMessageContext.LoadData(currentDateVersion, dateString, setupFile);
+    }
+
+    private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Log.CloseAndFlush();
     }
 
     public async Task Setup()

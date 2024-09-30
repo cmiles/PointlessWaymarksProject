@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="PointlessWaymarks.CloudBackupGui.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -14,6 +14,7 @@
     Width="800"
     Height="450"
     d:DataContext="{d:DesignInstance cloudBackupGui:MainWindow}"
+    Closing="MainWindow_OnClosing"
     mc:Ignorable="d">
     <Grid>
         <TabControl>

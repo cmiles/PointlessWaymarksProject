@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.IO;
 using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CommonTools;
@@ -206,6 +207,11 @@ public partial class MainWindow
         AppSettingsTabContext = new AppSettingsContext(StatusContext);
     }
 
+    private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Log.CloseAndFlush();
+    }
+
     [BlockingCommand]
     public async Task NewDatabase()
     {
@@ -253,7 +259,8 @@ public partial class MainWindow
 
         if (uniqueFileName == null)
         {
-            await StatusContext.ToastError($"Trouble creating a valid file? {folderPicker.SelectedPath} - {cleanedFileName}");
+            await StatusContext.ToastError(
+                $"Trouble creating a valid file? {folderPicker.SelectedPath} - {cleanedFileName}");
             return;
         }
 

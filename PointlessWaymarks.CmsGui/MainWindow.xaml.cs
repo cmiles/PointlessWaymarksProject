@@ -573,9 +573,12 @@ public partial class MainWindow
             if (Application.Current.Windows is { Count: 2 } && Application.Current.Windows[1] != null &&
                 Application.Current.Windows[1].GetType().Name.Contains("AdornerWindow")) return;
 
-            StatusContext.ToastError("Please close child windows first...");
+            StatusContext.ToastError("Please close all related windows first!");
+
             e.Cancel = true;
         }
+
+        Log.CloseAndFlush();
     }
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

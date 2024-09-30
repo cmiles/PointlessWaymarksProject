@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.GeoToolsGui.Controls;
@@ -135,5 +136,10 @@ public partial class MainWindow
                 FeatureIntersectContext.SelectedTab = 0;
             });
         });
+    }
+
+    private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Log.CloseAndFlush();
     }
 }
