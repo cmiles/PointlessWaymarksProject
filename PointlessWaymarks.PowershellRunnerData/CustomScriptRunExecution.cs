@@ -49,7 +49,7 @@ internal class CustomScriptRunExecution
             var b64RunnerExecutable = Path.Combine(AppContext.BaseDirectory, "PointlessWaymarks.ScriptB64Runner.exe");
 
             _pipeline.Commands.AddScript(
-                $"{b64RunnerExecutable} {base64EncodedString}");
+                $"& '{b64RunnerExecutable}' {base64EncodedString}");
         }
         else
             _pipeline.Commands.AddScript(ScriptToRun);

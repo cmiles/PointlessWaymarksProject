@@ -106,7 +106,7 @@ internal class JobScriptRunExecution
 
                 var b64RunnerExecutable = Path.Combine(AppContext.BaseDirectory, "PointlessWaymarks.ScriptB64Runner.exe");
 
-                decryptedScript = $"{b64RunnerExecutable} {base64EncodedString}";
+                decryptedScript = $"& '{b64RunnerExecutable}' {base64EncodedString}";
             }
 
             result = await ExecuteScript(decryptedScript, _dbId, job.PersistentId, run.PersistentId,
