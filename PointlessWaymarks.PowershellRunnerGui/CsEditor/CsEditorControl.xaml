@@ -79,11 +79,11 @@
             Name="CsCodeEditor"
             Grid.Row="1"
             ContextActionsIcon="{StaticResource Bulb}"
-            FontFamily="Consolas"
             HorizontalScrollBarVisibility="Disabled"
             Loaded="OnItemLoaded"
-            ShowLineNumbers="False"
-            VerticalScrollBarVisibility="Disabled">
+            ShowLineNumbers="True"
+            VerticalScrollBarVisibility="Visible"
+            WordWrap="True">
             <b:Interaction.Behaviors>
                 <powerShellEditor:AvalonEditRenderedStringBindingBehaviour RenderedText="{Binding UserValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </b:Interaction.Behaviors>

@@ -56,7 +56,10 @@
             Name="PsCodeEditor"
             Grid.Row="1"
             HorizontalScrollBarVisibility="Disabled"
-            SyntaxHighlighting="PowerShell">
+            ShowLineNumbers="True"
+            SyntaxHighlighting="PowerShell"
+            VerticalScrollBarVisibility="Visible"
+            WordWrap="True">
             <b:Interaction.Behaviors>
                 <local:AvalonEditRenderedStringBindingBehaviour RenderedText="{Binding UserValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </b:Interaction.Behaviors>
