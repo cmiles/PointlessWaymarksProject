@@ -225,25 +225,40 @@ public partial class MenuLinkEditorContext
 
         await RenumberItems();
 
-        var withChanges = Items.Where(x => x.HasChanges).ToList();
+        var context = await Db.Context();
 
-        if (!withChanges.Any())
+        var currentDbList = context.MenuLinks.ToList();
+
+        var deletedItems = new List<MenuLink>();
+
+        foreach (var loopDbItems in currentDbList)
+        {
+            var listItem = Items.SingleOrDefault(x => x.DbEntry.Id == loopDbItems.Id);
+            if(listItem == null) deletedItems.Add(loopDbItems);
+        }
+
+        var withEdits = Items.Where(x => x.HasChanges).ToList();
+
+        if (!withEdits.Any() && !deletedItems.Any())
         {
             await StatusContext.ToastError("No entries have changed?");
             return;
         }
 
-        if (withChanges.Any(x => string.IsNullOrWhiteSpace(x.UserLink)))
+        if (withEdits.Any(x => string.IsNullOrWhiteSpace(x.UserLink)))
         {
             await StatusContext.ToastError("All Entries must have a value.");
             return;
         }
 
-        var context = await Db.Context();
-
         var frozenNowVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
 
-        foreach (var loopChanges in withChanges)
+        foreach (var loopDeleted in deletedItems)
+        {
+            context.Remove(loopDeleted);
+        }
+
+        foreach (var loopChanges in withEdits)
             if (loopChanges.DbEntry.Id < 1)
             {
                 loopChanges.DbEntry = new MenuLink
