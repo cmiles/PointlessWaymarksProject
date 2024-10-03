@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Json;
+using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsWpfControls.AllContentList;
 using PointlessWaymarks.CmsWpfControls.ContentList;
 using PointlessWaymarks.CmsWpfControls.Diagnostics;
@@ -34,14 +35,15 @@ using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.ProgramUpdateMessage;
+using PointlessWaymarks.WpfCommon.S3Uploads;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace PointlessWaymarks.CmsGui;
 
@@ -643,6 +645,31 @@ public partial class MainWindow
         (bool isNew, string userString, List<string> recentFiles) e)
     {
         StatusContext.RunFireAndForgetBlockingTask(async () => await SettingsFileChooserOnSettingsFileUpdated(e));
+    }
+
+    [BlockingCommand]
+    public async Task UploadStyleCss()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var possibleFile =
+            new FileInfo(Path.Combine(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName,
+                "style.css"));
+
+        if (!possibleFile.Exists)
+        {
+            await StatusContext.ToastError("No style.css file found?");
+            return;
+        }
+
+        var window = await S3UploadsWindow.CreateInstance(S3CmsTools.S3AccountInformationFromSettings(),
+            new S3UploadRequest(await S3Tools.LocalFileAndMetadata(possibleFile),
+                S3CmsTools.FileInfoInGeneratedSiteToS3Key(
+                    possibleFile), UserSettingsSingleton.CurrentSettings().SiteS3Bucket,
+                UserSettingsSingleton.CurrentSettings().SiteS3BucketRegion,
+                $"From Main Window Diagnostics").AsList(), "style.css Upload", true);
+
+        await window.PositionWindowAndShowOnUiThread();
     }
 
     [BlockingCommand]
