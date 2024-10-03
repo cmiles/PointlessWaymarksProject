@@ -877,7 +877,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
     [StopAndWarnIfNoSelectedListItems]
     public async Task SelectedToExcel()
     {
-        await ExcelHelpers.SelectedToExcel(SelectedListItems().Cast<dynamic>().ToList(), StatusContext);
+        var allLinesGuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        await ExcelHelpers.SelectedToExcel(SelectedListItems().Where(x => x.ContentId() != allLinesGuid).Cast<dynamic>().ToList(), StatusContext);
     }
 
     [BlockingCommand]
