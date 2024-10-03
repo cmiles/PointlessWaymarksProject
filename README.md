@@ -52,7 +52,7 @@ The Photo List supports searching for field like focal length and iso in additio
 
 A list view of content that has spatial information alonside a map is also available.
 
-![Content Map List](PointlessWaymarks.CmsScreenShots/PhotoList.jpg "Content Map List")
+![Content Map List](PointlessWaymarks.CmsScreenShots/ContentMapList.jpg "Content Map List")
 
 ### Content Editors
 
