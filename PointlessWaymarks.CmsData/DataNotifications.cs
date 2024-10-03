@@ -134,5 +134,6 @@ public enum DataNotificationContentType
     Video,
     TagExclusion,
     Unknown,
-    MapIcon
+    MapIcon,
+    Snippet
 }

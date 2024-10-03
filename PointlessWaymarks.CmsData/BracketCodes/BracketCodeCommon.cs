@@ -169,13 +169,14 @@ public static partial class BracketCodeCommon
         if (matchResult.Success) return Guid.Parse(matchResult.Groups["siteGuid"].Value);
 
         var videoEmbeds = await BracketCodeVideoEmbed.DbContentFromBracketCodes(toProcess, null);
-        if (videoEmbeds.Any(x => x.MainPicture != null)) return videoEmbeds.First(x => x.MainPicture != null).MainPicture;
+        if (videoEmbeds.Any(x => x.MainPicture != null))
+            return videoEmbeds.First(x => x.MainPicture != null).MainPicture;
 
         var videoImages = await BracketCodeVideoImageLink.DbContentFromBracketCodes(toProcess, null);
         if (videoImages.Any(x => x.MainPicture != null)) return videoImages.First().MainPicture;
 
         var fileEmbeds = await BracketCodeFileEmbed.DbContentFromBracketCodes(toProcess, null);
-        if(fileEmbeds.Any(x => x.MainPicture != null)) return fileEmbeds.First().MainPicture;
+        if (fileEmbeds.Any(x => x.MainPicture != null)) return fileEmbeds.First().MainPicture;
 
         var fileImages = await BracketCodeFileImageLink.DbContentFromBracketCodes(toProcess, progress);
         if (fileImages.Any()) return fileImages.First().MainPicture;
@@ -188,6 +189,8 @@ public static partial class BracketCodeCommon
     public static async Task<string> ProcessCodesForEmail(string? input, IProgress<string>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+
+        input = await BracketCodeSnippet.Process(input, progress).ConfigureAwait(false);
 
         input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
@@ -226,10 +229,12 @@ public static partial class BracketCodeCommon
 
     public static async Task<string?> ProcessCodesForSite(string? input, IProgress<string>? progress = null)
     {
+        input = await BracketCodeSnippet.Process(input, progress).ConfigureAwait(false);
+
         // 2024/3/20 - The Gallery Bracket Code surrounds regular bracket codes and must be processed
         //first!
         input = await GalleryBracketCodePictures.ProcessToGallery(input, progress).ConfigureAwait(false);
-        
+
         input = await BracketCodeFileUrl.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileDownloads.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeFileEmbed.Process(input, progress).ConfigureAwait(false);

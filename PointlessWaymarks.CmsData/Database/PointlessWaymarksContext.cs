@@ -29,6 +29,7 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
     public DbSet<HistoricPointContent> HistoricPointContents { get; set; }
     public DbSet<HistoricPointDetail> HistoricPointDetails { get; set; }
     public DbSet<HistoricPostContent> HistoricPostContents { get; set; }
+    public DbSet<HistoricSnippet> HistoricSnippets { get; set; }
     public DbSet<HistoricVideoContent> HistoricVideoContents { get; set; }
     public DbSet<ImageContent> ImageContents { get; set; }
     public DbSet<LineContent> LineContents { get; set; }
@@ -42,6 +43,7 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
     public DbSet<PointContent> PointContents { get; set; }
     public DbSet<PointDetail> PointDetails { get; set; }
     public DbSet<PostContent> PostContents { get; set; }
+    public DbSet<Snippet> Snippets { get; set; }
     public DbSet<TagExclusion> TagExclusions { get; set; }
     public DbSet<VideoContent> VideoContents { get; set; }
 
