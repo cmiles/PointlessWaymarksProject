@@ -877,8 +877,8 @@ public static class UserSettingsUtilities
 
     public static FileInfo LocalSiteMenuLinksJsonFile(this UserSettings settings)
     {
-        var directory = settings.LocalSiteRootDirectory;
-        return new FileInfo($"{Path.Combine(directory, "MenuLinks")}.json");
+        var directory = settings.LocalSiteRootFullDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "MenuLinks")}.json");
     }
 
     public static DirectoryInfo LocalSiteNoteContentDirectory(this UserSettings settings, NoteContent content,
@@ -1182,8 +1182,8 @@ public static class UserSettingsUtilities
 
     public static FileInfo LocalSiteTagExclusionsJsonFile(this UserSettings settings)
     {
-        var directory = settings.LocalSiteRootDirectory;
-        return new FileInfo($"{Path.Combine(directory, "TagExclusions")}.json");
+        var directory = settings.LocalSiteRootFullDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "TagExclusions")}.json");
     }
 
     public static FileInfo LocalSiteTagListFileInfo(this UserSettings settings, string tag)
