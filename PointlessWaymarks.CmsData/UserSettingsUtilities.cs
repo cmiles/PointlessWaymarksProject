@@ -26,6 +26,7 @@ public static class UserSettingsUtilities
     public const string HistoricPhotoContentPrefix = "HistoricPhotos---";
     public const string HistoricPointContentPrefix = "HistoricPoints---";
     public const string HistoricPostContentPrefix = "HistoricPosts---";
+    public const string HistoricSnippetPrefix = "HistoricSnippets---";
     public const string HistoricVideoContentPrefix = "HistoricVideos---";
     public static readonly double ProjectDefaultLatitude = 32.119742;
     public static readonly double ProjectDefaultLongitude = -110.5230213;
@@ -876,8 +877,8 @@ public static class UserSettingsUtilities
 
     public static FileInfo LocalSiteMenuLinksJsonFile(this UserSettings settings)
     {
-        var directory = settings.LocalSiteLinkDirectory();
-        return new FileInfo($"{Path.Combine(directory.FullName, "MenuLinks")}.json");
+        var directory = settings.LocalSiteRootDirectory;
+        return new FileInfo($"{Path.Combine(directory, "MenuLinks")}.json");
     }
 
     public static DirectoryInfo LocalSiteNoteContentDirectory(this UserSettings settings, NoteContent content,
@@ -1181,8 +1182,8 @@ public static class UserSettingsUtilities
 
     public static FileInfo LocalSiteTagExclusionsJsonFile(this UserSettings settings)
     {
-        var directory = settings.LocalSiteLinkDirectory();
-        return new FileInfo($"{Path.Combine(directory.FullName, "TagExclusions")}.json");
+        var directory = settings.LocalSiteRootDirectory;
+        return new FileInfo($"{Path.Combine(directory, "TagExclusions")}.json");
     }
 
     public static FileInfo LocalSiteTagListFileInfo(this UserSettings settings, string tag)
