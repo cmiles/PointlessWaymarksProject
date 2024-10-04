@@ -1051,6 +1051,71 @@ public static class DbImport
         progress?.Report("PostContent - Finished");
     }
 
+    public static async Task SnippetToDb(List<Snippet> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("Snippet - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No Snippet items to import...");
+            return;
+        }
+
+        progress?.Report($"Snippet - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - Starting Snippet");
+
+            var exactMatch = await db.Snippets.AnyAsync(x =>
+                x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
+
+            if (exactMatch)
+            {
+                progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
+                continue;
+            }
+
+            var laterEntries = await db.Snippets.AnyAsync(x =>
+                x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
+
+            if (laterEntries)
+            {
+                if (await db.HistoricSnippets.AnyAsync(x =>
+                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+                {
+                    progress?.Report(
+                        $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic Snippet");
+                }
+                else
+                {
+                    progress?.Report(
+                        $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricSnippets");
+
+                    var newHistoricEntry = new HistoricSnippet
+                    {
+                        ContentId = loopImportItem.ContentId,
+                        ContentVersion = loopImportItem.ContentVersion,
+                        CreatedOn = loopImportItem.CreatedOn
+                    };
+                    newHistoricEntry.InjectFrom(loopImportItem);
+                    newHistoricEntry.Id = 0;
+
+                    db.HistoricSnippets.Add(newHistoricEntry);
+                    await db.SaveChangesAsync(true);
+                }
+
+                continue;
+            }
+
+            await Db.SaveSnippet(loopImportItem);
+        }
+
+        progress?.Report("Snippet - Finished");
+    }
+
     public static async Task VideoContentToDb(List<VideoContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("VideoContent - Starting");

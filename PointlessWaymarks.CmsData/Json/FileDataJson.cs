@@ -48,4 +48,5 @@ public record PointContentOnDiskData(string ContentType, PointContentDto Content
 
 public record PostContentOnDiskData(string ContentType, PostContent Content);
 
+public record SnippetOnDiskData(string ContentType, Snippet Content);
 public record VideoContentOnDiskData(string ContentType, VideoContent Content);

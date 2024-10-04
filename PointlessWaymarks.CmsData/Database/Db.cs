@@ -8,6 +8,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using SQLitePCL;
 
@@ -25,6 +26,7 @@ public static class Db
     public const string ContentTypeDisplayStringForPhoto = "Photo";
     public const string ContentTypeDisplayStringForPoint = "Point";
     public const string ContentTypeDisplayStringForPost = "Post";
+    public const string ContentTypeDisplayStringForSnippet = "Snippet";
     public const string ContentTypeDisplayStringForVideo = "Video";
 
     public static async Task<List<string>> ActivityTypesFromLines()
@@ -531,6 +533,7 @@ public static class Db
             PostContent => ContentTypeDisplayStringForPost,
             PointContent => ContentTypeDisplayStringForPoint,
             Models.PointContentDto => ContentTypeDisplayStringForPoint,
+            Snippet => ContentTypeDisplayStringForSnippet,
             VideoContent => ContentTypeDisplayStringForVideo,
             _ => string.Empty
         };
@@ -2243,7 +2246,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.File,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task SaveGenerationFileTransferScriptLog(GenerationFileTransferScriptLog? toSave)
@@ -2257,7 +2260,7 @@ public static class Db
         await context.SaveChangesAsync().ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.FileTransferScriptLog,
-            DataNotificationUpdateType.New, new List<Guid>());
+            DataNotificationUpdateType.New, []);
     }
 
     public static async Task SaveGenerationLogAndRecordSettings(DateTime generationVersion)
@@ -2274,7 +2277,7 @@ public static class Db
         await db.SaveChangesAsync(true).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.GenerationLog,
-            DataNotificationUpdateType.New, new List<Guid>());
+            DataNotificationUpdateType.New, []);
     }
 
     public static async Task SaveGeoJsonContent(GeoJsonContent? toSave)
@@ -2322,7 +2325,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.GeoJson,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task SaveImageContent(ImageContent? toSave)
@@ -2361,7 +2364,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Image,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task SaveLineContent(LineContent? toSave)
@@ -2409,7 +2412,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Line,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task SaveLinkContent(LinkContent? toSave)
@@ -2444,7 +2447,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Link,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task<MapComponentDto> SaveMapComponent(MapComponentDto toSaveDto)
@@ -2548,7 +2551,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Map,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { dbMap.ContentId });
+            [dbMap.ContentId]);
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.MapElement,
             DataNotificationUpdateType.New, newElements);
@@ -2620,7 +2623,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Note,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task SavePhotoContent(PhotoContent? toSave)
@@ -2659,7 +2662,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Photo,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task<PointContentDto?> SavePointContent(PointContentDto? toSaveDto)
@@ -2823,7 +2826,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.PointDetail,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task SavePostContent(PostContent? toSave)
@@ -2860,7 +2863,47 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Post,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
+    }
+
+    public static async Task SaveSnippet(Snippet? toSave)
+    {
+        if (toSave == null) return;
+
+        var context = await Context().ConfigureAwait(false);
+
+        var toHistoric = await context.Snippets.Where(x => x.ContentId == toSave.ContentId).ToListAsync()
+            .ConfigureAwait(false);
+
+        var isUpdate = toHistoric.Any();
+
+        foreach (var loopToHistoric in toHistoric)
+        {
+            var newHistoric = new HistoricSnippet
+            {
+                ContentId = loopToHistoric.ContentId,
+                CreatedOn = loopToHistoric.CreatedOn,
+                ContentVersion = loopToHistoric.ContentVersion
+            };
+            newHistoric.InjectFrom(loopToHistoric);
+            newHistoric.Id = 0;
+            newHistoric.LastUpdatedOn = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+            await context.HistoricSnippets.AddAsync(newHistoric).ConfigureAwait(false);
+            context.Snippets.Remove(loopToHistoric);
+        }
+
+        if (toSave.Id > 0) toSave.Id = 0;
+        toSave.ContentVersion = ContentVersionDateTime();
+
+        await context.Snippets.AddAsync(toSave).ConfigureAwait(false);
+
+        await context.SaveChangesAsync(true).ConfigureAwait(false);
+
+        DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Snippet,
+            isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+            [toSave.ContentId]);
     }
 
     public static async Task SaveVideoContent(VideoContent? toSave)
@@ -2898,7 +2941,7 @@ public static class Db
 
         DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Video,
             isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
-            new List<Guid> { toSave.ContentId });
+            [toSave.ContentId]);
     }
 
     public static async Task<List<TagExclusion>> TagExclusions()
@@ -3173,8 +3216,9 @@ public static class Db
                 var db = await Context().ConfigureAwait(false);
                 var toAdd = ParseToTagSlugsAndContentList(
                     includePagesExcludedFromSearch
-                            ? (await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList()
-                            : (await db.PostContents.Where(x => !x.IsDraft && x.ShowInSearch).ToListAsync()
+                        ? (await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false))
+                        .Cast<ITag>().ToList()
+                        : (await db.PostContents.Where(x => !x.IsDraft && x.ShowInSearch).ToListAsync()
                             .ConfigureAwait(false)).Cast<ITag>().ToList(), removeExcludedTags, progress);
                 toAdd.ForEach(x => tagBag.Add(x));
             },
@@ -3184,9 +3228,10 @@ public static class Db
                 var db = await Context().ConfigureAwait(false);
                 var toAdd = ParseToTagSlugsAndContentList(
                     includePagesExcludedFromSearch
-                            ? (await db.VideoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false)).Cast<ITag>().ToList()
-                            : (await db.VideoContents.Where(x => !x.IsDraft && x.ShowInSearch).ToListAsync()
-                                .ConfigureAwait(false)).Cast<ITag>().ToList(), removeExcludedTags, progress);
+                        ? (await db.VideoContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false))
+                        .Cast<ITag>().ToList()
+                        : (await db.VideoContents.Where(x => !x.IsDraft && x.ShowInSearch).ToListAsync()
+                            .ConfigureAwait(false)).Cast<ITag>().ToList(), removeExcludedTags, progress);
                 toAdd.ForEach(x => tagBag.Add(x));
             }
         };

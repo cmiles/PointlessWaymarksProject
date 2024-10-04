@@ -188,6 +188,20 @@ public static class NewContentModels
         return returnEntry;
     }
 
+    public static Snippet InitializeSnippet(Snippet? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new Snippet
+        {
+            ContentId = Guid.NewGuid(),
+            CreatedOn = created,
+            ContentVersion = Db.ContentVersionDateTime(),
+        };
+
+        return returnEntry;
+    }
+
     public static PostContent InitializePostContent(PostContent? dbEntry)
     {
         var created = DateTime.Now;

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
-public class Snippet
+public class Snippet : ICreatedAndLastUpdateOnAndBy, IContentId, IBodyContent
 {
     public string? BodyContent { get; set; }
     public required Guid ContentId { get; set; }
@@ -15,4 +15,9 @@ public class Snippet
     [NotMapped] public DateTime LatestUpdate => LastUpdatedOn ?? CreatedOn;
     public string? Summary { get; set; }
     public string? Title { get; set; }
+
+    public static Snippet CreateInstance()
+    {
+        return NewContentModels.InitializeSnippet(null);
+    }
 }

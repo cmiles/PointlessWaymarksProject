@@ -406,7 +406,7 @@ public static class Export
         
         await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
     }
-    
+
     public static async Task WriteNoteContentData(NoteContent dbEntry, IProgress<string>? progress = null)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
@@ -625,7 +625,60 @@ public static class Export
         await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
             .ConfigureAwait(false);
     }
-    
+
+    public static async Task WriteSnippetData(Snippet dbEntry, IProgress<string>? progress)
+    {
+        var settings = UserSettingsSingleton.CurrentSettings();
+
+        var jsonFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{dbEntry.ContentId}.json"));
+
+        if (jsonFile.Exists)
+        {
+            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+            var onDiskObject = await JsonSerializer.DeserializeAsync<SnippetOnDiskData>(jsonFileStream);
+
+            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            {
+                progress?.Report($"Snippet - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                return;
+            }
+        }
+
+        progress?.Report($"Snippet - {dbEntry.Title} - Serializing and Writing Current Entry");
+
+        if (jsonFile.Exists) jsonFile.Delete();
+        jsonFile.Refresh();
+
+        var onDiskData = new SnippetOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry);
+
+        var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
+
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
+
+        progress?.Report($"Snippet - {dbEntry.Title} - Serializing and Writing Historic Entries");
+
+        var db = await Db.Context().ConfigureAwait(false);
+
+        var latestHistoricEntries = await db.HistoricSnippets.Where(x => x.ContentId == dbEntry.ContentId)
+            .OrderByDescending(x => x.LastUpdatedOn).Take(10).ToListAsync();
+
+        if (!latestHistoricEntries.Any()) return;
+
+        progress?.Report($" Archiving last {latestHistoricEntries.Count} Historic Snippet Content Entries");
+
+        var jsonHistoricDbEntry = JsonSerializer.Serialize(latestHistoricEntries);
+
+        var jsonHistoricFile = new FileInfo(Path.Combine(settings.LocalSiteContentDataDirectory().FullName,
+            $"{UserSettingsUtilities.HistoricSnippetPrefix}{dbEntry.ContentId}.json"));
+
+        if (jsonHistoricFile.Exists) jsonHistoricFile.Delete();
+        jsonHistoricFile.Refresh();
+
+        await FileManagement.WriteAllTextToFileAndLogAsync(jsonHistoricFile.FullName, jsonHistoricDbEntry)
+            .ConfigureAwait(false);
+    }
+
     public static async Task WriteTagExclusionsJson(IProgress<string>? progress)
     {
         var settings = UserSettingsSingleton.CurrentSettings();
