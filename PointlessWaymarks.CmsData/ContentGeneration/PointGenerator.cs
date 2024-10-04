@@ -34,7 +34,7 @@ public static class PointGenerator
             .ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { savedPoint!.ContentId });
+            DataNotificationUpdateType.LocalContent, [savedPoint!.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {savedPoint.Title}"),
             savedPoint);

@@ -261,7 +261,7 @@ public static class LineGenerator
         await Export.WriteLineContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Line Generator", DataNotificationContentType.Line,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
+            DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
     }

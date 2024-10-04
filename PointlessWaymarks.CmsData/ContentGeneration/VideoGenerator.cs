@@ -41,7 +41,7 @@ public static class VideoGenerator
         await Export.WriteVideoContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Video Generator", DataNotificationContentType.Video,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
+            DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
     }

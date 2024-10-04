@@ -1,4 +1,4 @@
-﻿using AngleSharp;
+using AngleSharp;
 using pinboard.net;
 using pinboard.net.Models;
 using PointlessWaymarks.CmsData.ContentHtml.LinkListHtml;
@@ -168,7 +168,7 @@ public static class LinkGenerator
         await GenerateHtmlAndJson(generationVersion, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
-            DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
+            DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for Links to Add {toSave.Title}"),
             toSave);

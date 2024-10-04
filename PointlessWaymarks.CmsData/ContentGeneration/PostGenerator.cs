@@ -12,7 +12,7 @@ public static class PostGenerator
     {
         progress?.Report($"Post Content - Generate HTML for {toGenerate.Title}");
 
-        var htmlContext = new SinglePostPage(toGenerate) {GenerationVersion = generationVersion};
+        var htmlContext = new SinglePostPage(toGenerate) { GenerationVersion = generationVersion };
 
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
@@ -32,7 +32,7 @@ public static class PostGenerator
         await Export.WritePostContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Post Generator", DataNotificationContentType.Post,
-            DataNotificationUpdateType.LocalContent, new List<Guid> {toSave.ContentId});
+            DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
     }

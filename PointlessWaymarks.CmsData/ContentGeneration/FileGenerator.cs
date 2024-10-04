@@ -41,7 +41,7 @@ public static class FileGenerator
         await Export.WriteFileContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
+            DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
     }

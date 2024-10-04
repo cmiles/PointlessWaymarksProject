@@ -67,7 +67,7 @@ public static class MapComponentGenerator
         await Export.WriteMapComponentContentData(savedComponent, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { mapDto.ContentId });
+            DataNotificationUpdateType.LocalContent, [mapDto.ContentId]);
 
         return (
             GenerationReturn.Success(
@@ -89,7 +89,7 @@ public static class MapComponentGenerator
         await Export.WriteMapComponentContentData(savedComponent, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { savedComponent.ContentId });
+            DataNotificationUpdateType.LocalContent, [savedComponent.ContentId]);
 
         return (
             GenerationReturn.Success(

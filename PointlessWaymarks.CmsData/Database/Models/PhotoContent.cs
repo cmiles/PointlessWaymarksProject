@@ -45,7 +45,6 @@ public class PhotoContent : IUpdateNotes, IContentCommon, IOptionalLocation
     public string? UpdateNotes { get; set; }
     public string? UpdateNotesFormat { get; set; }
 
-
     public static PhotoContent CreateInstance()
     {
         return NewContentModels.InitializePhotoContent(null);

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsData.Database;
@@ -35,7 +35,7 @@ public static class NoteGenerator
         await Export.WriteNoteContentData(toSave, progress).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Note Generator", DataNotificationContentType.Note,
-            DataNotificationUpdateType.Update, new List<Guid> {toSave.ContentId});
+            DataNotificationUpdateType.Update, [toSave.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
     }

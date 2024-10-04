@@ -135,7 +135,7 @@ public static class ImageGenerator
         await Export.WriteImageContentData(toSave).ConfigureAwait(false);
 
         DataNotifications.PublishDataNotification("Image Generator", DataNotificationContentType.Image,
-            DataNotificationUpdateType.LocalContent, new List<Guid> { toSave.ContentId });
+            DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {toSave.Title}"), toSave);
     }
