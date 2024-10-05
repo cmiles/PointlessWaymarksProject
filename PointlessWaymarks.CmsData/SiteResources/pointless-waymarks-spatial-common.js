@@ -292,6 +292,9 @@ async function singleLineElevationChartInit(chartCanvas, contentId) {
 
 async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData) {
 
+    //2024-10-05 - Leaving the comment below for perspective but changing the charts basically to
+    //to have a different balance of perspective and dramatics.
+    //
     //This code is to help give the charts a slight bit more cross chart comparability - so the
     //charts will always end on a multiple of 5 miles and 5,000' of elevation. This is a compromise
     //because the chart won't fill all available space (show max detail) and charts won't always
@@ -299,12 +302,16 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
     //compromise that often works out nicely...
     const sourceData = lineData;
     const maxDistanceInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.AccumulatedDistance));
-    const distanceFiveMileUnits = Math.floor((maxDistanceInMeters * 0.0006213711922) / 5);
-    const distanceMax = (distanceFiveMileUnits + 1) * 5;
+    const distanceFiveMileUnits = Math.floor((maxDistanceInMeters * 0.0006213711922) / 2);
+    const distanceMax = (distanceFiveMileUnits + 1) * 2;
 
     const maxElevationInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.Elevation));
-    const elevationFiveThousandFeetUnits = Math.floor((maxElevationInMeters * 3.280839895) / 5000);
-    const elevationMax = (elevationFiveThousandFeetUnits + 1) * 5000;
+    const elevationMaxChartUnits = Math.floor((maxElevationInMeters * 3.280839895) / 1000);
+    const elevationMax = (elevationMaxChartUnits + 1) * 1000;
+
+    const minElevationInMeters = Math.min(...lineData.ElevationPlotData.map(x => x.Elevation));
+    const elevationMinChartUnits = Math.floor((minElevationInMeters * 3.280839895) / 1000);
+    const elevationMin = (elevationMinChartUnits) * 1000;
 
     //Thank you to https://www.geoapify.com/tutorial/draw-route-elevation-profile-with-chartjs for
     //the starting point on this!
@@ -329,7 +336,7 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
             beforeInit: (chart, args, options) => {
                 chart.options.scales.x.min = 0;
                 chart.options.scales.x.max = distanceMax;
-                chart.options.scales.y.min = 0;
+                chart.options.scales.y.min = elevationMin;
                 chart.options.scales.y.max = elevationMax;
             }
         }],
