@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PointlessWaymarks.CmsData.Database.Models;
 
-public class Snippet : ICreatedAndLastUpdateOnAndBy, IContentId, IBodyContent
+public class Snippet : ICreatedAndLastUpdateOnAndBy, IContentId
 {
     public string? BodyContent { get; set; }
     public required Guid ContentId { get; set; }

@@ -29,6 +29,7 @@ using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.Server;
+using PointlessWaymarks.CmsWpfControls.SnippetList;
 using PointlessWaymarks.CmsWpfControls.TagExclusionEditor;
 using PointlessWaymarks.CmsWpfControls.TagList;
 using PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
@@ -127,6 +128,7 @@ public partial class MainWindow
     public PhotoListWithActionsContext TabPhotoListContext { get; set; }
     public PointListWithActionsContext TabPointListContext { get; set; }
     public PostListWithActionsContext TabPostListContext { get; set; }
+    public SnippetListContext TabSnippetContext { get; set; }
     public TagExclusionEditorContext TabTagExclusionContext { get; set; }
     public TagListContext TabTagListContext { get; set; }
     public VideoListWithActionsContext TabVideoListContext { get; set; }
@@ -554,6 +556,8 @@ public partial class MainWindow
             TabMapListContext = await MapComponentListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Notes" && TabNoteListContext == null)
             TabNoteListContext = await NoteListWithActionsContext.CreateInstance(null, WindowStatus);
+        if (SelectedTab.Header.ToString() == "Snippets" && TabLinkContext == null)
+            TabSnippetContext = await SnippetListContext.CreateInstance(null);
         if (SelectedTab.Header.ToString() == "Links" && TabLinkContext == null)
             TabLinkContext = await LinkListWithActionsContext.CreateInstance(null, WindowStatus);
         if (SelectedTab.Header.ToString() == "Tag Search Exclusions" && TabTagExclusionContext == null)

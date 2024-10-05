@@ -121,6 +121,14 @@ public static class SiteGenerationChangedContent
             async () =>
             {
                 var db = await Db.Context().ConfigureAwait(false);
+                var posts = await db.Snippets.Where(x => x.ContentVersion > contentAfter)
+                    .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+                guidBag.Add(posts);
+                progress?.Report($"Found {posts.Count} Snippet Content Entries Changed After {contentAfter}");
+            },
+            async () =>
+            {
+                var db = await Db.Context().ConfigureAwait(false);
                 var videos = await db.VideoContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                     .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                 guidBag.Add(videos);

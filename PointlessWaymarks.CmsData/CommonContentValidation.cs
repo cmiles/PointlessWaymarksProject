@@ -114,6 +114,7 @@ public static class CommonContentValidation
 
             if (contentLookup != null) continue;
             if (await db.MapComponents.AnyAsync(x => x.ContentId == loopExtracted).ConfigureAwait(false)) continue;
+            if (await db.Snippets.AnyAsync(x => x.ContentId == loopExtracted).ConfigureAwait(false)) continue;
 
             progress?.Report($"ContentId {loopExtracted} Not Found in Db...");
             notFoundList.Add(loopExtracted);
@@ -193,6 +194,10 @@ public static class CommonContentValidation
         foreach (var loopExtracted in extracted)
         {
             var contentLookup = await db.ContentFromContentId(loopExtracted).ConfigureAwait(false);
+
+            if (contentLookup != null) continue;
+            if (await db.MapComponents.AnyAsync(x => x.ContentId == loopExtracted).ConfigureAwait(false)) continue;
+            if (await db.Snippets.AnyAsync(x => x.ContentId == loopExtracted).ConfigureAwait(false)) continue;
 
             if (contentLookup == null)
             {

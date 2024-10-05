@@ -1,9 +1,16 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Data;
+using HtmlTags.Reflection;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.Database;
+using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsWpfControls.ContentHistoryView;
+using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.SnippetEditor;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
@@ -20,10 +27,11 @@ namespace PointlessWaymarks.CmsWpfControls.SnippetList;
 public partial class SnippetListContext
 {
     private SnippetListContext(ObservableCollection<SnippetListListItem> items, StatusControlContext statusContext,
-        ContentListSelected<SnippetListListItem> factoryListSelection)
+        ContentListSelected<SnippetListListItem> factoryListSelection, bool loadInBackground = true)
     {
         Items = items;
         StatusContext = statusContext;
+        CommonCommands = new CmsCommonCommands(StatusContext);
         ListSelection = factoryListSelection;
 
         BuildCommands();
@@ -55,15 +63,38 @@ public partial class SnippetListContext
             StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
 
         PropertyChanged += OnPropertyChanged;
+
+        if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
-
-
+    public CmsCommonCommands CommonCommands { get; set; }
     public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
     public ObservableCollection<SnippetListListItem> Items { get; set; }
     public ContentListSelected<SnippetListListItem> ListSelection { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
+
+    [NonBlockingCommand]
+    public async Task BracketCodeToClipboardSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var selected = ListSelection.SelectedItems;
+
+        if (!selected.Any())
+        {
+            await StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = string.Join(Environment.NewLine, selected.Select(x => BracketCodeSnippet.Create(x.DbEntry)));
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
 
     public static async Task<SnippetListContext> CreateInstance(StatusControlContext? statusContext)
     {
@@ -143,6 +174,104 @@ public partial class SnippetListContext
         await FilterList();
     }
 
+    public string DefaultBracketCode(Snippet? content)
+    {
+        if (content?.ContentId == null) return string.Empty;
+        return $"{BracketCodeSnippet.Create(content)}";
+    }
+
+    [BlockingCommand]
+    public async Task DefaultBracketCodeToClipboard(Snippet? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            await StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var finalString = $"{BracketCodeSnippet.Create(content)}{Environment.NewLine}";
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [NonBlockingCommand]
+    public async Task Delete(Snippet? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            await StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        if (content.Id < 1)
+        {
+            await StatusContext.ToastError($"Snippet {content.Title} - Entry is not saved - Skipping?");
+            return;
+        }
+
+        await Db.DeleteSnippet(content.ContentId, StatusContext.ProgressTracker());
+    }
+
+    [NonBlockingCommand]
+    public async Task Edit(Snippet? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null) return;
+
+        var context = await Db.Context();
+
+        var refreshedData = context.Snippets.SingleOrDefault(x => x.ContentId == content.ContentId);
+
+        if (refreshedData == null)
+        {
+            await StatusContext.ToastError(
+                $"{content.Title} is no longer active in the database? Can not edit - look for a historic version...");
+            return;
+        }
+
+        var newContentWindow = await SnippetEditorWindow.CreateInstance(refreshedData);
+
+        await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    public async Task EditSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var selected = ListSelection.Selected;
+
+        if (selected == null)
+        {
+            await StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var context = await Db.Context();
+
+        var refreshedData = context.Snippets.SingleOrDefault(x => x.ContentId == selected.DbEntry.ContentId);
+
+        if (refreshedData == null)
+        {
+            await StatusContext.ToastError(
+                $"{selected.DbEntry.Title} is no longer active in the database? Can not edit - look for a historic version...");
+            return;
+        }
+
+        var newContentWindow = await SnippetEditorWindow.CreateInstance(refreshedData);
+
+        await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
+
     private async Task FilterList()
     {
         if (!Items.Any()) return;
@@ -163,6 +292,7 @@ public partial class SnippetListContext
         };
     }
 
+    [BlockingCommand]
     public async Task LoadData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -171,9 +301,9 @@ public partial class SnippetListContext
 
         var context = await Db.Context();
 
-        var allDbIcons = await context.Snippets.OrderBy(x => x.Title).ToListAsync();
+        var allDbItems = await context.Snippets.OrderBy(x => x.Title).ToListAsync();
 
-        var toLoad = allDbIcons.Select(SnippetListListItem.CreateInstance).ToList();
+        var toLoad = allDbItems.Select(SnippetListListItem.CreateInstance).ToList();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -184,6 +314,15 @@ public partial class SnippetListContext
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
+    [NonBlockingCommand]
+    public async Task NewSnippet()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newContentWindow = await SnippetEditorWindow.CreateInstance();
+
+        await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
@@ -196,5 +335,54 @@ public partial class SnippetListContext
 
         if (e.PropertyName == nameof(UserFilterText))
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewHistory(Snippet? content)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (content == null)
+        {
+            await StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        var db = await Db.Context();
+
+        StatusContext.Progress($"Looking up Historic Entries for {content.Title}");
+
+        var historicItems = await db.HistoricSnippets.Where(x => x.ContentId == content.ContentId).ToListAsync();
+
+        StatusContext.Progress($"Found {historicItems.Count} Historic Entries");
+
+        if (historicItems.Count < 1)
+        {
+            await StatusContext.ToastWarning("No History to Show...");
+            return;
+        }
+
+        var historicView = new ContentViewHistoryPage($"Historic Entries - {content.Title}",
+            UserSettingsSingleton.CurrentSettings().SiteName, $"Historic Entries - {content.Title}",
+            historicItems.OrderByDescending(x => x.LastUpdatedOn.HasValue).ThenByDescending(x => x.LastUpdatedOn)
+                .Select(LogTools.SafeObjectDump).ToList());
+
+        historicView.WriteHtmlToTempFolderAndShow(StatusContext.ProgressTracker());
+    }
+
+    [NonBlockingCommand]
+    public async Task ViewHistorySelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var selected = ListSelection.Selected;
+
+        if (selected == null)
+        {
+            await StatusContext.ToastError("Nothing Selected?");
+            return;
+        }
+
+        await ViewHistory(selected.DbEntry);
     }
 }

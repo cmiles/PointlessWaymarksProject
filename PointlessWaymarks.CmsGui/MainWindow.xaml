@@ -20,6 +20,7 @@
     xmlns:pointList="clr-namespace:PointlessWaymarks.CmsWpfControls.PointList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:postList="clr-namespace:PointlessWaymarks.CmsWpfControls.PostList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:programUpdateMessage="clr-namespace:PointlessWaymarks.WpfCommon.ProgramUpdateMessage;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:snippetList="clr-namespace:PointlessWaymarks.CmsWpfControls.SnippetList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:status1="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:tagExclusionEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagExclusionEditor;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:tagList="clr-namespace:PointlessWaymarks.CmsWpfControls.TagList;assembly=PointlessWaymarks.CmsWpfControls"
@@ -89,9 +90,11 @@
             <TabItem Header="Notes">
                 <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />
             </TabItem>
-
             <TabItem Header="Links">
                 <linkList:LinkListWithActionsControl DataContext="{Binding TabLinkContext}" />
+            </TabItem>
+            <TabItem Header="Snippets">
+                <snippetList:SnippetListControl DataContext="{Binding TabSnippetContext}" />
             </TabItem>
             <TabItem Header="Menu Links">
                 <menuListEditor:MenuLinkEditorControl DataContext="{Binding TabMenuLinkContext}" />

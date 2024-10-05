@@ -1284,6 +1284,54 @@ public static class Db
     }
 
     /// <summary>
+    ///     Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+    ///     In general use this rather deleting content directly...
+    /// </summary>
+    /// <returns></returns>
+    public static async Task DeleteSnippet(Guid contentId, IProgress<string>? progress = null)
+    {
+        var context = await Context().ConfigureAwait(false);
+
+        var toHistoric = await context.Snippets.Where(x => x.ContentId == contentId).ToListAsync()
+            .ConfigureAwait(false);
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Snippet,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
+
+        progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
+        foreach (var loopToHistoric in toHistoric)
+        {
+            var newHistoric = new HistoricSnippet
+            {
+                ContentId = loopToHistoric.ContentId,
+                ContentVersion = loopToHistoric.ContentVersion,
+                CreatedOn = loopToHistoric.CreatedOn
+            };
+            newHistoric.InjectFrom(loopToHistoric);
+            newHistoric.Id = 0;
+            newHistoric.LastUpdatedOn = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+            await context.HistoricSnippets.AddAsync(newHistoric).ConfigureAwait(false);
+            context.Snippets.Remove(loopToHistoric);
+        }
+
+        await context.SaveChangesAsync(true).ConfigureAwait(false);
+
+        progress?.Report($"{toHistoric.First().Title} Deleted");
+
+        DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Snippet,
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
+    }
+
+    /// <summary>
     ///     Deletes a Tag Exclusion and publishes Data Notifications.
     ///     In general use this rather deleting content directly...
     /// </summary>

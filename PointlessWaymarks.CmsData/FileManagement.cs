@@ -471,6 +471,7 @@ public static class FileManagement
         allContentIds.AddRange(await db.PhotoContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
         allContentIds.AddRange(await db.PointContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
         allContentIds.AddRange(await db.PostContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.Snippets.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
         allContentIds.AddRange(await db.VideoContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
 
         progress?.Report(
@@ -491,7 +492,8 @@ public static class FileManagement
                 progress?.Report(
                     $"ContentData Directory Cleanup - Checking Existing File {fileCount} of {allContentDataFiles.Count}");
 
-            var contentId = Path.GetFileNameWithoutExtension(loopFiles.Name);
+            var contentId = Path.GetFileNameWithoutExtension(loopFiles.Name).StartsWith("Historic") ? Path.GetFileNameWithoutExtension(loopFiles.Name).Split("---").Last() : Path.GetFileNameWithoutExtension(loopFiles.Name);
+
             if (Guid.TryParse(contentId, out var parsedGuid))
                 if (!allContentIds.Contains(parsedGuid))
                     try

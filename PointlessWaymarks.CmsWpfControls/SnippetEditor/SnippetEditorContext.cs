@@ -33,7 +33,7 @@ public partial class SnippetEditorContext : IHasChanges, IHasValidationIssues, I
         PropertyChanged += OnPropertyChanged;
     }
 
-    public StringDataEntryContext? BodyContent { get; set; }
+    public StringDataEntryContext? BodyEntry { get; set; }
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public Snippet DbEntry { get; set; }
@@ -87,7 +87,7 @@ public partial class SnippetEditorContext : IHasChanges, IHasValidationIssues, I
         newEntry.Title = TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.Summary = SummaryEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
-        newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
+        newEntry.BodyContent = BodyEntry!.UserValue.TrimNullToEmpty();
 
         return newEntry;
     }
@@ -102,30 +102,30 @@ public partial class SnippetEditorContext : IHasChanges, IHasValidationIssues, I
 
         TitleEntry.Title = "Title";
         TitleEntry.HelpText = "Title Text";
-        TitleEntry.ReferenceValue = toLoad?.Title ?? string.Empty;
-        TitleEntry.UserValue = StringTools.NullToEmptyTrim(toLoad?.Title);
+        TitleEntry.ReferenceValue = DbEntry?.Title ?? string.Empty;
+        TitleEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry?.Title);
         TitleEntry.ValidationFunctions = [CommonContentValidation.ValidateTitle];
 
         SummaryEntry = StringDataEntryContext.CreateInstance();
 
         SummaryEntry.Title = "Summary";
         SummaryEntry.HelpText = "A short text entry that will show in Search and short references to the content";
-        SummaryEntry.ReferenceValue = toLoad?.Summary ?? string.Empty;
-        SummaryEntry.UserValue = StringTools.NullToEmptyTrim(toLoad?.Summary);
+        SummaryEntry.ReferenceValue = DbEntry?.Summary ?? string.Empty;
+        SummaryEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry?.Summary);
         SummaryEntry.ValidationFunctions = [CommonContentValidation.ValidateSummary];
 
-        CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, toLoad);
-        ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, toLoad);
+        CreatedUpdatedDisplay = await CreatedAndUpdatedByAndOnDisplayContext.CreateInstance(StatusContext, DbEntry);
+        ContentId = await ContentIdViewerControlContext.CreateInstance(StatusContext, DbEntry);
 
-        BodyContent = StringDataEntryContext.CreateInstance();
+        BodyEntry = StringDataEntryContext.CreateInstance();
 
-        SummaryEntry.Title = "Snippet Text";
-        SummaryEntry.HelpText = "Text that will be placed anywhere {{snippet [this ContentId]}} is found";
-        SummaryEntry.ReferenceValue = toLoad?.BodyContent ?? string.Empty;
-        SummaryEntry.UserValue = StringTools.NullToEmptyTrim(toLoad?.BodyContent);
+        BodyEntry.Title = "Snippet Text";
+        BodyEntry.HelpText = "Text that will be placed anywhere {{snippet [this ContentId]}} is found";
+        BodyEntry.ReferenceValue = DbEntry?.BodyContent ?? string.Empty;
+        BodyEntry.UserValue = StringTools.NullToEmptyTrim(DbEntry?.BodyContent);
 
         HelpContext = new HelpDisplayContext([
-            SnippetEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
+            SnippetEditorHelpText
         ]);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);

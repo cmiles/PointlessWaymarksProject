@@ -1,27 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using PointlessWaymarks.CmsData;
+using PointlessWaymarks.LlamaAspects;
+using PointlessWaymarks.WpfCommon;
 
-namespace PointlessWaymarks.CmsWpfControls.SnippetList
+namespace PointlessWaymarks.CmsWpfControls.SnippetList;
+
+/// <summary>
+///     Interaction logic for SnippetListWindow.xaml
+/// </summary>
+[NotifyPropertyChanged]
+public partial class SnippetListWindow
 {
-    /// <summary>
-    /// Interaction logic for SnippetListWindow.xaml
-    /// </summary>
-    public partial class SnippetListWindow : Window
+    private SnippetListWindow(SnippetListContext toLoad)
     {
-        public SnippetListWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+        ListContext = toLoad;
+        DataContext = this;
+        WindowTitle = $"Snippet List - {UserSettingsSingleton.CurrentSettings().SiteName}";
+    }
+
+    public SnippetListContext ListContext { get; set; }
+    public string WindowTitle { get; set; }
+
+    /// <summary>
+    ///     Creates a new instance - this method can be called from any thread and will
+    ///     switch to the UI thread as needed.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<SnippetListWindow> CreateInstance(SnippetListContext? toLoad)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+        var window = new SnippetListWindow(toLoad ?? await SnippetListContext.CreateInstance(null));
+
+        return window;
     }
 }
