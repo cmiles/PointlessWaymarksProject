@@ -67,4 +67,40 @@ public static class BracketCodeSnippet
 
         return toProcess;
     }
+
+    public static async Task<(Guid snippetContentId, List<Guid> relatedSnippetContentId)> SnippetContentIdRelatedSnippetContentIds(Guid contentId, IProgress<string>? progress = null)
+    {
+        var context = await Db.Context().ConfigureAwait(false);
+
+        var initialSnippet = await context.Snippets.SingleOrDefaultAsync(x => x.ContentId == contentId).ConfigureAwait(false);
+
+        var returnInformation = (contentId, new List<Guid>());
+
+        if (initialSnippet == null) return returnInformation;
+
+        var currentBody = initialSnippet.BodyContent;
+
+        var embeddedContentIds = BracketCodeCommon.ContentBracketCodeMatches(currentBody, BracketCodeToken)
+            .Select(x => x.contentGuid).Distinct().ToList();
+
+        var cycleDetected = false;
+
+        while (embeddedContentIds.Any() && !cycleDetected)
+        {
+            if (embeddedContentIds.Any(x => returnInformation.Item2.Contains(x)) || embeddedContentIds.Any(x => x.Equals(returnInformation.contentId)))
+            {
+                cycleDetected = true;
+                continue;
+            }
+
+            returnInformation.Item2.AddRange(embeddedContentIds);
+
+            currentBody = await Process(currentBody, progress);
+
+            embeddedContentIds = BracketCodeCommon.ContentBracketCodeMatches(currentBody, BracketCodeToken)
+                .Select(x => x.contentGuid).Distinct().ToList();
+        }
+
+        return returnInformation;
+    }
 }

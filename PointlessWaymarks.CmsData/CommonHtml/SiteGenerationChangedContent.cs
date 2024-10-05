@@ -121,14 +121,6 @@ public static class SiteGenerationChangedContent
             async () =>
             {
                 var db = await Db.Context().ConfigureAwait(false);
-                var posts = await db.Snippets.Where(x => x.ContentVersion > contentAfter)
-                    .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-                guidBag.Add(posts);
-                progress?.Report($"Found {posts.Count} Snippet Content Entries Changed After {contentAfter}");
-            },
-            async () =>
-            {
-                var db = await Db.Context().ConfigureAwait(false);
                 var videos = await db.VideoContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
                     .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                 guidBag.Add(videos);
@@ -137,6 +129,21 @@ public static class SiteGenerationChangedContent
         };
 
         await Parallel.ForEachAsync(taskSet, async (x, _) => await x()).ConfigureAwait(false);
+
+        //Snippets can contain other snippets - get all related snippets and detect changes on anything in the stack
+        var allSnippets = await mainContext.Snippets.Select(x => x.ContentId).ToListAsync();
+        var snippetsWithChanges = await mainContext.Snippets.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId).ToListAsync();
+
+        var snippetGroups = new List<(Guid, List<Guid>)>();
+
+        foreach (var loopSnippet in allSnippets)
+        {
+            snippetGroups.Add(await BracketCodes.BracketCodeSnippet.SnippetContentIdRelatedSnippetContentIds(loopSnippet, progress));
+        }
+
+        var changedSnippetGroups = snippetGroups.Where(x => x.Item2.Any(y => snippetsWithChanges.Contains(y))).Select(x => x.Item1).ToList();
+        guidBag.Add(changedSnippetGroups);
+        //
 
         var contentChanges = guidBag.SelectMany(x => x.Select(y => y)).ToList();
 
