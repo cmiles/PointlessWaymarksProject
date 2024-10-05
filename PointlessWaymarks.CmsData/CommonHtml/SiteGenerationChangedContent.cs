@@ -141,7 +141,7 @@ public static class SiteGenerationChangedContent
             snippetGroups.Add(await BracketCodes.BracketCodeSnippet.SnippetContentIdRelatedSnippetContentIds(loopSnippet, progress));
         }
 
-        var changedSnippetGroups = snippetGroups.Where(x => x.Item2.Any(y => snippetsWithChanges.Contains(y))).Select(x => x.Item1).ToList();
+        var changedSnippetGroups = snippetGroups.Where(x => x.Item2.Any(y => snippetsWithChanges.Contains(y)) || snippetsWithChanges.Contains(x.Item1)).Select(x => x.Item1).ToList();
         guidBag.Add(changedSnippetGroups);
         //
 
