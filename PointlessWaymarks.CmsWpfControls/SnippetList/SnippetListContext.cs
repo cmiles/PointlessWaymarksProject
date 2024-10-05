@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
-using HtmlTags.Reflection;
+using GongSolutions.Wpf.DragDrop;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
@@ -24,7 +24,7 @@ namespace PointlessWaymarks.CmsWpfControls.SnippetList;
 
 [NotifyPropertyChanged]
 [GenerateStatusCommands]
-public partial class SnippetListContext
+public partial class SnippetListContext : IDragSource, IDropTarget
 {
     private SnippetListContext(ObservableCollection<SnippetListListItem> items, StatusControlContext statusContext,
         ContentListSelected<SnippetListListItem> factoryListSelection, bool loadInBackground = true)
@@ -66,6 +66,7 @@ public partial class SnippetListContext
 
         if (loadInBackground) StatusContext.RunFireAndForgetBlockingTask(LoadData);
     }
+
     public CmsCommonCommands CommonCommands { get; set; }
     public DataNotificationsWorkQueue DataNotificationsProcessor { get; set; }
     public ObservableCollection<SnippetListListItem> Items { get; set; }
@@ -73,6 +74,66 @@ public partial class SnippetListContext
     public ColumnSortControlContext ListSort { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
+
+    public bool CanStartDrag(IDragInfo dragInfo)
+    {
+        return ListSelection.SelectedItems.Count > 0;
+    }
+
+    public void DragCancelled()
+    {
+    }
+
+    public void DragDropOperationFinished(DragDropEffects operationResult, IDragInfo dragInfo)
+    {
+    }
+
+    public void Dropped(IDropInfo dropInfo)
+    {
+    }
+
+    public void StartDrag(IDragInfo dragInfo)
+    {
+        var defaultBracketCodeList = ListSelection.SelectedItems.Select(x => DefaultBracketCode(x.DbEntry)).ToList();
+        dragInfo.Data = string.Join(Environment.NewLine, defaultBracketCodeList);
+        dragInfo.DataFormat = DataFormats.GetDataFormat(DataFormats.UnicodeText);
+        dragInfo.Effects = DragDropEffects.Copy;
+    }
+
+    public bool TryCatchOccurredException(Exception exception)
+    {
+        return false;
+    }
+
+    public void DragOver(IDropInfo dropInfo)
+    {
+        if (dropInfo.Data is string ||
+            (dropInfo.Data is DataObject dataObject && dataObject.GetDataPresent(DataFormats.UnicodeText)))
+            dropInfo.Effects = DragDropEffects.Copy;
+        else
+            dropInfo.Effects = DragDropEffects.None;
+    }
+
+    public void Drop(IDropInfo dropInfo)
+    {
+        if (dropInfo.Data is string droppedString)
+        {
+            StatusContext.RunNonBlockingTask(async () => await HandleDroppedString(droppedString));
+        }
+        else if (dropInfo.Data is DataObject dataObject && dataObject.GetDataPresent(DataFormats.UnicodeText))
+        {
+            if (dataObject.GetData(DataFormats.UnicodeText) is string droppedDataString)
+                StatusContext.RunNonBlockingTask(async () => await HandleDroppedString(droppedDataString));
+            else
+                StatusContext.RunNonBlockingTask(async () =>
+                    await StatusContext.ToastError("Failed to convert data to string."));
+        }
+        else
+        {
+            StatusContext.RunNonBlockingTask(
+                async () => await StatusContext.ToastError("Only string data is accepted."));
+        }
+    }
 
     [NonBlockingCommand]
     public async Task BracketCodeToClipboardSelected()
@@ -290,6 +351,16 @@ public partial class SnippetListContext
 
             return listItem.DbEntry.Title?.ToUpper().Contains(UserFilterText.ToUpper().Trim()) ?? false;
         };
+    }
+
+    public async Task HandleDroppedString(string? stringContent)
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var newSnippet = Snippet.CreateInstance();
+        newSnippet.BodyContent = stringContent ?? string.Empty;
+
+        await SnippetEditorWindow.CreateInstance(newSnippet, true);
     }
 
     [BlockingCommand]

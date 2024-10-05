@@ -10,6 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:dd="urn:gong-wpf-dragdrop"
     d:DataContext="{d:DesignInstance local:SnippetListContext}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -62,6 +63,10 @@
             <ListBox
                 behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding ListSelection.SelectedItems}"
                 ItemsSource="{Binding Items}"
+                dd:DragDrop.DragHandler="{Binding .}"
+                dd:DragDrop.DropHandler="{Binding .}"
+                dd:DragDrop.IsDragSource="True"
+                dd:DragDrop.IsDropTarget="True"
                 SelectedItem="{Binding ListSelection.Selected}"
                 Style="{StaticResource ContentListListBoxStyle}">
                 <b:Interaction.Behaviors>
@@ -85,6 +90,10 @@
                                     Gesture="Shift+LeftDoubleClick" />
                             </Border.InputBindings>
                             <Grid Margin="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
                                 <Grid Style="{StaticResource ContentListTextGridStyle}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
@@ -127,6 +136,19 @@
                                         VerticalAlignment="Bottom"
                                         Content="{StaticResource ContentListContentIdAndDateDisplay}" />
                                 </Grid>
+                                <GroupBox
+                                    Grid.Column="1"
+                                    Margin="0,0,4,0"
+                                    Header="Snippet Body">
+                                    <TextBox
+                                        AcceptsReturn="true"
+                                        BorderThickness="0"
+                                        HorizontalScrollBarVisibility="Disabled"
+                                        IsReadOnly="True"
+                                        Text="{Binding DbEntry.BodyContent}"
+                                        TextWrapping="Wrap"
+                                        VerticalScrollBarVisibility="Auto" />
+                                </GroupBox>
                             </Grid>
                         </Border>
                     </DataTemplate>
