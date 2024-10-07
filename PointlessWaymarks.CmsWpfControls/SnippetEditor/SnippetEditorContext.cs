@@ -41,7 +41,7 @@ public partial class SnippetEditorContext : IHasChanges, IHasValidationIssues, I
 
     public string SnippetEditorHelpText =>
         """
-        Snippets can be used to create reusable content that can be inserted into other content with the advantage that the content can be updated once, in the snippet, and the changes will be reflected into all the content that uses the snippet.
+        Snippets can be used to create reusable content that can be inserted into other content with the advantage that they can be updated once and the changes will be reflected into all the content that uses the snippet. Snippets can contain other bracket codes and other snippets - however be careful not to create circular references.
         """;
 
     public StatusControlContext StatusContext { get; set; }
