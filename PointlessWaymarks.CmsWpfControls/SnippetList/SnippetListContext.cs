@@ -45,7 +45,7 @@ public partial class SnippetListContext : IDragSource, IDropTarget
                 new ColumnSortControlSortItem
                 {
                     DisplayName = "Title",
-                    ColumnName = "Title",
+                    ColumnName = "DbEntry.Title",
                     DefaultSortDirection = ListSortDirection.Ascending,
                     Order = 1
                 },
