@@ -302,8 +302,8 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
     //compromise that often works out nicely...
     const sourceData = lineData;
     const maxDistanceInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.AccumulatedDistance));
-    const distanceFiveMileUnits = Math.floor((maxDistanceInMeters * 0.0006213711922) / 2);
-    const distanceMax = (distanceFiveMileUnits + 1) * 2;
+    const distanceChartUnits = Math.floor((maxDistanceInMeters * 0.0006213711922) / 2);
+    const distanceMax = (distanceChartUnits + 1) * 2;
 
     const maxElevationInMeters = Math.max(...lineData.ElevationPlotData.map(x => x.Elevation));
     const elevationMaxChartUnits = Math.floor((maxElevationInMeters * 3.280839895) / 1000);
