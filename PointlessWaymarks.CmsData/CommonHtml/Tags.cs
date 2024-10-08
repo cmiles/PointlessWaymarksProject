@@ -259,21 +259,24 @@ public static class Tags
     {
         var summaryStringList = new List<string>();
 
-        string titleSummaryString;
+        string titleSummaryString = string.Empty;
 
         var summaryHasValue = !string.IsNullOrWhiteSpace(dbEntry.Summary);
 
         if (includeTitle || !summaryHasValue)
         {
-            titleSummaryString = dbEntry.Title.TrimNullToEmpty();
-
             if (summaryHasValue)
             {
                 var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty)
                     .Contains(dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty),
                         StringComparison.OrdinalIgnoreCase);
 
-                if (!summaryIsInTitle) titleSummaryString += $": {dbEntry.Summary.TrimNullToEmpty()}";
+                var titleIsInSummary = dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty)
+                    .Contains(titleSummaryString.Replace(".", string.Empty), StringComparison.OrdinalIgnoreCase);
+
+                if(titleIsInSummary) titleSummaryString = dbEntry.Summary.TrimNullToEmpty();
+                else if(summaryIsInTitle) titleSummaryString = dbEntry.Title.TrimNullToEmpty();
+                else titleSummaryString = $"{dbEntry.Title.TrimNullToEmpty()}: {dbEntry.Summary.TrimNullToEmpty()}";
             }
         }
         else
@@ -292,7 +295,7 @@ public static class Tags
         return string.Join(" ", summaryStringList);
     }
 
-    public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = false)
+    public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = true)
     {
         if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
 
