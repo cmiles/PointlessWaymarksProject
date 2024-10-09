@@ -18,11 +18,11 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Jot" Version="2.1.17" />
-        <PackageReference Include="Metalama.Framework" Version="2024.2.24" />
+        <PackageReference Include="Metalama.Framework" Version="2024.2.25" />
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
         <PackageReference Include="Microsoft.Web.WebView2.DevToolsProtocolExtension" Version="1.0.2271" />
         <PackageReference Include="ModernWpfUI" Version="0.9.6" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup>

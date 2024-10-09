@@ -14,15 +14,13 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Metalama.Framework" Version="2024.2.24" />
+        <PackageReference Include="Metalama.Framework" Version="2024.2.25" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
-        <ProjectReference
-            Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
-        <ProjectReference
-            Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
+        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />
+        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
     </ItemGroup>
 
     <ItemGroup>
