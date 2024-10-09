@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml;
@@ -132,16 +133,17 @@ public static class SiteGenerationChangedContent
 
         //Snippets can contain other snippets - get all related snippets and detect changes on anything in the stack
         var allSnippets = await mainContext.Snippets.Select(x => x.ContentId).ToListAsync();
-        var snippetsWithChanges = await mainContext.Snippets.Where(x => x.ContentVersion > contentAfter).Select(x => x.ContentId).ToListAsync();
+        var snippetsWithChanges = await mainContext.Snippets.Where(x => x.ContentVersion > contentAfter)
+            .Select(x => x.ContentId).ToListAsync();
 
         var snippetGroups = new List<(Guid, List<Guid>)>();
 
         foreach (var loopSnippet in allSnippets)
-        {
-            snippetGroups.Add(await BracketCodes.BracketCodeSnippet.SnippetContentIdRelatedSnippetContentIds(loopSnippet, progress));
-        }
+            snippetGroups.Add(await BracketCodeSnippet.SnippetContentIdRelatedSnippetContentIds(loopSnippet, progress));
 
-        var changedSnippetGroups = snippetGroups.Where(x => x.Item2.Any(y => snippetsWithChanges.Contains(y)) || snippetsWithChanges.Contains(x.Item1)).Select(x => x.Item1).ToList();
+        var changedSnippetGroups = snippetGroups
+            .Where(x => x.Item2.Any(y => snippetsWithChanges.Contains(y)) || snippetsWithChanges.Contains(x.Item1))
+            .Select(x => x.Item1).ToList();
         guidBag.Add(changedSnippetGroups);
         //
 
@@ -558,23 +560,13 @@ public static class SiteGenerationChangedContent
         var compareLogic = new CompareLogic();
         var searchTagComparisonResult = compareLogic.Compare(searchTagsLastGeneration, searchTagsThisGeneration);
 
-        if (!searchTagComparisonResult.AreEqual)
-        {
-            progress?.Report(
-                "Search Tags are different between this generation and the last generation - creating Tag List.");
-            await SearchListPageGenerators.WriteTagList(generationVersion, progress).ConfigureAwait(false);
-        }
-        else
-        {
-            progress?.Report("Search Tags are the same as the last generation - skipping Tag List creation.");
-        }
 
         CompareLogic GetTagCompareLogic()
         {
             var tagCompareLogic = new CompareLogic();
             var spec = new Dictionary<Type, IEnumerable<string>>
             {
-                { typeof(GenerationTagLog), new[] { "RelatedContentId", "TagIsExcludedFromSearch" } }
+                { typeof(GenerationTagLog), ["RelatedContentId", "TagIsExcludedFromSearch"] }
             };
             tagCompareLogic.Config.CollectionMatchingSpec = spec;
             tagCompareLogic.Config.MembersToInclude.Add("RelatedContentId");
@@ -583,7 +575,7 @@ public static class SiteGenerationChangedContent
             return tagCompareLogic;
         }
 
-        async Task GenerateTag(DateTime dateTime, PointlessWaymarksContext pointlessWaymarksContext,
+        async Task<bool> GenerateTag(DateTime dateTime, PointlessWaymarksContext pointlessWaymarksContext,
             CompareLogic tagCompareLogic, string tag, IProgress<string>? generateProgress)
         {
             var contentLastGeneration = await pointlessWaymarksContext.GenerationTagLogs.Where(x =>
@@ -605,7 +597,7 @@ public static class SiteGenerationChangedContent
                     .ConfigureAwait(false);
                 await SearchListPageGenerators.WriteTagPage(tag, contentToWrite, dateTime, generateProgress)
                     .ConfigureAwait(false);
-                return;
+                return true;
             }
 
             //Direct content Changes
@@ -637,10 +629,12 @@ public static class SiteGenerationChangedContent
                 await SearchListPageGenerators.WriteTagPage(tag, directTagContent, dateTime, generateProgress)
                     .ConfigureAwait(false);
 
-                return;
+                return true;
             }
 
             generateProgress?.Report($"No Changes for tag {tag}");
+
+            return false;
         }
 
         //Evaluate each Tag - the tags list is a standard search list showing summary and main image in addition to changes to the linked content also check for changes
@@ -652,17 +646,31 @@ public static class SiteGenerationChangedContent
 
         var allTasks = new List<Task>();
 
+        var anyTagPagesBuilt = false;
+
         foreach (var loopPartitions in partitionedTags)
             allTasks.Add(Task.Run(async () =>
             {
                 var partitionDb = await Db.Context().ConfigureAwait(false);
                 var partitionCompareLogic = GetTagCompareLogic();
                 foreach (var loopTag in loopPartitions)
-                    await GenerateTag(generationVersion, partitionDb, partitionCompareLogic, loopTag, progress)
-                        .ConfigureAwait(false);
+                    if (await GenerateTag(generationVersion, partitionDb, partitionCompareLogic, loopTag, progress)
+                            .ConfigureAwait(false))
+                        anyTagPagesBuilt = true;
             }));
 
         await Task.WhenAll(allTasks).ConfigureAwait(false);
+
+        if (!searchTagComparisonResult.AreEqual || anyTagPagesBuilt)
+        {
+            progress?.Report(
+                "Search Tags are different between this generation and the last generation - creating Tag List.");
+            await SearchListPageGenerators.WriteTagList(generationVersion, progress).ConfigureAwait(false);
+        }
+        else
+        {
+            progress?.Report("Search Tags are the same as the last generation - skipping Tag List creation.");
+        }
     }
 
     public static async Task GenerateChangeFilteredFileHtml(DateTime generationVersion,

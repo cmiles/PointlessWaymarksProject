@@ -21,7 +21,7 @@ public partial class SearchListPage(
 
     public HtmlTag ContentListTag()
     {
-        var allContent = ContentFunction();
+        var allContent = ContentFunction().OrderBy(x => (x as ITitle)?.Title).ToList();
 
         var allContentContainer = new DivTag().AddClass("content-list-container");
 

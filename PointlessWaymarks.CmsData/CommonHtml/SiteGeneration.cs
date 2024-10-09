@@ -274,7 +274,7 @@ public static class SiteGeneration
 
             DataNotifications.PublishDataNotification("SiteGeneration.CleanupGenerationInformation",
                 DataNotificationContentType.FileTransferScriptLog, DataNotificationUpdateType.Delete,
-                new List<Guid>());
+                []);
         }
 
 
@@ -400,7 +400,7 @@ public static class SiteGeneration
     public static async Task SetupTagGenerationDbData(DateTime currentGenerationVersion,
         IProgress<string>? progress = null)
     {
-        var tagData = await Db.TagSlugsAndContentList(true, false, progress).ConfigureAwait(false);
+        var tagData = await Db.TagSlugsAndContentList(false, false, progress).ConfigureAwait(false);
 
         var excludedTagSlugs = await Db.TagExclusionSlugs().ConfigureAwait(false);
 

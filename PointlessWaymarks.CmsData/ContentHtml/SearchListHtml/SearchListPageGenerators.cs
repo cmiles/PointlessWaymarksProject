@@ -257,7 +257,7 @@ public static class SearchListPageGenerators
         //Tags is reset - above for tag search we don't include tags from pages that are hidden from search - but to
         //ensure all tags have a page we generate pages from all tags (if an image excluded from search had a unique
         //tag we need a page for the links on that page, excluded from search does not mean 'unreachable'...)
-        var pageTags = Db.TagSlugsAndContentList(true, false, progress).Result;
+        var pageTags = Db.TagSlugsAndContentList(false, false, progress).Result;
         var excludedTags = Db.TagExclusionSlugs().Result;
 
         await Parallel.ForEachAsync(pageTags, async (loopTags, _) =>

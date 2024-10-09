@@ -3,6 +3,7 @@ using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
+using SimMetricsCore;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
@@ -185,7 +186,7 @@ public static class Tags
 
         return divTag;
     }
-    
+
     public static HtmlTag InfoLinkDivTag(string url, string linkText, string className)
     {
         if (string.IsNullOrWhiteSpace(linkText) || string.IsNullOrWhiteSpace(url)) return HtmlTag.Empty();
@@ -255,7 +256,7 @@ public static class Tags
         return metaString;
     }
 
-    public static string PhotoCaptionText(PhotoContent dbEntry, bool includeTitle = false)
+    public static string PhotoCaptionText(PhotoContent dbEntry, bool includeTitle = true)
     {
         var summaryStringList = new List<string>();
 
@@ -267,16 +268,16 @@ public static class Tags
         {
             if (summaryHasValue)
             {
-                var summaryIsInTitle = titleSummaryString.Replace(".", string.Empty)
-                    .Contains(dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty),
-                        StringComparison.OrdinalIgnoreCase);
+                var summaryIsInTitle = dbEntry.Title.ContainsFuzzy(dbEntry.Summary, 0.8, SimMetricType.JaroWinkler);
+                var titleIsInSummary = dbEntry.Summary.ContainsFuzzy(dbEntry.Title, 0.8, SimMetricType.JaroWinkler);
 
-                var titleIsInSummary = dbEntry.Summary.TrimNullToEmpty().Replace(".", string.Empty)
-                    .Contains(titleSummaryString.Replace(".", string.Empty), StringComparison.OrdinalIgnoreCase);
-
-                if(titleIsInSummary) titleSummaryString = dbEntry.Summary.TrimNullToEmpty();
-                else if(summaryIsInTitle) titleSummaryString = dbEntry.Title.TrimNullToEmpty();
+                if (titleIsInSummary) titleSummaryString = dbEntry.Summary.TrimNullToEmpty();
+                else if (summaryIsInTitle) titleSummaryString = dbEntry.Title.TrimNullToEmpty();
                 else titleSummaryString = $"{dbEntry.Title.TrimNullToEmpty()}: {dbEntry.Summary.TrimNullToEmpty()}";
+            }
+            else
+            {
+                titleSummaryString = dbEntry.Title.TrimNullToEmpty();
             }
         }
         else
@@ -403,9 +404,10 @@ public static class Tags
     {
         if (pictureAsset?.SmallPicture == null || pictureAsset.DisplayPicture == null) return HtmlTag.Empty();
 
-        var imgToUse = pictureAsset.SrcsetImages.Where(x => x.Width >= 300).MinBy(x => x.Width) ?? pictureAsset.SrcsetImages.Where(x => x.Width <= 300).MaxBy(x => x.Width);
-        
-        if(imgToUse == null) return HtmlTag.Empty();
+        var imgToUse = pictureAsset.SrcsetImages.Where(x => x.Width >= 300).MinBy(x => x.Width) ??
+                       pictureAsset.SrcsetImages.Where(x => x.Width <= 300).MaxBy(x => x.Width);
+
+        if (imgToUse == null) return HtmlTag.Empty();
 
         var imageTag = new HtmlTag("img").AddClass("card-photo").Attr("srcset", pictureAsset.SrcSetString())
             .Attr("src", imgToUse.SiteUrl).Attr("height", imgToUse.Height)
@@ -528,7 +530,7 @@ public static class Tags
     public static HtmlTag PreviousAndNextContentDiv(List<IContentCommon> previousPosts,
         List<IContentCommon> laterPosts)
     {
-        if(!UserSettingsSingleton.CurrentSettings().ShowPreviousNextContent) return HtmlTag.Empty();
+        if (!UserSettingsSingleton.CurrentSettings().ShowPreviousNextContent) return HtmlTag.Empty();
         if (!laterPosts.Any() && !previousPosts.Any()) return HtmlTag.Empty();
 
         var hasPreviousPosts = previousPosts.Any();
@@ -614,6 +616,8 @@ public static class Tags
     public static HtmlTag TagList(ITag dbEntry)
     {
         if (string.IsNullOrWhiteSpace(dbEntry.Tags)) return HtmlTag.Empty();
+
+        if (dbEntry is IShowInSearch { ShowInSearch: false }) return HtmlTag.Empty();
 
         var tags = Db.TagListParseToSlugsAndIsExcluded(dbEntry);
 
