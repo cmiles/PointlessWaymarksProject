@@ -22,7 +22,7 @@
 <body>
     <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
-    <h1 class="site-header-title"><#= $"{ListTitle}" #></h1>
+    <h1 class="title-content"><#= $"{ListTitle}" #></h1>
     <div class="search-input-container">
         <input type="text" class="search-input" id="userSearchText" onkeyup="searchContent()" placeholder="Search <#= ListTitle #>..." autocomplete="off">
     </div>

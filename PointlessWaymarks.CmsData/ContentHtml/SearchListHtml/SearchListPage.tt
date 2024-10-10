@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" #>
+<#@ template language="C#" #>
 <#@ import namespace="PointlessWaymarks.CmsData.CommonHtml" #>
 <#@ import namespace="PointlessWaymarks.CommonTools" #>
 <!DOCTYPE html>
@@ -39,7 +39,7 @@
 <body>
     <#= Tags.StandardHeader().Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
-    <h1 class="site-header-title"><#= $"Search {ListTitle}" #></h1>
+    <h1 class="title-content"><#= $"Search {ListTitle}" #></h1>
     <div class="search-input-container enable-after-loading wait-cursor">
         <input type="text" class="search-input" id="userSearchText" onkeyup="processSearchContent()" placeholder="Search <#= ListTitle #>..." autocomplete="off">
     </div>
