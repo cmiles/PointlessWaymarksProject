@@ -20,52 +20,78 @@ function debounce(func, timeout = 500) {
     };
 }
 
-function sortCreatedAscending() {
+function sortString(dataIdentifier, ascending = true) {
     var list = document.querySelector('.content-list-container');
 
     Array.from(document.querySelectorAll('.content-list-item-container'))
-        .sort((a, b) => a.getAttribute('data-created') > b.getAttribute('data-created') ? 1 : -1)
+        .sort((a, b) => {
+            const valueA = a.getAttribute(dataIdentifier);
+            const valueB = b.getAttribute(dataIdentifier);
+            if (valueA > valueB) return ascending ? 1 : -1;
+            if (valueA < valueB) return ascending ? -1 : 1;
+            return 0;
+        })
         .forEach(node => list.appendChild(node));
+}
+
+function sortCreatedAscending() {
+    sortString('data-created', true);
 }
 
 function sortCreatedDescending() {
-    var list = document.querySelector('.content-list-container');
-
-    Array.from(document.querySelectorAll('.content-list-item-container'))
-        .sort((a, b) => a.getAttribute('data-created') < b.getAttribute('data-created') ? 1 : -1)
-        .forEach(node => list.appendChild(node));
+    sortString('data-created', false);
 }
 
 function sortUpdatedAscending() {
-    var list = document.querySelector('.content-list-container');
-
-    Array.from(document.querySelectorAll('.content-list-item-container'))
-        .sort((a, b) => a.getAttribute('data-updated') > b.getAttribute('data-updated') ? 1 : -1)
-        .forEach(node => list.appendChild(node));
+    sortString('data-updated', true);
 }
 
 function sortUpdatedDescending() {
-    var list = document.querySelector('.content-list-container');
-
-    Array.from(document.querySelectorAll('.content-list-item-container'))
-        .sort((a, b) => a.getAttribute('data-updated') < b.getAttribute('data-updated') ? 1 : -1)
-        .forEach(node => list.appendChild(node));
+    sortString('data-updated', false);
 }
 
 function sortTitleAscending() {
-    var list = document.querySelector('.content-list-container');
-
-    Array.from(document.querySelectorAll('.content-list-item-container'))
-        .sort((a, b) => a.getAttribute('data-title') > b.getAttribute('data-title') ? 1 : -1)
-        .forEach(node => list.appendChild(node));
+    sortString('data-title', true);
 }
 
 function sortTitleDescending() {
+    sortString('data-title', false);
+}
+
+function sortNumber(dataIdentifier, ascending = true) {
     var list = document.querySelector('.content-list-container');
 
     Array.from(document.querySelectorAll('.content-list-item-container'))
-        .sort((a, b) => a.getAttribute('data-title') < b.getAttribute('data-title') ? 1 : -1)
+        .sort((a, b) => {
+            const valueA = parseFloat(a.getAttribute(dataIdentifier));
+            const valueB = parseFloat(b.getAttribute(dataIdentifier));
+            return ascending ? valueA - valueB : valueB - valueA;
+        })
         .forEach(node => list.appendChild(node));
+}
+
+function sortDistanceAscending() {
+    sortNumber('data-distance', true);
+}
+
+function sortDistanceDescending() {
+    sortNumber('data-distance', false);
+}
+
+function sortClimbAscending() {
+    sortNumber('data-climb', true);
+}
+
+function sortClimbDescending() {
+    sortNumber('data-climb', false);
+}
+
+function sortMaxElevationAscending() {
+    sortNumber('data-max-elevation', true);
+}
+
+function sortMaxElevationDescending() {
+    sortNumber('data-max-elevation', false);
 }
 
 function searchContent() {

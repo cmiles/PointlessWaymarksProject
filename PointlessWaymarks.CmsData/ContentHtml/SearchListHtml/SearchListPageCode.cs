@@ -2,6 +2,7 @@ using System.Globalization;
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml;
 
@@ -80,15 +81,35 @@ public partial class SearchListPage(
             filterContainer.Children.Add(new DivTag().Text("|"));
         }
 
-        var sortList = new List<(string label, string sortMethod)>
+        List<(string label, string sortMethod)> sortList;
+
+        if (allContent.All(x => x is LineContent))
         {
-            ("Title ↑", "sortTitleAscending"),
-            ("Title ↓", "sortTitleDescending"),
-            ("Created ↑", "sortCreatedAscending"),
-            ("Created ↓", "sortCreatedDescending"),
-            ("Updated ↑", "sortUpdatedAscending"),
-            ("Updated ↓", "sortUpdatedDescending")
-        };
+            sortList =
+            [
+                ("Title ↑", "sortTitleAscending"),
+                ("Title ↓", "sortTitleDescending"),
+                ("Distance ↑", "sortDistanceAscending"),
+                ("Distance ↓", "sortDistanceDescending"),
+                ("Climb ↑", "sortClimbAscending"),
+                ("Climb ↓", "sortClimbDescending"),
+                ("Max Elevation ↑", "sortMaxElevationAscending"),
+                ("Max Elevation ↓", "sortMaxElevationDescending"),
+            ];
+        }
+        else
+        {
+            sortList =
+            [
+                ("Title ↑", "sortTitleAscending"),
+                ("Title ↓", "sortTitleDescending"),
+                ("Created ↑", "sortCreatedAscending"),
+                ("Created ↓", "sortCreatedDescending"),
+                ("Updated ↑", "sortUpdatedAscending"),
+                ("Updated ↓", "sortUpdatedDescending")
+            ];
+        }
+
 
         var first = true;
 
@@ -98,6 +119,8 @@ public partial class SearchListPage(
             var radio = new HtmlTag("input")
                 .Attr("type", "radio")
                 .Attr("name", "content-sort-order")
+                .Attr("id", radioLoop.sortMethod)
+                .Attr("title", radioLoop.sortMethod.CamelCaseToSpacedString())
                 .Attr("onclick", $"{radioLoop.sortMethod}()")
                 .AddClass("content-list-filter-item")
                 .AddClasses("content-list-filter-radio");
@@ -108,6 +131,7 @@ public partial class SearchListPage(
             }
 
             var label = new HtmlTag("label")
+                .Attr("for", radioLoop.sortMethod)
                 .AddClasses("content-list-filter-radio-label")
                 .Text(textInfo.ToTitleCase(radioLoop.label));
             radioContainer.Children.Add(radio);
