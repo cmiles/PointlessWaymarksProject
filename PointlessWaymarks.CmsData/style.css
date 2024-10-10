@@ -509,7 +509,6 @@ pre code.hljs {
     color: var(--foreground-secondary-color);
     display: inline-block;
     max-height: 70px;
-    overflow: auto;
     text-decoration: none;
     text-overflow: ellipsis;
     word-wrap: break-word;
@@ -552,10 +551,7 @@ pre code.hljs {
     font-size: 12px;
 }
 
-.compact-content-text-content-optional-summary {
-    color: var(--foreground-secondary-color);
-    display: none;
-    font-size: 12px;
+.compact-content-title-summary-container {
     overflow: auto;
 }
 
@@ -997,9 +993,6 @@ a.tag-list-link {
         width: 600px;
     }
 
-        .content-list-item-container .compact-content-text-content-optional-summary {
-            display: block;
-        }
 }
 
 @media screen and (min-width: 1200px) {

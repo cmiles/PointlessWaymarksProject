@@ -1,7 +1,9 @@
-﻿using HtmlTags;
+using DocumentFormat.OpenXml.Vml.Office;
+using HtmlTags;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using SimMetricsCore;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
@@ -40,6 +42,15 @@ public static class ContentList
         listItemContainerDiv.Data("content-type", ContentTypeToContentListItemFilterTag(content));
         listItemContainerDiv.Data("target-url", linkTo);
 
+        if (content is LineContent lineForData)
+        { 
+            listItemContainerDiv.Data("distance", lineForData.LineDistance);
+            listItemContainerDiv.Data("climb", lineForData.ClimbElevation);
+            listItemContainerDiv.Data("descent", lineForData.DescentElevation);
+            listItemContainerDiv.Data("min-elevation", lineForData.MinimumElevation);
+            listItemContainerDiv.Data("max-elevation", lineForData.MaximumElevation);
+        }
+
         if (content.MainPicture != null)
         {
             var compactContentMainPictureContentDiv =
@@ -60,34 +71,32 @@ public static class ContentList
             new LinkTag(content.Title, linkTo).AddClass("compact-content-text-content-title-link");
         compactContentMainTextTitleTextDiv.Children.Add(compactContentMainTextTitleLink);
 
-        HtmlTag compactContentSummaryTextDiv;
-
         //Especially in automated imports the summary and title could end up the same - if they are blank the 
         //summary in the context of compact content.
         var summaryLines = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(content.Summary) &&
-            !(content.Summary.Equals(content.Title, StringComparison.OrdinalIgnoreCase) || content.Summary![..^1]
-                .Equals(content.Title, StringComparison.OrdinalIgnoreCase)))
-            summaryLines.Add(content.Summary);
+        if (!string.IsNullOrWhiteSpace(content.Summary))
+        {
+            var summaryIsInTitle = content.Title.ContainsFuzzy(content.Summary, 0.8, SimMetricType.JaroWinkler);
+            if (!summaryIsInTitle) summaryLines.Add(content.Summary);
+        }
 
         if (content is LineContent line) summaryLines.Add(LineParts.LineStatsString(line));
 
         if (!string.IsNullOrWhiteSpace(content.Tags)) summaryLines.Add($"Tags: {content.Tags}");
 
-        if (content.MainPicture == null)
-            compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-summary")
-                .Text(string.Join("<br>", summaryLines)).Encoded(false);
-        else
-            compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-optional-summary")
-                .Text(string.Join("<br>", summaryLines)).Encoded(false);
+        var compactContentSummaryTextDiv = new DivTag().AddClass("compact-content-text-content-summary")
+            .Text(string.Join("<br>", summaryLines)).Encoded(false);
 
         var compactContentMainTextCreatedOrUpdatedTextDiv = new DivTag()
             .AddClass("compact-content-text-content-date")
             .Text(Tags.LatestCreatedOnOrUpdatedOn(content)?.ToString("M/d/yyyy") ?? string.Empty);
 
-        compactContentMainTextContentDiv.Children.Add(compactContentMainTextTitleTextDiv);
-        compactContentMainTextContentDiv.Children.Add(compactContentSummaryTextDiv);
+        var compactContentTitleSummaryGroupDiv = new DivTag().AddClass("compact-content-title-summary-container");
+        compactContentTitleSummaryGroupDiv.Children.Add(compactContentMainTextTitleTextDiv);
+        compactContentTitleSummaryGroupDiv.Children.Add(compactContentSummaryTextDiv);
+
+        compactContentMainTextContentDiv.Children.Add(compactContentTitleSummaryGroupDiv);
         compactContentMainTextContentDiv.Children.Add(compactContentMainTextCreatedOrUpdatedTextDiv);
 
         listItemContainerDiv.Children.Add(compactContentMainTextContentDiv);

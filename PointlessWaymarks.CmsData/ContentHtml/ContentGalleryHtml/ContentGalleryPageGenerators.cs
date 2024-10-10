@@ -5,6 +5,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using SimMetricsCore;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.ContentGalleryHtml;
 
@@ -65,12 +66,11 @@ public static class ContentGalleryPageGenerators
         //summary in the context of compact content.
         var summaryLines = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(content.Summary) &&
-            !(content.Summary.Equals(content.Title, StringComparison.OrdinalIgnoreCase) || content.Summary![..^1]
-                  .Equals(content.Title, StringComparison.OrdinalIgnoreCase) ||
-              content.Title!.Contains(content.Summary, StringComparison.InvariantCulture) ||
-              content.Title.Contains(content.Summary![..^1], StringComparison.InvariantCulture)))
-            summaryLines.Add(content.Summary);
+        if (!string.IsNullOrWhiteSpace(content.Summary))
+        {
+            var summaryIsInTitle = content.Title.ContainsFuzzy(content.Summary, 0.8, SimMetricType.JaroWinkler);
+            if (!summaryIsInTitle) summaryLines.Add(content.Summary);
+        }
 
         if (content is LineContent line) summaryLines.Add(LineParts.LineStatsString(line));
 
