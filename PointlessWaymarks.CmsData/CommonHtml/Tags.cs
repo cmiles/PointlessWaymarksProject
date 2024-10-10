@@ -558,6 +558,7 @@ public static class Tags
     public static HtmlTag PreviousAndNextPhotoDiv(PhotoContent? previousPhoto,
         PhotoContent? nextPhoto)
     {
+        if (!UserSettingsSingleton.CurrentSettings().ShowPreviousNextContent) return HtmlTag.Empty();
         if (previousPhoto is null && nextPhoto is null) return HtmlTag.Empty();
 
         var hasPreviousPosts = previousPhoto != null;
