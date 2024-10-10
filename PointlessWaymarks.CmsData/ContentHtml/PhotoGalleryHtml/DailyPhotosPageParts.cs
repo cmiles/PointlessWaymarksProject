@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
 
@@ -12,6 +12,7 @@ public static class DailyPhotosPageParts
     public static HtmlTag DailyPhotosPageRelatedContentDiv(DailyPhotosPage? photoPage)
     {
         if (photoPage == null) return HtmlTag.Empty();
+        if (!UserSettingsSingleton.CurrentSettings().ShowPreviousNextContent) return HtmlTag.Empty();
 
         var relatedPostContainerDiv = new DivTag().AddClasses("compact-content-container", "info-box");
 
