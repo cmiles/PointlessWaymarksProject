@@ -34,7 +34,7 @@ public static class Tags
     }
 
     /// <summary>
-    /// Creates a comma separated list of names from the Created By and Last Updated By 
+    ///     Creates a comma separated list of names from the Created By and Last Updated By
     /// </summary>
     /// <param name="dbEntry"></param>
     /// <returns></returns>
@@ -201,6 +201,23 @@ public static class Tags
         return divTag;
     }
 
+    public static HtmlTag InfoLinkDownloadDivTag(string url, string linkText, string className, string? downloadAttributeValue)
+    {
+        if (string.IsNullOrWhiteSpace(linkText) || string.IsNullOrWhiteSpace(url)) return HtmlTag.Empty();
+        var divTag = new HtmlTag("div");
+        divTag.AddClasses(className, "info-box");
+
+        var spanTag = new LinkTag(linkText, url) as HtmlTag;
+        spanTag = spanTag.AddClasses("info-list-link-item", $"{className}-content");
+
+        if (!string.IsNullOrWhiteSpace(downloadAttributeValue))
+            spanTag.Attr("download", downloadAttributeValue);
+
+        divTag.Children.Add(spanTag);
+
+        return divTag;
+    }
+
     public static HtmlTag InfoTextDivTag(string? contents, string className, string dataType, string? dataValue)
     {
         if (string.IsNullOrWhiteSpace(contents)) return HtmlTag.Empty();
@@ -260,7 +277,7 @@ public static class Tags
     {
         var summaryStringList = new List<string>();
 
-        string titleSummaryString = string.Empty;
+        var titleSummaryString = string.Empty;
 
         var summaryHasValue = !string.IsNullOrWhiteSpace(dbEntry.Summary);
 
@@ -341,6 +358,26 @@ public static class Tags
         return imageTag;
     }
 
+    public static HtmlTag PictureImgCardWithLink(PictureAsset? pictureAsset, string linkTo)
+    {
+        if (pictureAsset?.SmallPicture == null) return HtmlTag.Empty();
+
+        var imgTag = PictureImgTagWithCardSizedDefaultSrc(pictureAsset);
+
+        if (imgTag.IsEmpty()) return HtmlTag.Empty();
+
+        imgTag.AddClass(pictureAsset.SmallPicture.Height > pictureAsset.SmallPicture.Width
+            ? "thumb-vertical"
+            : "thumb-horizontal");
+
+        if (string.IsNullOrWhiteSpace(linkTo)) return imgTag;
+
+        var outerLink = new LinkTag(string.Empty, linkTo);
+        outerLink.Children.Add(imgTag);
+
+        return outerLink;
+    }
+
     public static HtmlTag PictureImgTag(PictureAsset pictureDirectoryInfo, string sizes,
         bool willHaveVisibleCaption)
     {
@@ -382,24 +419,6 @@ public static class Tags
         return imageTag;
     }
 
-    public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset? pictureAsset)
-    {
-        if (pictureAsset?.SmallPicture == null || pictureAsset.DisplayPicture == null) return HtmlTag.Empty();
-
-        var imageTag = new HtmlTag("img").AddClass("thumb-photo").Attr("srcset", pictureAsset.SrcSetString())
-            .Attr("src", pictureAsset.SmallPicture.SiteUrl).Attr("height", pictureAsset.SmallPicture.Height)
-            .Attr("width", pictureAsset.SmallPicture.Width).Attr("loading", "lazy");
-
-        var smallestGreaterThan100 = pictureAsset.SrcsetImages.Where(x => x.Width > 100).MinBy(x => x.Width);
-
-        imageTag.Attr("sizes", smallestGreaterThan100 == null ? "100px" : $"{smallestGreaterThan100.Width}px");
-
-        if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture?.AltText))
-            imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
-
-        return imageTag;
-    }
-
     public static HtmlTag PictureImgTagWithCardSizedDefaultSrc(PictureAsset? pictureAsset)
     {
         if (pictureAsset?.SmallPicture == null || pictureAsset.DisplayPicture == null) return HtmlTag.Empty();
@@ -421,31 +440,29 @@ public static class Tags
         return imageTag;
     }
 
+    public static HtmlTag PictureImgTagWithSmallestDefaultSrc(PictureAsset? pictureAsset)
+    {
+        if (pictureAsset?.SmallPicture == null || pictureAsset.DisplayPicture == null) return HtmlTag.Empty();
+
+        var imageTag = new HtmlTag("img").AddClass("thumb-photo").Attr("srcset", pictureAsset.SrcSetString())
+            .Attr("src", pictureAsset.SmallPicture.SiteUrl).Attr("height", pictureAsset.SmallPicture.Height)
+            .Attr("width", pictureAsset.SmallPicture.Width).Attr("loading", "lazy");
+
+        var smallestGreaterThan100 = pictureAsset.SrcsetImages.Where(x => x.Width > 100).MinBy(x => x.Width);
+
+        imageTag.Attr("sizes", smallestGreaterThan100 == null ? "100px" : $"{smallestGreaterThan100.Width}px");
+
+        if (!string.IsNullOrWhiteSpace(pictureAsset.DisplayPicture?.AltText))
+            imageTag.Attr("alt", pictureAsset.DisplayPicture.AltText);
+
+        return imageTag;
+    }
+
     public static HtmlTag PictureImgThumbWithLink(PictureAsset? pictureAsset, string linkTo)
     {
         if (pictureAsset?.SmallPicture == null) return HtmlTag.Empty();
 
         var imgTag = PictureImgTagWithSmallestDefaultSrc(pictureAsset);
-
-        if (imgTag.IsEmpty()) return HtmlTag.Empty();
-
-        imgTag.AddClass(pictureAsset.SmallPicture.Height > pictureAsset.SmallPicture.Width
-            ? "thumb-vertical"
-            : "thumb-horizontal");
-
-        if (string.IsNullOrWhiteSpace(linkTo)) return imgTag;
-
-        var outerLink = new LinkTag(string.Empty, linkTo);
-        outerLink.Children.Add(imgTag);
-
-        return outerLink;
-    }
-
-    public static HtmlTag PictureImgCardWithLink(PictureAsset? pictureAsset, string linkTo)
-    {
-        if (pictureAsset?.SmallPicture == null) return HtmlTag.Empty();
-
-        var imgTag = PictureImgTagWithCardSizedDefaultSrc(pictureAsset);
 
         if (imgTag.IsEmpty()) return HtmlTag.Empty();
 

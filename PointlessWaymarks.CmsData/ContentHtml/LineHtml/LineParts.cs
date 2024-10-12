@@ -1,6 +1,7 @@
 using HtmlTags;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 
@@ -14,16 +15,16 @@ public static class LineParts
 
         var settings = UserSettingsSingleton.CurrentSettings();
         var gpxDownloadLink =
-            new LinkTag("Download GPX", settings.LineGpxDownloadUrl(content)).AddClass("file-download-link");
+            new LinkTag("Download GPX", settings.LineGpxDownloadUrl(content)).AddClass("file-download-link").Attr(
+                "download",
+                FileAndFolderTools.TryMakeFilenameValid(content.Title ?? content.Slug ?? content.ContentId.ToString()));
         downloadLinkContainer.Children.Add(gpxDownloadLink);
-
         return downloadLinkContainer;
     }
 
     public static string LineDivAndScript(LineContent content)
     {
         var divScriptGuidConnector = Guid.NewGuid();
-
         var tag =
             $"""
              <div id="Line-{divScriptGuidConnector}" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map"></div>
@@ -31,11 +32,11 @@ public static class LineParts
 
         var script =
             $"""
-             
+
              <script>
                 lazyInit(document.querySelector("#Line-{divScriptGuidConnector}"), () => singleLineMapInit(document.querySelector("#Line-{divScriptGuidConnector}"), "{content.ContentId}", true))
              </script>
-             
+
              """;
 
         return tag + script;
@@ -45,9 +46,9 @@ public static class LineParts
     {
         var titleCaption =
             $"""
-             
+
              <a class="map-figure-title-caption" href="{UserSettingsSingleton.CurrentSettings().LinePageUrl(content)}">{content.Title}</a>
-             
+
              """;
 
         return $"""
@@ -66,7 +67,7 @@ public static class LineParts
     /// <returns></returns>
     public static (int? totalMinutes, string? presentationString) LineDurationInHoursAndMinutes(LineContent dbEntry)
     {
-        if (dbEntry is { RecordingStartedOnUtc: { }, RecordingEndedOnUtc: { } })
+        if (dbEntry is { RecordingStartedOnUtc: not null, RecordingEndedOnUtc: not null })
         {
             var minuteDuration =
                 (int)dbEntry.RecordingEndedOnUtc.Value.Subtract(dbEntry.RecordingStartedOnUtc.Value).TotalMinutes;
@@ -121,15 +122,13 @@ public static class LineParts
             .Text("Details:"));
 
         if (dbEntry.LineDistance < .1)
-        {
-            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N2} Miles", "line-detail", "distance",
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N2} Miles", "line-detail",
+                "distance",
                 dbEntry.LineDistance.ToString("F2")));
-        }
         else
-        {
-            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N1} Miles", "line-detail", "distance",
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N1} Miles", "line-detail",
+                "distance",
                 dbEntry.LineDistance.ToString("F1")));
-        }
 
         outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.MinimumElevation:N0}' Min Elevation", "line-detail",
             "minimum-elevation", dbEntry.MaximumElevation.ToString("F0")));
@@ -144,8 +143,9 @@ public static class LineParts
         if (dbEntry.PublicDownloadLink)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineGpxDownloadUrl(dbEntry), "Download GPX",
-                "line-detail", "line-data", dbEntry.DescentElevation.ToString("F0")));
+            outerContainer.Children.Add(Tags.InfoLinkDownloadDivTag(settings.LineGpxDownloadUrl(dbEntry), "Download GPX",
+                "line-detail", FileAndFolderTools.TryMakeFilenameValid(dbEntry.Title ??
+                                                        dbEntry.Slug ?? dbEntry.ContentId.ToString()) + ".gpx"));
         }
 
         //Return empty if there are no details
@@ -165,15 +165,13 @@ public static class LineParts
         var outerContainer = new DivTag().AddClasses("photo-details-container", "info-list-container");
 
         if (dbEntry.LineDistance < .1)
-        {
-            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N2} Miles", "line-detail", "distance",
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N2} Miles", "line-detail",
+                "distance",
                 dbEntry.LineDistance.ToString("F2")));
-        }
         else
-        {
-            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N1} Miles", "line-detail", "distance",
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N1} Miles", "line-detail",
+                "distance",
                 dbEntry.LineDistance.ToString("F1")));
-        }
 
         var duration = LineDurationInHoursAndMinutes(dbEntry);
 
@@ -211,8 +209,9 @@ public static class LineParts
         if (dbEntry.PublicDownloadLink)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            outerContainer.Children.Add(Tags.InfoLinkDivTag(settings.LineGpxDownloadUrl(dbEntry), "Download GPX",
-                "line-detail", "line-data", dbEntry.DescentElevation.ToString("F0")));
+            outerContainer.Children.Add(Tags.InfoLinkDownloadDivTag(settings.LineGpxDownloadUrl(dbEntry), "Download GPX",
+                "line-detail", FileAndFolderTools.TryMakeFilenameValid(dbEntry.Title ??
+                                                                       dbEntry.Slug ?? dbEntry.ContentId.ToString()) + ".gpx"));
         }
 
         //Return empty if there are no details
