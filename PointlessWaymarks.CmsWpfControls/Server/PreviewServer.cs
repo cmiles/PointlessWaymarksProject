@@ -77,7 +77,8 @@ public class PreviewServer
             Mappings =
             {
                 // Add new mappings
-                [".flac"] = "audio/flac"
+                [".flac"] = "audio/flac",
+                [".gpx"] = "application/gpx+xml"
             }
         };
         
