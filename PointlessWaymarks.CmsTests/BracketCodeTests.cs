@@ -16,6 +16,7 @@ Wikipedia:
 
 A significant concentration of ironwood (also known as desert ironwood, Olneya tesota) trees is found in the monument, along with two federally recognized endangered animal and plant species. More than 200 Hohokam and Paleo-Indian archaeological sites have been identified in the monument, dated between 600 and 1450.
 
+{{linetextstats cac2dc76-3ef0-4dc8-acd3-48fbc8bee87b; text [distance] and [climb]; some more that is ok}}
 {{photo be010d97-a2b1-4c88-97ac-c36ebbd3fad4; 2020 June Disappearing into the Flower}}
 {{photo ce493d74-516c-4e7d-a51f-2db458a834e3; 2020 May Ironwood Pod}}
 {{photo 32563d87-d002-4672-a27e-d0b31c2a6875; 2020 May A Quarry in Ironwood Forest National Monument}}
@@ -24,7 +25,7 @@ A significant concentration of ironwood (also known as desert ironwood, Olneya t
 ";
         var result = BracketCodeCommon.BracketCodeContentIds(testString);
 
-        Assert.That(result.Count, Is.EqualTo(5));
+        Assert.That(result.Count, Is.EqualTo(6));
     }
 
     [Test]

@@ -202,6 +202,7 @@ public static partial class BracketCodeCommon
         input = await BracketCodeImages.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineTextStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
@@ -246,6 +247,7 @@ public static partial class BracketCodeCommon
         input = await BracketCodeImages.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeImageLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLines.Process(input, progress).ConfigureAwait(false);
+        input = await BracketCodeLineTextStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineImageLink.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);

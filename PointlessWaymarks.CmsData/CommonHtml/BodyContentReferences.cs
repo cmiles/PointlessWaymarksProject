@@ -158,6 +158,8 @@ public static class BodyContentReferences
         contentCommonList.AddRange(
             await BracketCodeLineLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
         contentCommonList.AddRange(
+            await BracketCodeLineTextStats.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
+        contentCommonList.AddRange(
             await BracketCodeNotes.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
         //contentCommonList.AddRange(BracketCodePoints.DbContentFromBracketCodes(bodyContentToCheckIn, progress));
         contentCommonList.AddRange(

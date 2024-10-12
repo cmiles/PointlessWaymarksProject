@@ -54,7 +54,11 @@ public partial class LineListWithActionsContext
                 { ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand },
             new ContextMenuItemData
             {
-                ItemName = "Stats Code to Clipboard", ItemCommand = StatsBracketCodesToClipboardForSelectedCommand
+                ItemName = "Stats Text Code to Clipboard", ItemCommand = TextStatsBracketCodesToClipboardForSelectedCommand
+            },
+            new ContextMenuItemData
+            {
+                ItemName = "Stats Block Code to Clipboard", ItemCommand = StatsBracketCodesToClipboardForSelectedCommand
             },
             new ContextMenuItemData
             {
@@ -401,6 +405,21 @@ public partial class LineListWithActionsContext
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + $"{BracketCodeLineLinks.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    private async Task TextStatsBracketCodesToClipboardForSelected()
+    {
+        var finalString = SelectedListItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + $"{BracketCodeLineTextStats.Create(loopSelected.DbEntry)}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
