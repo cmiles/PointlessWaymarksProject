@@ -57,6 +57,9 @@ public partial class UserSettingsEditorContext
     public static string HelpMarkdownFilesHavePublicDownloadLinkByDefault =>
         "Default setting for whether File Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
 
+    public static string HelpMarkdownFooterSnippet =>
+        "This is a snippet that will be included in your footer - in theory it could be anything but the real intent is for analytics/tracking js.";
+
     public static string HelpMarkdownGeoJsonHasPublicDownloadLinkByDefault =>
         "Default setting for whether GeoJson Content has a download link. All Content is ALWAYS sent to the site!!! Controls like this only determine if there is an obvious link to the content - private content should not be added to this program.";
 

@@ -1,4 +1,4 @@
-﻿using HtmlTags;
+using HtmlTags;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
 
@@ -24,6 +24,9 @@ public static class Footer
 
         footerDiv.Children.Add(
             new LinkTag(settings.SiteName, @$"{settings.SiteUrl()}").AddClass("footer-site-link-content"));
+
+        if (!string.IsNullOrWhiteSpace(UserSettingsSingleton.CurrentSettings().FooterSnippet))
+            footerDiv.AppendHtml(UserSettingsSingleton.CurrentSettings().FooterSnippet);
 
         return footerDiv;
     }

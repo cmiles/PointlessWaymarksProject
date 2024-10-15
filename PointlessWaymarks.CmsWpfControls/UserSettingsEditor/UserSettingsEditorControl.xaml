@@ -227,6 +227,23 @@
                         </wpf:MarkdownViewer>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
+                        <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=FooterSnippetTextBox}">
+                            Footer Snippet
+                        </Label>
+                        <TextBox
+                            Name="FooterSnippetTextBox"
+                            Height="120"
+                            HorizontalScrollBarVisibility="Disabled"
+                            Style="{StaticResource DataEntryTextBoxMultiLineStyle}"
+                            Text="{Binding EditorSettings.FooterSnippet, UpdateSourceTrigger=PropertyChanged}"
+                            VerticalScrollBarVisibility="Auto" />
+                        <wpf:MarkdownViewer Markdown="{Binding HelpMarkdownFooterSnippet}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                        </wpf:MarkdownViewer>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=SiteLangTextBox}">
                             Site Lang Attribute
                         </Label>

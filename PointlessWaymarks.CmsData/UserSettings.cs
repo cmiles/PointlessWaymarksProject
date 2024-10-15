@@ -13,6 +13,7 @@ public partial class UserSettings
     ///     UserSettingsUtilities for general purpose use.
     /// </summary>
     public string DatabaseFile { get; set; } = string.Empty;
+    public string FooterSnippet { get; set; } = string.Empty;
 
     public string DefaultCreatedBy { get; set; } = string.Empty;
     public bool FeatureIntersectionTagOnImport { get; set; }
