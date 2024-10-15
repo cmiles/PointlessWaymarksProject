@@ -1,4 +1,5 @@
 using System.Text.Json;
+using DocumentFormat.OpenXml.EMMA;
 using HtmlTags;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -286,5 +287,24 @@ public static class PointParts
         container.Children.Add(pTag);
 
         return container;
+    }
+
+    public static async Task<HtmlTag> StandAlonePointDetailsDiv(PointContentDto? dbEntry)
+    {
+        if (dbEntry?.PointDetails == null || !dbEntry.PointDetails.Any()) return HtmlTag.Empty();
+
+        var borderDiv = new DivTag().AddClass("point-detail-info-border").AddClass("info-block");
+        var containerDiv = new DivTag().AddClass("point-detail-info-container");
+        borderDiv.Children.Add(containerDiv);
+
+        var titleLine = new HtmlTag("h4").Text(dbEntry.Title).AddClass("point-detail-info-title");
+        containerDiv.Children.Add(titleLine);
+
+        var typeLine = GoogleMapsLatLongLink(dbEntry).AddClass("point-detail-info-location-link");
+        containerDiv.Children.Add(typeLine);
+
+        containerDiv.Children.Add(await PointDetailsDiv(dbEntry).ConfigureAwait(false));
+
+        return borderDiv;
     }
 }

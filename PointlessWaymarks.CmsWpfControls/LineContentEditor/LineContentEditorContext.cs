@@ -490,13 +490,16 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         var pointExternalDirectionsLinks =
             (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(BodyContent.UserValue))
             .Cast<object>();
+        var pointDetailsLinks =
+            (await BracketCodePointDetails.DbContentFromBracketCodes(BodyContent.UserValue))
+            .Cast<object>();
         var geoJson = (await BracketCodeGeoJson.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
         var geoJsonLinks =
             (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
 
         var mapInformation = await MapCmsJson.ProcessContentToMapInformation(photos.Concat(photoLinks).Concat(points)
             .Concat(pointExternalDirectionsLinks)
-            .Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList());
+            .Concat(pointDetailsLinks).Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList());
 
         var lineAsFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(LineGeoJson);
 

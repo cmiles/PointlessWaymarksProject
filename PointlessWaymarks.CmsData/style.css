@@ -36,6 +36,11 @@
         box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
     }
 
+    .info-block {
+        box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
+        overflow: auto;
+    }
+
     pre:has(code) {
         border-radius: .5rem;
         box-shadow: 0px 0px 0px 1px rgb(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color));
@@ -66,6 +71,11 @@
 
     .info-box {
         box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color), 0.12), 0 0 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color), 0.24);
+    }
+
+    .info-block {
+        box-shadow: 0 1px 3px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color), 0.12), 0 0 2px rgba(var(--foreground-component-color), var(--foreground-component-color), var(--foreground-component-color), 0.24);
+        overflow: auto;
     }
 
     pre:has(code) {
@@ -218,6 +228,16 @@ body {
     margin: 3px;
     text-align: center;
     transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+}
+
+.info-block {
+    border-radius: 4px;
+    margin: 3px;
+    transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+}
+
+.point-detail-info-container {
+    margin: 0 1rem;
 }
 
 a.info-list-link-item:visited {

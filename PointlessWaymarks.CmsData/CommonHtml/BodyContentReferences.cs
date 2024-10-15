@@ -169,6 +169,9 @@ public static class BodyContentReferences
             await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
                 .ConfigureAwait(false));
         contentCommonList.AddRange(
+            await BracketCodePointDetails.DbContentFromBracketCodes(bodyContentToCheckIn, progress)
+                .ConfigureAwait(false));
+        contentCommonList.AddRange(
             await BracketCodePosts.DbContentFromBracketCodes(bodyContentToCheckIn, progress).ConfigureAwait(false));
 
         var transformedList = new List<(DateTime sortDateTime, HtmlTag tagContent)>();
