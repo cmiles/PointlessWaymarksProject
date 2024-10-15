@@ -118,8 +118,8 @@ public static class LineParts
     {
         var outerContainer = new DivTag().AddClasses("photo-details-container", "info-list-container");
 
-        outerContainer.Children.Add(new DivTag().AddClasses("photo-detail-label-tag", "info-list-label")
-            .Text("Details:"));
+        //outerContainer.Children.Add(new DivTag().AddClasses("photo-detail-label-tag", "info-list-label")
+        //    .Text("Details:"));
 
         if (dbEntry.LineDistance < .1)
             outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.LineDistance:N2} Miles", "line-detail",
