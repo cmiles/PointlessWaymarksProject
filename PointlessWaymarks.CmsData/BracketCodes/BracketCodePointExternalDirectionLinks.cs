@@ -20,7 +20,7 @@ public static class BracketCodePointExternalDirectionLinks
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return [];
         
-        progress?.Report("Searching for Point Link Codes...");
+        progress?.Report("Searching for Point External Directions Link Codes...");
         
         var guidList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken)
             .Select(x => x.contentGuid).Distinct().ToList();
@@ -37,7 +37,7 @@ public static class BracketCodePointExternalDirectionLinks
                 .ConfigureAwait(false);
             if (dbContent == null) continue;
             
-            progress?.Report($"Point Link Code - Adding DbContent For {dbContent.Title}");
+            progress?.Report($"Point External Directions Link Code - Adding DbContent For {dbContent.Title}");
             
             returnList.Add(dbContent);
         }
@@ -49,7 +49,7 @@ public static class BracketCodePointExternalDirectionLinks
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return string.Empty;
         
-        progress?.Report("Searching for Point Link Codes...");
+        progress?.Report("Searching for Point External Directions Link Codes...");
         
         var resultList = BracketCodeCommon.ContentBracketCodeMatches(toProcess, BracketCodeToken);
         
@@ -64,7 +64,7 @@ public static class BracketCodePointExternalDirectionLinks
                     .ConfigureAwait(false);
             if (dbContent == null) continue;
             
-            progress?.Report($"Adding Point Link {dbContent.Title} from Code");
+            progress?.Report($"Adding Point External Directions Link {dbContent.Title} from Code");
             
             var linkTag =
                 new LinkTag(
