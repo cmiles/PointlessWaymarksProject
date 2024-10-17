@@ -309,7 +309,7 @@ public static class LineData
             lineContent.CreatedOn.ToString("yyyy MM dd"), string.Empty,
             lineContent.Summary ?? string.Empty).AsList();
 
-        var textStream = new StringWriter();
+        var textStream = new Utf8StringWriter();
 
         var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true, CloseOutput = true };
         await using var xmlWriter = XmlWriter.Create(textStream, writerSettings);
