@@ -55,8 +55,6 @@ public static class BracketCodePointDetails
 
         if (!resultList.Any()) return toProcess;
 
-        var context = await Db.Context().ConfigureAwait(false);
-
         foreach (var loopMatch in resultList)
         {
             var pointInfo = await Db.PointContentDto(loopMatch.contentGuid);

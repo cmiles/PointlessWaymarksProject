@@ -1,5 +1,4 @@
 using System.Text.Json;
-using DocumentFormat.OpenXml.EMMA;
 using HtmlTags;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
@@ -51,6 +50,164 @@ public static class PointParts
         return $"http://www.openstreetmap.org/?mlat={latitude}&mlon={longitude}&zoom=13&layers=C";
     }
 
+    public static async Task<HtmlTag> PointDetailsCompact(PointContentDto? dbEntry)
+    {
+        if (dbEntry?.PointDetails == null || !dbEntry.PointDetails.Any()) return HtmlTag.Empty();
+
+        var detailList = new HtmlTag("ul");
+
+        foreach (var loopDetail in dbEntry.PointDetails)
+        {
+            if (string.IsNullOrWhiteSpace(loopDetail.DataType)) continue;
+            if (string.IsNullOrWhiteSpace(loopDetail.StructuredDataAsJson)) continue;
+
+            var typeLine = new HtmlTag("li", detailList).AddClass("point-detail-type");
+
+            switch (loopDetail.DataType)
+            {
+                case "Campground":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<Campground>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        typeLine.Text($"{loopDetail.DataType}: {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+
+                    break;
+                }
+                case "Parking":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<Parking>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+
+                    break;
+                }
+                case "Fee":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<Fee>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        typeLine.Text($"{loopDetail.DataType.HtmlEncode()}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+
+                    break;
+                }
+                case "Driving Directions":
+                {
+                    var pointDetails =
+                        JsonSerializer.Deserialize<DrivingDirections>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+
+                    break;
+                }
+                case "Feature":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<Feature>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+
+                    break;
+                }
+                case "Peak":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<Peak>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+
+                    break;
+                }
+                case "Restroom":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<Restroom>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+
+                    break;
+                }
+                case "Trail Junction":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<TrailJunction>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return detailList;
+    }
+
     public static async Task<HtmlTag> PointDetailsDiv(PointContentDto? dbEntry)
     {
         if (dbEntry?.PointDetails == null || !dbEntry.PointDetails.Any()) return HtmlTag.Empty();
@@ -72,7 +229,7 @@ public static class PointParts
                 {
                     var pointDetails = JsonSerializer.Deserialize<Campground>(loopDetail.StructuredDataAsJson);
 
-                    if (pointDetails == null) return outerDiv;
+                    if (pointDetails == null) break;
 
                     var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
 
@@ -96,7 +253,7 @@ public static class PointParts
                 {
                     var pointDetails = JsonSerializer.Deserialize<Parking>(loopDetail.StructuredDataAsJson);
 
-                    if (pointDetails == null) return outerDiv;
+                    if (pointDetails == null) break;
 
                     var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
 
@@ -297,13 +454,13 @@ public static class PointParts
         var containerDiv = new DivTag().AddClass("point-detail-info-container");
         borderDiv.Children.Add(containerDiv);
 
-        var titleLine = new HtmlTag("h4").Text(dbEntry.Title).AddClass("point-detail-info-title");
+        var titleLine = new HtmlTag("p")
+            .Text(
+                $"{new LinkTag(dbEntry.Title, UserSettingsSingleton.CurrentSettings().PointPageUrl(dbEntry))} - {GoogleMapsLatLongLink(dbEntry)}")
+            .Encoded(false).AddClass("point-detail-info-title");
         containerDiv.Children.Add(titleLine);
 
-        var typeLine = GoogleMapsLatLongLink(dbEntry).AddClass("point-detail-info-location-link");
-        containerDiv.Children.Add(typeLine);
-
-        containerDiv.Children.Add(await PointDetailsDiv(dbEntry).ConfigureAwait(false));
+        containerDiv.Children.Add(await PointDetailsCompact(dbEntry).ConfigureAwait(false));
 
         return borderDiv;
     }
