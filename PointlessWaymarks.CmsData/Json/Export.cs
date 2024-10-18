@@ -6,6 +6,7 @@ using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.SpatialTools;
 
@@ -306,14 +307,24 @@ public static class Export
         if (jsonFile.Exists)
         {
             await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<MapComponentOnDiskData>(jsonFileStream);
-            
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+
+            try
             {
-                progress?.Report(
-                    $"MapComponent - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                var onDiskObject = await JsonSerializer.DeserializeAsync<MapComponentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report(
+                        $"MapComponent - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
+            catch (Exception e)
+            {
+                //Something went wrong with the deserialization - just continue
+                Console.WriteLine(e);
+            }
+
         }
         
         progress?.Report($"MapComponent - {dbEntry.Title} - Serializing and Writing Current Entry");
@@ -321,35 +332,41 @@ public static class Export
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
         
-        var dtoElementGuids = dbEntry.Elements.Select(x => x.ElementContentId).ToList();
-        
+        var dtoElements = dbEntry.Elements.ToList();
+        var dtoElementsContentIds = dtoElements.Select(x => x.ElementContentId).Distinct().ToList();
+
         var db = await Db.Context().ConfigureAwait(false);
-        var fileGuids = await db.FileContents.Where(x => dtoElementGuids.Contains(x.ContentId))
-            .OrderBy(x => x.Title)
-            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        var geoJsonGuids = await db.GeoJsonContents.Where(x => dtoElementGuids.Contains(x.ContentId))
-            .OrderBy(x => x.Title)
-            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        var imageGuids = await db.ImageContents.Where(x => dtoElementGuids.Contains(x.ContentId))
-            .OrderBy(x => x.Title)
-            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        var lineGuids = await db.LineContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
-            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        var photoGuids = await db.PhotoContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
-            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        var pointGuids = await db.PointContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
-            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        var postGuids = await db.PostContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
-            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        var videoGuids = await db.VideoContents.Where(x => dtoElementGuids.Contains(x.ContentId)).OrderBy(x => x.Title)
-            .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
-        
+        var fileSpatialContent = await (await db.FileContents.Where(x => dtoElementsContentIds.Contains(x.ContentId))
+            .OrderBy(x => x.Title).ToListAsync().ConfigureAwait(false))
+            .SelectInSequenceAsync(async x => new SpatialContentReference {ContentId =  x.ContentId, LinkTo = await dtoElements.First(y => y.ElementContentId == x.ContentId).LinkFromLinksTo()});
+        var geoJsonSpatialContent = await (await db.GeoJsonContents.Where(x => dtoElementsContentIds.Contains(x.ContentId))
+                .OrderBy(x => x.Title).ToListAsync().ConfigureAwait(false))
+            .SelectInSequenceAsync(async x => new SpatialContentReference { ContentId = x.ContentId, LinkTo = await dtoElements.First(y => y.ElementContentId == x.ContentId).LinkFromLinksTo() });
+        var imageSpatialContent = await (await db.ImageContents.Where(x => dtoElementsContentIds.Contains(x.ContentId))
+                .OrderBy(x => x.Title).ToListAsync().ConfigureAwait(false))
+            .SelectInSequenceAsync(async x => new SpatialContentReference { ContentId = x.ContentId, LinkTo = await dtoElements.First(y => y.ElementContentId == x.ContentId).LinkFromLinksTo() });
+        var lineSpatialContent = await (await db.LineContents.Where(x => dtoElementsContentIds.Contains(x.ContentId))
+                .OrderBy(x => x.Title).ToListAsync().ConfigureAwait(false))
+            .SelectInSequenceAsync(async x => new SpatialContentReference { ContentId = x.ContentId, LinkTo = await dtoElements.First(y => y.ElementContentId == x.ContentId).LinkFromLinksTo() });
+        var photoSpatialContent = await (await db.PhotoContents.Where(x => dtoElementsContentIds.Contains(x.ContentId))
+                .OrderBy(x => x.Title).ToListAsync().ConfigureAwait(false))
+            .SelectInSequenceAsync(async x => new SpatialContentReference { ContentId = x.ContentId, LinkTo = await dtoElements.First(y => y.ElementContentId == x.ContentId).LinkFromLinksTo() });
+        var pointSpatialContent = await (await db.PointContents.Where(x => dtoElementsContentIds.Contains(x.ContentId))
+                .OrderBy(x => x.Title).ToListAsync().ConfigureAwait(false))
+            .SelectInSequenceAsync(async x => new SpatialContentReference { ContentId = x.ContentId, LinkTo = await dtoElements.First(y => y.ElementContentId == x.ContentId).LinkFromLinksTo() });
+        var postSpatialContent = await (await db.PostContents.Where(x => dtoElementsContentIds.Contains(x.ContentId))
+                .OrderBy(x => x.Title).ToListAsync().ConfigureAwait(false))
+            .SelectInSequenceAsync(async x => new SpatialContentReference { ContentId = x.ContentId, LinkTo = await dtoElements.First(y => y.ElementContentId == x.ContentId).LinkFromLinksTo() });
+        var videoSpatialContent = await (await db.VideoContents.Where(x => dtoElementsContentIds.Contains(x.ContentId))
+                .OrderBy(x => x.Title).ToListAsync().ConfigureAwait(false))
+            .SelectInSequenceAsync(async x => new SpatialContentReference { ContentId = x.ContentId, LinkTo = await dtoElements.First(y => y.ElementContentId == x.ContentId).LinkFromLinksTo() });
+
         var showDetailsGuids = dbEntry.Elements.Where(x => x.ShowDetailsDefault).Select(x => x.ElementContentId)
             .Distinct().ToList();
         
         var onDiskData = new MapComponentOnDiskData(Db.ContentTypeDisplayString(dbEntry), dbEntry,
-            new SpatialContentIdReferences(fileGuids, geoJsonGuids, imageGuids, lineGuids, photoGuids, pointGuids,
-                postGuids, videoGuids), showDetailsGuids);
+            new SpatialContentReferences(fileSpatialContent, geoJsonSpatialContent, imageSpatialContent, lineSpatialContent, photoSpatialContent, pointSpatialContent,
+                postSpatialContent, videoSpatialContent), showDetailsGuids);
         
         var jsonDbEntry = JsonSerializer.Serialize(onDiskData, JsonTools.WriteIndentedOptions);
         

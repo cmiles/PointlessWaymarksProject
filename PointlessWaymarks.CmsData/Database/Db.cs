@@ -1063,7 +1063,8 @@ public static class Db
                 ShowDetailsDefault = loopElements.ShowDetailsDefault,
                 IncludeInDefaultView = loopElements.IncludeInDefaultView,
                 LastUpdateOn = lastUpdatedOnForHistoric,
-                MapComponentContentId = loopElements.MapComponentContentId
+                MapComponentContentId = loopElements.MapComponentContentId,
+                LinksTo = loopElements.LinksTo
             }).ConfigureAwait(false);
 
             context.MapComponentElements.Remove(loopElements);
@@ -2551,7 +2552,8 @@ public static class Db
                 IsFeaturedElement = loopElements.IsFeaturedElement,
                 LastUpdateOn = groupLastUpdateOn,
                 HistoricGroupId = updateGroup,
-                MapComponentContentId = loopElements.MapComponentContentId
+                MapComponentContentId = loopElements.MapComponentContentId,
+                LinksTo = loopElements.LinksTo
             }).ConfigureAwait(false);
 
             context.MapComponentElements.Remove(loopElements);

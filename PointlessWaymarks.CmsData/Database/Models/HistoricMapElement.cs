@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models;
+namespace PointlessWaymarks.CmsData.Database.Models;
 
 public class HistoricMapElement
 {
@@ -8,6 +8,7 @@ public class HistoricMapElement
     public bool IncludeInDefaultView { get; set; }
     public bool IsFeaturedElement { get; set; }
     public DateTime LastUpdateOn { get; set; }
+    public string? LinksTo { get; set; } = string.Empty;
     public Guid MapComponentContentId { get; set; }
     public bool ShowDetailsDefault { get; set; }
 }

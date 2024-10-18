@@ -13,7 +13,7 @@ public partial class MapElementListPhotoItem : PhotoListListItem, IMapElementLis
     {
     }
     
-    public MapElementSettings ElementSettings { get; set; } = new();
+    public required MapElementSettings ElementSettings { get; set; }
     public string ElementType { get; set; } = "photo";
     public string Title { get; set; } = string.Empty;
 

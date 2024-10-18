@@ -12,7 +12,7 @@ public partial class MapElementListFileItem : FileListListItem, IMapElementListI
     {
     }
     
-    public MapElementSettings ElementSettings { get; set; } = new();
+    public required MapElementSettings ElementSettings { get; set; }
     public string ElementType { get; set; } = "file";
     public string Title { get; set; } = string.Empty;
 

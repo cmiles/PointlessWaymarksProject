@@ -112,18 +112,24 @@ function geoJsonLayerStyle(feature) {
     return newStyle;
 }
 
-function popupHtmlContent(feature) {
+function popupHtmlContent(feature, linkUrl) {
     if (feature.properties && (feature.properties.title || feature.properties.description)) {
         const currentUrlWithoutProtocol = window.location.href.replace(/https?:/i, "");
 
         let popupHtml = "";
 
         if (feature.properties.title) {
-            if (feature.properties["title-link"] && feature.properties["title-link"].length > 0
-                && feature.properties["title-link"] !== currentUrlWithoutProtocol) {
-                popupHtml += `<a style="text-align: center;" href="${feature.properties["title-link"]}">${feature.properties.title}</a>`;
+            const title = feature.properties.title;
+            const titleLink = feature.properties["title-link"];
+            const isLinkUrlValid = linkUrl && linkUrl.trim() !== "" && linkUrl !== currentUrlWithoutProtocol;
+            const isTitleLinkValid = titleLink && titleLink.trim() !== "" && titleLink !== currentUrlWithoutProtocol;
+
+            if (isLinkUrlValid) {
+                popupHtml += `<a style="text-align: center;" href="${linkUrl}">${title}</a>`;
+            } else if (isTitleLinkValid) {
+                popupHtml += `<a style="text-align: center;" href="${titleLink}">${title}</a>`;
             } else {
-                popupHtml += `<p style="text-align: center;">${feature.properties.title}</p>`;
+                popupHtml += `<p style="text-align: center;">${title}</p>`;
             }
         }
 
@@ -137,11 +143,11 @@ function popupHtmlContent(feature) {
     return "";
 }
 
-function onEachMapGeoJsonFeatureWrapper(map) {
+function onEachMapGeoJsonFeatureWrapper(map, linkTo) {
     return function onEachMapGeoJsonFeature(feature, layer) {
         //see https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0 - title-link is site specific...
 
-        let popupHtml = popupHtmlContent(feature, window.location.href);
+        let popupHtml = popupHtmlContent(feature, linkTo);
 
         if (popupHtml !== "") {
             layer.bindPopup(popupHtml);
@@ -457,27 +463,27 @@ async function showMapElementsList(map, mapElementList) {
     if (mapElementList.PointContentIds != null && mapElementList.PointContentIds.length > 0) {
 
         for (let loopPoint of mapElementList.PointContentIds) {
-            let response = await fetch(`/ContentData/${loopPoint}.json`);
+            let response = await fetch(`/ContentData/${loopPoint.ContentId}.json`);
             if (!response.ok)
                 throw new Error(response.statusText);
 
             let pointData = await response.json();
 
-            await AddMarkerToMap(map, pointData);
+            await AddMarkerToMap(map, pointData, loopPoint.LinkTo);
         }
     }
 
     if (mapElementList.FileContentIds != null && mapElementList.FileContentIds.length > 0) {
 
-        for (let loopPhoto of mapElementList.FileContentIds) {
+        for (let loopFile of mapElementList.FileContentIds) {
 
-            let response = await fetch(`/ContentData/${loopPhoto}.json`);
+            let response = await fetch(`/ContentData/${loopFile.ContentId}.json`);
             if (!response.ok)
                 throw new Error(response.statusText);
 
             let pointData = await response.json();
 
-            AddOptionalLocationContentMarkerToMap(map, pointData, 'file');
+            AddOptionalLocationContentMarkerToMap(map, pointData, 'file', loopFile.LinkTo);
         }
     }
 
@@ -485,13 +491,13 @@ async function showMapElementsList(map, mapElementList) {
 
         for (let loopImage of mapElementList.ImageContentIds) {
 
-            let response = await fetch(`/ContentData/${loopImage}.json`);
+            let response = await fetch(`/ContentData/${loopImage.ContentId}.json`);
             if (!response.ok)
                 throw new Error(response.statusText);
 
             let pointData = await response.json();
 
-            AddOptionalLocationContentMarkerToMap(map, pointData, 'image');
+            AddOptionalLocationContentMarkerToMap(map, pointData, 'image', loopImage.LinkTo);
         }
     }
 
@@ -499,13 +505,13 @@ async function showMapElementsList(map, mapElementList) {
 
         for (let loopPhoto of mapElementList.PhotoContentIds) {
 
-            let response = await fetch(`/ContentData/${loopPhoto}.json`);
+            let response = await fetch(`/ContentData/${loopPhoto.ContentId}.json`);
             if (!response.ok)
                 throw new Error(response.statusText);
 
             let pointData = await response.json();
 
-            AddOptionalLocationContentMarkerToMap(map, pointData, 'photo');
+            AddOptionalLocationContentMarkerToMap(map, pointData, 'photo', loopPhoto.LinkTo);
         }
     }
 
@@ -513,13 +519,13 @@ async function showMapElementsList(map, mapElementList) {
 
         for (let loopPost of mapElementList.PostContentIds) {
 
-            let response = await fetch(`/ContentData/${loopPost}.json`);
+            let response = await fetch(`/ContentData/${loopPost.ContentId}.json`);
             if (!response.ok)
                 throw new Error(response.statusText);
 
             let pointData = await response.json();
 
-            AddOptionalLocationContentMarkerToMap(map, pointData, 'post');
+            AddOptionalLocationContentMarkerToMap(map, pointData, 'post', loopPost.LinkTo);
         }
     }
 
@@ -527,13 +533,13 @@ async function showMapElementsList(map, mapElementList) {
 
         for (let loopVideo of mapElementList.VideoContentIds) {
 
-            let response = await fetch(`/ContentData/${loopVideo}.json`);
+            let response = await fetch(`/ContentData/${loopVideo.ContentId}.json`);
             if (!response.ok)
                 throw new Error(response.statusText);
 
             let pointData = await response.json();
 
-            AddOptionalLocationContentMarkerToMap(map, pointData, 'video');
+            AddOptionalLocationContentMarkerToMap(map, pointData, 'video', loopVideo.LinkTo);
         }
     }
 
@@ -541,7 +547,7 @@ async function showMapElementsList(map, mapElementList) {
 
         for (let loopGeoJson of mapElementList.GeoJsonContentIds) {
 
-            let response = await window.fetch(`/ContentData/${loopGeoJson}.json`);
+            let response = await window.fetch(`/ContentData/${loopGeoJson.ContentId}.json`);
 
             if (!response.ok)
                 throw new Error(response.statusText);
@@ -549,7 +555,7 @@ async function showMapElementsList(map, mapElementList) {
             let geoJsonData = await response.json();
 
             let newMapLayer = new L.geoJSON(JSON.parse(geoJsonData.Content.GeoJson), {
-                onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
+                onEachFeature: onEachMapGeoJsonFeatureWrapper(map, loopGeoJson.LinkTo), style: geoJsonLayerStyle
             });
 
             newMapLayer.addTo(map);
@@ -560,7 +566,7 @@ async function showMapElementsList(map, mapElementList) {
 
         for (let loopLines of mapElementList.LineContentIds) {
 
-            let response = await window.fetch(`/ContentData/${loopLines}.json`);
+            let response = await window.fetch(`/ContentData/${loopLines.ContentId}.json`);
 
             if (!response.ok)
                 throw new Error(response.statusText);
@@ -568,7 +574,7 @@ async function showMapElementsList(map, mapElementList) {
             let lineData = await response.json();
 
             let newMapLayer = new L.geoJSON(JSON.parse(lineData.Content.Line), {
-                onEachFeature: onEachMapGeoJsonFeatureWrapper(map), style: geoJsonLayerStyle
+                onEachFeature: onEachMapGeoJsonFeatureWrapper(map, loopLines.LinkTo), style: geoJsonLayerStyle
             });
 
             newMapLayer.addTo(map);
@@ -636,9 +642,11 @@ async function AddTextOrCircleMarkerToMap(map, pointToAdd) {
     }
 }
 
-async function AddMarkerToMap(map, pointToAdd) {
+async function AddMarkerToMap(map, pointToAdd, linkUrl) {
 
-    let popupContent = `<a href="${urlFromContent(pointToAdd)}">${pointToAdd.Content.Title}</a>`;
+    let popupLinkUrl = (!linkUrl || linkUrl.trim() === "") ? urlFromContent(pointToAdd) : linkUrl;
+
+    let popupContent = `<a href="${popupLinkUrl}">${pointToAdd.Content.Title}</a>`;
     if (pointToAdd.Content.MainPicture) {
         let response = await fetch(`/ContentData/${pointToAdd.Content.MainPicture}.json`);
         if (response.ok) {
@@ -701,9 +709,11 @@ function urlFromContent(content) {
     return currentOrigin;
 }
 
-function AddOptionalLocationContentMarkerToMap(map, optionalLocationContent, contentType) {
+function AddOptionalLocationContentMarkerToMap(map, optionalLocationContent, contentType, linkUrl) {
 
-    let popupContent = `<a href="${urlFromContent(optionalLocationContent)}">${optionalLocationContent.Content.Title}</a>`;
+    let popupLinkUrl = (!linkUrl || linkUrl.trim() === "") ? urlFromContent(pointToAdd) : linkUrl;
+
+    let popupContent = `<a href="${popupLinkUrl}">${optionalLocationContent.Content.Title}</a>`;
     if (optionalLocationContent.SmallPictureUrl) popupContent += `<p style="text-align: center;"><img src="${optionalLocationContent.SmallPictureUrl}"></img></p>`;
     if (optionalLocationContent.Content.Summary) popupContent += `<p>${optionalLocationContent.Content.Summary}</p>`;
 

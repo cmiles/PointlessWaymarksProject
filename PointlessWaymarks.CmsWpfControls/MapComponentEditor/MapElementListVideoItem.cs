@@ -13,7 +13,7 @@ public partial class MapElementListVideoItem : VideoListListItem, IMapElementLis
     {
     }
     
-    public MapElementSettings ElementSettings { get; set; }
+    public required MapElementSettings ElementSettings { get; set; }
     public string ElementType { get; set; } = "video";
     public string Title { get; set; } = string.Empty;
 

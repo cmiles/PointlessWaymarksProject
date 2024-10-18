@@ -17,24 +17,33 @@ public record LineContentOnDiskData(
     string ContentType,
     LineContent Content,
     List<LineElevationChartDataPoint> ElevationPlotData,
-    SpatialContentIdReferences MapElements);
+    SpatialContentReferences MapElements);
 
 public record MapComponentOnDiskData(
     string ContentType,
     MapComponentDto Content,
-    SpatialContentIdReferences MapElements,
+    SpatialContentReferences MapElements,
     List<Guid> ShowDetailsElements);
 
-public record SpatialContentIdReferences(
-    List<Guid> FileContentIds,
-    List<Guid> GeoJsonContentIds,
-    List<Guid> ImageContentIds,
-    List<Guid> LineContentIds,
-    List<Guid> PhotoContentIds,
-    List<Guid> PointContentIds,
-    List<Guid> PostContentIds,
-    List<Guid> VideoContentIds
+public record SpatialContentReferences(
+    List<SpatialContentReference> FileContentIds,
+    List<SpatialContentReference> GeoJsonContentIds,
+    List<SpatialContentReference> ImageContentIds,
+    List<SpatialContentReference> LineContentIds,
+    List<SpatialContentReference> PhotoContentIds,
+    List<SpatialContentReference> PointContentIds,
+    List<SpatialContentReference> PostContentIds,
+    List<SpatialContentReference> VideoContentIds
 );
+
+public record SpatialContentReference
+{
+    public Guid ContentId { get; set; }
+    public string LinkTo { get; set; } = string.Empty;
+
+    public static List<SpatialContentReference> FromListOfContentIds(List<Guid> contentIds) =>
+        contentIds.Distinct().Select(x => new SpatialContentReference { ContentId = x }).ToList();
+}
 
 public record NoteContentOnDiskData(string ContentType, NoteContent Content);
 

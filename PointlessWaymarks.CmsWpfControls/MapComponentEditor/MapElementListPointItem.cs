@@ -14,7 +14,7 @@ public partial class MapElementListPointItem : PointListListItem, IMapElementLis
     {
     }
     
-    public MapElementSettings ElementSettings { get; set; } = new();
+    public required MapElementSettings ElementSettings { get; set; }
     public string ElementType { get; set; } = "point";
     public string Title { get; set; } = string.Empty;
 

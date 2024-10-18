@@ -14,7 +14,7 @@ public partial class MapElementListLineItem : LineListListItem, IMapElementListI
     {
     }
     
-    public MapElementSettings ElementSettings { get; set; } = new();
+    public required MapElementSettings ElementSettings { get; set; }
     public string ElementType { get; set; } = "line";
     public string Title { get; set; } = string.Empty;
 

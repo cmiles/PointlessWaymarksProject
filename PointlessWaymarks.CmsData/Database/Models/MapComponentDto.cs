@@ -53,6 +53,7 @@ public class MapComponentDto
             ContentVersion = ContentVersion,
             CreatedBy = CreatedBy,
             CreatedOn = CreatedOn,
+            Id = Id,
             InitialViewBoundsMaxLatitude = InitialViewBoundsMaxLatitude,
             InitialViewBoundsMaxLongitude = InitialViewBoundsMaxLongitude,
             InitialViewBoundsMinLatitude = InitialViewBoundsMinLatitude,

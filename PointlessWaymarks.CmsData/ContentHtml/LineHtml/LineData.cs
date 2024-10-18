@@ -189,7 +189,8 @@ public static class LineData
         var points = (await BracketCodePoints.DbContentFromBracketCodes(lineContent.BodyContent)).Cast<object>();
         var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .Cast<object>();
-        var pointExternalDirectionsLinks = (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(lineContent.BodyContent))
+        var pointExternalDirectionsLinks =
+            (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .Cast<object>();
         var pointDetailsLinks = (await BracketCodePointDetails.DbContentFromBracketCodes(lineContent.BodyContent))
             .Cast<object>();
@@ -197,7 +198,8 @@ public static class LineData
         var geoJsonLinks =
             (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(lineContent.BodyContent)).Cast<object>();
 
-        var mapInformation = await GenerateGeoJsonDataFromContent(photos.Concat(photoLinks).Concat(points).Concat(pointExternalDirectionsLinks)
+        var mapInformation = await GenerateGeoJsonDataFromContent(photos.Concat(photoLinks).Concat(points)
+            .Concat(pointExternalDirectionsLinks)
             .Concat(pointDetailsLinks).Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList());
 
         var toSerialize = new FeatureCollection
@@ -212,15 +214,15 @@ public static class LineData
         return (mapInformation.bounds, toSerialize);
     }
 
-    public static async Task<SpatialContentIdReferences>
+    public static async Task<SpatialContentReferences>
         SpatialContentIdReferencesFromBodyContentReferences(LineContent lineContent)
     {
         if (!lineContent.ShowContentReferencesOnMap)
-            return new SpatialContentIdReferences([], [], [],
+            return new SpatialContentReferences([], [], [],
                 [], [], [], [], []);
 
-        var files = new List<List<FileContent>>{
-
+        var files = new List<List<FileContent>>
+        {
             (await BracketCodeFiles.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.HasLocation()).ToList(),
             (await BracketCodeFileDownloads.DbContentFromBracketCodes(lineContent.BodyContent))
@@ -241,7 +243,8 @@ public static class LineData
             .OrderBy(x => x.Title).ToList();
         var geojsonLinks = (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .OrderBy(x => x.Title).ToList();
-        var geojsonAllReferences = geojson.Concat(geojsonImageLinks).Concat(geojsonLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+        var geojsonAllReferences = geojson.Concat(geojsonImageLinks).Concat(geojsonLinks).OrderBy(x => x.Title)
+            .Select(x => x.ContentId).Distinct()
             .ToList();
 
         var images = (await BracketCodeImages.DbContentFromBracketCodes(lineContent.BodyContent))
@@ -262,7 +265,7 @@ public static class LineData
             .OrderBy(x => x.Title).ToList();
         var photoAllReferences = photos.Concat(photoLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
             .ToList();
-        
+
         var posts = (await BracketCodePosts.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.HasLocation()).ToList();
         var postLinks = (await BracketCodePostImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
@@ -270,15 +273,17 @@ public static class LineData
             .OrderBy(x => x.Title).ToList();
         var postAllReferences = posts.Concat(postLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
             .ToList();
-        
+
         var points = (await BracketCodePoints.DbContentFromBracketCodes(lineContent.BodyContent)).ToList();
-        var pointExternalDirections = (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(lineContent.BodyContent)).ToList();
+        var pointExternalDirections =
+            (await BracketCodePointExternalDirectionLinks.DbContentFromBracketCodes(lineContent.BodyContent)).ToList();
         var pointDetails = (await BracketCodePointDetails.DbContentFromBracketCodes(lineContent.BodyContent)).ToList();
         var pointImageLinks = (await BracketCodePointImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
             .OrderBy(x => x.Title).ToList();
         var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .OrderBy(x => x.Title).ToList();
-        var pointAllReferences = points.Concat(pointImageLinks).Concat(pointLinks).Concat(pointExternalDirections).Concat(pointDetails).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+        var pointAllReferences = points.Concat(pointImageLinks).Concat(pointLinks).Concat(pointExternalDirections)
+            .Concat(pointDetails).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
             .ToList();
 
         var videos = (await BracketCodeVideoEmbed.DbContentFromBracketCodes(lineContent.BodyContent))
@@ -289,10 +294,18 @@ public static class LineData
         var videoImageLinks = (await BracketCodeVideoImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.HasLocation())
             .OrderBy(x => x.Title).ToList();
-        var videoAllReferences = videos.Concat(videoLinks).Concat(videoImageLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+        var videoAllReferences = videos.Concat(videoLinks).Concat(videoImageLinks).OrderBy(x => x.Title)
+            .Select(x => x.ContentId).Distinct()
             .ToList();
 
-        return new SpatialContentIdReferences(filesAllReferences, geojsonAllReferences, imageAllReferences, lineAllReferences, photoAllReferences, pointAllReferences, postAllReferences, videoAllReferences);
+        return new SpatialContentReferences(SpatialContentReference.FromListOfContentIds(filesAllReferences),
+            SpatialContentReference.FromListOfContentIds(geojsonAllReferences),
+            SpatialContentReference.FromListOfContentIds(imageAllReferences),
+            SpatialContentReference.FromListOfContentIds(lineAllReferences),
+            SpatialContentReference.FromListOfContentIds(photoAllReferences),
+            SpatialContentReference.FromListOfContentIds(pointAllReferences),
+            SpatialContentReference.FromListOfContentIds(postAllReferences),
+            SpatialContentReference.FromListOfContentIds(videoAllReferences));
     }
 
     public static async Task WriteGpxData(LineContent lineContent)
@@ -309,7 +322,7 @@ public static class LineData
             lineContent.CreatedOn.ToString("yyyy MM dd"), string.Empty,
             lineContent.Summary ?? string.Empty).AsList();
 
-        var textStream = new StringWriter();
+        var textStream = new Utf8StringWriter();
 
         var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true, CloseOutput = true };
         await using var xmlWriter = XmlWriter.Create(textStream, writerSettings);
@@ -322,7 +335,6 @@ public static class LineData
 
         await File.WriteAllTextAsync(temporaryGpxFile!.FullName, textStream.ToString());
         temporaryGpxFile.Refresh();
-
 
         if (dataFileInfo.Exists)
         {

@@ -14,7 +14,7 @@ public partial class MapElementListGeoJsonItem : GeoJsonListListItem, IMapElemen
     {
     }
     
-    public MapElementSettings ElementSettings { get; set; } = new();
+    public required MapElementSettings ElementSettings { get; set; }
     public string ElementType { get; set; } = "geojson";
     public string Title { get; set; } = string.Empty;
 

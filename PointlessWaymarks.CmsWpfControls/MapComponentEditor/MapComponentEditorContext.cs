@@ -179,7 +179,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newFileContent = await MapElementListFileItem.CreateInstance(new FileContentActions(StatusContext),
-            possibleFile, MapElementSettings.CreateInstance(loopContent));
+            possibleFile, await MapElementSettings.CreateInstance(loopContent));
 
         MapElements.Add(newFileContent);
 
@@ -201,7 +201,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newGeoJsonItem = await MapElementListGeoJsonItem.CreateInstance(new GeoJsonContentActions(StatusContext),
-            possibleGeoJson, MapElementSettings.CreateInstance(loopContent));
+            possibleGeoJson, await MapElementSettings.CreateInstance(loopContent));
 
         MapElements.Add(newGeoJsonItem);
 
@@ -229,7 +229,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newImageContent = await MapElementListImageItem.CreateInstance(new ImageContentActions(StatusContext),
-            possibleImage, MapElementSettings.CreateInstance(loopContent));
+            possibleImage, await MapElementSettings.CreateInstance(loopContent));
 
         MapElements.Add(newImageContent);
 
@@ -251,7 +251,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newLineItem = await MapElementListLineItem.CreateInstance(new LineContentActions(StatusContext),
-            possibleLine, MapElementSettings.CreateInstance(loopContent));
+            possibleLine, await MapElementSettings.CreateInstance(loopContent));
 
         MapElements.Add(newLineItem);
 
@@ -279,7 +279,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newPhotoContent = await MapElementListPhotoItem.CreateInstance(new PhotoContentActions(StatusContext),
-            possiblePhoto, MapElementSettings.CreateInstance(loopContent));
+            possiblePhoto, await MapElementSettings.CreateInstance(loopContent));
 
         MapElements.Add(newPhotoContent);
 
@@ -302,7 +302,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newPointContent = await MapElementListPointItem.CreateInstance(new PointContentActions(StatusContext),
-            possiblePoint, MapElementSettings.CreateInstance(loopContent));
+            possiblePoint, await MapElementSettings.CreateInstance(loopContent));
 
         MapElements.Add(newPointContent);
 
@@ -330,7 +330,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newPostContent = await MapElementListPostItem.CreateInstance(new PostContentActions(StatusContext),
-            possiblePost, MapElementSettings.CreateInstance(loopContent));
+            possiblePost, await MapElementSettings.CreateInstance(loopContent));
 
         MapElements.Add(newPostContent);
 
@@ -358,7 +358,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeForegroundAsync();
 
         var newVideoContent = await MapElementListVideoItem.CreateInstance(new VideoContentActions(StatusContext),
-            possibleVideo, MapElementSettings.CreateInstance(loopContent));
+            possibleVideo, await MapElementSettings.CreateInstance(loopContent));
 
         MapElements.Add(newVideoContent);
 
@@ -420,9 +420,10 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         {
             MapComponentContentId = newEntry.ContentId,
             ElementContentId = x.ContentId() ?? Guid.Empty,
-            IsFeaturedElement = x.ElementSettings.IsFeaturedElement,
-            IncludeInDefaultView = x.ElementSettings.InInitialView,
-            ShowDetailsDefault = x.ElementSettings.ShowInitialDetails
+            IsFeaturedElement = x.ElementSettings.IsFeaturedElement.UserValue,
+            IncludeInDefaultView = x.ElementSettings.InInitialView.UserValue,
+            ShowDetailsDefault = x.ElementSettings.ShowInitialDetails.UserValue,
+            LinksTo = x.ElementSettings.LinkTo.UserValue
         }).ToList();
 
         return new MapComponentDto(newEntry, finalElementList);
