@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.Database;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
@@ -78,10 +78,11 @@ public static class SlugUtility
             var photoCheck = await context.PhotoContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             var pointCheck = await context.PointContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             var postCheck = await context.PostContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
+            var trailCheck = await context.TrailContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
             var videoCheck = await context.VideoContents.AnyAsync(x => x.Slug == slug).ConfigureAwait(false);
 
             return photoCheck || postCheck || imageCheck || noteCheck || fileCheck || pointCheck || geoJsonCheck ||
-                   lineCheck || videoCheck;
+                   lineCheck || trailCheck || videoCheck;
         }
 
         var fileExcludeCheck =
@@ -108,13 +109,16 @@ public static class SlugUtility
         var postExcludeCheck =
             await context.PostContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
                 .ConfigureAwait(false);
+        var trailExcludeCheck =
+            await context.TrailContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
+                .ConfigureAwait(false);
         var videoExcludeCheck =
             await context.VideoContents.AnyAsync(x => x.Slug == slug && x.ContentId != excludedContentId)
                 .ConfigureAwait(false);
 
 
         return photoExcludeCheck || postExcludeCheck || imageExcludeCheck || noteExcludeCheck || fileExcludeCheck ||
-               pointExcludeCheck || geoJsonExcludeCheck || lineExcludeCheck || videoExcludeCheck;
+               pointExcludeCheck || geoJsonExcludeCheck || lineExcludeCheck || trailExcludeCheck || videoExcludeCheck;
     }
 
     public static async Task<bool> VideoFilenameExistsInDatabase(this PointlessWaymarksContext context,

@@ -28,6 +28,7 @@
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:windowScreenShot1="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:trailList="clr-namespace:PointlessWaymarks.CmsWpfControls.TrailList;assembly=PointlessWaymarks.CmsWpfControls"
     Name="MainWindowXaml"
     Title="{Binding InfoTitle}"
     Width="950"
@@ -74,6 +75,9 @@
             </TabItem>
             <TabItem Header="Files">
                 <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
+            </TabItem>
+            <TabItem Header="Trails">
+                <trailList:TrailListWithActionsControl DataContext="{Binding TabTrailListContext}" />
             </TabItem>
             <TabItem Header="Points">
                 <pointList:PointListWithActionsControl DataContext="{Binding TabPointListContext}" />

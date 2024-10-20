@@ -41,8 +41,10 @@ public record SpatialContentReference
     public Guid ContentId { get; set; }
     public string LinkTo { get; set; } = string.Empty;
 
-    public static List<SpatialContentReference> FromListOfContentIds(List<Guid> contentIds) =>
-        contentIds.Distinct().Select(x => new SpatialContentReference { ContentId = x }).ToList();
+    public static List<SpatialContentReference> FromListOfContentIds(List<Guid> contentIds)
+    {
+        return contentIds.Distinct().Select(x => new SpatialContentReference { ContentId = x }).ToList();
+    }
 }
 
 public record NoteContentOnDiskData(string ContentType, NoteContent Content);
@@ -58,4 +60,7 @@ public record PointContentOnDiskData(string ContentType, PointContentDto Content
 public record PostContentOnDiskData(string ContentType, PostContent Content);
 
 public record SnippetOnDiskData(string ContentType, Snippet Content);
+
+public record TrailContentOnDiskData(string ContentType, TrailContent Content);
+
 public record VideoContentOnDiskData(string ContentType, VideoContent Content);

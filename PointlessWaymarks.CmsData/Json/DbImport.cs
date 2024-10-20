@@ -1,12 +1,13 @@
+
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 
-namespace PointlessWaymarks.CmsData.Json;
-
-public static class DbImport
+namespace PointlessWaymarks.CmsData.Json
 {
+    public static partial class DbImport
+    {
     public static async Task FileContentToDb(List<FileContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("FileContent - Starting");
@@ -66,7 +67,6 @@ public static class DbImport
 
         progress?.Report("FileContent - Finished");
     }
-
     public static async Task GeoJsonContentToDb(List<GeoJsonContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("GeoJsonContent - Starting");
@@ -126,397 +126,6 @@ public static class DbImport
 
         progress?.Report("GeoJsonContent - Finished");
     }
-
-    public static async Task HistoricFileContentToDb(List<HistoricFileContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricFileContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricFileContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricFileContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricFileContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("HistoricFileContent - Finished");
-    }
-
-    public static async Task HistoricGeoJsonContentToDb(List<HistoricGeoJsonContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricGeoJsonContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricGeoJsonContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricGeoJsonContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricGeoJsonContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("GeoJsonContent - Finished");
-    }
-
-    public static async Task HistoricImageContentToDb(List<HistoricImageContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricImageContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricImageContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricImageContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricImageContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("HistoricImageContent - Finished");
-    }
-
-    public static async Task HistoricLineContentToDb(List<HistoricLineContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricLineContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricLineContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricLineContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricLineContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("LineContent - Finished");
-    }
-
-    public static async Task HistoricLinkContentToDb(List<HistoricLinkContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricLinkContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricLinkContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricLinkContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricLinkContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("LinkContent - Finished");
-    }
-
-    public static async Task HistoricNoteContentToDb(List<HistoricNoteContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricNoteContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricNoteContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricNoteContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricNoteContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("HistoricNoteContent - Finished");
-    }
-
-    public static async Task HistoricPhotoContentToDb(List<HistoricPhotoContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricPhotoContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricPhotoContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricPhotoContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricPhotoContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("HistoricPhotoContent - Finished");
-    }
-
-    public static async Task HistoricPointContentToDb(List<HistoricPointContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricPointContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricPointContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricPointContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricPointContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("PointContent - Finished");
-    }
-
-    public static async Task HistoricPostContentToDb(List<HistoricPostContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricPostContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricPostContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricPostContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricPostContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("HistoricPostContent - Finished");
-    }
-
-    public static async Task HistoricVideoContentToDb(List<HistoricVideoContent> toImport,
-        IProgress<string>? progress = null)
-    {
-        progress?.Report("HistoricVideoContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No items to import?");
-            return;
-        }
-
-        progress?.Report($"HistoricVideoContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        var currentLoop = 1;
-        var totalCount = toImport.Count;
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
-
-            if (await db.HistoricVideoContents.AnyAsync(x =>
-                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-            {
-                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
-                continue;
-            }
-
-            loopImportItem.Id = 0;
-
-            db.HistoricVideoContents.Add(loopImportItem);
-
-            await db.SaveChangesAsync(true);
-        }
-
-        progress?.Report("VideoContent - Finished");
-    }
-
     public static async Task ImageContentToDb(List<ImageContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("ImageContent - Starting");
@@ -576,7 +185,6 @@ public static class DbImport
 
         progress?.Report("ImageContent - Finished");
     }
-
     public static async Task LineContentToDb(List<LineContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("LineContent - Starting");
@@ -636,7 +244,6 @@ public static class DbImport
 
         progress?.Report("LineContent - Finished");
     }
-
     public static async Task LinkContentToDb(List<LinkContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("LinkContent - Starting");
@@ -696,125 +303,6 @@ public static class DbImport
 
         progress?.Report("LinkContent - Finished");
     }
-
-    public static async Task MapComponentToDb(List<MapComponentDto> toImport, IProgress<string>? progress = null)
-    {
-        progress?.Report("MapComponent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No MapComponent items to import...");
-            return;
-        }
-
-        progress?.Report($"MapComponent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - Starting MapComponent");
-
-            var exactMatch = await db.MapComponents.AnyAsync(x =>
-                x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
-
-            if (exactMatch)
-            {
-                progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
-                continue;
-            }
-
-            var laterEntries = await db.MapComponents.AnyAsync(x =>
-                x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
-
-            if (laterEntries)
-            {
-                if (db.HistoricMapComponents.Any(x =>
-                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-                {
-                    progress?.Report(
-                        $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic MapComponent");
-                }
-                else
-                {
-                    progress?.Report(
-                        $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricMapComponents");
-
-                    var newHistoricEntry = new HistoricMapComponent();
-                    newHistoricEntry.InjectFrom(loopImportItem);
-                    newHistoricEntry.Id = 0;
-
-                    db.HistoricMapComponents.Add(newHistoricEntry);
-                    await db.SaveChangesAsync(true);
-                }
-
-                continue;
-            }
-
-            await Db.SaveMapComponent(loopImportItem);
-        }
-
-        progress?.Report("MapComponent - Finished");
-    }
-
-    public static async Task MapIconsDb(List<MapIcon> toImport, IProgress<string>? progress = null)
-    {
-        progress?.Report("MapIcon - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No MapIcon items to import...");
-            return;
-        }
-
-        progress?.Report($"MapIcon - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.IconName} - Starting MapIcon");
-
-            var exactMatch = await db.MapIcons.AnyAsync(x =>
-                x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
-
-            if (exactMatch)
-            {
-                progress?.Report($"{loopImportItem.IconName} - Found exact match in DB - skipping");
-                continue;
-            }
-
-            var laterEntries = await db.MapIcons.AnyAsync(x =>
-                x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
-
-            if (laterEntries)
-            {
-                if (await db.HistoricMapIcons.AnyAsync(x =>
-                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-                {
-                    progress?.Report(
-                        $"{loopImportItem.IconName} - Found later entry in Db and this entry already in Historic MapIcon");
-                }
-                else
-                {
-                    progress?.Report(
-                        $"{loopImportItem.IconName} - Found later entry already in db - moving this version to HistoricMapIconContents");
-
-                    var newHistoricEntry = loopImportItem.ToHistoricMapIcon();
-
-                    db.HistoricMapIcons.Add(newHistoricEntry);
-                    await db.SaveChangesAsync(true);
-                }
-
-                continue;
-            }
-
-            await Db.SaveMapIcon(loopImportItem);
-        }
-
-        progress?.Report("MapIconContent - Finished");
-    }
-
     public static async Task NoteContentToDb(List<NoteContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("NoteContent - Starting");
@@ -874,7 +362,6 @@ public static class DbImport
 
         progress?.Report("NoteContent - Finished");
     }
-
     public static async Task PhotoContentToDb(List<PhotoContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("PhotoContent - Starting");
@@ -934,63 +421,6 @@ public static class DbImport
 
         progress?.Report("PhotoContent - Finished");
     }
-
-    public static async Task PointContentToDb(List<PointContentDto> toImport, IProgress<string>? progress = null)
-    {
-        progress?.Report("PointContent - Starting");
-
-        if (!toImport.Any())
-        {
-            progress?.Report("No PointContent items to import...");
-            return;
-        }
-
-        progress?.Report($"PointContent - Working with {toImport.Count} Entries");
-
-        var db = await Db.Context();
-
-        foreach (var loopImportItem in toImport)
-        {
-            progress?.Report($"{loopImportItem.Title} - Starting PointContent");
-
-            var exactMatch = await db.PointContents.AnyAsync(x =>
-                x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
-
-            if (exactMatch)
-            {
-                progress?.Report($"{loopImportItem.Title} - Found exact match in DB - skipping");
-                continue;
-            }
-
-            var laterEntries = await db.PointContents.AnyAsync(x =>
-                x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
-
-            if (laterEntries)
-            {
-                if (await db.HistoricPointContents.AnyAsync(x =>
-                        x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
-                {
-                    progress?.Report(
-                        $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic PointContent");
-                }
-                else
-                {
-                    progress?.Report(
-                        $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricPointContents");
-
-                    db.HistoricPointContents.Add(loopImportItem.ToHistoricDbObject());
-                    await db.SaveChangesAsync(true);
-                }
-
-                continue;
-            }
-
-            await Db.SavePointContent(loopImportItem);
-        }
-
-        progress?.Report("PointContent - Finished");
-    }
-
     public static async Task PostContentToDb(List<PostContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("PostContent - Starting");
@@ -1050,26 +480,25 @@ public static class DbImport
 
         progress?.Report("PostContent - Finished");
     }
-
-    public static async Task SnippetToDb(List<Snippet> toImport, IProgress<string>? progress = null)
+    public static async Task TrailContentToDb(List<TrailContent> toImport, IProgress<string>? progress = null)
     {
-        progress?.Report("Snippet - Starting");
+        progress?.Report("TrailContent - Starting");
 
         if (!toImport.Any())
         {
-            progress?.Report("No Snippet items to import...");
+            progress?.Report("No TrailContent items to import...");
             return;
         }
 
-        progress?.Report($"Snippet - Working with {toImport.Count} Entries");
+        progress?.Report($"TrailContent - Working with {toImport.Count} Entries");
 
         var db = await Db.Context();
 
         foreach (var loopImportItem in toImport)
         {
-            progress?.Report($"{loopImportItem.Title} - Starting Snippet");
+            progress?.Report($"{loopImportItem.Title} - Starting TrailContent");
 
-            var exactMatch = await db.Snippets.AnyAsync(x =>
+            var exactMatch = await db.TrailContents.AnyAsync(x =>
                 x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion);
 
             if (exactMatch)
@@ -1078,44 +507,38 @@ public static class DbImport
                 continue;
             }
 
-            var laterEntries = await db.Snippets.AnyAsync(x =>
+            var laterEntries = await db.TrailContents.AnyAsync(x =>
                 x.ContentId == loopImportItem.ContentId && x.ContentVersion > loopImportItem.ContentVersion);
 
             if (laterEntries)
             {
-                if (await db.HistoricSnippets.AnyAsync(x =>
+                if (await db.HistoricTrailContents.AnyAsync(x =>
                         x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
                     progress?.Report(
-                        $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic Snippet");
+                        $"{loopImportItem.Title} - Found later entry in Db and this entry already in Historic TrailContent");
                 }
                 else
                 {
                     progress?.Report(
-                        $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricSnippets");
+                        $"{loopImportItem.Title} - Found later entry already in db - moving this version to HistoricTrailContents");
 
-                    var newHistoricEntry = new HistoricSnippet
-                    {
-                        ContentId = loopImportItem.ContentId,
-                        ContentVersion = loopImportItem.ContentVersion,
-                        CreatedOn = loopImportItem.CreatedOn
-                    };
+                    var newHistoricEntry = new HistoricTrailContent();
                     newHistoricEntry.InjectFrom(loopImportItem);
                     newHistoricEntry.Id = 0;
 
-                    db.HistoricSnippets.Add(newHistoricEntry);
+                    db.HistoricTrailContents.Add(newHistoricEntry);
                     await db.SaveChangesAsync(true);
                 }
 
                 continue;
             }
 
-            await Db.SaveSnippet(loopImportItem);
+            await Db.SaveTrailContent(loopImportItem);
         }
 
-        progress?.Report("Snippet - Finished");
+        progress?.Report("TrailContent - Finished");
     }
-
     public static async Task VideoContentToDb(List<VideoContent> toImport, IProgress<string>? progress = null)
     {
         progress?.Report("VideoContent - Starting");
@@ -1148,7 +571,7 @@ public static class DbImport
 
             if (laterEntries)
             {
-                if (db.HistoricVideoContents.Any(x =>
+                if (await db.HistoricVideoContents.AnyAsync(x =>
                         x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
                 {
                     progress?.Report(
@@ -1174,5 +597,377 @@ public static class DbImport
         }
 
         progress?.Report("VideoContent - Finished");
+    }
+
+    public static async Task HistoricFileContentToDb(List<HistoricFileContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricFileContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricFileContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricFileContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricFileContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricFileContent - Finished");
+    }
+    public static async Task HistoricGeoJsonContentToDb(List<HistoricGeoJsonContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricGeoJsonContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricGeoJsonContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricGeoJsonContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricGeoJsonContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricGeoJsonContent - Finished");
+    }
+    public static async Task HistoricImageContentToDb(List<HistoricImageContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricImageContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricImageContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricImageContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricImageContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricImageContent - Finished");
+    }
+    public static async Task HistoricLineContentToDb(List<HistoricLineContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricLineContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricLineContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricLineContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricLineContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricLineContent - Finished");
+    }
+    public static async Task HistoricLinkContentToDb(List<HistoricLinkContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricLinkContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricLinkContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricLinkContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricLinkContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricLinkContent - Finished");
+    }
+    public static async Task HistoricNoteContentToDb(List<HistoricNoteContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricNoteContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricNoteContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricNoteContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricNoteContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricNoteContent - Finished");
+    }
+    public static async Task HistoricPhotoContentToDb(List<HistoricPhotoContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricPhotoContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricPhotoContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricPhotoContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricPhotoContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricPhotoContent - Finished");
+    }
+    public static async Task HistoricPostContentToDb(List<HistoricPostContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricPostContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricPostContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricPostContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricPostContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricPostContent - Finished");
+    }
+    public static async Task HistoricTrailContentToDb(List<HistoricTrailContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricTrailContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricTrailContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricTrailContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricTrailContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricTrailContent - Finished");
+    }
+    public static async Task HistoricVideoContentToDb(List<HistoricVideoContent> toImport, IProgress<string>? progress = null)
+    {
+        progress?.Report("HistoricVideoContent - Starting");
+
+        if (!toImport.Any())
+        {
+            progress?.Report("No items to import?");
+            return;
+        }
+
+        progress?.Report($"HistoricVideoContent - Working with {toImport.Count} Entries");
+
+        var db = await Db.Context();
+
+        var currentLoop = 1;
+        var totalCount = toImport.Count;
+
+        foreach (var loopImportItem in toImport)
+        {
+            progress?.Report($"{loopImportItem.Title} - {currentLoop++} of {totalCount} - Id {loopImportItem.Id}");
+
+            if (await db.HistoricVideoContents.AnyAsync(x =>
+                    x.ContentId == loopImportItem.ContentId && x.ContentVersion == loopImportItem.ContentVersion))
+            {
+                progress?.Report($"Historic {loopImportItem.ContentVersion:r} {loopImportItem.Title} - Already Exists");
+                continue;
+            }
+
+            loopImportItem.Id = 0;
+
+            db.HistoricVideoContents.Add(loopImportItem);
+
+            await db.SaveChangesAsync(true);
+        }
+
+        progress?.Report("HistoricVideoContent - Finished");
+    }
     }
 }

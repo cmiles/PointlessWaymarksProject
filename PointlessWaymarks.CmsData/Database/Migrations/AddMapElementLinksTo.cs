@@ -16,7 +16,7 @@ public class AddMapElementLinksTo : Migration
         if (!Schema.Table("MapComponentElements").Column("LinksTo").Exists())
             Execute.Sql(@"ALTER TABLE MapComponentElements 
                     ADD COLUMN LinksTo TEXT NULL");
-        if (!Schema.Table("HistoricMapComponentElement").Column("LinksTo").Exists())
+        if (!Schema.Table("HistoricMapComponentElements").Column("LinksTo").Exists())
             Execute.Sql(@"ALTER TABLE HistoricMapComponentElements 
                     ADD COLUMN LinksTo TEXT NULL");
     }

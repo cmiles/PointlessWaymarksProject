@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.ContentHtml.NoteHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
+using PointlessWaymarks.CmsData.ContentHtml.TrailHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -180,6 +181,15 @@ public partial class IndexPage
                 var indexPostContentDiv = new DivTag().AddClass("index-posts-content");
                 indexPostContentDiv.Encoded(false).Text(post.TransformText());
                 indexBodyContainer.Children.Add(indexPostContentDiv);
+                indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
+            }
+
+            if (loopPosts.GetType() == typeof(TrailContent))
+            {
+                var trail = new SingleTrailDiv(loopPosts);
+                var indexTrailContentDiv = new DivTag().AddClass("index-trails-content");
+                indexTrailContentDiv.Encoded(false).Text(trail.TransformText());
+                indexBodyContainer.Children.Add(indexTrailContentDiv);
                 indexBodyContainer.Children.Add(HorizontalRule.StandardRule());
             }
 
@@ -425,6 +435,31 @@ public partial class IndexPage
                 items.Add(RssBuilder.RssItemString(post.DbEntry.Title, $"{post.PageUrl}", 
                     Tags.CreatedByAndUpdatedByNameList(post.DbEntry), content,
                     post.DbEntry.CreatedOn, post.DbEntry.ContentId.ToString()));
+            }
+
+            if (loopPosts.GetType() == typeof(TrailContent))
+            {
+                var trail = new SingleTrailDiv(loopPosts);
+
+                string? content = null;
+
+                if (trail.DbEntry.MainPicture != null)
+                {
+                    var imageInfo = PictureAssetProcessing.ProcessPictureDirectory(trail.DbEntry.MainPicture.Value);
+
+                    if (imageInfo != null)
+                        content =
+                            $"{Tags.PictureImgTagDisplayImageOnly(imageInfo)}<p>{HttpUtility.HtmlEncode(trail.DbEntry.Summary)}</p>" +
+                            $"<p>Read more at <a href=\"{trail.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+                }
+
+                if (string.IsNullOrWhiteSpace(content))
+                    content = $"<p>{HttpUtility.HtmlEncode(trail.DbEntry.Summary)}</p>" +
+                              $"<p>Read more at <a href=\"{trail.PageUrl}\">{UserSettingsSingleton.CurrentSettings().SiteName}</a></p>";
+
+                items.Add(RssBuilder.RssItemString(trail.DbEntry.Title, $"{trail.PageUrl}",
+                    Tags.CreatedByAndUpdatedByNameList(trail.DbEntry), content,
+                    trail.DbEntry.CreatedOn, trail.DbEntry.ContentId.ToString()));
             }
 
             if (loopPosts.GetType() == typeof(VideoContent))

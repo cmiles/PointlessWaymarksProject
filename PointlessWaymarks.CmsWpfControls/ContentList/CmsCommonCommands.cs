@@ -33,6 +33,8 @@ using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
+using PointlessWaymarks.CmsWpfControls.TrailContentEditor;
+using PointlessWaymarks.CmsWpfControls.TrailList;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
@@ -468,7 +470,8 @@ public partial class CmsCommonCommands
             {
                 innerLoopCounter++;
 
-                var newEntry = await LineGenerator.NewFromGpxTrack(loopRoutes, false, skipFeatureIntersectionTagging, statusContext.ProgressTracker());
+                var newEntry = await LineGenerator.NewFromGpxTrack(loopRoutes, false, skipFeatureIntersectionTagging,
+                    statusContext.ProgressTracker());
 
                 if (autoSaveAndClose)
                 {
@@ -778,11 +781,28 @@ public partial class CmsCommonCommands
     }
 
     [NonBlockingCommand]
-    private async Task NewPostList()
+    private async Task NewPostListWindow()
     {
         var newWindow =
             await PostListWindow.CreateInstance(
                 await PostListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    public async Task NewTrailContent()
+    {
+        var newContentWindow = await TrailContentEditorWindow.CreateInstance();
+
+        await newContentWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    private async Task NewTrailListWindow()
+    {
+        var newWindow =
+            await TrailListWindow.CreateInstance(
+                await TrailListWithActionsContext.CreateInstance(null, WindowStatus));
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 

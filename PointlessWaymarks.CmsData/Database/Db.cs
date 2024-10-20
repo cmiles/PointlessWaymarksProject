@@ -8,7 +8,6 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CommonTools;
-using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using SQLitePCL;
 
@@ -27,6 +26,7 @@ public static class Db
     public const string ContentTypeDisplayStringForPoint = "Point";
     public const string ContentTypeDisplayStringForPost = "Post";
     public const string ContentTypeDisplayStringForSnippet = "Snippet";
+    public const string ContentTypeDisplayStringForTrail = "Trail";
     public const string ContentTypeDisplayStringForVideo = "Video";
 
     public static async Task<List<string>> ActivityTypesFromLines()
@@ -84,6 +84,10 @@ public static class Db
         var possiblePost = await db.PostContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
             .ConfigureAwait(false);
         if (possiblePost != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possiblePost);
+
+        var possibleTrail = await db.TrailContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
+            .ConfigureAwait(false);
+        if (possibleTrail != null) return (ContentCommonShell)new ContentCommonShell().InjectFrom(possibleTrail);
 
         var possibleVideo = await db.VideoContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
             .ConfigureAwait(false);
@@ -150,6 +154,9 @@ public static class Db
                 .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
             .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.PostContents
+                .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
+            .Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.TrailContents
                 .Where(x => x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore).ToListAsync())
             .Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.VideoContents
@@ -258,6 +265,10 @@ public static class Db
             .ConfigureAwait(false);
         if (possiblePost != null) return possiblePost;
 
+        var possibleTrail = await db.TrailContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
+            .ConfigureAwait(false);
+        if (possibleTrail != null) return possibleTrail;
+
         var possibleVideo = await db.VideoContents.SingleOrDefaultAsync(x => x.ContentId == contentId)
             .ConfigureAwait(false);
         if (possibleVideo != null) return possibleVideo;
@@ -293,6 +304,7 @@ public static class Db
         if (pointsAsDtos) returnList.AddRange(await PointsAndPointDetails(contentIds).ConfigureAwait(false));
         else returnList.AddRange(db.PointContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(db.PostContents.Where(x => contentIds.Contains(x.ContentId)));
+        returnList.AddRange(db.TrailContents.Where(x => contentIds.Contains(x.ContentId)));
         returnList.AddRange(db.VideoContents.Where(x => contentIds.Contains(x.ContentId)));
 
         return returnList;
@@ -388,6 +400,7 @@ public static class Db
         returnList.AddRange(context.PhotoContents.Where(x => x.Folder == folderName).Cast<object>());
         returnList.AddRange(context.PointContents.Where(x => x.Folder == folderName).Cast<object>());
         returnList.AddRange(context.PostContents.Where(x => x.Folder == folderName).Cast<object>());
+        returnList.AddRange(context.TrailContents.Where(x => x.Folder == folderName).Cast<object>());
         returnList.AddRange(context.VideoContents.Where(x => x.Folder == folderName).Cast<object>());
 
         return returnList;
@@ -437,6 +450,9 @@ public static class Db
         returnList.AddRange((await context.PostContents
             .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
                         !x.IsDraft && x.ShowInSearch).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
+        returnList.AddRange((await context.TrailContents
+            .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
+                        !x.IsDraft && x.ShowInSearch).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
         returnList.AddRange((await context.VideoContents
             .Where(x => x.LastUpdatedOn == null && x.CreatedOn >= createdOnOnOrAfter && x.CreatedOn < createdOnBefore &&
                         !x.IsDraft && x.ShowInSearch).ToListAsync()).Select(x => (x.CreatedOn, (object)x)));
@@ -478,6 +494,10 @@ public static class Db
                 .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
                             x.LastUpdatedOn < createdOnBefore && !x.IsDraft && x.ShowInSearch).ToListAsync())
             .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
+        returnList.AddRange((await context.TrailContents
+                .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
+                            x.LastUpdatedOn < createdOnBefore && !x.IsDraft && x.ShowInSearch).ToListAsync())
+            .Select(x => (x.LastUpdatedOn!.Value, (object)x)));
         returnList.AddRange((await context.VideoContents
                 .Where(x => x.LastUpdatedOn != null && x.LastUpdatedOn >= createdOnOnOrAfter &&
                             x.LastUpdatedOn < createdOnBefore && !x.IsDraft && x.ShowInSearch).ToListAsync())
@@ -502,6 +522,7 @@ public static class Db
         returnList.AddRange(context.PhotoContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
         returnList.AddRange(context.PointContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
         returnList.AddRange(context.PostContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
+        returnList.AddRange(context.TrailContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
         returnList.AddRange(context.VideoContents.Where(x => x.LastUpdatedOn == null).Cast<object>());
 
         return returnList;
@@ -534,6 +555,7 @@ public static class Db
             PointContent => ContentTypeDisplayStringForPoint,
             Models.PointContentDto => ContentTypeDisplayStringForPoint,
             Snippet => ContentTypeDisplayStringForSnippet,
+            TrailContent => ContentTypeDisplayStringForTrail,
             VideoContent => ContentTypeDisplayStringForVideo,
             _ => string.Empty
         };
@@ -579,6 +601,8 @@ public static class Db
         returnList.AddRange(context.PointContents
             .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
         returnList.AddRange(context.PostContents
+            .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
+        returnList.AddRange(context.TrailContents
             .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
         returnList.AddRange(context.VideoContents
             .Where(x => x.LastUpdatedOn >= updatedOnOnOrAfter && x.LastUpdatedOn < updatedOnBefore).Cast<object>());
@@ -773,6 +797,23 @@ public static class Db
 
         var deletedContent = await (from h in db.HistoricPostContents
             where !db.PostContents.Any(x => x.ContentId == h.ContentId)
+            select h).ToListAsync().ConfigureAwait(false);
+
+        return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
+            .ToList();
+    }
+
+    /// <summary>
+    ///     Returns a List of 'Fully Deleted' Content - ie where the ContentId is no longer present in the related Content
+    ///     table.
+    /// </summary>
+    /// <returns></returns>
+    public static async Task<List<HistoricTrailContent>> DeletedTrailContent()
+    {
+        var db = await Context().ConfigureAwait(false);
+
+        var deletedContent = await (from h in db.HistoricTrailContents
+            where !db.TrailContents.Any(x => x.ContentId == h.ContentId)
             select h).ToListAsync().ConfigureAwait(false);
 
         return deletedContent.GroupBy(x => x.ContentId).Select(x => x.OrderByDescending(y => y.ContentVersion).First())
@@ -1358,6 +1399,49 @@ public static class Db
     ///     In general use this rather deleting content directly...
     /// </summary>
     /// <returns></returns>
+    public static async Task DeleteTrailContent(Guid contentId, IProgress<string>? progress = null)
+    {
+        var context = await Context().ConfigureAwait(false);
+
+        var toHistoric = await context.TrailContents.Where(x => x.ContentId == contentId).ToListAsync()
+            .ConfigureAwait(false);
+
+        if (!toHistoric.Any())
+        {
+            DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Trail,
+                DataNotificationUpdateType.Delete, contentId.AsList());
+            return;
+        }
+
+        progress?.Report($"Writing {toHistoric.First().Title} Last Historic Entry");
+
+        var contentIdsToDelete = toHistoric.Select(x => x.ContentId).ToList();
+
+        foreach (var loopToHistoric in toHistoric)
+        {
+            var newHistoric = new HistoricTrailContent();
+            newHistoric.InjectFrom(loopToHistoric);
+            newHistoric.Id = 0;
+            newHistoric.LastUpdatedOn = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+            await context.HistoricTrailContents.AddAsync(newHistoric).ConfigureAwait(false);
+            context.TrailContents.Remove(loopToHistoric);
+        }
+
+        await context.SaveChangesAsync(true).ConfigureAwait(false);
+
+        progress?.Report($"{toHistoric.First().Title} Deleted");
+
+        DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Trail,
+            DataNotificationUpdateType.Delete, contentIdsToDelete);
+    }
+
+    /// <summary>
+    ///     Deletes a Content Entry writing Historic Content, showing progress and publishing Data Notifications.
+    ///     In general use this rather deleting content directly...
+    /// </summary>
+    /// <returns></returns>
     public static async Task DeleteVideoContent(Guid contentId, IProgress<string>? progress = null)
     {
         var context = await Context().ConfigureAwait(false);
@@ -1446,6 +1530,10 @@ public static class Db
                 .Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             PostContent => await db.PostContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
+            TrailContent => await db.TrailContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
+                .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
+            VideoContent => await db.VideoContents.Where(x => !string.IsNullOrWhiteSpace(x.Folder)).Select(x => x.Folder)
                 .Distinct().OrderBy(x => x).Cast<string>().ToListAsync(),
             _ => []
         };
@@ -1698,11 +1786,13 @@ public static class Db
             .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
         var postContent = await db.PostContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
             .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var trailContent = await db.TrailContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
         var videoContent = await db.VideoContents.Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
             .Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(videoContent)
+            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(trailContent).Concat(videoContent)
             .OrderByDescending(x => x.FeedOn).ToList();
     }
 
@@ -1744,12 +1834,15 @@ public static class Db
         var postContent = await db.PostContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after && x.FeedOn < nowCutoff)
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var trailContent = await db.TrailContents
+            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after && x.FeedOn < nowCutoff)
+            .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
         var videoContent = await db.VideoContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn > after && x.FeedOn < nowCutoff)
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(photoContent).Concat(postContent).Concat(pointContent).Concat(videoContent).OrderBy(x => x.FeedOn)
+            .Concat(photoContent).Concat(postContent).Concat(pointContent).Concat(trailContent).Concat(videoContent).OrderBy(x => x.FeedOn)
             .Take(numberOfEntries)
             .ToList();
     }
@@ -1793,12 +1886,15 @@ public static class Db
         var postContent = await db.PostContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before && x.FeedOn < nowCutoff)
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
+        var trailContent = await db.TrailContents
+            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before && x.FeedOn < nowCutoff)
+            .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
         var videoContent = await db.VideoContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < before && x.FeedOn < nowCutoff)
             .OrderByDescending(x => x.FeedOn).Cast<IContentCommon>().ToListAsync().ConfigureAwait(false);
 
         return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(videoContent)
+            .Concat(postContent).Concat(photoContent).Concat(pointContent).Concat(trailContent).Concat(videoContent)
             .OrderByDescending(x => x.FeedOn)
             .Take(numberOfEntries).ToList();
     }
@@ -2956,6 +3052,43 @@ public static class Db
             [toSave.ContentId]);
     }
 
+    public static async Task SaveTrailContent(TrailContent? toSave)
+    {
+        if (toSave == null) return;
+
+        var context = await Context().ConfigureAwait(false);
+
+        var toHistoric = await context.TrailContents.Where(x => x.ContentId == toSave.ContentId).ToListAsync()
+            .ConfigureAwait(false);
+
+        var isUpdate = toHistoric.Any();
+
+        foreach (var loopToHistoric in toHistoric)
+        {
+            var newHistoric = new HistoricTrailContent();
+            newHistoric.InjectFrom(loopToHistoric);
+            newHistoric.Id = 0;
+            newHistoric.LastUpdatedOn = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(newHistoric.LastUpdatedBy))
+                newHistoric.LastUpdatedBy = "Historic Entry Archivist";
+            await context.HistoricTrailContents.AddAsync(newHistoric).ConfigureAwait(false);
+            context.TrailContents.Remove(loopToHistoric);
+        }
+
+        if (toSave.Id > 0) toSave.Id = 0;
+        toSave.ContentVersion = ContentVersionDateTime();
+
+        toSave.MainPicture = await BracketCodeCommon.PhotoOrImageCodeFirstIdInContent(toSave.BodyContent, null);
+
+        await context.TrailContents.AddAsync(toSave).ConfigureAwait(false);
+
+        await context.SaveChangesAsync(true).ConfigureAwait(false);
+
+        DataNotifications.PublishDataNotification("Db", DataNotificationContentType.Trail,
+            isUpdate ? DataNotificationUpdateType.Update : DataNotificationUpdateType.New,
+            [toSave.ContentId]);
+    }
+
     public static async Task SaveVideoContent(VideoContent? toSave)
     {
         if (toSave == null) return;
@@ -3269,6 +3402,18 @@ public static class Db
                         ? (await db.PostContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false))
                         .Cast<ITag>().ToList()
                         : (await db.PostContents.Where(x => !x.IsDraft && x.ShowInSearch).ToListAsync()
+                            .ConfigureAwait(false)).Cast<ITag>().ToList(), removeExcludedTags, progress);
+                toAdd.ForEach(x => tagBag.Add(x));
+            },
+            async () =>
+            {
+                progress?.Report("Process Trail Content Tags");
+                var db = await Context().ConfigureAwait(false);
+                var toAdd = ParseToTagSlugsAndContentList(
+                    includePagesExcludedFromSearch
+                        ? (await db.TrailContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false))
+                        .Cast<ITag>().ToList()
+                        : (await db.TrailContents.Where(x => !x.IsDraft && x.ShowInSearch).ToListAsync()
                             .ConfigureAwait(false)).Cast<ITag>().ToList(), removeExcludedTags, progress);
                 toAdd.ForEach(x => tagBag.Add(x));
             },

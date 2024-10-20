@@ -28,6 +28,17 @@ public static class RelatedContentReferenceHelpers
 
         var toSearch = string.Empty;
 
+        if (content is TrailContent trail)
+        {
+            if (trail.LineContentId is not null) toAdd.Add(trail.LineContentId.Value);
+            if (trail.MapComponentId is not null) toAdd.Add(trail.MapComponentId.Value);
+            if (trail.StartingPointContentId is not null) toAdd.Add(trail.StartingPointContentId.Value);
+            if (trail.EndingPointContentId is not null) toAdd.Add(trail.EndingPointContentId.Value);
+
+            toSearch += trail.Bikes + trail.BikesNote + trail.Dogs + trail.DogsNote + trail.Fee + trail.FeeNote +
+                        trail.LocationArea + trail.OtherDetails + trail.TrailShape;
+        }
+
         toSearch += content.BodyContent + content.Summary;
 
         if (content is GeoJsonContent geoContent) toSearch += geoContent.GeoJson;
@@ -152,6 +163,15 @@ public static class RelatedContentReferenceHelpers
                     .Cast<IContentCommon>().ToList();
                 progress?.Report($"Processing {posts.Count} Post Content Entries for Related Content");
                 await ExtractAndWriteRelatedContentDbReferences(generationVersion, posts, db, progress)
+                    .ConfigureAwait(false);
+            },
+            async () =>
+            {
+                var db = await Db.Context().ConfigureAwait(false);
+                var trails = (await db.TrailContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false))
+                    .Cast<IContentCommon>().ToList();
+                progress?.Report($"Processing {trails.Count} Trail Content Entries for Related Content");
+                await ExtractAndWriteRelatedContentDbReferences(generationVersion, trails, db, progress)
                     .ConfigureAwait(false);
             },
             async () =>

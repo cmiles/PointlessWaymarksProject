@@ -1,0 +1,21 @@
+﻿<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.TrailContentEditor.TrailContentEditorWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:postContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TrailContentEditor"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    Title="{Binding WindowTitle}"
+    Width="900"
+    Height="650"
+    d:DataContext="{d:DesignInstance postContentEditor:TrailContentEditorWindow}"
+    mc:Ignorable="d">
+    <Grid>
+        <postContentEditor:TrailContentEditorControl DataContext="{Binding TrailContent}" />
+        <status:StatusControl
+            Grid.Column="0"
+            d:IsHidden="true"
+            DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>

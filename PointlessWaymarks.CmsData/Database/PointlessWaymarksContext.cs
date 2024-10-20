@@ -30,6 +30,7 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
     public DbSet<HistoricPointDetail> HistoricPointDetails { get; set; }
     public DbSet<HistoricPostContent> HistoricPostContents { get; set; }
     public DbSet<HistoricSnippet> HistoricSnippets { get; set; }
+    public DbSet<HistoricTrailContent> HistoricTrailContents { get; set; }
     public DbSet<HistoricVideoContent> HistoricVideoContents { get; set; }
     public DbSet<ImageContent> ImageContents { get; set; }
     public DbSet<LineContent> LineContents { get; set; }
@@ -44,6 +45,7 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
     public DbSet<PointDetail> PointDetails { get; set; }
     public DbSet<PostContent> PostContents { get; set; }
     public DbSet<Snippet> Snippets { get; set; }
+    public DbSet<TrailContent> TrailContents { get; set; }
     public DbSet<TagExclusion> TagExclusions { get; set; }
     public DbSet<VideoContent> VideoContents { get; set; }
 
@@ -64,6 +66,8 @@ public class PointlessWaymarksContext(DbContextOptions<PointlessWaymarksContext>
         modelBuilder.Entity<PointContent>().HasIndex(b => b.ContentId).IsUnique();
         modelBuilder.Entity<PointDetail>().HasIndex(b => b.ContentId).IsUnique();
         modelBuilder.Entity<PostContent>().HasIndex(b => b.ContentId).IsUnique();
+        modelBuilder.Entity<Snippet>().HasIndex(b => b.ContentId).IsUnique();
+        modelBuilder.Entity<TrailContent>().HasIndex(b => b.ContentId).IsUnique();
         modelBuilder.Entity<VideoContent>().HasIndex(b => b.ContentId).IsUnique();
 
         modelBuilder.Entity<GenerationChangedContentId>().Property(e => e.ContentId).ValueGeneratedNever();

@@ -29,6 +29,7 @@ using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.TrailList;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
@@ -78,6 +79,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         PointItemActions = new PointContentActions(StatusContext);
         PhotoItemActions = new PhotoContentActions(StatusContext);
         PostItemActions = new PostContentActions(StatusContext);
+        TrailItemActions = new TrailContentActions(StatusContext);
         VideoItemActions = new VideoContentActions(StatusContext);
 
         NewActions = new CmsCommonCommands(StatusContext, WindowStatus);
@@ -114,6 +116,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public PointContentActions PointItemActions { get; set; }
     public PostContentActions PostItemActions { get; set; }
     public StatusControlContext StatusContext { get; set; }
+
+    public TrailContentActions TrailItemActions { get; set; }
     public string? UserFilterText { get; set; }
     public VideoContentActions VideoItemActions { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
@@ -171,8 +175,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             ".FIT",
             ".MP4",
             ".OGG",
-            ".WEBM",
-
+            ".WEBM"
         };
 
         if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
@@ -694,6 +697,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 ContentListLoader.ShowType),
             PostContent po => await PostContentActions.ListItemFromDbItem(po, PostItemActions,
                 ContentListLoader.ShowType),
+            TrailContent tc => await TrailContentActions.ListItemFromDbItem(tc, TrailItemActions,
+                ContentListLoader.ShowType),
             VideoContent v => await VideoContentActions.ListItemFromDbItem(v, VideoItemActions,
                 ContentListLoader.ShowType),
             _ => null
@@ -878,7 +883,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public async Task SelectedToExcel()
     {
         var allLinesGuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
-        await ExcelHelpers.SelectedToExcel(SelectedListItems().Where(x => x.ContentId() != allLinesGuid).Cast<dynamic>().ToList(), StatusContext);
+        await ExcelHelpers.SelectedToExcel(
+            SelectedListItems().Where(x => x.ContentId() != allLinesGuid).Cast<dynamic>().ToList(), StatusContext);
     }
 
     [BlockingCommand]
@@ -988,16 +994,13 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 }
 
                 if (!string.IsNullOrWhiteSpace(make) || !string.IsNullOrWhiteSpace(model))
-                {
                     StatusContext.RunNonBlockingTask(async () =>
                     {
                         await PhotoContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
 
                         await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Photo Editor");
                     });
-                }
                 else
-                {
                     StatusContext.RunNonBlockingTask(async () =>
                     {
                         var imageEditorWindow =
@@ -1005,20 +1008,17 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
                         await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
                     });
-                }
 
                 continue;
             }
 
             if (videoContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
-            {
                 StatusContext.RunNonBlockingTask(async () =>
                 {
                     var newEditor = await VideoContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
 
                     await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Video Editor");
                 });
-            }
         }
     }
 

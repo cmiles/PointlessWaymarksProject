@@ -12,6 +12,7 @@ using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsData.ContentHtml.SearchListHtml;
+using PointlessWaymarks.CmsData.ContentHtml.TrailHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Json;
@@ -137,6 +138,8 @@ public static class SiteGenerationAllContent
                 .ConfigureAwait(false),
             async () => await SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false),
+            async () => await SearchListPageGenerators.WriteTrailContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false),
             async () => await SearchListPageGenerators.WriteVideoContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false),
             async () =>
@@ -155,7 +158,9 @@ public static class SiteGenerationAllContent
     {
         var db = await Db.Context().ConfigureAwait(false);
 
-        var allItems = await (await db.MapComponents.ToListAsync().ConfigureAwait(false)).SelectInSequenceAsync(async x => await x.ToMapComponentDto(db));
+        var allItems =
+            await (await db.MapComponents.ToListAsync().ConfigureAwait(false)).SelectInSequenceAsync(async x =>
+                await x.ToMapComponentDto(db));
 
         var totalCount = allItems.Count;
 
@@ -265,6 +270,26 @@ public static class SiteGenerationAllContent
     public static async Task GenerateAllTagHtml(DateTime? generationVersion, IProgress<string>? progress = null)
     {
         await SearchListPageGenerators.WriteTagListAndTagPages(generationVersion, progress).ConfigureAwait(false);
+    }
+
+    public static async Task GenerateAllTrailHtml(DateTime? generationVersion, IProgress<string>? progress = null)
+    {
+        var db = await Db.Context().ConfigureAwait(false);
+
+        var allItems = await db.TrailContents.Where(x => !x.IsDraft).ToListAsync().ConfigureAwait(false);
+
+        var totalCount = allItems.Count;
+
+        progress?.Report($"Found {totalCount} Trails to Generate");
+
+        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
+        {
+            progress?.Report($"Writing HTML for Trail {loopItem.Title}");
+
+            var htmlModel = new SingleTrailPage(loopItem) { GenerationVersion = generationVersion };
+            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
+            await Export.WriteTrailContentData(loopItem, progress).ConfigureAwait(false);
+        }).ConfigureAwait(false);
     }
 
     public static async Task GenerateAllUtilityJson(IProgress<string>? progress = null)

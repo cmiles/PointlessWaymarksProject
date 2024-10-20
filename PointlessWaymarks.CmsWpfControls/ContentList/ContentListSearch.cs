@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.TrailList;
 using PointlessWaymarks.CmsWpfControls.VideoList;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.SpatialTools;
@@ -176,6 +177,8 @@ public static class ContentListSearch
                 toFilter is PointListListItem)
             || (contentTypes.Contains("Post", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is PostListListItem)
+            || (contentTypes.Contains("Trail", StringComparer.OrdinalIgnoreCase) &&
+                toFilter is TrailListListItem)
             || (contentTypes.Contains("Video", StringComparer.OrdinalIgnoreCase) &&
                 toFilter is VideoListListItem);
 

@@ -54,6 +54,10 @@ public static class FileManagement
             GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSitePostContentDirectory(x),
                 $"Check Content Folder for Post {x.Title}")));
 
+        returnList.AddRange((await db.TrailContents.ToListAsync().ConfigureAwait(false)).Select(x =>
+            GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteTrailContentDirectory(x),
+                $"Check Content Folder for Trail {x.Title}")));
+
         returnList.AddRange((await db.VideoContents.ToListAsync().ConfigureAwait(false)).Select(x =>
             GenerationReturn.TryCatchToGenerationReturn(() => settings.LocalSiteVideoContentDirectory(x),
                 $"Check Content Folder for Video {x.Title}")));
@@ -472,6 +476,7 @@ public static class FileManagement
         allContentIds.AddRange(await db.PointContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
         allContentIds.AddRange(await db.PostContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
         allContentIds.AddRange(await db.Snippets.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
+        allContentIds.AddRange(await db.TrailContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
         allContentIds.AddRange(await db.VideoContents.Select(x => x.ContentId).ToListAsync().ConfigureAwait(false));
 
         progress?.Report(
@@ -523,6 +528,7 @@ public static class FileManagement
         await RemovePhotoDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemovePointDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemovePostDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
+        await RemoveTrailDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemoveVideoDirectoriesNotFoundInCurrentDatabase(progress).ConfigureAwait(false);
         await RemoveContentDataJsonFilesNotInCurrentDb(progress).ConfigureAwait(false);
         await RemoveGpxFilesNotInCurrentDb(progress).ConfigureAwait(false);
@@ -1336,6 +1342,84 @@ public static class FileManagement
         progress?.Report("Ending Post Directory Cleanup");
     }
 
+    public static async Task RemoveTrailDirectoriesNotFoundInCurrentDatabase(IProgress<string>? progress)
+    {
+        progress?.Report("Starting Directory Cleanup");
+
+        var db = await Db.Context().ConfigureAwait(false);
+        var dbFolders = db.TrailContents.Select(x => x.Folder).Distinct().OrderBy(x => x).ToList();
+
+        var siteTopLevelTrailDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteTrailDirectory();
+
+        var firstLevelFolders = siteTopLevelTrailDirectory.GetDirectories().OrderBy(x => x.Name).ToList();
+
+        List<DirectoryInfo> folderDirectories = [];
+
+        foreach (var loopFoldersDirectoryInfo in firstLevelFolders)
+            if (!dbFolders.Contains(loopFoldersDirectoryInfo.Name))
+                loopFoldersDirectoryInfo.Delete(true);
+            else
+                folderDirectories.Add(loopFoldersDirectoryInfo);
+
+        progress?.Report(
+            $"Found {folderDirectories.Count} Existing Trail Directories to Check against {dbFolders.Count} Trail Folders in the Database");
+
+        foreach (var loopExistingDirectories in folderDirectories)
+        {
+            if (!dbFolders.Contains(loopExistingDirectories.Name))
+            {
+                progress?.Report($"Deleting {loopExistingDirectories.FullName}");
+
+                loopExistingDirectories.Delete(true);
+                continue;
+            }
+
+            progress?.Report($"Staring Trail Content Directory Check for {loopExistingDirectories.FullName}");
+
+            var existingContentDirectories = loopExistingDirectories.GetDirectories().OrderBy(x => x.Name).ToList();
+            var dbContentSlugs = db.TrailContents.Where(x => x.Folder == loopExistingDirectories.Name)
+                .Select(x => x.Slug).OrderBy(x => x).ToList();
+
+            progress?.Report(
+                $"Found {existingContentDirectories.Count} Existing Trail Content Directories in {loopExistingDirectories.Name} to Check against {dbContentSlugs.Count} Content Items in the Database");
+
+            foreach (var loopExistingContentDirectories in existingContentDirectories)
+            {
+                if (!dbContentSlugs.Contains(loopExistingContentDirectories.Name))
+                {
+                    progress?.Report($"Deleting {loopExistingContentDirectories.FullName}");
+                    loopExistingContentDirectories.Delete(true);
+                    continue;
+                }
+
+                var fileList = loopExistingContentDirectories.GetFiles().ToList();
+                fileList.RemoveAll(x =>
+                    x.Name.StartsWith(loopExistingContentDirectories.Name, StringComparison.OrdinalIgnoreCase));
+                fileList.RemoveAll(x => x.Name.StartsWith("Historic", StringComparison.OrdinalIgnoreCase));
+
+                if (fileList.Any())
+                    progress?.Report(
+                        $"Deleting Files in {loopExistingContentDirectories.FullName} - {string.Join(", ", fileList.OrderBy(x => x.Name).Select(x => x.Name))}");
+
+                foreach (var loopFiles in fileList)
+                    try
+                    {
+                        loopFiles.Delete();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("exception", e.SafeObjectDump())
+                            .Debug("Error Deleting {file} - Exception Ignored", loopFiles);
+                    }
+
+                progress?.Report($"{loopExistingContentDirectories.FullName} matches current Trail Content");
+            }
+        }
+
+        progress?.Report("Ending Trail Directory Cleanup");
+    }
+
+
     public static async Task RemoveTagContentFilesNotInCurrentDatabase(IProgress<string>? progress)
     {
         progress?.Report("Starting Tag Directory Cleanup");
@@ -1484,6 +1568,7 @@ public static class FileManagement
             settings.LocalSitePointDirectory().CreateIfItDoesNotExist(),
             settings.LocalSitePointDataDirectory().CreateIfItDoesNotExist(),
             settings.LocalSitePostDirectory().CreateIfItDoesNotExist(),
+            settings.LocalSiteTrailDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteVideoDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteTagsDirectory().CreateIfItDoesNotExist(),
             settings.LocalSiteSiteResourcesDirectory().CreateIfItDoesNotExist(),

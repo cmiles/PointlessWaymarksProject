@@ -99,6 +99,16 @@ public static partial class Import
                         ContentFromFiles<PostContentOnDiskData>(loopContentGroup.Select(x => x.fullFileName).ToList())
                             .Select(x => x.Content).ToList(), progress);
                     break;
+                case Db.ContentTypeDisplayStringForSnippet:
+                    await DbImport.SnippetToDb(
+                        ContentFromFiles<SnippetOnDiskData>(loopContentGroup.Select(x => x.fullFileName).ToList())
+                            .Select(x => x.Content).ToList(), progress);
+                    break;
+                case Db.ContentTypeDisplayStringForTrail:
+                    await DbImport.TrailContentToDb(
+                        ContentFromFiles<TrailContentOnDiskData>(loopContentGroup.Select(x => x.fullFileName).ToList())
+                            .Select(x => x.Content).ToList(), progress);
+                    break;
                 case Db.ContentTypeDisplayStringForVideo:
                     await DbImport.VideoContentToDb(
                         ContentFromFiles<VideoContentOnDiskData>(loopContentGroup.Select(x => x.fullFileName).ToList())
@@ -172,6 +182,14 @@ public static partial class Import
         await DbImport.HistoricPhotoContentToDb(
             ContentFromFilesWithPrefixFilter<List<HistoricPhotoContent>>(nonContentDataFiles,
                     UserSettingsUtilities.HistoricPhotoContentPrefix)
+                .SelectMany(x => x).ToList(), progress);
+        await DbImport.HistoricPostContentToDb(
+            ContentFromFilesWithPrefixFilter<List<HistoricPostContent>>(nonContentDataFiles,
+                    UserSettingsUtilities.HistoricPostContentPrefix)
+                .SelectMany(x => x).ToList(), progress);
+        await DbImport.HistoricTrailContentToDb(
+            ContentFromFilesWithPrefixFilter<List<HistoricTrailContent>>(nonContentDataFiles,
+                    UserSettingsUtilities.HistoricTrailContentPrefix)
                 .SelectMany(x => x).ToList(), progress);
         await DbImport.HistoricVideoContentToDb(
             ContentFromFilesWithPrefixFilter<List<HistoricVideoContent>>(nonContentDataFiles,

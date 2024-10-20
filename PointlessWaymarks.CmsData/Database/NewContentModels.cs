@@ -188,6 +188,24 @@ public static class NewContentModels
         return returnEntry;
     }
 
+    public static PostContent InitializePostContent(PostContent? dbEntry)
+    {
+        var created = DateTime.Now;
+
+        var returnEntry = dbEntry ?? new PostContent
+        {
+            ContentId = Guid.NewGuid(),
+            BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            UpdateNotesFormat = UserSettingsUtilities.DefaultContentFormatChoice(),
+            CreatedBy = UserSettingsSingleton.CurrentSettings().DefaultCreatedBy,
+            CreatedOn = created,
+            FeedOn = created,
+            ContentVersion = Db.ContentVersionDateTime()
+        };
+
+        return returnEntry;
+    }
+
     public static Snippet InitializeSnippet(Snippet? dbEntry)
     {
         var created = DateTime.Now;
@@ -196,17 +214,17 @@ public static class NewContentModels
         {
             ContentId = Guid.NewGuid(),
             CreatedOn = created,
-            ContentVersion = Db.ContentVersionDateTime(),
+            ContentVersion = Db.ContentVersionDateTime()
         };
 
         return returnEntry;
     }
 
-    public static PostContent InitializePostContent(PostContent? dbEntry)
+    public static TrailContent InitializeTrailContent(TrailContent? dbEntry)
     {
         var created = DateTime.Now;
 
-        var returnEntry = dbEntry ?? new PostContent
+        var returnEntry = dbEntry ?? new TrailContent()
         {
             ContentId = Guid.NewGuid(),
             BodyContentFormat = UserSettingsUtilities.DefaultContentFormatChoice(),

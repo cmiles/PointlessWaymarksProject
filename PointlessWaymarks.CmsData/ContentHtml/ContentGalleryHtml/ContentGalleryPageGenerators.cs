@@ -175,11 +175,13 @@ public static class ContentGalleryPageGenerators
                 .ToListAsync();
             var postContent = await db.PostContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
+            var trailContent = await db.TrailContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
+                .ToListAsync();
             var videoContent = await db.VideoContents.Where(x => !x.IsDraft && x.ShowInSearch).Select(x => x.LastUpdatedOn ?? x.CreatedOn.Date)
                 .ToListAsync();
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(photoContent).Concat(pointContent).Concat(postContent).Concat(videoContent)
+                .Concat(photoContent).Concat(pointContent).Concat(postContent).Concat(trailContent).Concat(videoContent)
                 .Select(DateOnly.FromDateTime).Distinct().OrderByDescending(x => x).ToList();
         }
 

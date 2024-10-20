@@ -24,10 +24,11 @@ public static class SearchListPageGenerators
             var photoContent = db.PhotoContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
             var pointContent = db.PointContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
             var postContent = db.PostContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
+            var trailContent = db.TrailContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
             var videoContent = db.VideoContents.Where(x => !x.IsDraft && x.ShowInSearch).Cast<object>().ToList();
 
             return fileContent.Concat(geoJsonContent).Concat(imageContent).Concat(lineContent).Concat(noteContent)
-                .Concat(photoContent).Concat(pointContent).Concat(postContent).Concat(videoContent)
+                .Concat(photoContent).Concat(pointContent).Concat(postContent).Concat(trailContent).Concat(videoContent)
                 .OrderBy(x => ((IContentCommon)x).Title).ToList();
         }
 
@@ -195,6 +196,25 @@ public static class SearchListPageGenerators
         RssBuilder.WriteContentCommonListRss(
             ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
                 .ToList(), UserSettingsSingleton.CurrentSettings().LocalSitePostRssFile(), "Posts", progress);
+    }
+
+    public static async Task WriteTrailContentListHtml(DateTime? generationVersion,
+        IProgress<string>? progress = null)
+    {
+        static List<object> ContentList()
+        {
+            var db = Db.Context().Result;
+            return db.TrailContents.Where(x => !x.IsDraft && x.ShowInSearch).OrderBy(x => x.Title).Cast<object>().ToList();
+        }
+
+        var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteTrailListFile();
+
+        await WriteSearchListHtml(ContentList, fileInfo, "Trails",
+                UserSettingsSingleton.CurrentSettings().TrailsRssUrl(), generationVersion, progress)
+            .ConfigureAwait(false);
+        RssBuilder.WriteContentCommonListRss(
+            ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
+                .ToList(), UserSettingsSingleton.CurrentSettings().LocalSiteTrailRssFile(), "Trails", progress);
     }
 
     public static async Task WriteSearchListHtml(Func<List<object>> dbFunc, FileInfo fileInfo, string titleAdd,

@@ -27,6 +27,7 @@ public static class UserSettingsUtilities
     public const string HistoricPointContentPrefix = "HistoricPoints---";
     public const string HistoricPostContentPrefix = "HistoricPosts---";
     public const string HistoricSnippetPrefix = "HistoricSnippets---";
+    public const string HistoricTrailContentPrefix = "HistoricTrails---";
     public const string HistoricVideoContentPrefix = "HistoricVideos---";
     public static readonly double ProjectDefaultLatitude = 32.119742;
     public static readonly double ProjectDefaultLongitude = -110.5230213;
@@ -1152,6 +1153,19 @@ public static class UserSettingsUtilities
         return new FileInfo($"{Path.Combine(directory.FullName, "PostRss")}.xml");
     }
 
+    public static FileInfo LocalSiteTrailListFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteTrailDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "TrailList")}.html");
+    }
+
+    public static FileInfo LocalSiteTrailRssFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteTrailDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "TrailRss")}.xml");
+    }
+
+
     public static DirectoryInfo LocalSiteRootFullDirectory(this UserSettings settings)
     {
         var directory = new DirectoryInfo(settings.LocalSiteRootDirectory.AddSettingsFileRootDirectoryIfNeeded());
@@ -1202,6 +1216,47 @@ public static class UserSettingsUtilities
         directory.Refresh();
 
         return directory;
+    }
+
+    public static DirectoryInfo LocalSiteTrailContentDirectory(this UserSettings settings, TrailContent content,
+        bool createDirectoryIfNotFound = true)
+    {
+        if (string.IsNullOrWhiteSpace(content.Folder))
+            throw new NullReferenceException(
+                $"{nameof(LocalSiteTrailContentDirectory)} Null or Blank for the content.Folder of {content.Title}");
+
+        if (string.IsNullOrWhiteSpace(content.Slug))
+            throw new NullReferenceException(
+                $"{nameof(LocalSiteTrailContentDirectory)} Null or Blank for the content.Slug of {content.Title}");
+
+        var directory = new DirectoryInfo(Path.Combine(settings.LocalSiteTrailDirectory().FullName, content.Folder,
+            content.Slug));
+
+        if (directory.Exists || !createDirectoryIfNotFound) return directory;
+
+        directory.Create();
+        directory.Refresh();
+
+        return directory;
+    }
+
+    public static DirectoryInfo LocalSiteTrailDirectory(this UserSettings settings)
+    {
+        var localDirectory =
+            new DirectoryInfo(Path.Combine(settings.LocalSiteRootFullDirectory().FullName, "Trails"));
+        if (!localDirectory.Exists) localDirectory.Create();
+
+        localDirectory.Refresh();
+
+        return localDirectory;
+    }
+
+    public static FileInfo? LocalSiteTrailHtmlFile(this UserSettings settings, TrailContent? content)
+    {
+        if (string.IsNullOrWhiteSpace(content?.Slug)) return null;
+
+        var directory = settings.LocalSiteTrailContentDirectory(content);
+        return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
     }
 
 
@@ -1312,6 +1367,7 @@ public static class UserSettingsUtilities
             PointContent c => settings.PointPageUrl(c),
             PointContentDto c => settings.PointPageUrl(Db.PointContentDtoToPointContentAndDetails(c).content),
             PostContent c => settings.PostPageUrl(c),
+            TrailContent c => settings.TrailPageUrl(c),
             VideoContent c => settings.VideoPageUrl(c),
             _ => throw new DataException("Content not Found")
         };
@@ -1688,6 +1744,16 @@ public static class UserSettingsUtilities
     {
         var sluggedTag = SlugTools.CreateSlug(true, tag, 200);
         return $"{settings.SiteUrl()}/Tags/TagList-{sluggedTag}.html";
+    }
+
+    public static string TrailPageUrl(this UserSettings settings, TrailContent content)
+    {
+        return $"{settings.SiteUrl()}/Trails/{content.Folder}/{content.Slug}/{content.Slug}.html";
+    }
+
+    public static string TrailsRssUrl(this UserSettings settings)
+    {
+        return $"{settings.SiteUrl()}/Trails/TrailRss.xml";
     }
 
     public static IsValid ValidateLocalMediaArchive()

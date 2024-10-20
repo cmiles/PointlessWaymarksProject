@@ -15,6 +15,7 @@ using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PointHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PostHtml;
 using PointlessWaymarks.CmsData.ContentHtml.SearchListHtml;
+using PointlessWaymarks.CmsData.ContentHtml.TrailHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -118,6 +119,14 @@ public static class SiteGenerationChangedContent
                     .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
                 guidBag.Add(posts);
                 progress?.Report($"Found {posts.Count} Post Content Entries Changed After {contentAfter}");
+            },
+            async () =>
+            {
+                var db = await Db.Context().ConfigureAwait(false);
+                var trails = await db.TrailContents.Where(x => x.ContentVersion > contentAfter && !x.IsDraft)
+                    .Select(x => x.ContentId).ToListAsync().ConfigureAwait(false);
+                guidBag.Add(trails);
+                progress?.Report($"Found {trails.Count} Trail Content Entries Changed After {contentAfter}");
             },
             async () =>
             {
@@ -444,7 +453,6 @@ public static class SiteGenerationChangedContent
                 .ConfigureAwait(false);
         else progress?.Report("Skipping Point List Generation - no file or file main picture changes found");
 
-
         var postChanged =
             db.PostContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
                 .Any() || db.PostContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
@@ -456,6 +464,18 @@ public static class SiteGenerationChangedContent
             await SearchListPageGenerators.WritePostContentListHtml(generationVersion, progress)
                 .ConfigureAwait(false);
         else progress?.Report("Skipping Post List Generation - no file or file main picture changes found");
+
+        var trailChanged =
+            db.TrailContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
+                .Any() || db.TrailContents.Where(x => x.MainPicture != null).Join(db.GenerationChangedContentIds,
+                o => o.ContentId, i => i.ContentId, (i, o) => o).Any();
+        var trailsDeleted =
+            (await Db.DeletedTrailContent().ConfigureAwait(false)).Any(
+                x => x.ContentVersion > lastGenerationDateTime);
+        if (trailChanged || trailsDeleted)
+            await SearchListPageGenerators.WriteTrailContentListHtml(generationVersion, progress)
+                .ConfigureAwait(false);
+        else progress?.Report("Skipping Trail List Generation - no file or file main picture changes found");
 
         var videoChanged =
             db.VideoContents.Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (i, o) => o)
@@ -902,6 +922,32 @@ public static class SiteGenerationChangedContent
         }).ConfigureAwait(false);
     }
 
+    public static async Task GenerateChangeFilteredTrailHtml(DateTime generationVersion,
+        IProgress<string>? progress = null)
+    {
+        var db = await Db.Context().ConfigureAwait(false);
+
+        var allItems = await db.TrailContents.Where(x => !x.IsDraft)
+            .Join(db.GenerationChangedContentIds, o => o.ContentId, i => i.ContentId, (o, i) => o).ToListAsync()
+            .ConfigureAwait(false);
+
+        var loopCount = 1;
+        var totalCount = allItems.Count;
+
+        progress?.Report($"Found {totalCount} Trails to Generate");
+
+        await Parallel.ForEachAsync(allItems, async (loopItem, _) =>
+        {
+            progress?.Report($"Writing HTML for Changed Trail {loopItem.Title} - {loopCount} of {totalCount}");
+
+            var htmlModel = new SingleTrailPage(loopItem) { GenerationVersion = generationVersion };
+            await htmlModel.WriteLocalHtml().ConfigureAwait(false);
+            await Export.WriteTrailContentData(loopItem, progress).ConfigureAwait(false);
+
+            loopCount++;
+        }).ConfigureAwait(false);
+    }
+
     public static async Task GenerateChangeFilteredVideoHtml(DateTime generationVersion,
         IProgress<string>? progress = null)
     {
@@ -961,6 +1007,9 @@ public static class SiteGenerationChangedContent
                 break;
             case PostContent post:
                 await PostGenerator.GenerateHtml(post, generationVersion, progress).ConfigureAwait(false);
+                break;
+            case TrailContent trail:
+                await TrailGenerator.GenerateHtml(trail, generationVersion, progress).ConfigureAwait(false);
                 break;
             case VideoContent video:
                 await VideoGenerator.GenerateHtml(video, generationVersion, progress).ConfigureAwait(false);

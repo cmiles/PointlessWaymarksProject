@@ -1,448 +1,468 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <None Update="ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ContentGalleryPage.cs</LastGenOutput>
-    </None>
-    <None Update="ContentHtml\ErrorHtml\ErrorPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.ErrorHtml</CustomToolNamespace>
-      <LastGenOutput>ErrorPage.cs</LastGenOutput>
-    </None>
-    <Compile Update="ContentHtml\ContentGalleryHtml\ContentGalleryPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ContentGalleryPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\ErrorHtml\ErrorPage.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ErrorPage.tt</DependentUpon>
-    </Compile>
-    <None Update="ContentHtml\LineMonthlyActivitySummaryHtml\LineMonthlyActivitySummaryPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml</CustomToolNamespace>
-      <LastGenOutput>LineMonthlyActivitySummaryPage.cs</LastGenOutput>
-    </None>
-    <Compile Update="ContentHtml\LineMonthlyActivitySummaryHtml\LineMonthlyActivitySummaryPage.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>LineMonthlyActivitySummaryPage.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="ContentHtml\ContentGalleryHtml\ContentGalleryPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>ContentGalleryPage.cs</LastGenOutput>
+        </None>
+        <None Update="ContentHtml\ErrorHtml\ErrorPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.ErrorHtml</CustomToolNamespace>
+            <LastGenOutput>ErrorPage.cs</LastGenOutput>
+        </None>
+        <Compile Update="ContentHtml\ContentGalleryHtml\ContentGalleryPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ContentGalleryPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\ErrorHtml\ErrorPage.cs">
+            <AutoGen>True</AutoGen>
+            <DesignTime>True</DesignTime>
+            <DependentUpon>ErrorPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\TrailHtml\SingleTrailDiv.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>SingleTrailDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\TrailHtml\SingleTrailPage.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>SingleTrailPage.tt</DependentUpon>
+        </Compile>
+        <None Update="ContentHtml\LineMonthlyActivitySummaryHtml\LineMonthlyActivitySummaryPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml</CustomToolNamespace>
+            <LastGenOutput>LineMonthlyActivitySummaryPage.cs</LastGenOutput>
+        </None>
+        <Compile Update="ContentHtml\LineMonthlyActivitySummaryHtml\LineMonthlyActivitySummaryPage.cs">
+            <AutoGen>True</AutoGen>
+            <DesignTime>True</DesignTime>
+            <DependentUpon>LineMonthlyActivitySummaryPage.tt</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="leaflet.css" />
-    <None Remove="leaflet.js" />
-    <None Remove="SiteResources\chart.min.js" />
-    <None Remove="SiteResources\default.min.css" />
-    <None Remove="SiteResources\gsap.min.js" />
-    <None Remove="SiteResources\highlight.min.js" />
-    <None Remove="SiteResources\images\layers-2x.png" />
-    <None Remove="SiteResources\images\layers.png" />
-    <None Remove="SiteResources\images\marker-icon-2x.png" />
-    <None Remove="SiteResources\images\marker-icon.png" />
-    <None Remove="SiteResources\images\marker-shadow.png" />
-    <None Remove="SiteResources\images\markers-matte.png" />
-    <None Remove="SiteResources\images\markers-matte@2x.png" />
-    <None Remove="SiteResources\images\markers-plain.png" />
-    <None Remove="SiteResources\images\markers-shadow.png" />
-    <None Remove="SiteResources\images\markers-shadow@2x.png" />
-    <None Remove="SiteResources\images\markers-soft.png" />
-    <None Remove="SiteResources\images\markers-soft@2x.png" />
-    <None Remove="SiteResources\jquery-3.7.1.min.js" />
-    <None Remove="SiteResources\jquery.justifiedGallery.js" />
-    <None Remove="SiteResources\justifiedGallery.css" />
-    <None Remove="SiteResources\L.Control.Locate.min.css" />
-    <None Remove="SiteResources\L.Control.Locate.min.css.map" />
-    <None Remove="SiteResources\L.Control.Locate.min.js" />
-    <None Remove="SiteResources\L.Control.Locate.min.js.map" />
-    <None Remove="SiteResources\leaflet-gesture-handling.min.css" />
-    <None Remove="SiteResources\leaflet-gesture-handling.min.js" />
-    <None Remove="SiteResources\leaflet-gesture-handling.min.js.map" />
-    <None Remove="SiteResources\leaflet.awesome-svg-markers.css" />
-    <None Remove="SiteResources\leaflet.awesome-svg-markers.js" />
-    <None Remove="SiteResources\leaflet.js.map" />
-    <None Remove="SiteResources\location-arrow-solid.svg" />
-    <None Remove="SiteResources\photoswipe-lightbox.esm.js" />
-    <None Remove="SiteResources\photoswipe-lightbox.esm.js.map" />
-    <None Remove="SiteResources\photoswipe-lightbox.esm.min.js" />
-    <None Remove="SiteResources\photoswipe.css" />
-    <None Remove="SiteResources\photoswipe.esm.js" />
-    <None Remove="SiteResources\photoswipe.esm.js.map" />
-    <None Remove="SiteResources\photoswipe.esm.min.js" />
-    <None Remove="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
-    <None Remove="SiteResources\pointless-waymarks-content-gallery.js" />
-    <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
-    <None Remove="SiteResources\pointless-waymarks-spatial-common.js" />
-    <None Remove="SiteResources\spinner-solid.svg" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="leaflet.css" />
+        <None Remove="leaflet.js" />
+        <None Remove="SiteResources\chart.min.js" />
+        <None Remove="SiteResources\default.min.css" />
+        <None Remove="SiteResources\gsap.min.js" />
+        <None Remove="SiteResources\highlight.min.js" />
+        <None Remove="SiteResources\images\layers-2x.png" />
+        <None Remove="SiteResources\images\layers.png" />
+        <None Remove="SiteResources\images\marker-icon-2x.png" />
+        <None Remove="SiteResources\images\marker-icon.png" />
+        <None Remove="SiteResources\images\marker-shadow.png" />
+        <None Remove="SiteResources\images\markers-matte.png" />
+        <None Remove="SiteResources\images\markers-matte@2x.png" />
+        <None Remove="SiteResources\images\markers-plain.png" />
+        <None Remove="SiteResources\images\markers-shadow.png" />
+        <None Remove="SiteResources\images\markers-shadow@2x.png" />
+        <None Remove="SiteResources\images\markers-soft.png" />
+        <None Remove="SiteResources\images\markers-soft@2x.png" />
+        <None Remove="SiteResources\jquery-3.7.1.min.js" />
+        <None Remove="SiteResources\jquery.justifiedGallery.js" />
+        <None Remove="SiteResources\justifiedGallery.css" />
+        <None Remove="SiteResources\L.Control.Locate.min.css" />
+        <None Remove="SiteResources\L.Control.Locate.min.css.map" />
+        <None Remove="SiteResources\L.Control.Locate.min.js" />
+        <None Remove="SiteResources\L.Control.Locate.min.js.map" />
+        <None Remove="SiteResources\leaflet-gesture-handling.min.css" />
+        <None Remove="SiteResources\leaflet-gesture-handling.min.js" />
+        <None Remove="SiteResources\leaflet-gesture-handling.min.js.map" />
+        <None Remove="SiteResources\leaflet.awesome-svg-markers.css" />
+        <None Remove="SiteResources\leaflet.awesome-svg-markers.js" />
+        <None Remove="SiteResources\leaflet.js.map" />
+        <None Remove="SiteResources\location-arrow-solid.svg" />
+        <None Remove="SiteResources\photoswipe-lightbox.esm.js" />
+        <None Remove="SiteResources\photoswipe-lightbox.esm.js.map" />
+        <None Remove="SiteResources\photoswipe-lightbox.esm.min.js" />
+        <None Remove="SiteResources\photoswipe.css" />
+        <None Remove="SiteResources\photoswipe.esm.js" />
+        <None Remove="SiteResources\photoswipe.esm.js.map" />
+        <None Remove="SiteResources\photoswipe.esm.min.js" />
+        <None Remove="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
+        <None Remove="SiteResources\pointless-waymarks-content-gallery.js" />
+        <None Remove="SiteResources\pointless-waymarks-content-list-search.js" />
+        <None Remove="SiteResources\pointless-waymarks-spatial-common.js" />
+        <None Remove="SiteResources\spinner-solid.svg" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.1.2" />
-    <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="CompareNETObjects" Version="4.83.0" />
-    <PackageReference Include="FluentMigrator" Version="6.2.0" />
-    <PackageReference Include="FluentMigrator.Runner.SQLite" Version="6.2.0" />
-    <PackageReference Include="GeoAPI" Version="1.7.5" />
-    <PackageReference Include="GitInfo" Version="3.3.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="HtmlTableHelper" Version="1.2.4" />
-    <PackageReference Include="HtmlTags" Version="9.0.0" />
-    <PackageReference Include="ini-parser-netstandard" Version="2.5.2" />
-    <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
-    <PackageReference Include="MetadataExtractor" Version="2.8.1" />
-    <PackageReference Include="Metalama.Framework" Version="2024.2.25" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
-    <PackageReference Include="PhotoSauce.MagicScaler" Version="0.14.2" />
-    <PackageReference Include="pinboard.net" Version="1.0.0" />
-    <PackageReference Include="System.CodeDom" Version="8.0.0" />
-    <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-    <PackageReference Include="ValueInjecter" Version="3.2.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AngleSharp" Version="1.1.2" />
+        <PackageReference Include="AngleSharp.Js" Version="0.15.0" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+        <PackageReference Include="CompareNETObjects" Version="4.83.0" />
+        <PackageReference Include="FluentMigrator" Version="6.2.0" />
+        <PackageReference Include="FluentMigrator.Runner.SQLite" Version="6.2.0" />
+        <PackageReference Include="GeoAPI" Version="1.7.5" />
+        <PackageReference Include="GitInfo" Version="3.3.5">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="HtmlTableHelper" Version="1.2.4" />
+        <PackageReference Include="HtmlTags" Version="9.0.0" />
+        <PackageReference Include="ini-parser-netstandard" Version="2.5.2" />
+        <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
+        <PackageReference Include="MetadataExtractor" Version="2.8.1" />
+        <PackageReference Include="Metalama.Framework" Version="2024.2.25" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+        <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+        <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
+        <PackageReference Include="PhotoSauce.MagicScaler" Version="0.14.2" />
+        <PackageReference Include="pinboard.net" Version="1.0.0" />
+        <PackageReference Include="System.CodeDom" Version="8.0.0" />
+        <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+        <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
+        <PackageReference Include="System.Text.Json" Version="8.0.5" />
+        <PackageReference Include="ValueInjecter" Version="3.2.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="ContentHtml\FileHtml\SingleFileDiv.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleFileDiv.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.FileHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\FileHtml\SingleFilePage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleFilePage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.FileHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleGeoJsonDiv.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleGeoJsonPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\ImageHtml\SingleImageDiv.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleImageDiv.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.ImageHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\ImageHtml\SingleImagePage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleImagePage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.ImageHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\IndexHtml\IndexPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>IndexPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.IndexHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\LineHtml\SingleLineDiv.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleLineDiv.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LineHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\LineHtml\SingleLinePage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleLinePage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LineHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\PointHtml\SinglePointDiv.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SinglePointDiv.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PointHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\PointHtml\SinglePointPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SinglePointPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PointHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\SearchListHtml\SearchListPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SearchListPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.SearchListHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\VideoHtml\SingleVideoDiv.tt">
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.VideoHtml</CustomToolNamespace>
-      <LastGenOutput>SingleVideoDiv.cs</LastGenOutput>
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-    </None>
-    <None Update="ContentHtml\VideoHtml\SingleVideoPage.tt">
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.VideoHtml</CustomToolNamespace>
-      <LastGenOutput>SingleVideoPage.cs</LastGenOutput>
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-    </None>
-    <None Update="Json\DbImport.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DbImport.cs</LastGenOutput>
-    </None>
-    <None Update="ContentHtml\LinkListHtml\LinkListPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>LinkListPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LinkListHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\NoteHtml\SingleNoteDiv.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleNoteDiv.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.NoteHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\NoteHtml\SingleNotePage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SingleNotePage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.NoteHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>CameraRollGalleryPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>DailyPhotosPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\PhotoHtml\SinglePhotoDiv.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SinglePhotoDiv.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PhotoHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\PostHtml\SinglePostDiv.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SinglePostDiv.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PostHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\PostHtml\SinglePostPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SinglePostPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PostHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\PhotoHtml\SinglePhotoPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SinglePhotoPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PhotoHtml</CustomToolNamespace>
-    </None>
-    <None Update="ContentHtml\TagListHtml\TagListPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>TagListPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.TagListHtml</CustomToolNamespace>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="ContentHtml\FileHtml\SingleFileDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleFileDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.FileHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\FileHtml\SingleFilePage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleFilePage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.FileHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleGeoJsonDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\GeoJsonHtml\SingleGeoJsonPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleGeoJsonPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.GeoJsonHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\ImageHtml\SingleImageDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleImageDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.ImageHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\ImageHtml\SingleImagePage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleImagePage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.ImageHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\IndexHtml\IndexPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>IndexPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.IndexHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\LineHtml\SingleLineDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleLineDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LineHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\LineHtml\SingleLinePage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleLinePage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LineHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\PointHtml\SinglePointDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SinglePointDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PointHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\PointHtml\SinglePointPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SinglePointPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PointHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\SearchListHtml\SearchListPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SearchListPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.SearchListHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\VideoHtml\SingleVideoDiv.tt">
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.VideoHtml</CustomToolNamespace>
+            <LastGenOutput>SingleVideoDiv.cs</LastGenOutput>
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+        </None>
+        <None Update="ContentHtml\VideoHtml\SingleVideoPage.tt">
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.VideoHtml</CustomToolNamespace>
+            <LastGenOutput>SingleVideoPage.cs</LastGenOutput>
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+        </None>
+        <None Update="Json\DbImport.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>DbImport.cs</LastGenOutput>
+        </None>
+        <None Update="ContentHtml\LinkListHtml\LinkListPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>LinkListPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.LinkListHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\NoteHtml\SingleNoteDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleNoteDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.NoteHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\NoteHtml\SingleNotePage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleNotePage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.NoteHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>CameraRollGalleryPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\PhotoGalleryHtml\DailyPhotosPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>DailyPhotosPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\PhotoHtml\SinglePhotoDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SinglePhotoDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PhotoHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\PostHtml\SinglePostDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SinglePostDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PostHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\PostHtml\SinglePostPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SinglePostPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PostHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\TrailHtml\SingleTrailDiv.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleTrailDiv.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.TrailHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\TrailHtml\SingleTrailPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SingleTrailPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.TrailHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\PhotoHtml\SinglePhotoPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>SinglePhotoPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.PhotoHtml</CustomToolNamespace>
+        </None>
+        <None Update="ContentHtml\TagListHtml\TagListPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>TagListPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsData.ContentHtml.TagListHtml</CustomToolNamespace>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
+    <ItemGroup>
+        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="ContentHtml\FileHtml\SingleFileDiv.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleFileDiv.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\FileHtml\SingleFilePage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleFilePage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleGeoJsonDiv.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\GeoJsonHtml\SingleGeoJsonPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleGeoJsonPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\ImageHtml\SingleImageDiv.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleImageDiv.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\ImageHtml\SingleImagePage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleImagePage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\IndexHtml\IndexPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>IndexPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\LineHtml\SingleLineDiv.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleLineDiv.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\LineHtml\SingleLinePage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleLinePage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\PointHtml\SinglePointDiv.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SinglePointDiv.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\PointHtml\SinglePointPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SinglePointPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\VideoHtml\SingleVideoDiv.cs">
-      <DependentUpon>SingleVideoDiv.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="ContentHtml\VideoHtml\SingleVideoPage.cs">
-      <DependentUpon>SingleVideoPage.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="Json\DbImport.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DbImport.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\LinkListHtml\LinkListPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>LinkListPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\NoteHtml\SingleNoteDiv.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleNoteDiv.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\NoteHtml\SingleNotePage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SingleNotePage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CameraRollGalleryPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\PhotoGalleryHtml\DailyPhotosPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DailyPhotosPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\PhotoHtml\SinglePhotoDiv.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SinglePhotoDiv.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\PostHtml\SinglePostDiv.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SinglePostDiv.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\PostHtml\SinglePostPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SinglePostPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\PhotoHtml\SinglePhotoPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SinglePhotoPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\SearchListHtml\SearchListPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SearchListPage.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ContentHtml\TagListHtml\TagListPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>TagListPage.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Update="ContentHtml\FileHtml\SingleFileDiv.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleFileDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\FileHtml\SingleFilePage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleFilePage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\GeoJsonHtml\SingleGeoJsonDiv.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleGeoJsonDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\GeoJsonHtml\SingleGeoJsonPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleGeoJsonPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\ImageHtml\SingleImageDiv.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleImageDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\ImageHtml\SingleImagePage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleImagePage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\IndexHtml\IndexPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>IndexPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\LineHtml\SingleLineDiv.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleLineDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\LineHtml\SingleLinePage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleLinePage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\PointHtml\SinglePointDiv.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SinglePointDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\PointHtml\SinglePointPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SinglePointPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\VideoHtml\SingleVideoDiv.cs">
+            <DependentUpon>SingleVideoDiv.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+        </Compile>
+        <Compile Update="ContentHtml\VideoHtml\SingleVideoPage.cs">
+            <DependentUpon>SingleVideoPage.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+        </Compile>
+        <Compile Update="Json\DbImport.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>DbImport.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\LinkListHtml\LinkListPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>LinkListPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\NoteHtml\SingleNoteDiv.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleNoteDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\NoteHtml\SingleNotePage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SingleNotePage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>CameraRollGalleryPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\PhotoGalleryHtml\DailyPhotosPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>DailyPhotosPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\PhotoHtml\SinglePhotoDiv.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SinglePhotoDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\PostHtml\SinglePostDiv.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SinglePostDiv.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\PostHtml\SinglePostPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SinglePostPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\PhotoHtml\SinglePhotoPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SinglePhotoPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\SearchListHtml\SearchListPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SearchListPage.tt</DependentUpon>
+        </Compile>
+        <Compile Update="ContentHtml\TagListHtml\TagListPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>TagListPage.tt</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
-      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
-  <ItemGroup>
-    <COMReference Include="Microsoft.Office.Interop.Excel">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>9</VersionMinor>
-      <VersionMajor>1</VersionMajor>
-      <Guid>00020813-0000-0000-c000-000000000046</Guid>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
+    <ItemGroup>
+        <COMReference Include="Microsoft.Office.Interop.Excel">
+            <WrapperTool>tlbimp</WrapperTool>
+            <VersionMinor>9</VersionMinor>
+            <VersionMajor>1</VersionMajor>
+            <Guid>00020813-0000-0000-c000-000000000046</Guid>
+            <Lcid>0</Lcid>
+            <Isolated>false</Isolated>
+            <EmbedInteropTypes>true</EmbedInteropTypes>
+        </COMReference>
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="favicon.ico" />
-    <EmbeddedResource Include="SiteResources\chart.min.js" />
-    <EmbeddedResource Include="SiteResources\default.min.css" />
-    <EmbeddedResource Include="SiteResources\gsap.min.js" />
-    <EmbeddedResource Include="SiteResources\highlight.min.js" />
-    <EmbeddedResource Include="SiteResources\images\layers-2x.png" />
-    <EmbeddedResource Include="SiteResources\images\layers.png" />
-    <EmbeddedResource Include="SiteResources\images\marker-icon-2x.png" />
-    <EmbeddedResource Include="SiteResources\images\marker-icon.png" />
-    <EmbeddedResource Include="SiteResources\images\marker-shadow.png" />
-    <EmbeddedResource Include="SiteResources\images\markers-matte.png" />
-    <EmbeddedResource Include="SiteResources\images\markers-matte@2x.png" />
-    <EmbeddedResource Include="SiteResources\images\markers-plain.png" />
-    <EmbeddedResource Include="SiteResources\images\markers-shadow.png" />
-    <EmbeddedResource Include="SiteResources\images\markers-shadow@2x.png" />
-    <EmbeddedResource Include="SiteResources\images\markers-soft.png" />
-    <EmbeddedResource Include="SiteResources\images\markers-soft@2x.png" />
-    <EmbeddedResource Include="SiteResources\jquery-3.7.1.min.js" />
-    <EmbeddedResource Include="SiteResources\jquery.justifiedGallery.js" />
-    <EmbeddedResource Include="SiteResources\justifiedGallery.css" />
-    <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css" />
-    <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css.map" />
-    <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js" />
-    <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js.map" />
-    <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.css" />
-    <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js" />
-    <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js.map" />
-    <EmbeddedResource Include="SiteResources\leaflet.awesome-svg-markers.css" />
-    <EmbeddedResource Include="SiteResources\leaflet.awesome-svg-markers.js" />
-    <EmbeddedResource Include="SiteResources\leaflet.css" />
-    <EmbeddedResource Include="SiteResources\leaflet.js" />
-    <EmbeddedResource Include="SiteResources\leaflet.js.map" />
-    <EmbeddedResource Include="SiteResources\location-arrow-solid.svg" />
-    <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.js" />
-    <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.js.map" />
-    <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.min.js" />
-    <EmbeddedResource Include="SiteResources\photoswipe.css" />
-    <EmbeddedResource Include="SiteResources\photoswipe.esm.js" />
-    <EmbeddedResource Include="SiteResources\photoswipe.esm.js.map" />
-    <EmbeddedResource Include="SiteResources\photoswipe.esm.min.js" />
-    <EmbeddedResource Include="SiteResources\pointless-waymarks-content-gallery.js" />
-    <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
-    <EmbeddedResource Include="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
-    <EmbeddedResource Include="SiteResources\pointless-waymarks-spatial-common.js" />
-    <EmbeddedResource Include="SiteResources\spinner-solid.svg" />
-    <EmbeddedResource Include="style.css" />
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="favicon.ico" />
+        <EmbeddedResource Include="SiteResources\chart.min.js" />
+        <EmbeddedResource Include="SiteResources\default.min.css" />
+        <EmbeddedResource Include="SiteResources\gsap.min.js" />
+        <EmbeddedResource Include="SiteResources\highlight.min.js" />
+        <EmbeddedResource Include="SiteResources\images\layers-2x.png" />
+        <EmbeddedResource Include="SiteResources\images\layers.png" />
+        <EmbeddedResource Include="SiteResources\images\marker-icon-2x.png" />
+        <EmbeddedResource Include="SiteResources\images\marker-icon.png" />
+        <EmbeddedResource Include="SiteResources\images\marker-shadow.png" />
+        <EmbeddedResource Include="SiteResources\images\markers-matte.png" />
+        <EmbeddedResource Include="SiteResources\images\markers-matte@2x.png" />
+        <EmbeddedResource Include="SiteResources\images\markers-plain.png" />
+        <EmbeddedResource Include="SiteResources\images\markers-shadow.png" />
+        <EmbeddedResource Include="SiteResources\images\markers-shadow@2x.png" />
+        <EmbeddedResource Include="SiteResources\images\markers-soft.png" />
+        <EmbeddedResource Include="SiteResources\images\markers-soft@2x.png" />
+        <EmbeddedResource Include="SiteResources\jquery-3.7.1.min.js" />
+        <EmbeddedResource Include="SiteResources\jquery.justifiedGallery.js" />
+        <EmbeddedResource Include="SiteResources\justifiedGallery.css" />
+        <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css" />
+        <EmbeddedResource Include="SiteResources\L.Control.Locate.min.css.map" />
+        <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js" />
+        <EmbeddedResource Include="SiteResources\L.Control.Locate.min.js.map" />
+        <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.css" />
+        <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js" />
+        <EmbeddedResource Include="SiteResources\leaflet-gesture-handling.min.js.map" />
+        <EmbeddedResource Include="SiteResources\leaflet.awesome-svg-markers.css" />
+        <EmbeddedResource Include="SiteResources\leaflet.awesome-svg-markers.js" />
+        <EmbeddedResource Include="SiteResources\leaflet.css" />
+        <EmbeddedResource Include="SiteResources\leaflet.js" />
+        <EmbeddedResource Include="SiteResources\leaflet.js.map" />
+        <EmbeddedResource Include="SiteResources\location-arrow-solid.svg" />
+        <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.js" />
+        <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.js.map" />
+        <EmbeddedResource Include="SiteResources\photoswipe-lightbox.esm.min.js" />
+        <EmbeddedResource Include="SiteResources\photoswipe.css" />
+        <EmbeddedResource Include="SiteResources\photoswipe.esm.js" />
+        <EmbeddedResource Include="SiteResources\photoswipe.esm.js.map" />
+        <EmbeddedResource Include="SiteResources\photoswipe.esm.min.js" />
+        <EmbeddedResource Include="SiteResources\pointless-waymarks-content-gallery.js" />
+        <EmbeddedResource Include="SiteResources\pointless-waymarks-content-list-search.js" />
+        <EmbeddedResource Include="SiteResources\pointless-waymarks-camera-roll-gallery.js" />
+        <EmbeddedResource Include="SiteResources\pointless-waymarks-spatial-common.js" />
+        <EmbeddedResource Include="SiteResources\spinner-solid.svg" />
+        <EmbeddedResource Include="style.css" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
+        <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
+        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
+        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.LlamaAspects\PointlessWaymarks.LlamaAspects.csproj" />
+        <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WindowsTools\PointlessWaymarks.WindowsTools.csproj" />
+    </ItemGroup>
 
 </Project>

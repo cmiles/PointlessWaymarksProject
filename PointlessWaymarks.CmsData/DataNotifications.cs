@@ -41,6 +41,8 @@ public static class DataNotifications
             PointContent => DataNotificationContentType.Point,
             PointDetail => DataNotificationContentType.PointDetail,
             PostContent => DataNotificationContentType.Post,
+            TrailContent => DataNotificationContentType.Trail,
+            VideoContent => DataNotificationContentType.Video,
             _ => DataNotificationContentType.Unknown
         };
     }
@@ -135,5 +137,6 @@ public enum DataNotificationContentType
     TagExclusion,
     Unknown,
     MapIcon,
-    Snippet
+    Snippet,
+    Trail
 }

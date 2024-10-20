@@ -433,18 +433,19 @@ public static class ContentImport
                 FileContent f => await FileGenerator.Validate(f,
                         UserSettingsSingleton.CurrentSettings().LocalMediaArchiveFileContentFile(f))
                     .ConfigureAwait(false),
+                GeoJsonContent g => await GeoJsonGenerator.Validate(g).ConfigureAwait(false),
                 ImageContent i => await ImageGenerator.Validate(i,
                         UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(i))
                     .ConfigureAwait(false),
+                LineContent l => await LineGenerator.Validate(l).ConfigureAwait(false),
+                LinkContent l => await LinkGenerator.Validate(l).ConfigureAwait(false),
+                NoteContent n => await NoteGenerator.Validate(n).ConfigureAwait(false),
+                PointContentDto pc => await PointGenerator.Validate(pc).ConfigureAwait(false),
+                PostContent pc => await PostGenerator.Validate(pc).ConfigureAwait(false),
+                TrailContent pc => await TrailGenerator.Validate(pc).ConfigureAwait(false),
                 VideoContent v => await VideoGenerator.Validate(v,
                         UserSettingsSingleton.CurrentSettings().LocalMediaArchiveVideoContentFile(v))
                     .ConfigureAwait(false),
-                PointContentDto pc => await PointGenerator.Validate(pc).ConfigureAwait(false),
-                PostContent pc => await PostGenerator.Validate(pc).ConfigureAwait(false),
-                LinkContent l => await LinkGenerator.Validate(l).ConfigureAwait(false),
-                NoteContent n => await NoteGenerator.Validate(n).ConfigureAwait(false),
-                LineContent l => await LineGenerator.Validate(l).ConfigureAwait(false),
-                GeoJsonContent g => await GeoJsonGenerator.Validate(g).ConfigureAwait(false),
                 _ => GenerationReturn.Error("Excel Import - No Content Type Generator found?")
             };
 
@@ -582,6 +583,7 @@ public static class ContentImport
             "PHOTO" => PhotoContent.CreateInstance(),
             "POINT" => new PointContentDto(),
             "POST" => PostContent.CreateInstance(),
+            "TRAIL" => TrailContent.CreateInstance(),
             "VIDEO" => VideoContent.CreateInstance(),
             _ => null
         };
@@ -605,23 +607,6 @@ public static class ContentImport
             GenerationReturn generationResult;
             switch (loopUpdates.ToUpdate)
             {
-                case PhotoContent photo:
-                {
-                    var archiveFile = UserSettingsSingleton.CurrentSettings()
-                        .LocalMediaArchivePhotoContentFile(photo);
-
-                    if (archiveFile is not { Exists: true })
-                    {
-                        generationResult = GenerationReturn.Error(
-                            $"Can not find media archive file for Photo Titled {photo.Title} - file: {archiveFile?.FullName}",
-                            photo.ContentId);
-                        break;
-                    }
-
-                    generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo,
-                        archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
-                    break;
-                }
                 case FileContent file:
                 {
                     var archiveFile = UserSettingsSingleton.CurrentSettings()
@@ -639,21 +624,11 @@ public static class ContentImport
                         archiveFile, null, progress).ConfigureAwait(false)).generationReturn;
                     break;
                 }
-                case VideoContent video:
+                case GeoJsonContent geoJson:
                 {
-                    var archiveFile = UserSettingsSingleton.CurrentSettings()
-                        .LocalMediaArchiveVideoContentFile(video);
-
-                    if (archiveFile is not { Exists: true })
-                    {
-                        generationResult = GenerationReturn.Error(
-                            $"Can not find media archive file for Video Titled {video.Title} - file: {archiveFile?.FullName}",
-                            video.ContentId);
-                        break;
-                    }
-
-                    generationResult = (await VideoGenerator.SaveAndGenerateHtml(video,
-                        archiveFile,  null, progress).ConfigureAwait(false)).generationReturn;
+                    generationResult = (await GeoJsonGenerator.SaveAndGenerateHtml(geoJson, null, progress)
+                            .ConfigureAwait(false))
+                        .generationReturn;
                     break;
                 }
                 case ImageContent image:
@@ -673,6 +648,44 @@ public static class ContentImport
                         archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
                     break;
                 }
+                case LineContent line:
+                {
+                    generationResult = (await LineGenerator.SaveAndGenerateHtml(line, null, progress)
+                            .ConfigureAwait(false))
+                        .generationReturn;
+                    break;
+                }
+                case LinkContent link:
+                {
+                    generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, null, progress)
+                            .ConfigureAwait(false))
+                        .generationReturn;
+                    break;
+                }
+                case NoteContent note:
+                {
+                    generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, null, progress)
+                            .ConfigureAwait(false))
+                        .generationReturn;
+                    break;
+                }
+                case PhotoContent photo:
+                {
+                    var archiveFile = UserSettingsSingleton.CurrentSettings()
+                        .LocalMediaArchivePhotoContentFile(photo);
+
+                    if (archiveFile is not { Exists: true })
+                    {
+                        generationResult = GenerationReturn.Error(
+                            $"Can not find media archive file for Photo Titled {photo.Title} - file: {archiveFile?.FullName}",
+                            photo.ContentId);
+                        break;
+                    }
+
+                    generationResult = (await PhotoGenerator.SaveAndGenerateHtml(photo,
+                        archiveFile, false, null, progress).ConfigureAwait(false)).generationReturn;
+                    break;
+                }
                 case PointContentDto point:
                 {
                     generationResult = (await PointGenerator.SaveAndGenerateHtml(point, null, progress)
@@ -687,32 +700,28 @@ public static class ContentImport
                         .generationReturn;
                     break;
                 }
-                case NoteContent note:
+                case TrailContent trail:
                 {
-                    generationResult = (await NoteGenerator.SaveAndGenerateHtml(note, null, progress)
+                    generationResult = (await TrailGenerator.SaveAndGenerateHtml(trail, null, progress)
                             .ConfigureAwait(false))
                         .generationReturn;
                     break;
                 }
-                case LinkContent link:
+                case VideoContent video:
                 {
-                    generationResult = (await LinkGenerator.SaveAndGenerateHtml(link, null, progress)
-                            .ConfigureAwait(false))
-                        .generationReturn;
-                    break;
-                }
-                case LineContent line:
-                {
-                    generationResult = (await LineGenerator.SaveAndGenerateHtml(line, null, progress)
-                            .ConfigureAwait(false))
-                        .generationReturn;
-                    break;
-                }
-                case GeoJsonContent geoJson:
-                {
-                    generationResult = (await GeoJsonGenerator.SaveAndGenerateHtml(geoJson, null, progress)
-                            .ConfigureAwait(false))
-                        .generationReturn;
+                    var archiveFile = UserSettingsSingleton.CurrentSettings()
+                        .LocalMediaArchiveVideoContentFile(video);
+
+                    if (archiveFile is not { Exists: true })
+                    {
+                        generationResult = GenerationReturn.Error(
+                            $"Can not find media archive file for Video Titled {video.Title} - file: {archiveFile?.FullName}",
+                            video.ContentId);
+                        break;
+                    }
+
+                    generationResult = (await VideoGenerator.SaveAndGenerateHtml(video,
+                        archiveFile, null, progress).ConfigureAwait(false)).generationReturn;
                     break;
                 }
                 default:

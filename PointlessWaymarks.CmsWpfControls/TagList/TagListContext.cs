@@ -17,6 +17,7 @@ using PointlessWaymarks.CmsWpfControls.NoteContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostContentEditor;
+using PointlessWaymarks.CmsWpfControls.TrailContentEditor;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CommonTools;
@@ -260,6 +261,9 @@ public partial class TagListContext
                 break;
             case PostContent c:
                 (await PostContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
+                break;
+            case TrailContent c:
+                (await TrailContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();
                 break;
             case VideoContent c:
                 (await VideoContentEditorWindow.CreateInstance(c)).PositionWindowAndShow();

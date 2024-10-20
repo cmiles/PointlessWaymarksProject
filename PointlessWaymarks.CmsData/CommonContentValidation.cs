@@ -51,6 +51,10 @@ public static class CommonContentValidation
                 progress)
             .ConfigureAwait(false));
         returnList.AddRange(await CheckForBadContentReferences(
+                (await db.TrailContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
+                progress)
+            .ConfigureAwait(false));
+        returnList.AddRange(await CheckForBadContentReferences(
                 (await db.VideoContents.ToListAsync().ConfigureAwait(false)).Cast<IContentCommon>().ToList(), db,
                 progress)
             .ConfigureAwait(false));
