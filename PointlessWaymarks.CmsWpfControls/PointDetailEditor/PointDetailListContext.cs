@@ -118,6 +118,7 @@ public partial class PointDetailListContext : IHasChanges, IHasValidationIssues,
             "Peak" => await PeakPointDetailContext.CreateInstance(detail, StatusContext),
             "Restroom" => await RestroomPointDetailContext.CreateInstance(detail, StatusContext),
             "Trail Junction" => await TrailJunctionPointDetailContext.CreateInstance(detail, StatusContext),
+            "Vehicle Access" => await VehicleAccessPointDetailContext.CreateInstance(detail, StatusContext),
             _ => null
         };
     }

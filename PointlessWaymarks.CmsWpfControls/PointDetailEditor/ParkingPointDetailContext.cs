@@ -30,7 +30,7 @@ public partial class ParkingPointDetailContext : IHasChanges, IHasValidationIssu
     }
 
     public Parking DetailData { get; set; }
-    public BoolNullableDataEntryContext? FeeEditor { get; set; }
+    public BoolDataEntryContext? FeeEditor { get; set; }
     public StringDataEntryContext? NoteEditor { get; set; }
     public ContentFormatChooserContext? NoteFormatEditor { get; set; }
     public StatusControlContext StatusContext { get; set; }
@@ -64,7 +64,8 @@ public partial class ParkingPointDetailContext : IHasChanges, IHasValidationIssu
         var detailData = new Parking
         {
             Notes = NoteEditor!.UserValue.TrimNullToEmpty(),
-            NotesContentFormat = NoteFormatEditor!.SelectedContentFormatAsString
+            NotesContentFormat = NoteFormatEditor!.SelectedContentFormatAsString,
+            Fee = FeeEditor!.UserValue
         };
 
         Db.DefaultPropertyCleanup(detailData);
@@ -107,7 +108,7 @@ public partial class ParkingPointDetailContext : IHasChanges, IHasValidationIssu
         NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
         await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 
-        FeeEditor = BoolNullableDataEntryContext.CreateInstance();
+        FeeEditor = await BoolDataEntryContext.CreateInstance();
         FeeEditor.Title = "Fee Area";
         FeeEditor.HelpText = "Is there a fee for using this parking area";
         FeeEditor.ReferenceValue = DetailData.Fee;

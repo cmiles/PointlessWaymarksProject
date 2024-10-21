@@ -2,12 +2,14 @@ using PointlessWaymarks.CommonTools;
 
 namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels;
 
-public class TrailJunction : IPointDetailData
+public class VehicleAccess : IPointDetailData
 {
-    public string DataTypeIdentifier => "Trail Junction";
+    public string DataTypeIdentifier => "Vehicle Access";
+    public bool RecommendedForPassengerCar { get; set; }
+    public bool RecommendedTwoWheelDriveModerateClearance { get; set; }
+    public bool RecommendedFourWheelDriveHighClearance { get; set; }
     public string? Notes { get; set; }
-    public string NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
-    public bool Sign { get; set; }
+    public string? NotesContentFormat { get; set; } = ContentFormatDefaults.Content.ToString();
 
     public async Task<IsValid> Validate()
     {

@@ -15,24 +15,27 @@ using PointlessWaymarks.WpfCommon.StringDataEntry;
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
 
 [NotifyPropertyChanged]
-public partial class TrailJunctionPointDetailContext : IHasChanges, IHasValidationIssues, IPointDetailEditor,
+public partial class VehicleAccessPointDetailContext : IHasChanges, IHasValidationIssues,
+    IPointDetailEditor,
     ICheckForChangesAndValidation
 {
-    private TrailJunctionPointDetailContext(StatusControlContext statusContext)
+    private VehicleAccessPointDetailContext(StatusControlContext statusContext)
     {
         StatusContext = statusContext;
 
         DbEntry = PointDetail.CreateInstance();
-        DetailData = new TrailJunction();
+        DetailData = new VehicleAccess();
 
         PropertyChanged += OnPropertyChanged;
     }
 
-    public TrailJunction DetailData { get; set; }
+    public VehicleAccess DetailData { get; set; }
+    public BoolDataEntryContext? FourWheelDriveHighClearanceEditor { get; set; }
     public StringDataEntryContext? NoteEditor { get; set; }
     public ContentFormatChooserContext? NoteFormatEditor { get; set; }
-    public BoolDataEntryContext? SignEditor { get; set; }
+    public BoolDataEntryContext? PassengerCarEditor { get; set; }
     public StatusControlContext StatusContext { get; set; }
+    public BoolDataEntryContext? TwoWheelDriveModerateEditor { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -45,6 +48,7 @@ public partial class TrailJunctionPointDetailContext : IHasChanges, IHasValidati
 
     //TODO: Eliminate this with Metalama
     public event PropertyChangedEventHandler? PropertyChanged;
+
 
     public PointDetail CurrentPointDetail()
     {
@@ -59,11 +63,13 @@ public partial class TrailJunctionPointDetailContext : IHasChanges, IHasValidati
 
         newEntry.DataType = DetailData.DataTypeIdentifier;
 
-        var detailData = new TrailJunction
+        var detailData = new VehicleAccess
         {
             Notes = NoteEditor!.UserValue.TrimNullToEmpty(),
             NotesContentFormat = NoteFormatEditor!.SelectedContentFormatAsString,
-            Sign = SignEditor!.UserValue
+            RecommendedForPassengerCar = PassengerCarEditor!.UserValue,
+            RecommendedTwoWheelDriveModerateClearance = TwoWheelDriveModerateEditor!.UserValue,
+            RecommendedFourWheelDriveHighClearance = FourWheelDriveHighClearanceEditor!.UserValue
         };
 
         Db.DefaultPropertyCleanup(detailData);
@@ -75,11 +81,10 @@ public partial class TrailJunctionPointDetailContext : IHasChanges, IHasValidati
 
     public PointDetail DbEntry { get; set; }
 
-
-    public static async Task<TrailJunctionPointDetailContext> CreateInstance(PointDetail? detail,
+    public static async Task<VehicleAccessPointDetailContext> CreateInstance(PointDetail? detail,
         StatusControlContext statusContext)
     {
-        var newContext = new TrailJunctionPointDetailContext(statusContext);
+        var newContext = new VehicleAccessPointDetailContext(statusContext);
         await newContext.LoadData(detail);
         return newContext;
     }
@@ -93,7 +98,7 @@ public partial class TrailJunctionPointDetailContext : IHasChanges, IHasValidati
 
         if (!string.IsNullOrWhiteSpace(DbEntry.StructuredDataAsJson))
         {
-            var deserializedDetailData = JsonSerializer.Deserialize<TrailJunction>(DbEntry.StructuredDataAsJson);
+            var deserializedDetailData = JsonSerializer.Deserialize<VehicleAccess>(DbEntry.StructuredDataAsJson);
             if (deserializedDetailData != null) DetailData = deserializedDetailData;
         }
 
@@ -107,11 +112,23 @@ public partial class TrailJunctionPointDetailContext : IHasChanges, IHasValidati
         NoteFormatEditor.InitialValue = DetailData.NotesContentFormat;
         await NoteFormatEditor.TrySelectContentChoice(DetailData.NotesContentFormat);
 
-        SignEditor = await BoolDataEntryContext.CreateInstance();
-        SignEditor.Title = "Junction is Signed";
-        SignEditor.HelpText = "There is some kind of sign at the junction";
-        SignEditor.ReferenceValue = DetailData.Sign;
-        SignEditor.UserValue = DetailData.Sign;
+        PassengerCarEditor = await BoolDataEntryContext.CreateInstance();
+        PassengerCarEditor.Title = "Recommended for Passenger Cars";
+        PassengerCarEditor.HelpText = "Paved, good dirt roads - consider less capable cars...";
+        PassengerCarEditor.ReferenceValue = DetailData.RecommendedForPassengerCar;
+        PassengerCarEditor.UserValue = DetailData.RecommendedForPassengerCar;
+
+        TwoWheelDriveModerateEditor = await BoolDataEntryContext.CreateInstance();
+        TwoWheelDriveModerateEditor.Title = "Recommended for Vehicles with Moderate Clearance";
+        TwoWheelDriveModerateEditor.HelpText = "Generally this will be dirt roads with some very modest obstacles";
+        TwoWheelDriveModerateEditor.ReferenceValue = DetailData.RecommendedTwoWheelDriveModerateClearance;
+        TwoWheelDriveModerateEditor.UserValue = DetailData.RecommendedTwoWheelDriveModerateClearance;
+
+        FourWheelDriveHighClearanceEditor = await BoolDataEntryContext.CreateInstance();
+        FourWheelDriveHighClearanceEditor.Title = "Recommended for High Clearance 4wd Vehicles";
+        FourWheelDriveHighClearanceEditor.HelpText = "4wd dirt roads";
+        FourWheelDriveHighClearanceEditor.ReferenceValue = DetailData.RecommendedFourWheelDriveHighClearance;
+        FourWheelDriveHighClearanceEditor.UserValue = DetailData.RecommendedFourWheelDriveHighClearance;
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
     }

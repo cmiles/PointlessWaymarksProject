@@ -2284,6 +2284,7 @@ public static class Db
             "Peak" => JsonSerializer.Deserialize<Peak>(json),
             "Restroom" => JsonSerializer.Deserialize<Restroom>(json),
             "Trail Junction" => JsonSerializer.Deserialize<TrailJunction>(json),
+            "Vehicle Access" => JsonSerializer.Deserialize<VehicleAccess>(json),
             _ => null
         };
     }

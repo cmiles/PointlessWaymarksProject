@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using PointlessWaymarks.CmsData.Database.Models;
 
 namespace PointlessWaymarks.CmsData.Database.PointDetailDataModels;
@@ -16,6 +16,7 @@ public static class PointDetailUtilities
             "Peak" => "Peak",
             "Restroom" => "Restroom",
             "TrailJunction" => "Trail Junction",
+            "VehicleAccess" => "Vehicle Access",
             "Feature" => JsonSerializer.Deserialize<Feature>(detail.StructuredDataAsJson ?? string.Empty)?.Type ??
                          string.Empty,
             _ => string.Empty

@@ -391,7 +391,7 @@ public static class PointParts
 
                     if (pointDetails.Sign != null)
                         infoList.Children.Add(
-                            new HtmlTag("li").Text(pointDetails.Sign.Value ? "Signed" : "No Sign"));
+                            new HtmlTag("li").Text(pointDetails.Sign ? "Signed" : "No Sign"));
 
                     if (!string.IsNullOrEmpty(pointDetails.Notes))
                     {

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace PointlessWaymarks.CmsWpfControls.PointDetailEditor;
@@ -25,6 +25,8 @@ public class PointDetailListControlDataTemplateSelector : DataTemplateSelector
                     return element.FindResource("RestroomDetailTemplate") as DataTemplate;
                 case TrailJunctionPointDetailContext _:
                     return element.FindResource("TrailJunctionDetailTemplate") as DataTemplate;
+                case VehicleAccessPointDetailContext _:
+                    return element.FindResource("VehicleAccessDetailTemplate") as DataTemplate;
             }
 
         return null;
