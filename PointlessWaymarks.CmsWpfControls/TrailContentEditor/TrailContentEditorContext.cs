@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentGeneration;
@@ -23,8 +24,10 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
+using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.StringDataEntry;
 using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.TrailContentEditor;
@@ -46,30 +49,43 @@ public partial class TrailContentEditorContext : IHasChanges, IHasValidationIssu
         PropertyChanged += OnPropertyChanged;
     }
 
+    public StringDataEntryContext BikesEntry { get; set; }
+    public StringDataEntryContext BikesNoteEntry { get; set; }
     public BodyContentEditorContext? BodyContent { get; set; }
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public TrailContent DbEntry { get; set; }
+    public StringDataEntryContext DogsEntry { get; set; }
+    public StringDataEntryContext DogsNoteEntry { get; set; }
+    public ConversionDataEntryContext<Guid?> EndingPointContentIdEntry { get; set; }
+    public string EndPointDisplayText { get; set; }
+    public StringDataEntryContext FeeEntry { get; set; }
+    public StringDataEntryContext FeeNoteEntry { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
+    public ConversionDataEntryContext<Guid?> LineContentIdEntry { get; set; }
+    public string LineDisplayText { get; set; }
+    public StringDataEntryContext LocationAreaEntry { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
+    public string MapComponentDisplayText { get; set; }
+    public ConversionDataEntryContext<Guid?> MapComponentIdEntry { get; set; }
     public OptionalLocationEntryContext? OptionalLocationEntry { get; set; }
+    public StringDataEntryContext OtherDetailsEntry { get; set; }
+    public BoolDataEntryContext ShowInSearch { get; set; }
+    public ConversionDataEntryContext<Guid?> StartingPointContentIdEntry { get; set; }
+    public string StartingPointDisplayText { get; set; }
+    public StatusControlContext StatusContext { get; set; }
+    public TagsEditorContext? TagEdit { get; set; }
+    public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
 
     public string TrailEditorHelpText =>
         @"
 ### Trail Content
 
-Trails are the most 'generic' content type and will, by default, be included on the main page of the site in chronological order. One of the most useful functions of a Trail is to combine other pieces and types of content.
-
-For the most part you can think of a Trail the same way you would in any other blog/web publishing system. Some systems differentiate between Trails and Pages - the Pointless Waymarks CMS does not and only has Trails.
-
-If your intent is just to put a single piece of content onto the main page of the site you may not need to create a post... Most Content Types can also appear on the main page of the site and include a Title, Body, Tags, etc.
+Trail Content can bring together a Map, Line, Start and End Points and structured data common especially for trail descriptions for US hiking trails.
 
 ";
 
-    public BoolDataEntryContext ShowInSearch { get; set; }
-    public StatusControlContext StatusContext { get; set; }
-    public TagsEditorContext? TagEdit { get; set; }
-    public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
+    public StringDataEntryContext TrailShapeEntry { get; set; }
     public UpdateNotesEditorContext? UpdateNotes { get; set; }
 
     public void CheckForChangesAndValidationIssues()
@@ -133,7 +149,35 @@ If your intent is just to put a single piece of content onto the main page of th
         newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
+        newEntry.Fee = FeeEntry.UserValue.TrimNullToEmpty();
+        newEntry.FeeNote = FeeNoteEntry.UserValue.TrimNullToEmpty();
+        newEntry.Dogs = DogsEntry.UserValue.TrimNullToEmpty();
+        newEntry.DogsNote = DogsNoteEntry.UserValue.TrimNullToEmpty();
+        newEntry.Bikes = BikesEntry.UserValue.TrimNullToEmpty();
+        newEntry.BikesNote = BikesNoteEntry.UserValue.TrimNullToEmpty();
+        newEntry.OtherDetails = OtherDetailsEntry.UserValue.TrimNullToEmpty();
+        newEntry.LocationArea = LocationAreaEntry.UserValue.TrimNullToEmpty();
+        newEntry.TrailShape = TrailShapeEntry.UserValue.TrimNullToEmpty();
+
+        newEntry.MapComponentId = MapComponentIdEntry.UserValue;
+        newEntry.LineContentId = LineContentIdEntry.UserValue;
+        newEntry.StartingPointContentId = StartingPointContentIdEntry.UserValue;
+        newEntry.EndingPointContentId = EndingPointContentIdEntry.UserValue;
+
         return newEntry;
+    }
+
+    private void EndingPointContentIdEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (EndingPointContentIdEntry.HasValidationIssues) EndPointDisplayText = string.Empty;
+        else
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            {
+                var db = await Db.Context();
+                EndPointDisplayText =
+                    (await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == EndingPointContentIdEntry.UserValue))
+                    ?.Title ?? string.Empty;
+            });
     }
 
     [BlockingCommand]
@@ -142,6 +186,19 @@ If your intent is just to put a single piece of content onto the main page of th
         await LinkExtraction.ExtractNewAndShowLinkContentEditors(
             $"{BodyContent!.UserValue} {UpdateNotes!.UserValue}",
             StatusContext.ProgressTracker());
+    }
+
+    private void LineContentIdEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (LineContentIdEntry.HasValidationIssues) LineDisplayText = string.Empty;
+        else
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            {
+                var db = await Db.Context();
+                LineDisplayText =
+                    (await db.LineContents.SingleOrDefaultAsync(x => x.ContentId == LineContentIdEntry.UserValue))
+                    ?.Title ?? string.Empty;
+            });
     }
 
 
@@ -181,11 +238,124 @@ If your intent is just to put a single piece of content onto the main page of th
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
+        FeeEntry = StringDataEntryContext.CreateInstance();
+        FeeEntry.Title = "Fee";
+        FeeEntry.HelpText =
+            "Indicate if there is a fee - or leave this blank - this can be a complicated issue but limiting your entry to Yes or No is useful for search.";
+        FeeEntry.ReferenceValue = DbEntry.Fee ?? string.Empty;
+        FeeEntry.UserValue = DbEntry.Fee ?? string.Empty;
+
+        FeeNoteEntry = StringDataEntryContext.CreateInstance();
+        FeeNoteEntry.Title = "Fee Note";
+        FeeNoteEntry.HelpText = "Notes on any fees - could be text, links, snippets or bracket codes to other content.";
+        FeeNoteEntry.ReferenceValue = DbEntry.FeeNote ?? string.Empty;
+        FeeNoteEntry.UserValue = DbEntry.FeeNote ?? string.Empty;
+
+        DogsEntry = StringDataEntryContext.CreateInstance();
+        DogsEntry.Title = "Dogs";
+        DogsEntry.HelpText =
+            "Indicate if dogs are allowed - or leave this blank - this can be a complicated issue but limiting your entry to Yes or No is useful for search.";
+        DogsEntry.ReferenceValue = DbEntry.Dogs ?? string.Empty;
+        DogsEntry.UserValue = DbEntry.Dogs ?? string.Empty;
+
+        DogsNoteEntry = StringDataEntryContext.CreateInstance();
+        DogsNoteEntry.Title = "Dogs Note";
+        DogsNoteEntry.HelpText = "Notes on dogs - could be text, links, snippets or bracket codes to other content.";
+        DogsNoteEntry.ReferenceValue = DbEntry.DogsNote ?? string.Empty;
+        DogsNoteEntry.UserValue = DbEntry.DogsNote ?? string.Empty;
+
+        BikesEntry = StringDataEntryContext.CreateInstance();
+        BikesEntry.Title = "Bikes";
+        BikesEntry.HelpText =
+            "Indicate if bikes are allowed - or leave this blank - this can be a complicated issue but limiting your entry to Yes or No is useful for search.";
+        BikesEntry.ReferenceValue = DbEntry.Bikes ?? string.Empty;
+        BikesEntry.UserValue = DbEntry.Bikes ?? string.Empty;
+
+        BikesNoteEntry = StringDataEntryContext.CreateInstance();
+        BikesNoteEntry.Title = "Bikes Note";
+        BikesNoteEntry.HelpText = "Notes on bikes - could be text, links, snippets or bracket codes to other content.";
+        BikesNoteEntry.ReferenceValue = DbEntry.BikesNote ?? string.Empty;
+        BikesNoteEntry.UserValue = DbEntry.BikesNote ?? string.Empty;
+
+        OtherDetailsEntry = StringDataEntryContext.CreateInstance();
+        OtherDetailsEntry.Title = "Other Details";
+        OtherDetailsEntry.HelpText =
+            "Other details - could be text, links, snippets or bracket codes to other content.";
+        OtherDetailsEntry.ReferenceValue = DbEntry.OtherDetails ?? string.Empty;
+        OtherDetailsEntry.UserValue = DbEntry.OtherDetails ?? string.Empty;
+
+        LocationAreaEntry = StringDataEntryContext.CreateInstance();
+        LocationAreaEntry.Title = "Location Area";
+        LocationAreaEntry.HelpText =
+            "A 'general location' - the intent is for this to be short and helpful to a human.";
+        LocationAreaEntry.ReferenceValue = DbEntry.OtherDetails ?? string.Empty;
+        LocationAreaEntry.UserValue = DbEntry.OtherDetails ?? string.Empty;
+
+        TrailShapeEntry = StringDataEntryContext.CreateInstance();
+        TrailShapeEntry.Title = "Trail Shape";
+        TrailShapeEntry.HelpText = "Trail Shape - out-and-back, loop, one-way, lollipop...";
+        TrailShapeEntry.ReferenceValue = DbEntry.TrailShape ?? string.Empty;
+        TrailShapeEntry.UserValue = DbEntry.TrailShape ?? string.Empty;
+
+        MapComponentIdEntry =
+            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
+                .ContentIdGuidNullableAndBracketCodeConversion);
+        MapComponentIdEntry.ValidationFunctions = [CommonContentValidation.ValidateMapComponentId];
+        MapComponentIdEntry.ReferenceValue = DbEntry.MapComponentId;
+        MapComponentIdEntry.Title = "Map Component Id";
+        MapComponentIdEntry.HelpText =
+            "Map to display on the page";
+        MapComponentIdEntry.PropertyChanged += MapComponentIdEntryOnPropertyChanged;
+        MapComponentIdEntry.UserText = DbEntry.MapComponentId.ToString() ?? string.Empty;
+
+        LineContentIdEntry =
+            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
+                .ContentIdGuidNullableAndBracketCodeConversion);
+        LineContentIdEntry.ValidationFunctions = [CommonContentValidation.ValidateLineContentId];
+        LineContentIdEntry.ReferenceValue = DbEntry.LineContentId;
+        LineContentIdEntry.Title = "Line Content Id";
+        LineContentIdEntry.HelpText = "Line Content Id";
+        LineContentIdEntry.PropertyChanged += LineContentIdEntryOnPropertyChanged;
+        LineContentIdEntry.UserText = DbEntry.LineContentId.ToString() ?? string.Empty;
+
+        StartingPointContentIdEntry =
+            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
+                .ContentIdGuidNullableAndBracketCodeConversion);
+        StartingPointContentIdEntry.ValidationFunctions = [CommonContentValidation.ValidatePointContentId];
+        StartingPointContentIdEntry.ReferenceValue = DbEntry.StartingPointContentId;
+        StartingPointContentIdEntry.Title = "Starting Point Content Id";
+        StartingPointContentIdEntry.HelpText = "Starting Point";
+        StartingPointContentIdEntry.PropertyChanged += StartingPointContentIdEntryOnPropertyChanged;
+        StartingPointContentIdEntry.UserText = DbEntry.StartingPointContentId.ToString() ?? string.Empty;
+
+        EndingPointContentIdEntry =
+            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
+                .ContentIdGuidNullableAndBracketCodeConversion);
+        EndingPointContentIdEntry.ValidationFunctions = [CommonContentValidation.ValidatePointContentId];
+        EndingPointContentIdEntry.ReferenceValue = DbEntry.EndingPointContentId;
+        EndingPointContentIdEntry.Title = "Ending Point Content Id";
+        EndingPointContentIdEntry.HelpText = "Ending Point";
+        EndingPointContentIdEntry.PropertyChanged += EndingPointContentIdEntryOnPropertyChanged;
+        EndingPointContentIdEntry.UserText = DbEntry.EndingPointContentId.ToString() ?? string.Empty;
+
         HelpContext = new HelpDisplayContext([
             TrailEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         ]);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
+    }
+
+    private void MapComponentIdEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (MapComponentIdEntry.HasValidationIssues) MapComponentDisplayText = string.Empty;
+        else
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            {
+                var db = await Db.Context();
+                MapComponentDisplayText =
+                    (await db.MapComponents.SingleOrDefaultAsync(x => x.ContentId == MapComponentIdEntry.UserValue))
+                    ?.Title ?? string.Empty;
+            });
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -277,6 +447,19 @@ If your intent is just to put a single piece of content onto the main page of th
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    private void StartingPointContentIdEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (StartingPointContentIdEntry.HasValidationIssues) StartingPointDisplayText = string.Empty;
+        else
+            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
+            {
+                var db = await Db.Context();
+                StartingPointDisplayText =
+                    (await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == StartingPointContentIdEntry.UserValue))
+                    ?.Title ?? string.Empty;
+            });
     }
 
     [BlockingCommand]

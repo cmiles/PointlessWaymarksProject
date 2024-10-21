@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.ContentList.ContentListControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -30,6 +30,7 @@
                 PhotoTemplate="{StaticResource PhotoListItemTemplate}"
                 PointTemplate="{StaticResource PointListItemTemplate}"
                 PostTemplate="{StaticResource PostListItemTemplate}"
+                TrailTemplate="{StaticResource TrailListItemTemplate}"
                 VideoTemplate="{StaticResource VideoListItemTemplate}" />
         </ResourceDictionary>
     </UserControl.Resources>

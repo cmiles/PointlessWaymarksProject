@@ -24,7 +24,8 @@
     xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers">
+    xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers"
+    xmlns:trailList="clr-namespace:PointlessWaymarks.CmsWpfControls.TrailList">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -999,6 +1000,55 @@
         </Border>
     </DataTemplate>
     <DataTemplate x:Key="PostListItemTemplate" DataType="postList:PostListListItem">
+        <Border Style="{StaticResource ContentListOuterBorderStyle}">
+            <Border.InputBindings>
+                <MouseBinding
+                    Command="{Binding ItemActions.EditCommand}"
+                    CommandParameter="{Binding DbEntry}"
+                    Gesture="Shift+LeftDoubleClick" />
+            </Border.InputBindings>
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Style="{StaticResource ContentListItemImageColumnStyle}" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid Style="{StaticResource ContentListItemImageGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <ContentPresenter VerticalAlignment="Top" Content="{StaticResource ContentListSmallImageContentDisplay}" />
+                    <WrapPanel
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
+                        <Button Style="{StaticResource ContentListItemSitePreviewButtonStyle}">
+                            preview
+                        </Button>
+                    </WrapPanel>
+                </Grid>
+                <Grid Grid.Column="1" Style="{StaticResource ContentListTextGridStyle}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
+                        <ContentPresenter Content="{StaticResource ContentListContentTitleAndAttributionDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListSummaryDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListTagsDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListSlugDisplay}" />
+                        <ContentPresenter Content="{StaticResource ContentListFolderAndCreatedAndUpdatedDisplay}" />
+                    </StackPanel>
+                    <ContentPresenter
+                        Grid.Row="1"
+                        Margin="2"
+                        VerticalAlignment="Bottom"
+                        Content="{StaticResource ContentListContentIdAndDateDisplay}" />
+                </Grid>
+            </Grid>
+        </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="TrailListItemTemplate" DataType="{x:Type trailList:TrailListListItem}">
         <Border Style="{StaticResource ContentListOuterBorderStyle}">
             <Border.InputBindings>
                 <MouseBinding

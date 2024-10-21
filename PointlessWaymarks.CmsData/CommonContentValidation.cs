@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -538,25 +537,6 @@ public static class CommonContentValidation
         return Task.FromResult(new IsValid(true, "Created By is Ok"));
     }
 
-    public static Task<IsValid> ValidateStringIsNotEmptyOrWhitespace(string? stringToCheck)
-    {
-        if (string.IsNullOrWhiteSpace(stringToCheck.TrimNullToEmpty()))
-            return Task.FromResult(new IsValid(false, "Can not be blank."));
-
-        return Task.FromResult(new IsValid(true, "Ok"));
-    }
-
-    public static Task<IsValid> ValidateSvgTag(string? stringToCheck)
-    {
-        if (string.IsNullOrWhiteSpace(stringToCheck.TrimNullToEmpty()))
-            return Task.FromResult(new IsValid(false, "Can not be blank."));
-
-        if(!stringToCheck.Trim().StartsWith("<svg", StringComparison.OrdinalIgnoreCase) || !stringToCheck.Trim().EndsWith("</svg>", StringComparison.OrdinalIgnoreCase))
-            return Task.FromResult(new IsValid(false, "The SVG Tag should start with <svg and end with </svg>"));
-
-        return Task.FromResult(new IsValid(true, "Ok"));
-    }
-
     public static Task<IsValid> ValidateFeatureType(string? title)
     {
         if (string.IsNullOrWhiteSpace(title)) return Task.FromResult(new IsValid(false, "Type can not be blank"));
@@ -579,6 +559,18 @@ public static class CommonContentValidation
                 "Folders can not be named 'Galleries' - this folder is reserved for use by the CMS");
 
         return new IsValid(true, string.Empty);
+    }
+
+    public static async Task<IsValid> ValidateLineContentId(Guid? lineContentId)
+    {
+        if (lineContentId == null) return new IsValid(true, "No Line Content Id specified.");
+
+        var db = await Db.Context();
+
+        if (await db.LineContents.AnyAsync(x => x.ContentId == lineContentId.Value))
+            return new IsValid(true, "Line Found.");
+
+        return new IsValid(false, $"No matching Line Content Id found ford {lineContentId}");
     }
 
     public static async Task<IsValid> ValidateLinkContentLinkUrl(string? url, Guid? contentGuid)
@@ -682,33 +674,16 @@ public static class CommonContentValidation
         return new IsValid(isValid, string.Join(Environment.NewLine, errorMessage));
     }
 
-    public static async Task<IsValid> ValidatePointMapIconName(string? name)
+    public static async Task<IsValid> ValidateMapComponentId(Guid? mapComponentId)
     {
-        if (string.IsNullOrWhiteSpace(name)) return new IsValid(true, "Blank Map Icon is Valid");
+        if (mapComponentId == null) return new IsValid(true, "No Map Component Id specified.");
 
-        if (!FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(name))
-            return new IsValid(false, "Map Icon Names should only contain a-z 0-9 _ -");
+        var db = await Db.Context();
 
-        if (name.Length > 100) return new IsValid(false, "Limit Names to 100 characters.");
+        if (await db.MapComponents.AnyAsync(x => x.ContentId == mapComponentId.Value))
+            return new IsValid(true, "Map Found.");
 
-
-        if (!(await Db.Context().ConfigureAwait(false)).MapIcons.Any(x =>
-                x.IconName == name))
-            return new IsValid(false, "This Name doesn't appear in the database? Check the icons in the Map Icon List.");
-
-        return new IsValid(true, string.Empty);
-    }
-
-    public static Task<IsValid> ValidatePointMapMarkerColor(string? color)
-    {
-        if (string.IsNullOrWhiteSpace(color)) return Task.FromResult(new IsValid(true, "Blank Map Marker Color is Valid"));
-
-        if (!PointContent.MapMarkerColorChoices().Contains(color))
-        {
-            return Task.FromResult(new IsValid(false, "Not a current Map Marker Color choice."));
-        }
-
-        return Task.FromResult(new IsValid(true, string.Empty));
+        return new IsValid(false, $"No matching Map Component Id found ford {mapComponentId}");
     }
 
 
@@ -727,6 +702,47 @@ public static class CommonContentValidation
             return new IsValid(false, "This Name already exists in the database - names must be unique.");
 
         return new IsValid(true, string.Empty);
+    }
+
+    public static async Task<IsValid> ValidatePointContentId(Guid? pointContentId)
+    {
+        if (pointContentId == null) return new IsValid(true, "No Point Content Id specified.");
+
+        var db = await Db.Context();
+
+        if (await db.PointContents.AnyAsync(x => x.ContentId == pointContentId.Value))
+            return new IsValid(true, "Point Found.");
+
+        return new IsValid(false, $"No matching Point Content Id found ford {pointContentId}");
+    }
+
+    public static async Task<IsValid> ValidatePointMapIconName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return new IsValid(true, "Blank Map Icon is Valid");
+
+        if (!FileAndFolderTools.IsNoUrlEncodingNeededLowerCase(name))
+            return new IsValid(false, "Map Icon Names should only contain a-z 0-9 _ -");
+
+        if (name.Length > 100) return new IsValid(false, "Limit Names to 100 characters.");
+
+
+        if (!(await Db.Context().ConfigureAwait(false)).MapIcons.Any(x =>
+                x.IconName == name))
+            return new IsValid(false,
+                "This Name doesn't appear in the database? Check the icons in the Map Icon List.");
+
+        return new IsValid(true, string.Empty);
+    }
+
+    public static Task<IsValid> ValidatePointMapMarkerColor(string? color)
+    {
+        if (string.IsNullOrWhiteSpace(color))
+            return Task.FromResult(new IsValid(true, "Blank Map Marker Color is Valid"));
+
+        if (!PointContent.MapMarkerColorChoices().Contains(color))
+            return Task.FromResult(new IsValid(false, "Not a current Map Marker Color choice."));
+
+        return Task.FromResult(new IsValid(true, string.Empty));
     }
 
     public static IsValid ValidateSiteFeedOn(IMainSiteFeed toValidate, bool isNewEntry)
@@ -769,11 +785,31 @@ public static class CommonContentValidation
         return new IsValid(true, string.Empty);
     }
 
+    public static Task<IsValid> ValidateStringIsNotEmptyOrWhitespace(string? stringToCheck)
+    {
+        if (string.IsNullOrWhiteSpace(stringToCheck.TrimNullToEmpty()))
+            return Task.FromResult(new IsValid(false, "Can not be blank."));
+
+        return Task.FromResult(new IsValid(true, "Ok"));
+    }
+
     public static Task<IsValid> ValidateSummary(string? summary)
     {
         if (string.IsNullOrWhiteSpace(summary)) return Task.FromResult(new IsValid(false, "Summary can not be blank"));
 
         return Task.FromResult(new IsValid(true, string.Empty));
+    }
+
+    public static Task<IsValid> ValidateSvgTag(string? stringToCheck)
+    {
+        if (string.IsNullOrWhiteSpace(stringToCheck.TrimNullToEmpty()))
+            return Task.FromResult(new IsValid(false, "Can not be blank."));
+
+        if (!stringToCheck.Trim().StartsWith("<svg", StringComparison.OrdinalIgnoreCase) ||
+            !stringToCheck.Trim().EndsWith("</svg>", StringComparison.OrdinalIgnoreCase))
+            return Task.FromResult(new IsValid(false, "The SVG Tag should start with <svg and end with </svg>"));
+
+        return Task.FromResult(new IsValid(true, "Ok"));
     }
 
     public static IsValid ValidateTags(string? tags)

@@ -406,7 +406,7 @@ Notes:
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
         UserMainPictureEntry =
             await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
-                .GuidNullableAndBracketCodeConversion);
+                .PhotoOrImageGuidNullableAndBracketCodeConversion);
         UserMainPictureEntry.ValidationFunctions = [CommonContentValidation.ValidateUserMainPicture];
         UserMainPictureEntry.ReferenceValue = DbEntry.UserMainPicture;
         UserMainPictureEntry.UserText = DbEntry.UserMainPicture.ToString() ?? string.Empty;

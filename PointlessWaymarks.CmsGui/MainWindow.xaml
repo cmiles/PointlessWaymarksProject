@@ -24,11 +24,11 @@
     xmlns:status1="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:tagExclusionEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagExclusionEditor;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:tagList="clr-namespace:PointlessWaymarks.CmsWpfControls.TagList;assembly=PointlessWaymarks.CmsWpfControls"
+    xmlns:trailList="clr-namespace:PointlessWaymarks.CmsWpfControls.TrailList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:userSettingsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.UserSettingsEditor;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:valueConverters="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
     xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList;assembly=PointlessWaymarks.CmsWpfControls"
     xmlns:windowScreenShot1="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:trailList="clr-namespace:PointlessWaymarks.CmsWpfControls.TrailList;assembly=PointlessWaymarks.CmsWpfControls"
     Name="MainWindowXaml"
     Title="{Binding InfoTitle}"
     Width="950"
@@ -79,17 +79,17 @@
             <TabItem Header="Trails">
                 <trailList:TrailListWithActionsControl DataContext="{Binding TabTrailListContext}" />
             </TabItem>
-            <TabItem Header="Points">
-                <pointList:PointListWithActionsControl DataContext="{Binding TabPointListContext}" />
-            </TabItem>
-            <TabItem Header="Lines">
-                <lineList:LineListWithActionsControl DataContext="{Binding TabLineListContext}" />
+            <TabItem Header="Maps">
+                <mapComponentList:MapComponentListWithActionsControl DataContext="{Binding TabMapListContext}" />
             </TabItem>
             <TabItem Header="GeoJson">
                 <geoJsonList:GeoJsonListWithActionsControl DataContext="{Binding TabGeoJsonListContext}" />
             </TabItem>
-            <TabItem Header="Maps">
-                <mapComponentList:MapComponentListWithActionsControl DataContext="{Binding TabMapListContext}" />
+            <TabItem Header="Lines">
+                <lineList:LineListWithActionsControl DataContext="{Binding TabLineListContext}" />
+            </TabItem>
+            <TabItem Header="Points">
+                <pointList:PointListWithActionsControl DataContext="{Binding TabPointListContext}" />
             </TabItem>
             <TabItem Header="Notes">
                 <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />

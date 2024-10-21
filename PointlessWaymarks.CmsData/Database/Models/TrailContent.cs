@@ -4,19 +4,19 @@ namespace PointlessWaymarks.CmsData.Database.Models;
 
 public class TrailContent : IUpdateNotes, IContentCommon
 {
-    public string? Bikes { get; set; }
-    public string? BikesNote { get; set; }
-    public string? Dogs { get; set; }
-    public string? DogsNote { get; set; }
+    public string? Bikes { get; set; } = string.Empty;
+    public string? BikesNote { get; set; } = string.Empty;
+    public string? Dogs { get; set; } = string.Empty;
+    public string? DogsNote { get; set; } = string.Empty;
     public Guid? EndingPointContentId { get; set; }
-    public string? Fee { get; set; }
-    public string? FeeNote { get; set; }
+    public string? Fee { get; set; } = string.Empty;
+    public string? FeeNote { get; set; } = string.Empty;
     public Guid? LineContentId { get; set; }
-    public string? LocationArea { get; set; }
+    public string? LocationArea { get; set; } = string.Empty;
     public Guid? MapComponentId { get; set; }
-    public string? OtherDetails { get; set; }
+    public string? OtherDetails { get; set; } = string.Empty;
     public Guid? StartingPointContentId { get; set; }
-    public string? TrailShape { get; set; }
+    public string? TrailShape { get; set; } = string.Empty;
     public string? BodyContent { get; set; }
     public string? BodyContentFormat { get; set; }
     public required Guid ContentId { get; set; }
