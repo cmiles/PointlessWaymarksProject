@@ -99,6 +99,32 @@ public static class PointParts
 
                     break;
                 }
+                case "Vehicle Access":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<VehicleAccess>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    var returnText = $"{loopDetail.DataType}: ";
+                    if (pointDetails.RecommendedForPassengerCar) returnText += "Passenger Car Accessible.";
+                    if (pointDetails.RecommendedTwoWheelDriveModerateClearance)
+                        returnText += "Recommended for Two Wheel Drive Moderate Clearance Vehicles.";
+                    if (pointDetails.RecommendedFourWheelDriveHighClearance)
+                        returnText += "Recommended only for Four Wheel Drive High Clearance Vehicles.";
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        returnText += $" {noteText.RemoveOuterPTags()}";
+                    }
+
+                    typeLine.Text(returnText).Encoded(false);
+
+                    break;
+                }
                 case "Fee":
                 {
                     var pointDetails = JsonSerializer.Deserialize<Fee>(loopDetail.StructuredDataAsJson);
@@ -111,7 +137,8 @@ public static class PointParts
                             await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
                             pointDetails.NotesContentFormat);
 
-                        typeLine.Text($"{loopDetail.DataType.HtmlEncode()}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                        typeLine.Text($"{loopDetail.DataType.HtmlEncode()}:  {noteText.RemoveOuterPTags()}")
+                            .Encoded(false);
                     }
 
                     break;
@@ -273,6 +300,36 @@ public static class PointParts
 
                     break;
                 }
+                case "Vehicle Access":
+                {
+                    var pointDetails = JsonSerializer.Deserialize<VehicleAccess>(loopDetail.StructuredDataAsJson);
+
+                    if (pointDetails == null) break;
+
+                    var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
+
+                    if (pointDetails.RecommendedForPassengerCar)
+                        infoList.Children.Add(new HtmlTag("li").Text("Passenger Car Accessible"));
+                    if (pointDetails.RecommendedTwoWheelDriveModerateClearance)
+                        infoList.Children.Add(
+                            new HtmlTag("li").Text("Recommended for Two Wheel Drive Moderate Clearance Vehicles"));
+                    if (pointDetails.RecommendedFourWheelDriveHighClearance)
+                        infoList.Children.Add(
+                            new HtmlTag("li").Text("Recommended only for Four Wheel Drive High Clearance Vehicles"));
+
+                    if (!string.IsNullOrEmpty(pointDetails.Notes))
+                    {
+                        var noteText = ContentProcessing.ProcessContent(
+                            await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
+                            pointDetails.NotesContentFormat);
+
+                        infoList.Children.Add(new HtmlTag("li").Encoded(false).Text(noteText));
+                    }
+
+                    outerDiv.Children.Add(infoList);
+
+                    break;
+                }
                 case "Fee":
                 {
                     var pointDetails = JsonSerializer.Deserialize<Fee>(loopDetail.StructuredDataAsJson);
@@ -389,7 +446,7 @@ public static class PointParts
 
                     var infoList = new HtmlTag("ul").AddClass("point-detail-info-list");
 
-                    if (pointDetails.Sign != null)
+                    if (pointDetails.Sign)
                         infoList.Children.Add(
                             new HtmlTag("li").Text(pointDetails.Sign ? "Signed" : "No Sign"));
 
@@ -463,5 +520,22 @@ public static class PointParts
         containerDiv.Children.Add(await PointDetailsCompact(dbEntry).ConfigureAwait(false));
 
         return borderDiv;
+    }
+
+    public static async Task<HtmlTag> StandAlonePointDetailsDiv(PointContentDto? dbEntry, string prefix)
+    {
+        if (dbEntry?.PointDetails == null || !dbEntry.PointDetails.Any()) return HtmlTag.Empty();
+
+        var containerDiv = new DivTag().AddClass("point-detail-info-container");
+
+        var titleLine = new HtmlTag("p")
+            .Text(
+                $"<b>{prefix}</b> {new LinkTag(dbEntry.Title, UserSettingsSingleton.CurrentSettings().PointPageUrl(dbEntry))} - {GoogleMapsLatLongLink(dbEntry)}")
+            .Encoded(false).AddClass("point-detail-info-title");
+        containerDiv.Children.Add(titleLine);
+
+        containerDiv.Children.Add(await PointDetailsCompact(dbEntry).ConfigureAwait(false));
+
+        return containerDiv;
     }
 }

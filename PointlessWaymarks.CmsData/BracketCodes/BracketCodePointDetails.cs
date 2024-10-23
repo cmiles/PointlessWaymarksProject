@@ -15,6 +15,13 @@ public static class BracketCodePointDetails
         return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
+    public static async Task<string> Create(Guid pointContentId)
+    {
+        var db = await Db.Context();
+        var possibleMap = await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == pointContentId);
+        return possibleMap == null ? string.Empty : Create(possibleMap);
+    }
+
     public static async Task<List<PointContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {

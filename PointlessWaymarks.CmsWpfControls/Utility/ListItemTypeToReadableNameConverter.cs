@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows.Data;
 using PointlessWaymarks.CmsWpfControls.FileList;
 using PointlessWaymarks.CmsWpfControls.GeoJsonList;
@@ -8,7 +8,10 @@ using PointlessWaymarks.CmsWpfControls.LinkList;
 using PointlessWaymarks.CmsWpfControls.MapComponentList;
 using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
+using PointlessWaymarks.CmsWpfControls.TrailList;
+using PointlessWaymarks.CmsWpfControls.VideoList;
 
 namespace PointlessWaymarks.CmsWpfControls.Utility;
 
@@ -27,7 +30,10 @@ public class ListItemTypeToReadableNameConverter : IValueConverter
             MapComponentListListItem => "Map",
             NoteListListItem => "Note",
             PhotoListListItem => "Photo",
+            PointListListItem => "Point",
             PostListListItem => "Post",
+            TrailListListItem => "Trail",
+            VideoListListItem => "Video",
             _ => string.Empty
         };
     }

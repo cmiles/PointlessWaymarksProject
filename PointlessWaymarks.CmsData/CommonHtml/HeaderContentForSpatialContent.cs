@@ -48,6 +48,6 @@ public class HeaderContentForSpatialContent : IHeaderContentBasedAdditions
     {
         return BracketCodeCommon.ContainsSpatialScriptDependentBracketCodes(content) ||
                content.GetType() == typeof(PointContentDto) || content.GetType() == typeof(GeoJsonContent) ||
-               content.GetType() == typeof(LineContent);
+               content.GetType() == typeof(LineContent) || content.GetType() == typeof(TrailContent);
     }
 }

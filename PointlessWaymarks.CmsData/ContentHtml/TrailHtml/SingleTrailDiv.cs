@@ -57,7 +57,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.TrailHtml
             this.Write("\r\n    ");
             
             #line 7 "E:\Code\PointlessWaymarksProject-01\PointlessWaymarks.CmsData\ContentHtml\TrailHtml\SingleTrailDiv.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry).Result));
+            this.Write(this.ToStringHelper.ToStringWithCulture(Tags.PostBodyDiv(DbEntry, null, TrailParts.TrailGeneratedInfo(DbEntry).Result.ToString()).Result));
             
             #line default
             #line hidden

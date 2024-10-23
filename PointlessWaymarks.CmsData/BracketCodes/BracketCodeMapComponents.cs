@@ -15,6 +15,13 @@ public static class BracketCodeMapComponents
         return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
+    public static async Task<string> Create(Guid mapComponentId)
+    {
+        var db = await Db.Context();
+        var possibleMap = await db.MapComponents.SingleOrDefaultAsync(x => x.ContentId == mapComponentId);
+        return possibleMap == null ? string.Empty : Create(possibleMap);
+    }
+
     public static async Task<List<MapComponent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
@@ -57,7 +64,8 @@ public static class BracketCodeMapComponents
         foreach (var loopMatch in resultList)
         {
             var dbContent =
-                await context.MapComponents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.MapComponents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"Adding mapComponent {dbContent.Title} from Code");

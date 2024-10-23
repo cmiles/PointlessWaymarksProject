@@ -137,6 +137,17 @@ public class AllContentListLoader : ContentListLoaderBase
                 async () =>
                 {
                     var funcDb = await Db.Context();
+                    progress?.Report($"Loading Trail Content from DB - Max {PartialLoadQuantity} Items");
+                    var dbItems = await funcDb.TrailContents
+                        .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+                        .Take(PartialLoadQuantity.Value).Cast<object>().ToListAsync();
+                    itemBag.Add(dbItems);
+                    if (await funcDb.TrailContents.CountAsync() > dbItems.Count)
+                        Interlocked.Increment(ref _partialLoadCount);
+                },
+                async () =>
+                {
+                    var funcDb = await Db.Context();
                     progress?.Report($"Loading Video Content from DB - Max {PartialLoadQuantity} Items");
                     var dbItems = await funcDb.VideoContents
                         .OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
@@ -195,6 +206,14 @@ public class AllContentListLoader : ContentListLoaderBase
 
         progress?.Report("Loading Post Content from DB");
         listItems.AddRange(await db.PostContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+            .ToListAsync());
+
+        progress?.Report("Loading Trail Content from DB");
+        listItems.AddRange(await db.TrailContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
+            .ToListAsync());
+
+        progress?.Report("Loading Video Content from DB");
+        listItems.AddRange(await db.VideoContents.OrderByDescending(x => x.LastUpdatedOn ?? x.CreatedOn)
             .ToListAsync());
 
         AllItemsLoaded = true;

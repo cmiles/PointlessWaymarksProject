@@ -78,7 +78,8 @@ public partial class AllContentListWithActionsContext
             new ContextMenuItemData
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
-            }
+            },
+            new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 
         await ListContext.LoadData();
@@ -88,5 +89,13 @@ public partial class AllContentListWithActionsContext
     private async Task WordPressImportWindow()
     {
         await (await WordPressXmlImportWindow.CreateInstance()).PositionWindowAndShowOnUiThread();
+    }
+
+    [BlockingCommand]
+    public async Task RefreshData()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        await ListContext.LoadData();
     }
 }

@@ -505,14 +505,26 @@ public static class Tags
         return outerContainer;
     }
 
-    public static async Task<HtmlTag> PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null)
+    public static async Task<HtmlTag> PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null, string? contentBefore = null, string? contentAfter = null)
     {
         if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
 
         var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
+        var bodyContent = dbEntry.BodyContent;
+
+        if (!string.IsNullOrWhiteSpace(contentBefore))
+        {
+            bodyContent = contentBefore + Environment.NewLine + bodyContent;
+        }
+
+        if (!string.IsNullOrWhiteSpace(contentAfter))
+        {
+            bodyContent = bodyContent + Environment.NewLine + contentAfter;
+        }
+
         var bodyText = ContentProcessing.ProcessContent(
-            await BracketCodeCommon.ProcessCodesForSite(dbEntry.BodyContent, progress).ConfigureAwait(false),
+            await BracketCodeCommon.ProcessCodesForSite(bodyContent, progress).ConfigureAwait(false),
             dbEntry.BodyContentFormat);
 
         bodyContainer.Children.Add(new HtmlTag("div").AddClass("post-body-content").Encoded(false).Text(bodyText));

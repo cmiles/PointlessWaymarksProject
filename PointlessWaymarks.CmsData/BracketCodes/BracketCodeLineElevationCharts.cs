@@ -15,6 +15,13 @@ public static class BracketCodeLineElevationCharts
         return $"{{{{{BracketCodeToken} {content.ContentId}; {content.Title}}}}}";
     }
 
+    public static async Task<string> Create(Guid mapComponentId)
+    {
+        var db = await Db.Context();
+        var possibleMap = await db.LineContents.SingleOrDefaultAsync(x => x.ContentId == mapComponentId);
+        return possibleMap == null ? string.Empty : Create(possibleMap);
+    }
+
     public static async Task<List<LineContent>> DbContentFromBracketCodes(string? toProcess,
         IProgress<string>? progress = null)
     {
@@ -33,7 +40,8 @@ public static class BracketCodeLineElevationCharts
 
         foreach (var loopMatch in guidList)
         {
-            var dbContent = await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch).ConfigureAwait(false);
+            var dbContent = await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch)
+                .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"Line Elevation Chart Code - Adding DbContent For {dbContent.Title}");
@@ -59,7 +67,8 @@ public static class BracketCodeLineElevationCharts
         foreach (var loopMatch in resultList)
         {
             var dbContent =
-                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid).ConfigureAwait(false);
+                await context.LineContents.FirstOrDefaultAsync(x => x.ContentId == loopMatch.contentGuid)
+                    .ConfigureAwait(false);
             if (dbContent == null) continue;
 
             progress?.Report($"Adding Line Elevation Chart {dbContent.Title} from Code");
@@ -90,5 +99,4 @@ public static class BracketCodeLineElevationCharts
 
         return toProcess;
     }
-
 }

@@ -346,6 +346,10 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 dbItems = (await context.PostContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                     .ToListAsync()).Cast<IContentId>().ToList();
                 break;
+            case DataNotificationContentType.Trail:
+                dbItems = (await context.TrailContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
+                    .ToListAsync()).Cast<IContentId>().ToList();
+                break;
             case DataNotificationContentType.Video:
                 dbItems = (await context.VideoContents.Where(x => translatedMessage.ContentIds.Contains(x.ContentId))
                     .ToListAsync()).Cast<IContentId>().ToList();

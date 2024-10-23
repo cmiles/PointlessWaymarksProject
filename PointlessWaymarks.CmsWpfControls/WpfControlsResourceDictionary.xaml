@@ -20,12 +20,12 @@
     xmlns:stringWithDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.StringWithDropdownDataEntry"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
+    xmlns:trailList="clr-namespace:PointlessWaymarks.CmsWpfControls.TrailList"
     xmlns:utility="clr-namespace:PointlessWaymarks.CmsWpfControls.Utility"
     xmlns:videoList="clr-namespace:PointlessWaymarks.CmsWpfControls.VideoList"
     xmlns:wpfBehavior="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpfConverter="clr-namespace:PointlessWaymarks.WpfCommon.ValueConverters;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers"
-    xmlns:trailList="clr-namespace:PointlessWaymarks.CmsWpfControls.TrailList">
+    xmlns:wpfHelpers="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfHelpers">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/PointlessWaymarks.WpfCommon;component/ClassicGreenResourceDictionary.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -131,6 +131,7 @@
         </TextBox>
         <TextBox
             Margin="6,0,0,0"
+            FontStyle="Italic"
             Style="{StaticResource ReadOnlyTextBoxStyle}"
             Text="{Binding ., Mode=OneWay, Converter={StaticResource ListItemTypeToReadableName}}"
             TextWrapping="Wrap"

@@ -55,7 +55,7 @@
     <#=
                 Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
     <#=
-                    Tags.PostBodyDiv(DbEntry).Result.ToString() #>
+                    Tags.PostBodyDiv(DbEntry, null, TrailParts.TrailGeneratedInfo(DbEntry).Result.ToString()).Result.ToString() #>
     <#= HorizontalRule.StandardRule() #>
     <div class="information-section">
         <#= Tags.TagList(DbEntry).ToString() #>

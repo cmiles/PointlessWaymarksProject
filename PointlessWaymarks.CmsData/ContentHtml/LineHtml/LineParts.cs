@@ -24,6 +24,11 @@ public static class LineParts
 
     public static string LineDivAndScript(LineContent content)
     {
+        return LineDivAndScript(content.ContentId);
+    }
+
+    public static string LineDivAndScript(Guid lineContentId)
+    {
         var divScriptGuidConnector = Guid.NewGuid();
         var tag =
             $"""
@@ -34,7 +39,7 @@ public static class LineParts
             $"""
 
              <script>
-                lazyInit(document.querySelector("#Line-{divScriptGuidConnector}"), () => singleLineMapInit(document.querySelector("#Line-{divScriptGuidConnector}"), "{content.ContentId}", true))
+                lazyInit(document.querySelector("#Line-{divScriptGuidConnector}"), () => singleLineMapInit(document.querySelector("#Line-{divScriptGuidConnector}"), "{lineContentId}", true))
              </script>
 
              """;
@@ -91,6 +96,11 @@ public static class LineParts
 
     public static string LineElevationChartDivAndScript(LineContent content)
     {
+        return LineElevationChartDivAndScript(content.ContentId);
+    }
+
+    public static string LineElevationChartDivAndScript(Guid contentId)
+    {
         var divScriptGuidConnector = Guid.NewGuid();
 
         var tag = $"""
@@ -101,7 +111,7 @@ public static class LineParts
         var script =
             $"""
              <script>
-             lazyInit(document.querySelector('#LineElevationChart-{divScriptGuidConnector}'), () => singleLineElevationChartInit(document.querySelector('#LineElevationChart-{divScriptGuidConnector}'), '{content.ContentId}'))
+             lazyInit(document.querySelector('#LineElevationChart-{divScriptGuidConnector}'), () => singleLineElevationChartInit(document.querySelector('#LineElevationChart-{divScriptGuidConnector}'), '{contentId}'))
              </script>
              """;
 
@@ -143,9 +153,11 @@ public static class LineParts
         if (dbEntry.PublicDownloadLink)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            outerContainer.Children.Add(Tags.InfoLinkDownloadDivTag(settings.LineGpxDownloadUrl(dbEntry), "Download GPX",
+            outerContainer.Children.Add(Tags.InfoLinkDownloadDivTag(settings.LineGpxDownloadUrl(dbEntry),
+                "Download GPX",
                 "line-detail", FileAndFolderTools.TryMakeFilenameValid(dbEntry.Title ??
-                                                        dbEntry.Slug ?? dbEntry.ContentId.ToString()) + ".gpx"));
+                                                                       dbEntry.Slug ?? dbEntry.ContentId.ToString()) +
+                               ".gpx"));
         }
 
         //Return empty if there are no details
@@ -209,9 +221,11 @@ public static class LineParts
         if (dbEntry.PublicDownloadLink)
         {
             var settings = UserSettingsSingleton.CurrentSettings();
-            outerContainer.Children.Add(Tags.InfoLinkDownloadDivTag(settings.LineGpxDownloadUrl(dbEntry), "Download GPX",
+            outerContainer.Children.Add(Tags.InfoLinkDownloadDivTag(settings.LineGpxDownloadUrl(dbEntry),
+                "Download GPX",
                 "line-detail", FileAndFolderTools.TryMakeFilenameValid(dbEntry.Title ??
-                                                                       dbEntry.Slug ?? dbEntry.ContentId.ToString()) + ".gpx"));
+                                                                       dbEntry.Slug ?? dbEntry.ContentId.ToString()) +
+                               ".gpx"));
         }
 
         //Return empty if there are no details

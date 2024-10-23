@@ -4,6 +4,6 @@
 <div class="content-container" data-contentversion="<#=DbEntry.ContentVersion.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff") #>" data-contentid="<#= DbEntry.ContentId.ToString() #>">
     <#= Tags.TitleLinkDiv(DbEntry, DbEntry) #>
     <#= Tags.PostCreatedByAndUpdatedOnDiv(DbEntry).ToString() #>
-    <#= Tags.PostBodyDiv(DbEntry).Result #>
+    <#= Tags.PostBodyDiv(DbEntry, null, TrailParts.TrailGeneratedInfo(DbEntry).Result.ToString()).Result #>
     <#= BodyContentReferences.CompactContentTag(DbEntry, GenerationVersion).Result #>
 </div>
