@@ -1939,13 +1939,16 @@ public static class Db
         var postContentDateList = await db.PostContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
             .Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
+        var trailContentDateList = await db.TrailContents
+            .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
+            .Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
         var videoContentDateList = await db.VideoContents
             .Where(x => x.ShowInMainSiteFeed && !x.IsDraft && x.FeedOn < nowCutoff)
             .Select(x => new { x.ContentId, x.FeedOn }).ToListAsync().ConfigureAwait(false);
 
         var contentIdListForFeed = fileContentDateList.Concat(geoJsonContentDateList).Concat(imageContentDateList)
             .Concat(lineContentDateList).Concat(noteContentDateList).Concat(photoContentDateList)
-            .Concat(pointContentDateList).Concat(postContentDateList).Concat(videoContentDateList)
+            .Concat(pointContentDateList).Concat(postContentDateList).Concat(trailContentDateList).Concat(videoContentDateList)
             .OrderByDescending(x => x.FeedOn)
             .Take(topNumberOfEntries).Select(x => x.ContentId).ToList();
 
