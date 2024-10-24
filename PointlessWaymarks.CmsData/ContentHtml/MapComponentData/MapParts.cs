@@ -15,7 +15,7 @@ public static class MapParts
 
         var tag =
             $"""
-             <div id="MapComponent-{divScriptGuidConnector}" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map"  data-contentid="<#= DbEntry.ContentId.ToString() #>">
+             <div id="MapComponent-{divScriptGuidConnector}" class="leaflet-container leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag point-content-map"  data-contentid="{mapContentId}">
              </div>
              """;
 
