@@ -1286,6 +1286,7 @@
         <MenuItem Command="{Binding CommonCommands.NewPhotoContentCommand}" Header="Photo" />
         <MenuItem Command="{Binding CommonCommands.NewPointContentCommand}" Header="Point" />
         <MenuItem Command="{Binding CommonCommands.NewPostContentCommand}" Header="Post" />
+        <MenuItem Command="{Binding CommonCommands.NewTrailContentCommand}" Header="Trail" />
         <MenuItem Command="{Binding CommonCommands.NewVideoContentFromFilesCommand}" Header="Video From Files" />
         <MenuItem Command="{Binding CommonCommands.NewVideoContentCommand}" Header="Video" />
         <Separator />
