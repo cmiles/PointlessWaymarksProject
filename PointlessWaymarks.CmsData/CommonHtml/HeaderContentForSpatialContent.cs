@@ -19,6 +19,7 @@ public class HeaderContentForSpatialContent : IHeaderContentBasedAdditions
     {
         return $"""
                 <link rel="stylesheet" href="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.css" />
+                <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}JaroWinkler.js"></script>
                 <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}chart.min.js"></script>
                 <script src="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet.js"></script>
                 <link rel="stylesheet" href="{UserSettingsSingleton.CurrentSettings().SiteResourcesUrl()}leaflet-gesture-handling.min.css" type="text/css">

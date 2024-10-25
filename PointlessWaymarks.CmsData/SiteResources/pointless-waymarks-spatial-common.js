@@ -654,7 +654,14 @@ async function AddMarkerToMap(map, pointToAdd, linkUrl) {
             if (pictureData.SmallPictureUrl) popupContent += `<p style="text-align: center;"><img src="${pictureData.SmallPictureUrl}"></img></p>`;
         }
     }
-    if (pointToAdd.Content.Summary) popupContent += `<p>${pointToAdd.Content.Summary}</p>`;
+
+    if (pointToAdd.Content.Summary) {
+        const distance = Distance(pointToAdd.Content.Summary, pointToAdd.Content.Title);
+
+        // Prints "Distance: 0.9533"
+        console.log("Distance:", distance);
+        if(distance < .9) popupContent += `<p>${pointToAdd.Content.Summary}</p>`;
+    }
 
     const markerPopup = L.popup({ autoClose: false, autoPan: false })
         .setContent(popupContent);

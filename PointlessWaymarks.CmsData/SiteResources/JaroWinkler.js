@@ -1,8 +1,5 @@
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 var Distance = function Distance(a, b) {
   var matches = _matching(a, b);
   if (matches > 0) {
@@ -103,11 +100,4 @@ var _prefix = function _prefix(a, b) {
   }
 
   return ++p;
-};
-
-exports.default = {
-  Distance: Distance,
-  _matching: _matching,
-  _prefix: _prefix,
-  _transpositions: _transpositions
 };
