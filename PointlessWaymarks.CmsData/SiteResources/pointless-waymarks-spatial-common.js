@@ -681,7 +681,7 @@ async function AddMarkerToMap(map, pointToAdd, linkUrl) {
         labelText.addTo(map);
     }
 
-    if (pointToAdd.Content.MapIconName) {
+    if (pointToAdd.Content.MapIconName || !pointToAdd.Content.MapLabel) {
         let standardMarkerSvg = `data:image/svg+xml;utf8,${getMapIconSvg(pointToAdd.Content.MapIconName)}`;
         let standardMarkerColor = getMapMarkerColor(pointToAdd.Content.MapMarkerColor);
 
