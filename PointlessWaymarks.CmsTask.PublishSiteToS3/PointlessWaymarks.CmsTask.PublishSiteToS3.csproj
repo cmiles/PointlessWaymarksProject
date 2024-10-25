@@ -27,7 +27,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Metalama.Framework" Version="2024.2.25" />
+        <PackageReference Include="Metalama.Framework" Version="2024.2.28" />
     </ItemGroup>
 
     <ItemGroup>
