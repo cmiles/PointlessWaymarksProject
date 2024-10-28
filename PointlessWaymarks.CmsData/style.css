@@ -149,6 +149,10 @@ body {
     text-align: center;
 }
 
+.awesome-marker {
+    opacity: .7;
+}
+
 .file-embed-caption {
     display: block;
     margin-top: .2rem;
