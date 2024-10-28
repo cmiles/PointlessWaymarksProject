@@ -51,14 +51,14 @@ public static class TrailParts
 
         if (!string.IsNullOrWhiteSpace(dbContent.LocationArea))
             detailsBlock.AppendLine($"  - **Location**: {dbContent.LocationArea}");
-        if (!string.IsNullOrWhiteSpace(dbContent.TrailShape))
-            detailsBlock.AppendLine($"  - **Trail Type**: {dbContent.TrailShape}");
         detailsBlock.AppendLine(
-            $"  - **Fee**: {dbContent.Fee}{(string.IsNullOrWhiteSpace(dbContent.FeeNote) ? string.Empty : $". {dbContent.FeeNote}")}");
+            $"  - **Fees**: {dbContent.Fee}{(string.IsNullOrWhiteSpace(dbContent.FeeNote) ? string.Empty : $". {dbContent.FeeNote}")}");
         detailsBlock.AppendLine(
             $"  - **Dogs**: {dbContent.Dogs}{(string.IsNullOrWhiteSpace(dbContent.Dogs) ? string.Empty : $". {dbContent.DogsNote}")}");
         detailsBlock.AppendLine(
             $"  - **Bikes**: {dbContent.Bikes}{(string.IsNullOrWhiteSpace(dbContent.Bikes) ? string.Empty : $". {dbContent.BikesNote}")}");
+        if (!string.IsNullOrWhiteSpace(dbContent.TrailShape))
+            detailsBlock.AppendLine($"  - **Trail Type**: {dbContent.TrailShape}");
 
         if (!string.IsNullOrWhiteSpace(dbContent.OtherDetails))
         {
