@@ -1254,6 +1254,7 @@
         <MenuItem Command="{Binding CommonCommands.NewPhotoListWindowCommand}" Header="New Photo List Window" />
         <MenuItem Command="{Binding CommonCommands.NewPointListWindowCommand}" Header="New Point List Window" />
         <MenuItem Command="{Binding CommonCommands.NewPostListWindowCommand}" Header="New Post List Window" />
+        <MenuItem Command="{Binding CommonCommands.NewSnippetListWindowCommand}" Header="New Snippet List Window" />
         <MenuItem Command="{Binding CommonCommands.NewTrailListWindowCommand}" Header="New Trail List Window" />
         <MenuItem Command="{Binding CommonCommands.NewVideoListWindowCommand}" Header="New Video List Window" />
         <Separator />

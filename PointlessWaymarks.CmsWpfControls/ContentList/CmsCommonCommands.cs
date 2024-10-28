@@ -33,6 +33,7 @@ using PointlessWaymarks.CmsWpfControls.PostContentEditor;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.S3Uploads;
 using PointlessWaymarks.CmsWpfControls.SitePreview;
+using PointlessWaymarks.CmsWpfControls.SnippetList;
 using PointlessWaymarks.CmsWpfControls.TrailContentEditor;
 using PointlessWaymarks.CmsWpfControls.TrailList;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
@@ -786,6 +787,14 @@ public partial class CmsCommonCommands
         var newWindow =
             await PostListWindow.CreateInstance(
                 await PostListWithActionsContext.CreateInstance(null, WindowStatus));
+        await newWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
+    private async Task NewSnippetListWindow()
+    {
+        var newWindow =
+            await SnippetListWindow.CreateInstance(await SnippetListContext.CreateInstance(null));
         await newWindow.PositionWindowAndShowOnUiThread();
     }
 
