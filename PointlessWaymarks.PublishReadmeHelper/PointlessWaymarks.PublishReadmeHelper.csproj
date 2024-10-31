@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Metalama.Framework" Version="2024.2.28" />
+    <PackageReference Include="Metalama.Framework" Version="2024.2.29" />
   </ItemGroup>
 
 </Project>
