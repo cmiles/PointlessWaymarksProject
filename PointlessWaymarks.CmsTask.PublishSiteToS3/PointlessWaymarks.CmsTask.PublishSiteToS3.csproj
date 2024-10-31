@@ -7,6 +7,7 @@
 
     <ItemGroup>
         <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
+        <None Remove="README.md" />
     </ItemGroup>
 
     <ItemGroup>
@@ -21,6 +22,12 @@
         <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</AssemblyVersion>
         <FileVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</FileVersion>
     </PropertyGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="README.md">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="GitInfo" Version="3.3.5">
@@ -46,11 +53,8 @@
         <None Update="PointlessWaymarks.CmsTask.PublishSiteToS3.args.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="README.md">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
-        <None Update="README_Task-PublishSiteToS3.md">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <None Update="README_CmsTask-PublishSiteToS3.md">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

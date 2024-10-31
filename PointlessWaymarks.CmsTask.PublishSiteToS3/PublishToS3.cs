@@ -14,12 +14,11 @@ namespace PointlessWaymarks.CmsTask.PublishSiteToS3;
 
 public class PublishToS3
 {
-    public async System.Threading.Tasks.Task Publish(PublishToS3Settings settings)
+    public async Task Publish(PublishToS3Settings settings)
     {
         var notifier = (await WindowsNotificationBuilders.NewNotifier(PublishToS3Settings.ProgramShortName()))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
-                FileAndFolderTools.ReadAllText(
-                    Path.Combine(AppContext.BaseDirectory, "README_Task-PublishToS3.md")));
+                EmbeddedResourceTools.GetEmbeddedResourceText("README.md"));
 
         var consoleProgress = new ConsoleProgress();
 

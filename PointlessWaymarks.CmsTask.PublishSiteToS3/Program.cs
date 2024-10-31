@@ -111,8 +111,7 @@ catch (Exception e)
 
     await (await WindowsNotificationBuilders.NewNotifier(PublishToS3Settings.ProgramShortName()))
         .SetAutomationLogoNotificationIconUrl()
-        .SetErrorReportAdditionalInformationMarkdown(
-            FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README_Task-PublishToS3.md")))
+        .SetErrorReportAdditionalInformationMarkdown(EmbeddedResourceTools.GetEmbeddedResourceText("README.md"))
         .Error(e);
 }
 finally

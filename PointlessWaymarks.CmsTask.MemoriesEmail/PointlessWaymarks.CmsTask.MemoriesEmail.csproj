@@ -7,6 +7,7 @@
 
     <ItemGroup>
         <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
+        <None Remove="README.md" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,11 +27,8 @@
         <None Update="MemoriesSmtpEmailFromWebSettingsSample.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="README.md">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
-        <None Update="README_Task-MemoriesEmail.md">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <None Update="README_CmsTask-MemoriesEmail.md">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
@@ -46,6 +44,12 @@
         <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</AssemblyVersion>
         <FileVersion>$([System.DateTime]::Now.ToString("yyyy.M.d.Hmm"))</FileVersion>
     </PropertyGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="README.md">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.VaultfuscationTools\PointlessWaymarks.VaultfuscationTools.csproj" />

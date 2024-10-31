@@ -196,8 +196,7 @@ catch (Exception e)
     await (await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName()))
         .SetAutomationLogoNotificationIconUrl()
         .SetErrorReportAdditionalInformationMarkdown(
-            FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-                "README_Task-GarminConnectGpxImport.md"))).Error(e);
+            EmbeddedResourceTools.GetEmbeddedResourceText("README.md")).Error(e);
 }
 finally
 {

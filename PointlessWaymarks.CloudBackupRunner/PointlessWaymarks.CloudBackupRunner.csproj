@@ -7,6 +7,7 @@
 
     <ItemGroup>
         <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
+        <None Remove="README.md" />
     </ItemGroup>
 
     <ItemGroup>
@@ -28,6 +29,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="README.md">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="GitInfo" Version="3.3.5">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -42,9 +49,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="README.md">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
         <None Update="README_CloudBackupRunner.md">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

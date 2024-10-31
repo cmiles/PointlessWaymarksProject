@@ -28,8 +28,7 @@ public static class Program
             {
                 WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner").Result
                     .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
-                        FileAndFolderTools.ReadAllText(
-                            Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md")))
+                        EmbeddedResourceTools.GetEmbeddedResourceText("README.md"))
                     .Error("Unhandled Exception...", exceptionMessage)
                     .RunSynchronously();
             }
@@ -111,8 +110,7 @@ public static class Program
 
         var errorNotifier = (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
-                FileAndFolderTools.ReadAllText(
-                    Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md")));
+                EmbeddedResourceTools.GetEmbeddedResourceText("README.md"));
 
         Log.ForContext("args", args, true).Information(
             "PointlessWaymarks.CloudBackupRunner Starting");
@@ -206,7 +204,7 @@ public static class Program
 
         if (!Enum.TryParse(backupJob.CloudProvider, out S3Providers provider)) provider = S3Providers.Amazon;
 
-        var serviceUrl = string.Empty;
+        string serviceUrl;
 
         if (provider != S3Providers.Amazon)
         {
@@ -406,8 +404,7 @@ public static class Program
 
             await (await WindowsNotificationBuilders.NewNotifier("Cloud Backup Runner"))
                 .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
-                    FileAndFolderTools.ReadAllText(
-                        Path.Combine(AppContext.BaseDirectory, "README_CloudBackupRunner.md"))).Error(e);
+                    EmbeddedResourceTools.GetEmbeddedResourceText("README.md")).Error(e);
 
             return -1;
         }

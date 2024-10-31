@@ -13,12 +13,11 @@ namespace PointlessWaymarks.CmsTask.MemoriesEmail;
 
 public class MemoriesSmtpEmailFromWeb
 {
-    public async System.Threading.Tasks.Task GenerateEmail(MemoriesSmtpEmailFromWebSettings settings)
+    public async Task GenerateEmail(MemoriesSmtpEmailFromWebSettings settings)
     {
         var notifier =
             (await WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName()))
-            .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
-                AppContext.BaseDirectory, "README_Task-MemoriesEmail.md"))).SetAutomationLogoNotificationIconUrl();
+            .SetErrorReportAdditionalInformationMarkdown(EmbeddedResourceTools.GetEmbeddedResourceText("README.md")).SetAutomationLogoNotificationIconUrl();
 
         var httpClient = new HttpClient();
         if (!string.IsNullOrWhiteSpace(settings.BasicAuthUserName) &&
@@ -279,7 +278,7 @@ public class MemoriesSmtpEmailFromWeb
 
         Console.WriteLine("Rendering Email");
         var mjmlRenderer = new MjmlRenderer();
-        var html = mjmlRenderer.Render(text).Html;
+        var html = (await mjmlRenderer.RenderAsync(text)).Html;
         message.Body = html;
 
         Console.WriteLine("Sending Email");

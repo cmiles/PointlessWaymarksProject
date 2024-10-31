@@ -8,6 +8,7 @@
     <ItemGroup>
         <None Remove="PointlessWaymarks.CmsTask.GarminConnectGpxImport.args.json" />
         <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
+        <None Remove="README.md" />
     </ItemGroup>
 
     <ItemGroup>
@@ -29,11 +30,8 @@
         <None Update="GarminConnectGpxImportSettingsSample.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="README.md">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
-        <None Update="README_Task-GarminConnectGpxImport.md">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <None Update="README_CmsTask-GarminConnectGpxImport.md">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
@@ -60,6 +58,12 @@
         <ApplicationDefinition Include="PointlessWaymarksCmsAutomationIcon.ico">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </ApplicationDefinition>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="README.md">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
     </ItemGroup>
 
 </Project>

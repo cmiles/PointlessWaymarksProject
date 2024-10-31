@@ -13,12 +13,11 @@ namespace PointlessWaymarks.CmsTask.PhotoPickup;
 
 public class PhotoPickup
 {
-    public async System.Threading.Tasks.Task PickupPhotos(PhotoPickupSettings settings)
+    public async Task PickupPhotos(PhotoPickupSettings settings)
     {
         var notifier = (await WindowsNotificationBuilders.NewNotifier(PhotoPickupSettings.ProgramShortName()))
             .SetAutomationLogoNotificationIconUrl().SetErrorReportAdditionalInformationMarkdown(
-                FileAndFolderTools.ReadAllText(
-                    Path.Combine(AppContext.BaseDirectory, "README_Task-PhotoPickup.md")));
+                EmbeddedResourceTools.GetEmbeddedResourceText("README.md"));
 
         var pickupDirectory = new DirectoryInfo(settings.PhotoPickupDirectory);
 

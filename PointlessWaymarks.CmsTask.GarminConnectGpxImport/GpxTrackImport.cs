@@ -17,12 +17,11 @@ namespace PointlessWaymarks.CmsTask.GarminConnectGpxImport;
 
 public class GpxTrackImport
 {
-    public async System.Threading.Tasks.Task Import(GarminConnectGpxImportSettings settings)
+    public async Task Import(GarminConnectGpxImportSettings settings)
     {
         var notifier =
             (await WindowsNotificationBuilders.NewNotifier(GarminConnectGpxImportSettings.ProgramShortName()))
-            .SetErrorReportAdditionalInformationMarkdown(FileAndFolderTools.ReadAllText(Path.Combine(
-                AppContext.BaseDirectory, "README_Task-GarminConnectGpxImport.md")))
+            .SetErrorReportAdditionalInformationMarkdown(EmbeddedResourceTools.GetEmbeddedResourceText("README.md"))
             .SetAutomationLogoNotificationIconUrl();
 
         var consoleProgress = new ConsoleProgress();

@@ -7,6 +7,7 @@
 
     <ItemGroup>
         <None Remove="PointlessWaymarksCmsAutomationIcon.ico" />
+        <None Remove="README.md" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,6 +38,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="README.md">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
         <Resource Include="PointlessWaymarksCmsAutomationIcon.ico">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Resource>
@@ -46,11 +53,8 @@
         <None Update="PhotoPickupSettingsSample.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="README.md">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
-        <None Update="README_Task-PhotoPickup.md">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <None Update="README_CmsTask-PhotoPickup.md">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

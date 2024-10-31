@@ -213,8 +213,7 @@ catch (Exception e)
 
     await (await WindowsNotificationBuilders.NewNotifier(MemoriesSmtpEmailFromWebSettings.ProgramShortName()))
         .SetAutomationLogoNotificationIconUrl()
-        .SetErrorReportAdditionalInformationMarkdown(
-            FileAndFolderTools.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README_Task-MemoriesEmail.md")))
+        .SetErrorReportAdditionalInformationMarkdown(EmbeddedResourceTools.GetEmbeddedResourceText("README.md"))
         .Error(e);
 }
 finally
