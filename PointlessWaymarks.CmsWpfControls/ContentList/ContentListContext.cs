@@ -294,7 +294,18 @@ public partial class ContentListContext : IDragSource, IDropTarget
         {
             await ThreadSwitcher.ResumeForegroundAsync();
 
-            existingListItemsMatchingNotification.ForEach(x => Items.Remove(x));
+            foreach (var x in existingListItemsMatchingNotification)
+            {
+                Log.ForContext("x", x.SafeObjectDump()).Verbose("Content List: Delete Message Received");
+                try
+                {
+                    Items.Remove(x);
+                }
+                catch (Exception exception)
+                {
+                    Log.ForContext("x", x.SafeObjectDump()).Error("Content List: Delete Message Received");
+                }
+            }
 
             return;
         }
