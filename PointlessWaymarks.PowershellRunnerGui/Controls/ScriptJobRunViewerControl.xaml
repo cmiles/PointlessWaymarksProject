@@ -84,7 +84,7 @@
         </StackPanel>
         <Grid Grid.Row="1" Margin="4">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" MaxHeight="250" />
+                <RowDefinition Height="*" MaxHeight="250" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <ContentControl
