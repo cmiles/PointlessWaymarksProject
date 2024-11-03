@@ -9,6 +9,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.SpatialTools;
+using Serilog;
 
 namespace PointlessWaymarks.CmsData.Json;
 
@@ -22,16 +23,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<FileContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"File - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<FileContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"File - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "File '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"File - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -75,16 +84,23 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<GeoJsonContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"GeoJson - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<GeoJsonContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"GeoJson - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString())
+                    .Debug("GeoJson '{contentTitle}' had an invalid Json File on Disk", dbEntry.Title);
+            }
 
         progress?.Report($"GeoJson - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -138,16 +154,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<ImageContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Image - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<ImageContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Image - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Image '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"Image - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -196,16 +220,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<LineContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Line - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<LineContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Line - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Line '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"Line - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -257,24 +289,27 @@ public static class Export
         var jsonFile = settings.LocalSiteLinkListJsonFile();
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<List<LinkContent>>(jsonFileStream);
-
-            if (new CompareLogic().Compare(allContent, onDiskObject).AreEqual)
+            try
             {
-                progress?.Report("Link List - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<List<LinkContent>>(jsonFileStream);
+
+                if (new CompareLogic().Compare(allContent, onDiskObject).AreEqual)
+                {
+                    progress?.Report("Link List - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug("The Link List had an invalid Json File on Disk");
+            }
 
         progress?.Report("Link List - Serializing and Writing Current Entry");
-
         if (jsonFile.Exists) jsonFile.Delete();
         jsonFile.Refresh();
-
         var jsonDbEntry = JsonSerializer.Serialize(allContent);
-
         await FileManagement.WriteAllTextToFileAndLog(jsonFile.FullName, jsonDbEntry).ConfigureAwait(false);
 
         progress?.Report("Link List - Serializing and Writing Historic Entries");
@@ -321,8 +356,10 @@ public static class Export
             }
             catch (Exception e)
             {
-                //Something went wrong with the deserialization - just continue
-                Console.WriteLine(e);
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Map '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
             }
         }
 
@@ -436,16 +473,22 @@ public static class Export
         var jsonFile = settings.LocalSiteMenuLinksJsonFile();
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<List<MenuLink>>(jsonFileStream);
-
-            if (new CompareLogic().Compare(allContent, onDiskObject).AreEqual)
+            try
             {
-                progress?.Report("Menu Link Json - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<List<MenuLink>>(jsonFileStream);
+
+                if (new CompareLogic().Compare(allContent, onDiskObject).AreEqual)
+                {
+                    progress?.Report("Menu Link Json - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(jsonFile), jsonFile).ForContext("Exception", e.ToString())
+                    .Debug("Menu Links had an invalid Json File on Disk");
+            }
 
         progress?.Report("Menu Link Json - Serializing and Writing Current Entries");
 
@@ -465,16 +508,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<NoteContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Note - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<NoteContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Note - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Note '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"Note - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -518,16 +569,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<PhotoContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Photo - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<PhotoContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Photo - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Photo '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"Photo - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -580,16 +639,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<PointContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dtoToArchive, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Point - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<PointContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dtoToArchive, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Point - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Point '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"Point - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -631,16 +698,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<PostContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Post - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<PostContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Post - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Post '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"Post - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -684,16 +759,23 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<SnippetOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Snippet - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<SnippetOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Snippet - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString())
+                    .Debug("Snippet '{contentTitle}' had an invalid Json File on Disk", dbEntry.Title);
+            }
 
         progress?.Report($"Snippet - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -739,16 +821,22 @@ public static class Export
         var jsonFile = settings.LocalSiteTagExclusionsJsonFile();
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<List<TagExclusion>>(jsonFileStream);
-
-            if (new CompareLogic().Compare(allContent, onDiskObject).AreEqual)
+            try
             {
-                progress?.Report("Tag Exclusions Json - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<List<TagExclusion>>(jsonFileStream);
+
+                if (new CompareLogic().Compare(allContent, onDiskObject).AreEqual)
+                {
+                    progress?.Report("Tag Exclusions Json - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(jsonFile), jsonFile).ForContext("Exception", e.ToString())
+                    .Debug("Tag Exclusions had an invalid Json File on Disk");
+            }
 
         progress?.Report("Tag Exclusions Json - Serializing and Writing Current Entries");
 
@@ -769,16 +857,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<TrailContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Trail - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<TrailContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Trail - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Trail '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"Trail - {dbEntry.Title} - Serializing and Writing Current Entry");
 
@@ -822,16 +918,24 @@ public static class Export
             $"{dbEntry.ContentId}.json"));
 
         if (jsonFile.Exists)
-        {
-            await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var onDiskObject = await JsonSerializer.DeserializeAsync<VideoContentOnDiskData>(jsonFileStream);
-
-            if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+            try
             {
-                progress?.Report($"Video - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
-                return;
+                await using var jsonFileStream = jsonFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var onDiskObject = await JsonSerializer.DeserializeAsync<VideoContentOnDiskData>(jsonFileStream);
+
+                if (new CompareLogic().Compare(dbEntry, onDiskObject?.Content).AreEqual)
+                {
+                    progress?.Report($"Video - {dbEntry.Title} - Current and On Disk Json are the same - continuing");
+                    return;
+                }
             }
-        }
+            catch (Exception e)
+            {
+                Log.ForContext(nameof(dbEntry), dbEntry.SafeObjectDump()).ForContext(nameof(jsonFile), jsonFile)
+                    .ForContext("Exception", e.ToString()).Debug(
+                        "Video '{contentTitle}' had an invalid Json File on Disk",
+                        dbEntry.Title);
+            }
 
         progress?.Report($"Video - {dbEntry.Title} - Serializing and Writing Current Entry");
 
