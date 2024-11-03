@@ -269,8 +269,15 @@ public static class Intersection
                 foreach (var loopCheck in toCheck)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-
-                    if (loopCheck.Features.Any(x => x.Geometry.Intersects(loopIntersectFeature.Geometry)))
+                   
+                    if (loopCheck.Features.Any(x => 
+                            x.Geometry.Intersects(loopIntersectFeature.Geometry)
+                            || x.Geometry.Crosses(loopIntersectFeature.Geometry)
+                            || x.Geometry.Contains(loopIntersectFeature.Geometry)
+                            || x.Geometry.Overlaps(loopIntersectFeature.Geometry)
+                            || x.Geometry.CoveredBy(loopIntersectFeature.Geometry)
+                            || x.Geometry.Touches(loopIntersectFeature.Geometry)
+                            || x.Geometry.Within(loopIntersectFeature.Geometry)))
                     {
                         foreach (var loopAttribute in loopIntersectFile.AttributesForTags)
                             if (loopIntersectFeature.Attributes.GetNames().Any(a => a == loopAttribute))
