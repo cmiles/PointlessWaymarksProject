@@ -459,12 +459,6 @@ public partial class CmsCommonCommands
                     $"New Line Editor - {loopFile.FullName} - Track {innerLoopCounter} of {tracksList.Count}");
             }
 
-            if (routesList.Count < 1 || routesList.All(x => x.Track.Count < 2))
-            {
-                await statusContext.ToastWarning($"No Routes in {loopFile.Name}? Skipping...");
-                continue;
-            }
-
             innerLoopCounter = 0;
 
             foreach (var loopRoutes in routesList.Where(x => x.Track.Count > 1))
