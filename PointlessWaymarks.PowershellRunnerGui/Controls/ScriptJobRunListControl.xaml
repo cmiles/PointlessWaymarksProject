@@ -73,6 +73,7 @@
                         <MenuItem Header="Diff Selected" Command="{Binding DiffSelectedRunCommand}"></MenuItem>
                         <MenuItem Header="Delete Selected" Command="{Binding DeleteSelectedRunsCommand}"></MenuItem>
                         <MenuItem Header="Edit Job" Command="{Binding EditJobOfSelectedRunCommand}"></MenuItem>
+                        <MenuItem Header="Run Job" Command="{Binding RunJobOfSelectedRunCommand}"></MenuItem>
                     </ContextMenu>
                 </filterDataGrid:FilterDataGrid.ContextMenu>
                 <filterDataGrid:FilterDataGrid.Columns>

@@ -30,6 +30,12 @@ public partial class ScriptJobListContext
 
     public required string DatabaseFile { get; set; }
     public NotificationCatcher? DataNotificationsProcessor { get; set; }
+    public bool FilterForLastRunError { get; set; }
+    public bool FilterForLastRunSuccess { get; set; }
+    public bool FilterForNotScheduled { get; set; }
+    public bool FilterForRunning { get; set; }
+    public bool FilterForScheduled { get; set; }
+    public bool FilterForScheduleDisabled { get; set; }
     public required ObservableCollection<ScriptJobListListItem> Items { get; set; }
     public required ColumnSortControlContext ListSort { get; set; }
     public ScriptJobListListItem? SelectedItem { get; set; }
@@ -192,28 +198,90 @@ public partial class ScriptJobListContext
         await ScriptJobEditorLauncher.CreateInstance(toEdit.DbEntry, DatabaseFile);
     }
 
-    private async Task FilterList()
+    public async Task FilterList()
     {
         if (!Items.Any()) return;
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
-        if (string.IsNullOrWhiteSpace(UserFilterText))
-        {
-            ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = _ => true;
-            return;
-        }
+        var cleanedFilterText = UserFilterText.TrimNullToEmpty();
 
-        var cleanedFilterText = UserFilterText.Trim();
+        var scheduledFilter = cleanedFilterText.Contains("!scheduled", StringComparison.OrdinalIgnoreCase) ||
+                              FilterForScheduled;
+        var notScheduledFilter = cleanedFilterText.Contains("!notScheduled", StringComparison.OrdinalIgnoreCase) ||
+                                 FilterForNotScheduled;
+        var scheduleDisabledFilter =
+            cleanedFilterText.Contains("!scheduleDisabled", StringComparison.OrdinalIgnoreCase) ||
+            FilterForScheduleDisabled;
+        var lastRunErrorFilter = cleanedFilterText.Contains("!lastRunError", StringComparison.OrdinalIgnoreCase) ||
+                                 FilterForLastRunError;
+        var lastRunSuccessFilter = cleanedFilterText.Contains("!lastRunSuccess", StringComparison.OrdinalIgnoreCase) ||
+                                   FilterForLastRunSuccess;
+        var runningFilter = cleanedFilterText.Contains("!running", StringComparison.OrdinalIgnoreCase) ||
+                            FilterForRunning;
 
         ((CollectionView)CollectionViewSource.GetDefaultView(Items)).Filter = o =>
         {
             if (o is not ScriptJobListListItem toFilter) return false;
 
+            if (scheduledFilter)
+                if (!toFilter.DbEntry.ScheduleEnabled || string.IsNullOrWhiteSpace(toFilter.DbEntry.CronExpression))
+                    return false;
+            if (notScheduledFilter)
+                if (toFilter.DbEntry.ScheduleEnabled && !string.IsNullOrWhiteSpace(toFilter.DbEntry.CronExpression))
+                    return false;
+            if (scheduleDisabledFilter)
+                if (toFilter.DbEntry.ScheduleEnabled || string.IsNullOrWhiteSpace(toFilter.DbEntry.CronExpression))
+                    return false;
+            if (lastRunErrorFilter)
+            {
+                if (!toFilter.Items.Any()) return false;
+                var latestByStart = toFilter.Items.MaxBy(x => x.StartedOnUtc);
+                if (latestByStart is null) return false;
+                if (latestByStart.CompletedOnUtc is null) return false;
+                if (!latestByStart.Errors) return false;
+            }
+
+            if (lastRunSuccessFilter)
+            {
+                if (!toFilter.Items.Any()) return false;
+                var latestByStart = toFilter.Items.MaxBy(x => x.StartedOnUtc);
+                if (latestByStart is null) return false;
+                if (latestByStart.CompletedOnUtc is null) return false;
+                if (latestByStart.Errors) return false;
+            }
+
+            if (runningFilter)
+            {
+                if (!toFilter.Items.Any()) return false;
+                var latestByStart = toFilter.Items.MaxBy(x => x.StartedOnUtc);
+                if (latestByStart is null) return false;
+                if (latestByStart.CompletedOnUtc is not null) return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(cleanedFilterText)) return true;
+
             return toFilter.DbEntry.Name.Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase)
                    || toFilter.DbEntry.PersistentId.ToString()
                        .Contains(cleanedFilterText, StringComparison.OrdinalIgnoreCase);
         };
+    }
+
+    [NonBlockingCommand]
+    public async Task NewCsScriptJob()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var newJob = new ScriptJob
+        {
+            Name = "New Script Job",
+            LastEditOn = DateTime.Now,
+            ScriptType = ScriptKind.CsScript.ToString()
+        };
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        await ScriptJobEditorLauncher.CreateInstance(newJob, DatabaseFile);
     }
 
 
@@ -234,27 +302,11 @@ public partial class ScriptJobListContext
         await ScriptJobEditorLauncher.CreateInstance(newJob, DatabaseFile);
     }
 
-    [NonBlockingCommand]
-    public async Task NewCsScriptJob()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        var newJob = new ScriptJob
-        {
-            Name = "New Script Job",
-            LastEditOn = DateTime.Now,
-            ScriptType = ScriptKind.CsScript.ToString()
-        };
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        await ScriptJobEditorLauncher.CreateInstance(newJob, DatabaseFile);
-    }
-
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
-        if (e.PropertyName.Equals(nameof(UserFilterText)))
+        if (e.PropertyName.Equals(nameof(UserFilterText)) ||
+            e.PropertyName.StartsWith("FilterFor", StringComparison.InvariantCultureIgnoreCase))
             StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
     }
 
@@ -298,11 +350,13 @@ public partial class ScriptJobListContext
 
             if (dbItem == null) return;
 
-            var toAdd = await ScriptJobListListItem.CreateInstance(dbItem, _databaseFile);
+            var toAdd = await ScriptJobListListItem.CreateInstance(dbItem, this, _databaseFile);
 
             await ThreadSwitcher.ResumeForegroundAsync();
 
             Items.Add(toAdd);
+
+            StatusContext.RunFireAndForgetNonBlockingTask(FilterList);
         }
     }
 
@@ -319,7 +373,7 @@ public partial class ScriptJobListContext
 
         Items.Clear();
 
-        foreach (var x in jobs) Items.Add(await ScriptJobListListItem.CreateInstance(x, _databaseFile));
+        foreach (var x in jobs) Items.Add(await ScriptJobListListItem.CreateInstance(x, this, _databaseFile));
 
         await FilterList();
 
@@ -358,7 +412,8 @@ public partial class ScriptJobListContext
         }
 
         foreach (var loopSelected in currentSelection)
-            await PowerShellRunner.ExecuteJob(loopSelected.DbEntry.PersistentId, loopSelected.DbEntry.AllowSimultaneousRuns, DatabaseFile,
+            await PowerShellRunner.ExecuteJob(loopSelected.DbEntry.PersistentId,
+                loopSelected.DbEntry.AllowSimultaneousRuns, DatabaseFile,
                 "Run From PowerShell Runner Gui");
     }
 
@@ -534,12 +589,8 @@ public partial class ScriptJobListContext
         }
 
         if (toView.DbEntry.ScriptType == ScriptKind.CsScript.ToString())
-        {
             await CsScriptViewWindow.CreateInstance(toView.DbEntry.PersistentId, DatabaseFile);
-        }
         else
-        {
             await ScriptViewWindow.CreateInstance(toView.DbEntry.PersistentId, DatabaseFile);
-        }
     }
 }

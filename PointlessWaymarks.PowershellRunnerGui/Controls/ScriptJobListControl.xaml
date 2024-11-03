@@ -163,258 +163,297 @@
                         DataContext="{Binding ListSort}" />
                 </Grid>
             </GroupBox.Header>
-            <ListBox
-                Margin="0,4,0,0"
-                behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
-                ItemsSource="{Binding Items}"
-                SelectedItem="{Binding SelectedItem}"
-                Style="{StaticResource ContentListListBoxStyle}">
-                <ListBox.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem
-                            Command="{Binding EditJobCommand}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="Edit" />
-                        <MenuItem
-                            Command="{Binding ViewScriptCommand}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="View Script" />
-                        <MenuItem
-                            Command="{Binding DeleteJobCommand}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="Delete" />
-                        <MenuItem
-                            Command="{Binding Diff}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="Diff Latest Runs" />
-                        <MenuItem
-                            Command="{Binding ViewLatestJobRunCommand}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="View Latest Run" />
-                        <MenuItem
-                            Command="{Binding ViewRunListCommand}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="View Run List" />
-                        <MenuItem
-                            Command="{Binding ViewProgressWindowCommand}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="Progress Window" />
-                        <MenuItem
-                            Command="{Binding RunJobCommand}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="Run" />
-                        <MenuItem
-                            Command="{Binding RunWithProgressWindowCommand}"
-                            CommandParameter="{Binding SelectedItem}"
-                            Header="Run with Progress Window" />
-                    </ContextMenu>
-                </ListBox.ContextMenu>
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type local:ScriptJobListListItem}">
-                        <Border Style="{StaticResource ContentListOuterBorderStyle}">
-                            <Border.InputBindings>
-                                <MouseBinding
-                                    Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
-                                    CommandParameter="{Binding .}"
-                                    Gesture="Shift+LeftDoubleClick" />
-                            </Border.InputBindings>
-                            <Grid Style="{StaticResource ContentListOuterGridStyle}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="240" />
-                                </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <TextBox
-                                        FontWeight="Bold"
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        TextWrapping="Wrap"
-                                        ToolTip="{Binding TranslatedScript}">
-                                        <TextBox.Text>
-                                            <MultiBinding StringFormat="{}{0} - Id  {1}">
-                                                <Binding Path="DbEntry.Name" />
-                                                <Binding Path="DbEntry.PersistentId" />
-                                            </MultiBinding>
-                                        </TextBox.Text>
-                                        <TextBox.InputBindings>
-                                            <MouseBinding
-                                                Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding .}"
-                                                Gesture="Shift+LeftDoubleClick" />
-                                        </TextBox.InputBindings>
-                                        <b:Interaction.Behaviors>
-                                            <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
-                                        </b:Interaction.Behaviors>
-                                    </TextBox>
-                                    <TextBox
-                                        Grid.Row="1"
-                                        Margin="6,4,4,0"
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        TextWrapping="Wrap">
-                                        <TextBox.Text>
-                                            <MultiBinding StringFormat="{}{0} --Simultaneous Runs Allowed: {1} --Script Job Run information automatically deleted after {2} months.">
-                                                <Binding Path="DbEntry.Description" />
-                                                <Binding Path="DbEntry.AllowSimultaneousRuns" />
-                                                <Binding Path="DbEntry.DeleteScriptJobRunsAfterMonths" />
-                                            </MultiBinding>
-                                        </TextBox.Text>
-                                        <TextBox.InputBindings>
-                                            <MouseBinding
-                                                Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding .}"
-                                                Gesture="Shift+LeftDoubleClick" />
-                                        </TextBox.InputBindings>
-                                        <b:Interaction.Behaviors>
-                                            <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
-                                        </b:Interaction.Behaviors>
-                                    </TextBox>
-                                    <TextBox
-                                        Grid.Row="2"
-                                        Margin="12,6,4,0"
-                                        VerticalAlignment="Top"
-                                        Style="{StaticResource ReadOnlyTextBoxStyle}"
-                                        TextWrapping="Wrap"
-                                        Visibility="{Binding DbEntry.CronExpression, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
-                                        <TextBox.Text>
-                                            <MultiBinding StringFormat="{}{0} ({1}) - Enabled: {2} - Next Run: {3:g}">
-                                                <Binding Path="DbEntry.CronExpression" />
-                                                <Binding Path="CronDescription" />
-                                                <Binding Path="DbEntry.ScheduleEnabled" />
-                                                <Binding Converter="{StaticResource DateTimeMaxValueToNull}" Path="NextRun" />
-                                            </MultiBinding>
-                                        </TextBox.Text>
-                                        <TextBox.InputBindings>
-                                            <MouseBinding
-                                                Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
-                                                CommandParameter="{Binding .}"
-                                                Gesture="Shift+LeftDoubleClick" />
-                                        </TextBox.InputBindings>
-                                        <b:Interaction.Behaviors>
-                                            <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
-                                        </b:Interaction.Behaviors>
-                                    </TextBox>
-                                    <WrapPanel
-                                        Grid.Row="3"
-                                        Margin="6,10,4,0"
-                                        Orientation="Horizontal">
-                                        <WrapPanel.Resources>
-                                            <Style TargetType="Button">
-                                                <Setter Property="Margin" Value="2" />
-                                                <Setter Property="Padding" Value="10,4,8,4" />
-                                            </Style>
-                                        </WrapPanel.Resources>
-                                        <Button Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
-                                            Edit
-                                        </Button>
-                                        <Button Command="{Binding Data.ViewScriptCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
-                                            View Script
-                                        </Button>
-                                        <Button Command="{Binding Data.DiffLatestRunsCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
-                                            Diff Latest Runs
-                                        </Button>
-                                        <Button Command="{Binding Data.ViewLatestJobRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
-                                            View Latest Run
-                                        </Button>
-                                        <Button Command="{Binding Data.ViewRunListCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
-                                            View Run List
-                                        </Button>
-                                        <Button Command="{Binding Data.ViewProgressWindowCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
-                                            Progress Window
-                                        </Button>
-                                        <Button Command="{Binding Data.RunJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
-                                            Run
-                                        </Button>
-                                        <Button Command="{Binding Data.RunWithProgressWindowCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
-                                            Run with Progress Window
-                                        </Button>
-                                    </WrapPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <WrapPanel Margin="38,4,4,4">
+                    <WrapPanel.Resources>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="Margin" Value="14,4,0,0"></Setter>
+                        </Style>
+                    </WrapPanel.Resources>
+                    <CheckBox IsChecked="{Binding FilterForScheduled}">Scheduled</CheckBox>
+                    <CheckBox IsChecked="{Binding FilterForScheduleDisabled}">Schedule Disabled</CheckBox>
+                    <CheckBox IsChecked="{Binding FilterForNotScheduled}">Not Scheduled</CheckBox>
+                    <CheckBox IsChecked="{Binding FilterForLastRunError}">Last Run Error</CheckBox>
+                    <CheckBox IsChecked="{Binding FilterForLastRunSuccess}">Last Run Success</CheckBox>
+                    <CheckBox IsChecked="{Binding FilterForRunning}">Running</CheckBox>
+                </WrapPanel>
+                <ListBox Grid.Row="1"
+                    Margin="0,4,0,0"
+                    behaviors:MultiSelectBehavior.SynchronizedSelectedItems="{Binding SelectedItems}"
+                    ItemsSource="{Binding Items}"
+                    SelectedItem="{Binding SelectedItem}"
+                    Style="{StaticResource ContentListListBoxStyle}">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem
+                                Command="{Binding EditJobCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="Edit" />
+                            <MenuItem
+                                Command="{Binding ViewScriptCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="View Script" />
+                            <MenuItem
+                                Command="{Binding DeleteJobCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="Delete" />
+                            <MenuItem
+                                Command="{Binding DiffLatestRunsCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="Diff Latest Runs" />
+                            <MenuItem
+                                Command="{Binding ViewLatestJobRunCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="View Latest Run" />
+                            <MenuItem
+                                Command="{Binding ViewRunListCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="View Run List" />
+                            <MenuItem
+                                Command="{Binding ViewProgressWindowCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="Progress Window" />
+                            <MenuItem
+                                Command="{Binding RunJobCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="Run" />
+                            <MenuItem
+                                Command="{Binding RunWithProgressWindowCommand}"
+                                CommandParameter="{Binding SelectedItem}"
+                                Header="Run with Progress Window" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:ScriptJobListListItem}">
+                            <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                                <Border.InputBindings>
+                                    <MouseBinding
+                                        Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
+                                        CommandParameter="{Binding .}"
+                                        Gesture="Shift+LeftDoubleClick" />
+                                </Border.InputBindings>
+                                <Grid Style="{StaticResource ContentListOuterGridStyle}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="240" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBox
+                                                FontWeight="Bold"
+                                                Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                                TextWrapping="Wrap"
+                                                ToolTip="{Binding TranslatedScript}">
+                                                <TextBox.Text>
+                                                    <MultiBinding StringFormat="{}{0} - Id  {1}">
+                                                        <Binding Path="DbEntry.Name" />
+                                                        <Binding Path="DbEntry.PersistentId" />
+                                                    </MultiBinding>
+                                                </TextBox.Text>
+                                                <TextBox.InputBindings>
+                                                    <MouseBinding
+                                                        Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
+                                                        CommandParameter="{Binding .}"
+                                                        Gesture="Shift+LeftDoubleClick" />
+                                                </TextBox.InputBindings>
+                                                <b:Interaction.Behaviors>
+                                                    <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
+                                                </b:Interaction.Behaviors>
+                                            </TextBox>
+                                            <TextBox
+                                                Margin="8,0,0,0"
+                                                FontWeight="Bold"
+                                                Foreground="Red"
+                                                Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                                ToolTip="{Binding TranslatedScript}">
+                                                <TextBox.Visibility>
+                                                    <MultiBinding Converter="{StaticResource VisibleWhenAllFalseOtherwiseCollapsedMulti}">
+                                                        <Binding Path="DbEntry.ScheduleEnabled" />
+                                                        <Binding Converter="{StaticResource NullOrWhiteSpaceStringToTrue}" Path="CronDescription" />
+                                                    </MultiBinding>
+                                                </TextBox.Visibility>
+                                                Schedule Disabled
+                                            </TextBox>
+                                            <TextBox
+                                                Margin="8,0,0,0"
+                                                FontWeight="Bold"
+                                                Foreground="Green"
+                                                Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                                ToolTip="{Binding TranslatedScript}">
+                                                <TextBox.Visibility>
+                                                    <MultiBinding Converter="{StaticResource VisibleWhenAllTrueOtherwiseCollapsedMulti}">
+                                                        <Binding Path="DbEntry.ScheduleEnabled" />
+                                                        <Binding Converter="{StaticResource NullOrWhiteSpaceStringToFalse}" Path="CronDescription" />
+                                                    </MultiBinding>
+                                                </TextBox.Visibility>
+                                                Scheduled
+                                            </TextBox>
+                                        </StackPanel>
+                                        <TextBox
+                                            Grid.Row="1"
+                                            Margin="6,4,4,0"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                            TextWrapping="Wrap">
+                                            <TextBox.Text>
+                                                <MultiBinding StringFormat="{}{0} --Simultaneous Runs Allowed: {1} --Script Job Run information automatically deleted after {2} months.">
+                                                    <Binding Path="DbEntry.Description" />
+                                                    <Binding Path="DbEntry.AllowSimultaneousRuns" />
+                                                    <Binding Path="DbEntry.DeleteScriptJobRunsAfterMonths" />
+                                                </MultiBinding>
+                                            </TextBox.Text>
+                                            <TextBox.InputBindings>
+                                                <MouseBinding
+                                                    Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
+                                                    CommandParameter="{Binding .}"
+                                                    Gesture="Shift+LeftDoubleClick" />
+                                            </TextBox.InputBindings>
+                                            <b:Interaction.Behaviors>
+                                                <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
+                                            </b:Interaction.Behaviors>
+                                        </TextBox>
+                                        <TextBox
+                                            Grid.Row="2"
+                                            Margin="12,6,4,0"
+                                            VerticalAlignment="Top"
+                                            Style="{StaticResource ReadOnlyTextBoxStyle}"
+                                            TextWrapping="Wrap"
+                                            Visibility="{Binding DbEntry.CronExpression, Converter={StaticResource NullOrWhiteSpaceStringToCollapsed}}">
+                                            <TextBox.Text>
+                                                <MultiBinding StringFormat="{}{0} ({1}) - Enabled: {2} - Next Run: {3:g}">
+                                                    <Binding Path="DbEntry.CronExpression" />
+                                                    <Binding Path="CronDescription" />
+                                                    <Binding Path="DbEntry.ScheduleEnabled" />
+                                                    <Binding Converter="{StaticResource DateTimeMaxValueToNull}" Path="NextRun" />
+                                                </MultiBinding>
+                                            </TextBox.Text>
+                                            <TextBox.InputBindings>
+                                                <MouseBinding
+                                                    Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}"
+                                                    CommandParameter="{Binding .}"
+                                                    Gesture="Shift+LeftDoubleClick" />
+                                            </TextBox.InputBindings>
+                                            <b:Interaction.Behaviors>
+                                                <behaviors:ReadOnlyTextBoxClickKeyboardAndDragPass />
+                                            </b:Interaction.Behaviors>
+                                        </TextBox>
+                                        <WrapPanel
+                                            Grid.Row="3"
+                                            Margin="6,10,4,0"
+                                            Orientation="Horizontal">
+                                            <WrapPanel.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Margin" Value="2" />
+                                                    <Setter Property="Padding" Value="10,4,8,4" />
+                                                </Style>
+                                            </WrapPanel.Resources>
+                                            <Button Command="{Binding Data.EditJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                                Edit
+                                            </Button>
+                                            <Button Command="{Binding Data.ViewScriptCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                                View Script
+                                            </Button>
+                                            <Button Command="{Binding Data.DiffLatestRunsCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                                Diff Latest Runs
+                                            </Button>
+                                            <Button Command="{Binding Data.ViewLatestJobRunCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                                View Latest Run
+                                            </Button>
+                                            <Button Command="{Binding Data.ViewRunListCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                                View Run List
+                                            </Button>
+                                            <Button Command="{Binding Data.ViewProgressWindowCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                                Progress Window
+                                            </Button>
+                                            <Button Command="{Binding Data.RunJobCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                                Run
+                                            </Button>
+                                            <Button Command="{Binding Data.RunWithProgressWindowCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                                Run with Progress Window
+                                            </Button>
+                                        </WrapPanel>
+                                        <GroupBox
+                                            Grid.Row="4"
+                                            Grid.Column="0"
+                                            MaxHeight="200"
+                                            Margin="6,8,0,4"
+                                            Header="Latest Progress"
+                                            Style="{StaticResource UiComponentGroupBoxStyle}">
+                                            <ContentControl
+                                                Content="{Binding LastProgressItem}"
+                                                ContentTemplateSelector="{StaticResource ProgressSelectorTemplate}"
+                                                ScrollViewer.VerticalScrollBarVisibility="Visible" />
+                                        </GroupBox>
+                                    </Grid>
                                     <GroupBox
-                                        Grid.Row="4"
-                                        Grid.Column="0"
-                                        MaxHeight="200"
-                                        Margin="6,8,0,4"
-                                        Header="Latest Progress"
-                                        Style="{StaticResource UiComponentGroupBoxStyle}">
-                                        <ContentControl
-                                            Content="{Binding LastProgressItem}"
-                                            ContentTemplateSelector="{StaticResource ProgressSelectorTemplate}"
-                                            ScrollViewer.VerticalScrollBarVisibility="Visible" />
-                                    </GroupBox>
-                                </Grid>
-                                <GroupBox
-                                    Grid.Row="0"
-                                    Grid.Column="1"
-                                    Margin="6,4,2,4"
-                                    VerticalAlignment="Top"
-                                    Header="Recent Runs">
-                                    <GroupBox.Resources>
-                                        <CollectionViewSource
-                                            xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-                                            x:Key="SortedRunItems"
-                                            Source="{Binding Items}">
-                                            <CollectionViewSource.SortDescriptions>
-                                                <scm:SortDescription Direction="Descending" PropertyName="StartedOnUtc" />
-                                            </CollectionViewSource.SortDescriptions>
-                                        </CollectionViewSource>
-                                    </GroupBox.Resources>
-                                    <ListBox
-                                        HorizontalContentAlignment="Stretch"
-                                        BorderThickness="0"
-                                        ItemsSource="{Binding Source={StaticResource SortedRunItems}}"
-                                        ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                        SelectedItem="{Binding SelectedItem}"
-                                        SelectionMode="Single">
-                                        <ListBox.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem
-                                                    Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
-                                                    CommandParameter="{Binding SelectedItem}"
-                                                    Header="View Run" />
-                                            </ContextMenu>
-                                        </ListBox.ContextMenu>
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:ScriptJobRun}">
-                                                <Border BorderThickness="1" CornerRadius="2">
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
-                                                            <Setter Property="BorderBrush" Value="LightGray" />
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Errors}" Value="True">
-                                                                    <Setter Property="BorderBrush" Value="Red" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Border.Style>
-                                                    <Border.InputBindings>
-                                                        <MouseBinding
-                                                            Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
-                                                            CommandParameter="{Binding}"
-                                                            Gesture="LeftDoubleClick" />
-                                                    </Border.InputBindings>
-                                                    <Grid>
-                                                        <Grid.InputBindings>
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="6,4,2,4"
+                                        VerticalAlignment="Top"
+                                        Header="Recent Runs">
+                                        <GroupBox.Resources>
+                                            <CollectionViewSource
+                                                xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+                                                x:Key="SortedRunItems"
+                                                Source="{Binding Items}">
+                                                <CollectionViewSource.SortDescriptions>
+                                                    <scm:SortDescription Direction="Descending" PropertyName="StartedOnUtc" />
+                                                </CollectionViewSource.SortDescriptions>
+                                            </CollectionViewSource>
+                                        </GroupBox.Resources>
+                                        <ListBox
+                                            HorizontalContentAlignment="Stretch"
+                                            BorderThickness="0"
+                                            ItemsSource="{Binding Source={StaticResource SortedRunItems}}"
+                                            ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                            SelectedItem="{Binding SelectedItem}"
+                                            SelectionMode="Single">
+                                            <ListBox.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem
+                                                        Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                        CommandParameter="{Binding SelectedItem}"
+                                                        Header="View Run" />
+                                                </ContextMenu>
+                                            </ListBox.ContextMenu>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type models:ScriptJobRun}">
+                                                    <Border BorderThickness="1" CornerRadius="2">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="BorderBrush" Value="LightGray" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Errors}" Value="True">
+                                                                        <Setter Property="BorderBrush" Value="Red" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <Border.InputBindings>
                                                             <MouseBinding
                                                                 Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
                                                                 CommandParameter="{Binding}"
                                                                 Gesture="LeftDoubleClick" />
-                                                        </Grid.InputBindings>
-                                                        <StackPanel Orientation="Vertical">
-                                                            <TextBlock Margin="2,0,2,0" Text="{Binding StartedOnUtc, StringFormat='{}{0:g}', Converter={StaticResource UtcTimeToLocalTime}}">
-                                                                <TextBlock.InputBindings>
-                                                                    <MouseBinding
-                                                                        Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
-                                                                        CommandParameter="{Binding}"
-                                                                        Gesture="LeftDoubleClick" />
-                                                                </TextBlock.InputBindings>
-                                                            </TextBlock>
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <TextBlock Margin="16,2,2,0" Text="{Binding CompletedOnUtc, StringFormat='{}{0:g}', FallbackValue='(Not Complete)', Converter={StaticResource UtcTimeToLocalTime}}">
+                                                        </Border.InputBindings>
+                                                        <Grid>
+                                                            <Grid.InputBindings>
+                                                                <MouseBinding
+                                                                    Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Gesture="LeftDoubleClick" />
+                                                            </Grid.InputBindings>
+                                                            <StackPanel Orientation="Vertical">
+                                                                <TextBlock Margin="2,0,2,0" Text="{Binding StartedOnUtc, StringFormat='{}{0:g}', Converter={StaticResource UtcTimeToLocalTime}}">
                                                                     <TextBlock.InputBindings>
                                                                         <MouseBinding
                                                                             Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
@@ -422,7 +461,30 @@
                                                                             Gesture="LeftDoubleClick" />
                                                                     </TextBlock.InputBindings>
                                                                 </TextBlock>
-                                                                <TextBlock Margin="8,2,2,0" Text="{Binding LengthInSeconds, Converter={StaticResource LengthInSecondsToHumanReadable}}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Margin="16,2,2,0" Text="{Binding CompletedOnUtc, StringFormat='{}{0:g}', FallbackValue='(Not Complete)', Converter={StaticResource UtcTimeToLocalTime}}">
+                                                                        <TextBlock.InputBindings>
+                                                                            <MouseBinding
+                                                                                Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                                                CommandParameter="{Binding}"
+                                                                                Gesture="LeftDoubleClick" />
+                                                                        </TextBlock.InputBindings>
+                                                                    </TextBlock>
+                                                                    <TextBlock Margin="8,2,2,0" Text="{Binding LengthInSeconds, Converter={StaticResource LengthInSecondsToHumanReadable}}">
+                                                                        <TextBlock.InputBindings>
+                                                                            <MouseBinding
+                                                                                Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
+                                                                                CommandParameter="{Binding}"
+                                                                                Gesture="LeftDoubleClick" />
+                                                                        </TextBlock.InputBindings>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                                <TextBlock
+                                                                    Margin="32,2,2,0"
+                                                                    FontWeight="Bold"
+                                                                    Foreground="Red"
+                                                                    Visibility="{Binding Errors, Converter={StaticResource BooleanToVisibility}}">
+                                                                    Errors
                                                                     <TextBlock.InputBindings>
                                                                         <MouseBinding
                                                                             Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
@@ -431,31 +493,18 @@
                                                                     </TextBlock.InputBindings>
                                                                 </TextBlock>
                                                             </StackPanel>
-                                                            <TextBlock
-                                                                Margin="32,2,2,0"
-                                                                FontWeight="Bold"
-                                                                Foreground="Red"
-                                                                Visibility="{Binding Errors, Converter={StaticResource BooleanToVisibility}}">
-                                                                Errors
-                                                                <TextBlock.InputBindings>
-                                                                    <MouseBinding
-                                                                        Command="{Binding Data.ViewJobRunCommand, Source={StaticResource Proxy}}"
-                                                                        CommandParameter="{Binding}"
-                                                                        Gesture="LeftDoubleClick" />
-                                                                </TextBlock.InputBindings>
-                                                            </TextBlock>
-                                                        </StackPanel>
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-                                </GroupBox>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </GroupBox>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
         </GroupBox>
         <Border Grid.Row="1" Style="{StaticResource ActionPanelBorderStyle}">
             <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">

@@ -31,11 +31,13 @@ public partial class ScriptJobListListItem
     public required ObservableCollection<ScriptJobRun> Items { get; set; } = [];
     public IScriptMessageItem? LastProgressItem { get; set; }
     public DateTime NextRun { get; set; } = DateTime.MaxValue;
+    public required ScriptJobListContext Owner { get; set; }
     public ScriptJobRun? SelectedItem { get; set; }
     public List<ScriptJobRun> SelectedItems { get; set; } = [];
     public required string TranslatedScript { get; set; }
 
-    public static async Task<ScriptJobListListItem> CreateInstance(ScriptJob dbEntry, string databaseFile)
+    public static async Task<ScriptJobListListItem> CreateInstance(ScriptJob dbEntry, ScriptJobListContext owner,
+        string databaseFile)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -59,7 +61,8 @@ public partial class ScriptJobListListItem
             DatabaseFile = databaseFile,
             DbId = dbId,
             Key = key,
-            TranslatedScript = dbEntry.Script.Decrypt(key)
+            TranslatedScript = dbEntry.Script.Decrypt(key),
+            Owner = owner
         };
     }
 
@@ -78,6 +81,8 @@ public partial class ScriptJobListListItem
 
         DbEntry = newDbEntry;
         TranslatedScript = DbEntry.Script.Decrypt(Key);
+
+        Owner.StatusContext.RunFireAndForgetNonBlockingTask(Owner.FilterList);
     }
 
     private async Task ProcessProgressNotification(DataNotifications.InterProcessPowershellProgressNotification arg)
@@ -107,6 +112,8 @@ public partial class ScriptJobListListItem
 
             foreach (var loopDeletes in toRemove) Items.Remove(loopDeletes);
 
+            Owner.StatusContext.RunFireAndForgetNonBlockingTask(Owner.FilterList);
+
             return;
         }
 
@@ -124,6 +131,8 @@ public partial class ScriptJobListListItem
             var index = Items.IndexOf(listItemToUpdate);
             Items[index] = newDbEntry;
 
+            Owner.StatusContext.RunFireAndForgetNonBlockingTask(Owner.FilterList);
+
             return;
         }
 
@@ -131,6 +140,7 @@ public partial class ScriptJobListListItem
         {
             await ThreadSwitcher.ResumeForegroundAsync();
             Items.Add(newDbEntry);
+            Owner.StatusContext.RunFireAndForgetNonBlockingTask(Owner.FilterList);
             return;
         }
 
@@ -140,6 +150,7 @@ public partial class ScriptJobListListItem
             await ThreadSwitcher.ResumeForegroundAsync();
             Items.Remove(currentMin);
             Items.Add(newDbEntry);
+            Owner.StatusContext.RunFireAndForgetNonBlockingTask(Owner.FilterList);
         }
     }
 

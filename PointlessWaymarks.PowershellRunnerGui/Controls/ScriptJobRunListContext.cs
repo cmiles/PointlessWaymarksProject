@@ -277,6 +277,36 @@ public partial class ScriptJobRunListContext
     }
 
     [NonBlockingCommand]
+    public async Task RunJobOfSelectedRun()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (SelectedItem == null)
+        {
+            await StatusContext.ToastError("No Run Selected?");
+            return;
+        }
+
+        if (SelectedItem.Job == null)
+        {
+            await StatusContext.ToastError("No Job Found for Selected Run - perhaps the Job no longer exists?");
+            return;
+        }
+
+        var db = await PowerShellRunnerDbContext.CreateInstance(_databaseFile);
+        var currentJob = db.ScriptJobs.SingleOrDefault(x => x.PersistentId == SelectedItem.Job.PersistentId);
+
+        if (currentJob == null)
+        {
+            await StatusContext.ToastError("No Job Found for Selected Run - perhaps the Job no longer exists?");
+            return;
+        }
+
+        await PowerShellRunner.ExecuteJob(currentJob.PersistentId, currentJob.AllowSimultaneousRuns, _databaseFile,
+            "Run From PowerShell Runner Gui");
+    }
+
+    [NonBlockingCommand]
     public async Task SendRunCancelMessage(ScriptJobRunGuiView? selectedRun)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
