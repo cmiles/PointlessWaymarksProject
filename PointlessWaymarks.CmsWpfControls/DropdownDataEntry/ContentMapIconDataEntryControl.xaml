@@ -1,11 +1,11 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.DropdownDataEntry.ContentMapIconDataEntryControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:dropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.DropdownDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.DropdownDataEntry"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:stringDropdownDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDropdownDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     d:DataContext="{d:DesignInstance local:ContentMapIconContext}"
     d:DesignHeight="450"
@@ -55,7 +55,7 @@
             SelectedValuePath="DisplayString"
             Style="{StaticResource DataEntryComboBoxStyle}">
             <ComboBox.ItemTemplate>
-                <DataTemplate DataType="{x:Type dropdownDataEntry:DropDownDataChoice}">
+                <DataTemplate DataType="{x:Type stringDropdownDataEntry:DropDownDataChoice}">
                     <StackPanel Orientation="Horizontal">
                         <svgc:SvgViewbox
                             Width="18"
