@@ -578,7 +578,7 @@ public partial class FilesWrittenLogListContext
             .S3KeysToDelete.Select(x =>
                 new S3DeletionsItem
                 {
-                    AmazonObjectKey = x, BucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket
+                    S3ObjectKey = x, BucketName = UserSettingsSingleton.CurrentSettings().SiteS3Bucket
                 }).ToList());
         
         await newUploadWindow.PositionWindowAndShowOnUiThread();
