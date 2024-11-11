@@ -6,12 +6,10 @@ using System.Windows;
 using GongSolutions.Wpf.DragDrop;
 using Metalama.Patterns.Observability;
 using Ookii.Dialogs.Wpf;
-using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.UtilitarianImage;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
-using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using SkiaSharp;
@@ -112,7 +110,6 @@ public partial class CombinerListContext : IDropTarget
             {
                 if (Path.GetExtension(file).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                 {
-                    var fileInfo = new FileInfo(file);
                     var newFile = await Combiner.PdfToJpeg(file, ItemMaxWidthEntryContext.UserValue,
                         FinalImageJpegQuality.UserValue, SelectedBackgroundColor?.SkiaColor ?? SKColors.White);
                     listItems.Add(await CombinerListListItem.CreateInstance(newFile, StatusContext));
@@ -124,7 +121,7 @@ public partial class CombinerListContext : IDropTarget
             }
             catch (Exception e)
             {
-                StatusContext.ToastError($"Error Adding {file}");
+                await StatusContext.ToastError($"Error Adding {file} - {e.Message}");
             }
         }
 
@@ -234,7 +231,6 @@ public partial class CombinerListContext : IDropTarget
         var currentSettings = ImageCombinerGuiSettingTools.ReadSettings();
         if (!string.IsNullOrWhiteSpace(currentSettings.SaveToDirectory))
             saveDialog.FileName = $"{currentSettings.SaveToDirectory}\\";
-        ;
 
         if (!saveDialog.ShowDialog() ?? true) return;
 
@@ -274,7 +270,6 @@ public partial class CombinerListContext : IDropTarget
         var currentSettings = ImageCombinerGuiSettingTools.ReadSettings();
         if (!string.IsNullOrWhiteSpace(currentSettings.SaveToDirectory))
             saveDialog.FileName = $"{currentSettings.SaveToDirectory}\\";
-        ;
 
         if (!saveDialog.ShowDialog() ?? true) return;
 
@@ -415,7 +410,7 @@ public partial class CombinerListContext : IDropTarget
 
         if (!SelectedItems.Any())
         {
-            StatusContext.ToastError("No Items Selected");
+            await StatusContext.ToastError("No Items Selected");
             return;
         }
 
