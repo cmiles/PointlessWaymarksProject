@@ -3,6 +3,7 @@ using System.Globalization;
 using Amazon;
 using FluentMigrator.Runner;
 using IniParser;
+using IniParser.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Omu.ValueInjecter;
@@ -1154,18 +1155,6 @@ public static class UserSettingsUtilities
         return new FileInfo($"{Path.Combine(directory.FullName, "PostRss")}.xml");
     }
 
-    public static FileInfo LocalSiteTrailListFile(this UserSettings settings)
-    {
-        var directory = settings.LocalSiteTrailDirectory();
-        return new FileInfo($"{Path.Combine(directory.FullName, "TrailList")}.html");
-    }
-
-    public static FileInfo LocalSiteTrailRssFile(this UserSettings settings)
-    {
-        var directory = settings.LocalSiteTrailDirectory();
-        return new FileInfo($"{Path.Combine(directory.FullName, "TrailRss")}.xml");
-    }
-
 
     public static DirectoryInfo LocalSiteRootFullDirectory(this UserSettings settings)
     {
@@ -1258,6 +1247,18 @@ public static class UserSettingsUtilities
 
         var directory = settings.LocalSiteTrailContentDirectory(content);
         return new FileInfo($"{Path.Combine(directory.FullName, content.Slug)}.html");
+    }
+
+    public static FileInfo LocalSiteTrailListFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteTrailDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "TrailList")}.html");
+    }
+
+    public static FileInfo LocalSiteTrailRssFile(this UserSettings settings)
+    {
+        var directory = settings.LocalSiteTrailDirectory();
+        return new FileInfo($"{Path.Combine(directory.FullName, "TrailRss")}.xml");
     }
 
 
@@ -1441,20 +1442,10 @@ public static class UserSettingsUtilities
 
     public static async Task<UserSettings> ReadFromSettingsFile(FileInfo fileToRead, IProgress<string>? progress = null)
     {
-        if (!fileToRead.Exists)
-            throw new InvalidDataException($"Settings file {fileToRead.FullName} doesn't exist?");
+        var iniResult = await ReadRawSettingsFromFile(fileToRead, progress);
 
-        if (fileToRead.Directory == null)
-            throw new InvalidDataException($"Settings file {fileToRead.FullName} doesn't have a valid directory?");
-
-        progress?.Report($"Reading and deserializing {fileToRead.FullName}");
-
-        await using var fs = new FileStream(fileToRead.FullName, FileMode.Open, FileAccess.Read);
-        var sr = new StreamReader(fs);
-        var iniFileReader = new StreamIniDataParser();
-        var iniResult = iniFileReader.ReadData(sr);
-
-        var currentProperties = typeof(UserSettings).GetProperties().Where(x => !x.Name.Equals(nameof(UserSettings.SitePictureSizes))).ToList();
+        var currentProperties = typeof(UserSettings).GetProperties()
+            .Where(x => !x.Name.Equals(nameof(UserSettings.SitePictureSizes))).ToList();
 
         var readResult = new UserSettings();
 
@@ -1515,16 +1506,15 @@ public static class UserSettingsUtilities
         }
 
         if (iniResult.TryGetKey(nameof(readResult.SitePictureSizes), out var existingSitePictureSizesValue))
-        {
             try
             {
-                readResult.SitePictureSizes = existingSitePictureSizesValue.Split(";").Select(SitePictureSize.FromString).OrderByDescending(x => x.MaxDimension).ToList();
+                readResult.SitePictureSizes = existingSitePictureSizesValue.Split(";")
+                    .Select(SitePictureSize.FromString).OrderByDescending(x => x.MaxDimension).ToList();
             }
             catch (Exception e)
             {
                 // ignored
             }
-        }
 
         var timeStampForMissingValues = $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss-fff}";
 
@@ -1636,6 +1626,32 @@ public static class UserSettingsUtilities
         }
 
         return readResult;
+    }
+
+    /// <summary>
+    ///     When reading an Ini file to get IniData prefer this method as it will use a stream reader and properly dispose the
+    ///     stream to maximize the chances of problems with locked files.
+    /// </summary>
+    /// <param name="fileToRead"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidDataException"></exception>
+    private static async Task<IniData?> ReadRawSettingsFromFile(FileInfo fileToRead, IProgress<string>? progress = null)
+    {
+        if (!fileToRead.Exists)
+            throw new InvalidDataException($"Settings file {fileToRead.FullName} doesn't exist?");
+
+        if (fileToRead.Directory == null)
+            throw new InvalidDataException($"Settings file {fileToRead.FullName} doesn't have a valid directory?");
+
+        progress?.Report($"Reading and deserializing {fileToRead.FullName}");
+
+        await using var fs = new FileStream(fileToRead.FullName, FileMode.Open, FileAccess.Read);
+        var sr = new StreamReader(fs);
+        var iniFileReader = new StreamIniDataParser();
+        var iniResult = iniFileReader.ReadData(sr);
+
+        return iniResult;
     }
 
     public static string RssIndexFeedUrl(this UserSettings settings)
@@ -1838,7 +1854,7 @@ public static class UserSettingsUtilities
         return $"{settings.SiteUrl()}/Posts/VideoRss.xml";
     }
 
-    public static Task WriteSettings(this UserSettings toWrite)
+    public static async Task WriteSettings(this UserSettings toWrite)
     {
         var currentFile = SettingsFile();
 
@@ -1848,10 +1864,10 @@ public static class UserSettingsUtilities
             fileStream.Close();
         }
 
-        var iniFileReader = new FileIniDataParser();
-        var iniResult = iniFileReader.ReadFile(currentFile.FullName);
+        var iniResult = await ReadRawSettingsFromFile(currentFile, null);
 
-        var currentProperties = typeof(UserSettings).GetProperties().Where(x => !x.Name.Equals(nameof(UserSettings.SitePictureSizes))).ToList();
+        var currentProperties = typeof(UserSettings).GetProperties()
+            .Where(x => !x.Name.Equals(nameof(UserSettings.SitePictureSizes))).ToList();
 
         foreach (var loopProperties in currentProperties)
         {
@@ -1866,15 +1882,16 @@ public static class UserSettingsUtilities
         var sitePictureSizesSettingExists = iniResult.TryGetKey(nameof(UserSettings.SitePictureSizes), out _);
 
         var sitePictureSizesSettingString =
-            string.Join(";", toWrite.SitePictureSizes.OrderByDescending(x => x.MaxDimension).Select(x => x.ToString()));
+            string.Join(";",
+                toWrite.SitePictureSizes.OrderByDescending(x => x.MaxDimension).Select(x => x.ToString()));
 
         if (sitePictureSizesSettingExists)
             iniResult.Global[nameof(UserSettings.SitePictureSizes)] = sitePictureSizesSettingString;
         else
-            iniResult.Global["SitePictureSizes"] = sitePictureSizesSettingString;
+            iniResult.Global.AddKey(nameof(UserSettings.SitePictureSizes), sitePictureSizesSettingString);
 
-        iniFileReader.WriteFile(currentFile.FullName, iniResult);
+        var writer = new FileIniDataParser();
 
-        return Task.CompletedTask;
+        writer.WriteFile(currentFile.FullName, iniResult);
     }
 }
