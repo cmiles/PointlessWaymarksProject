@@ -4,11 +4,13 @@ using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.S3;
 using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.ContentList;
+using PointlessWaymarks.CmsWpfControls.SitePictureSizesEditor;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.CommonTools.S3;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.UserSettingsEditor;
 
@@ -170,6 +172,15 @@ public partial class UserSettingsEditorContext
         await EditorSettings.WriteSettings();
 
         UserSettingsSingleton.CurrentSettings().InjectFrom(EditorSettings);
+    }
+
+    [NonBlockingCommand]
+    public async Task ShowSitePictureSizesEditorWindow()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var window = await SitePictureSizesEditorWindow.CreateInstance(null);
+        await window.PositionWindowAndShowOnUiThread();
     }
 
     [BlockingCommand]

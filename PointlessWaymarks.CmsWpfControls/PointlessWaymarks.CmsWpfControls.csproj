@@ -1,76 +1,81 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon>PointlessWaymarksCmsIcons\favicon.ico</ApplicationIcon>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
+    <PropertyGroup>
+        <UseWPF>true</UseWPF>
+        <ApplicationIcon>PointlessWaymarksCmsIcons\favicon.ico</ApplicationIcon>
+        <LangVersion>12.0</LangVersion>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="leaflet-bing-layer.js" />
-  </ItemGroup>
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="DataGridExtensions" Version="2.6.0" />
-    <PackageReference Include="Fractions" Version="8.0.4" />
-    <PackageReference Include="GitInfo" Version="3.3.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Metalama.Framework" Version="2024.2.29" />
-    <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.9" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2849.39" />
-    <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="leaflet-bing-layer.js" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
-      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+        <PackageReference Include="DataGridExtensions" Version="2.6.0" />
+        <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.4.0" />
+        <PackageReference Include="Fractions" Version="8.0.4" />
+        <PackageReference Include="GitInfo" Version="3.5.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Metalama.Framework" Version="2024.2.30" />
+        <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.9" />
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2849.39" />
+        <PackageReference Include="System.Runtime.Caching" Version="9.0.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <COMReference Include="Microsoft.Office.Interop.Excel">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>9</VersionMinor>
-      <VersionMajor>1</VersionMajor>
-      <Guid>00020813-0000-0000-c000-000000000046</Guid>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="PointlessWaymarks.CommonTools.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
-    <ProjectReference Include="..\PointlessWaymarks.PressSharper\PointlessWaymarks.PressSharper.csproj" />
-    <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <COMReference Include="Microsoft.Office.Interop.Excel">
+            <WrapperTool>tlbimp</WrapperTool>
+            <VersionMinor>9</VersionMinor>
+            <VersionMajor>1</VersionMajor>
+            <Guid>00020813-0000-0000-c000-000000000046</Guid>
+            <Lcid>0</Lcid>
+            <Isolated>false</Isolated>
+            <EmbedInteropTypes>true</EmbedInteropTypes>
+        </COMReference>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="ContentHistoryView\ContentViewHistoryPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ContentViewHistoryPage.cs</LastGenOutput>
-      <CustomToolNamespace>PointlessWaymarks.CmsWpfControls.ContentHistoryView</CustomToolNamespace>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarks.ExcelInteropExtensions\PointlessWaymarks.ExcelInteropExtensions.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarks.FeatureIntersectionTags\PointlessWaymarks.FeatureIntersectionTags.csproj" />
+        <ProjectReference Include="..\PointlessWaymarks.PressSharper\PointlessWaymarks.PressSharper.csproj" />
+        <ProjectReference
+            Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="ContentHistoryView\ContentViewHistoryPage.tt">
+            <Generator>TextTemplatingFilePreprocessor</Generator>
+            <LastGenOutput>ContentViewHistoryPage.cs</LastGenOutput>
+            <CustomToolNamespace>PointlessWaymarks.CmsWpfControls.ContentHistoryView</CustomToolNamespace>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="ContentHistoryView\ContentViewHistoryPage.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ContentViewHistoryPage.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <ItemGroup>
+        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="ContentHistoryView\ContentViewHistoryPage.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ContentViewHistoryPage.tt</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
 </Project>

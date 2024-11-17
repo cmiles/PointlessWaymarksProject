@@ -9,6 +9,7 @@ using Omu.ValueInjecter;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CmsData.ImageHelpers;
 using PointlessWaymarks.CommonTools;
 using Serilog;
 
@@ -1453,7 +1454,7 @@ public static class UserSettingsUtilities
         var iniFileReader = new StreamIniDataParser();
         var iniResult = iniFileReader.ReadData(sr);
 
-        var currentProperties = typeof(UserSettings).GetProperties();
+        var currentProperties = typeof(UserSettings).GetProperties().Where(x => !x.Name.Equals(nameof(UserSettings.SitePictureSizes))).ToList();
 
         var readResult = new UserSettings();
 
@@ -1511,6 +1512,18 @@ public static class UserSettingsUtilities
 
             throw new NotSupportedException(
                 $"The use of the type {loopProperties.PropertyType} in User Settings is not supported...");
+        }
+
+        if (iniResult.TryGetKey(nameof(readResult.SitePictureSizes), out var existingSitePictureSizesValue))
+        {
+            try
+            {
+                readResult.SitePictureSizes = existingSitePictureSizesValue.Split(";").Select(SitePictureSize.FromString).OrderByDescending(x => x.MaxDimension).ToList();
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
         }
 
         var timeStampForMissingValues = $"{DateTime.Now:yyyy-MM-dd--HH-mm-ss-fff}";
@@ -1610,6 +1623,12 @@ public static class UserSettingsUtilities
             hasUpdates = true;
         }
 
+        if (!readResult.SitePictureSizes.Any())
+        {
+            readResult.SitePictureSizes = PictureResizing.SrcSetSizeAndQualityDefaultSettingsList();
+            hasUpdates = true;
+        }
+
         if (hasUpdates)
         {
             progress?.Report("Found missing values - writing defaults back to settings.");
@@ -1691,6 +1710,7 @@ public static class UserSettingsUtilities
         newSettings.ProgramUpdateLocation =
             @"https://software.pointlesswaymarks.com/Software/PointlessWaymarksSoftwareList.json";
         newSettings.SettingsId = Guid.NewGuid();
+        newSettings.SitePictureSizes = PictureResizing.SrcSetSizeAndQualityDefaultSettingsList();
 
         SettingsFileFullName =
             Path.Combine(rootDirectory.FullName, $"PointlessWaymarksCmsSettings-{userFilename}.ini");
@@ -1831,7 +1851,7 @@ public static class UserSettingsUtilities
         var iniFileReader = new FileIniDataParser();
         var iniResult = iniFileReader.ReadFile(currentFile.FullName);
 
-        var currentProperties = typeof(UserSettings).GetProperties();
+        var currentProperties = typeof(UserSettings).GetProperties().Where(x => !x.Name.Equals(nameof(UserSettings.SitePictureSizes))).ToList();
 
         foreach (var loopProperties in currentProperties)
         {
@@ -1842,6 +1862,16 @@ public static class UserSettingsUtilities
             else
                 iniResult.Global.AddKey(loopProperties.Name, loopProperties.GetValue(toWrite)?.ToString());
         }
+
+        var sitePictureSizesSettingExists = iniResult.TryGetKey(nameof(UserSettings.SitePictureSizes), out _);
+
+        var sitePictureSizesSettingString =
+            string.Join(";", toWrite.SitePictureSizes.OrderByDescending(x => x.MaxDimension).Select(x => x.ToString()));
+
+        if (sitePictureSizesSettingExists)
+            iniResult.Global[nameof(UserSettings.SitePictureSizes)] = sitePictureSizesSettingString;
+        else
+            iniResult.Global["SitePictureSizes"] = sitePictureSizesSettingString;
 
         iniFileReader.WriteFile(currentFile.FullName, iniResult);
 

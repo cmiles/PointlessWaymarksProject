@@ -2,6 +2,7 @@ using System.Text;
 using pinboard.net.Models;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
+using Serilog;
 using TinyIpc.Messaging;
 
 namespace PointlessWaymarks.CmsData;
@@ -50,17 +51,29 @@ public static class DataNotifications
     public static void PublishDataNotification(string sender, DataNotificationContentType contentType,
         DataNotificationUpdateType updateType, List<Guid>? contentGuidList)
     {
-        if (SuspendNotifications) return;
+        if (SuspendNotifications)
+        {
+            Log.ForContext("contentType", contentType).ForContext("updateType", updateType).ForContext("contentGuidList", contentGuidList).Debug("DataNotification Published while updates Suspended");
+            return;
+        }
 
         if (contentType != DataNotificationContentType.FileTransferScriptLog &&
             contentType != DataNotificationContentType.GenerationLog &&
             contentType != DataNotificationContentType.TagExclusion &&
-            (contentGuidList == null || !contentGuidList.Any())) return;
+            (contentGuidList == null || !contentGuidList.Any()))
+        {
+            Log.ForContext("contentType", contentType).ForContext("updateType", updateType).ForContext("contentGuidList", contentGuidList).Debug("DataNotification Published for Content but no ContentIds given");
+            return;
+        }
 
         var cleanedSender = string.IsNullOrWhiteSpace(sender) ? "No Sender Specified" : sender.TrimNullToEmpty();
 
-        SendMessageQueue.Enqueue(
-            $"{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{string.Join(",", contentGuidList ?? [])}");
+        var message =
+            $"{cleanedSender.Replace("|", " ")}|{(int)contentType}|{(int)updateType}|{string.Join(",", contentGuidList ?? [])}";
+
+        Log.ForContext("contentType", contentType).ForContext("updateType", updateType).ForContext("contentGuidList", contentGuidList).ForContext("message", message).Debug("DataNotification Published - Enqueue");
+
+        SendMessageQueue.Enqueue(message);
     }
 
     public static InterProcessDataNotification TranslateDataNotification(IReadOnlyList<byte>? received)

@@ -3,10 +3,10 @@
         <Nullable>disable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Metalama.Framework" Version="2024.2.29" />
+        <PackageReference Include="Metalama.Framework" Version="2024.2.30" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-        <PackageReference Include="MSTest.TestAdapter" Version="3.6.2" />
-        <PackageReference Include="MSTest.TestFramework" Version="3.6.2" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.6.3" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.6.3" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\PointlessWaymarks.FeedReader\PointlessWaymarks.FeedReader.csproj" />

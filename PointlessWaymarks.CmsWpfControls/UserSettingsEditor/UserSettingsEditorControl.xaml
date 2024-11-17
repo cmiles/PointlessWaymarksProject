@@ -303,6 +303,7 @@
                             </b:Interaction.Behaviors>
                         </wpf:MarkdownViewer>
                     </StackPanel>
+                    <Button Command="{Binding ShowSitePictureSizesEditorWindowCommand}">Edit List of Pre-Generated Image Sizes</Button>
                     <StackPanel Orientation="Vertical">
                         <Label Style="{StaticResource DataEntryLabelStyle}" Target="{Binding ElementName=DefaultFilePublicDownloadDefaultCheckBox}">
                             Public Download Link Default - Files

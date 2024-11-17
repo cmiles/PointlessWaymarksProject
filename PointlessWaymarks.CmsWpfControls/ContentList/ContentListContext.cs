@@ -116,7 +116,6 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public PointContentActions PointItemActions { get; set; }
     public PostContentActions PostItemActions { get; set; }
     public StatusControlContext StatusContext { get; set; }
-
     public TrailContentActions TrailItemActions { get; set; }
     public string? UserFilterText { get; set; }
     public VideoContentActions VideoItemActions { get; set; }

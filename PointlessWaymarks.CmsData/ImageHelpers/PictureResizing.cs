@@ -37,7 +37,7 @@ public static class PictureResizing
             UserSettingsSingleton.CurrentSettings().LocalMediaArchiveImageContentFile(dbEntry);
         var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference!);
 
-        if (currentFiles?.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
+        if ((currentFiles?.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth) ||
             deleteAll)
             currentFiles?.DisplayPicture?.File?.Delete();
     }
@@ -72,7 +72,7 @@ public static class PictureResizing
             UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoContentFile(dbEntry);
         var expectedDisplayWidth = DisplayPictureWidth(sourceFileReference!);
 
-        if (currentFiles?.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth ||
+        if ((currentFiles?.DisplayPicture != null && currentFiles.DisplayPicture.Width != expectedDisplayWidth) ||
             deleteAll)
             currentFiles?.DisplayPicture?.File?.Delete();
     }
@@ -87,7 +87,8 @@ public static class PictureResizing
 
         var imageDirectory = UserSettingsSingleton.CurrentSettings().LocalSiteImageContentDirectory(dbEntry);
 
-        var syncCopyResults = await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry).ConfigureAwait(false);
+        var syncCopyResults =
+            await FileManagement.CheckImageFileIsInMediaAndContentDirectories(dbEntry).ConfigureAwait(false);
 
         if (syncCopyResults.HasError) return syncCopyResults;
 
@@ -115,7 +116,8 @@ public static class PictureResizing
 
         var photoDirectory = UserSettingsSingleton.CurrentSettings().LocalSitePhotoContentDirectory(dbEntry);
 
-        var syncCopyResults = await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry).ConfigureAwait(false);
+        var syncCopyResults =
+            await FileManagement.CheckPhotoFileIsInMediaAndContentDirectories(dbEntry).ConfigureAwait(false);
 
         if (syncCopyResults.HasError) return syncCopyResults;
 
@@ -213,7 +215,8 @@ public static class PictureResizing
 
         progress?.Report($"Resize For Display: {displayWidth}, 82");
 
-        return await ResizeWithForDisplayFileName(fileToProcess, displayWidth, 82, overwriteExistingFile, progress).ConfigureAwait(false);
+        return await ResizeWithForDisplayFileName(fileToProcess, displayWidth, 82, overwriteExistingFile, progress)
+            .ConfigureAwait(false);
     }
 
     public static async Task<List<FileInfo>> ResizeForDisplayAndSrcset(PhotoContent dbEntry,
@@ -259,7 +262,8 @@ public static class PictureResizing
     {
         var fullList = new List<FileInfo>
         {
-            originalImage, (await ResizeForDisplay(originalImage, overwriteExistingFiles, progress).ConfigureAwait(false))!
+            originalImage,
+            (await ResizeForDisplay(originalImage, overwriteExistingFiles, progress).ConfigureAwait(false))!
         };
 
         fullList.AddRange(await ResizeForSrcset(originalImage, overwriteExistingFiles, progress).ConfigureAwait(false));
@@ -352,7 +356,7 @@ public static class PictureResizing
         return await resizer.ResizeTo(toResize, width, quality, "Sized", true, progress).ConfigureAwait(false);
     }
 
-    public static List<(int size, int quality)> SrcSetSizeAndQualityList()
+    public static List<(int size, int quality)> SrcSetSizeAndQualityDefaultList()
     {
         return
         [
@@ -368,5 +372,26 @@ public static class PictureResizing
             (210, 70),
             (100, 70)
         ];
+    }
+
+    public static List<SitePictureSize> SrcSetSizeAndQualityDefaultSettingsList()
+    {
+        return SrcSetSizeAndQualityDefaultList()
+            .Select(x => new SitePictureSize { MaxDimension = x.size, Quality = x.quality })
+            .OrderByDescending(x => x.MaxDimension).ToList();
+    }
+
+    public static List<(int size, int quality)> SrcSetSizeAndQualityList()
+    {
+        var possibleSettingsList = SrcSetSizeAndQualitySettingsList();
+
+        return possibleSettingsList.Any() ? possibleSettingsList : SrcSetSizeAndQualityDefaultList();
+    }
+
+    public static List<(int size, int quality)> SrcSetSizeAndQualitySettingsList()
+    {
+        var possibleSettingsList = UserSettingsSingleton.CurrentSettings().SitePictureSizes;
+        return possibleSettingsList.Select(x => (x.MaxDimension, x.Quality)).OrderByDescending(x => x.MaxDimension)
+            .ToList();
     }
 }

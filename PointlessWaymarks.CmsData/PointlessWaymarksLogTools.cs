@@ -1,5 +1,6 @@
-﻿using PointlessWaymarks.CommonTools;
+using PointlessWaymarks.CommonTools;
 using Serilog;
+using Serilog.Events;
 using Serilog.Formatting.Compact;
 
 namespace PointlessWaymarks.CmsData;
@@ -17,9 +18,9 @@ public static class PointlessWaymarksLogTools
     public static LoggerConfiguration AddEventFileLogForLogFolderBasedOnCurrentSettings(
         this LoggerConfiguration toAddTo)
     {
-        return toAddTo.WriteTo.File(new RenderedCompactJsonFormatter(),
+        return toAddTo.MinimumLevel.Verbose().WriteTo.File(new RenderedCompactJsonFormatter(),
             Path.Combine(UserSettingsSingleton.CurrentSettings().LocalMediaArchiveLogsDirectory().FullName,
-                "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true);
+                "PointlessWaymarksCms-EventLog-.json"), rollingInterval: RollingInterval.Day, shared: true, restrictedToMinimumLevel: LogEventLevel.Verbose);
     }
 
     /// <summary>

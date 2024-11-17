@@ -11,13 +11,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="GitInfo" Version="3.3.5">
+        <PackageReference Include="GitInfo" Version="3.5.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="HtmlAgilityPack" Version="1.11.70" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
         <PackageReference Include="IdentityModel" Version="7.0.0" />
-        <PackageReference Include="Metalama.Framework" Version="2024.2.29" />
+        <PackageReference Include="Metalama.Framework" Version="2024.2.30" />
         <PackageReference Include="Mjml.Net" Version="4.4.0" />
         <PackageReference Include="ObjectDumper.NET" Version="4.3.2" />
         <PackageReference Include="System.Net.Http" Version="4.3.4" />
