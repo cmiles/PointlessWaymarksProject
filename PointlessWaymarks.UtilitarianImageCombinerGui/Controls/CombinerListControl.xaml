@@ -30,8 +30,11 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <WrapPanel Margin="4,8,4,0">
-            <GroupBox Style="{StaticResource UiComponentGroupBoxStyle}">
+        <WrapPanel Margin="4,0,4,0">
+            <GroupBox
+                Height="90"
+                Margin="0,0,4,0"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">List Actions</TextBlock>
                 </GroupBox.Header>
@@ -43,7 +46,10 @@
                     <Button Width="90" Command="{Binding RemoveSelectedItemsCommand}">Clear Selected</Button>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Margin="6,0,0,0" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox
+                Height="90"
+                Margin="0,0,4,0"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">Individual Image Settings</TextBlock>
                 </GroupBox.Header>
@@ -52,7 +58,10 @@
                     <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ItemMaxHeightEntryContext}" />
                 </StackPanel>
             </GroupBox>
-            <GroupBox Margin="6,0,0,0" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox
+                Height="90"
+                Margin="0,0,4,0"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">Final Image</TextBlock>
                 </GroupBox.Header>
@@ -62,7 +71,9 @@
                         VerticalAlignment="Top"
                         DataContext="{Binding FinalImageJpegQuality}" />
                     <StackPanel VerticalAlignment="Top">
-                        <Label Style="{StaticResource DataEntryLabelStyle}" ToolTip="Background Color for the Final Document">Background Color</Label>
+                        <Label Style="{StaticResource DataEntryLabelStyle}" ToolTip="Background Color for the Final Document">
+                            Background Color
+                        </Label>
                         <ComboBox
                             Name="DropdownEntryComboBox"
                             Margin="8,0,4,4"
@@ -87,6 +98,18 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                     </StackPanel>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox
+                Height="90"
+                Margin="0,0,4,0"
+                Style="{StaticResource UiComponentGroupBoxStyle}">
+                <GroupBox.Header>
+                    <TextBlock FontWeight="Bold">Save From</TextBlock>
+                </GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Button Width="90" Command="{Binding OpenWebPageAsJpegWindowCommand}">URL</Button>
+                    <Button Width="90" Command="{Binding SaveClipboardImageAsJpgCommand}">Clipboard</Button>
                 </StackPanel>
             </GroupBox>
         </WrapPanel>
@@ -199,9 +222,15 @@
                                                 </TextBlock>
                                             </Grid>
                                         </Button>
-                                        <Button Command="{Binding Data.RemoveItemCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Remove from List</Button>
-                                        <Button Command="{Binding Data.ShowInExplorerCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">Show in Explorer</Button>
-                                        <Button Command="{Binding Data.OpenFileCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">View Image</Button>
+                                        <Button Command="{Binding Data.RemoveItemCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                            Remove from List
+                                        </Button>
+                                        <Button Command="{Binding Data.ShowInExplorerCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                            Show in Explorer
+                                        </Button>
+                                        <Button Command="{Binding Data.OpenFileCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding .}">
+                                            View Image
+                                        </Button>
                                     </WrapPanel>
                                     <WrapPanel Grid.Row="2" Margin="14,6,4,4">
                                         <GroupBox Header="Dimensions">
@@ -258,12 +287,15 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </GroupBox>
-        <Grid Grid.Row="2" Height="90">
+        <Grid
+            Grid.Row="2"
+            Height="90"
+            Margin="4,0,4,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <GroupBox Margin="4" Style="{StaticResource UiComponentGroupBoxStyle}">
+            <GroupBox Margin="0,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">Images to Combine</TextBlock>
                 </GroupBox.Header>
@@ -278,7 +310,7 @@
             </GroupBox>
             <GroupBox
                 Grid.Column="1"
-                Margin="4"
+                Margin="0,0,0,4"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
                     <TextBlock FontWeight="Bold">Grid</TextBlock>

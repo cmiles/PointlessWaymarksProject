@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using GongSolutions.Wpf.DragDrop;
 using Metalama.Patterns.Observability;
 using Ookii.Dialogs.Wpf;
+using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.UtilitarianImage;
 using PointlessWaymarks.WpfCommon;
@@ -210,6 +212,7 @@ public partial class CombinerListContext : IDropTarget
         await ProcessHelpers.OpenExplorerWindowForFile(combinedImage);
     }
 
+
     [BlockingCommand]
     public async Task CombineImagesHorizontally()
     {
@@ -394,6 +397,50 @@ public partial class CombinerListContext : IDropTarget
     }
 
     [NonBlockingCommand]
+    public async Task OpenWebPageAsJpegWindow()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var jpegUrlWindow = await WebPageAsJpegWindow.CreateInstance(await StatusControlContext.CreateInstance());
+
+        void OnImageSaved(object? sender, WebPageAsJpegWindowImageSavedEventArgs e)
+        {
+            StatusContext.RunBlockingTask(async () =>
+            {
+                try
+                {
+                    await StatusContext.ToastSuccess($"Adding from URL - {e.NewFilename}");
+                    await AddImages(e.NewFilename.AsList());
+                }
+                catch (Exception exception)
+                {
+                    await StatusContext.ToastError($"Error adding image from URL - {exception.Message}");
+                    Debug.WriteLine(exception);
+                }
+            });
+        }
+
+        jpegUrlWindow.ImageSaved += OnImageSaved;
+
+        void OnWindowClosed(object? sender, EventArgs e)
+        {
+            try
+            {
+                jpegUrlWindow.ImageSaved -= OnImageSaved;
+                jpegUrlWindow.Closed -= OnWindowClosed;
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+            }
+        }
+
+        jpegUrlWindow.Closed += OnWindowClosed;
+
+        await jpegUrlWindow.PositionWindowAndShowOnUiThread();
+    }
+
+    [NonBlockingCommand]
     public async Task RemoveItem(CombinerListListItem toShow)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
@@ -433,6 +480,59 @@ public partial class CombinerListContext : IDropTarget
         if (rotated == null) return;
         listItem.FileFullName = string.Empty;
         listItem.FileFullName = rotated.FullName;
+    }
+
+    [NonBlockingCommand]
+    public async Task SaveClipboardImageAsJpg()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        // Check if there is image data on the clipboard
+        if (!Clipboard.ContainsImage())
+        {
+            await StatusContext.ToastError("No image data found on the clipboard.");
+            return;
+        }
+
+        // Retrieve the image data from the clipboard
+        var bitmapSource = Clipboard.GetImage();
+        if (bitmapSource == null)
+        {
+            await StatusContext.ToastError("Failed to retrieve image data from the clipboard.");
+            return;
+        }
+
+        // Convert the BitmapSource to SKBitmap
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+        using var stream = new MemoryStream();
+        encoder.Save(stream);
+        stream.Seek(0, SeekOrigin.Begin);
+        using var skBitmap = SKBitmap.Decode(stream);
+
+        var saveDialog = new VistaSaveFileDialog { Filter = "jpg files (*.jpg;*.jpeg)|*.jpg;*.jpeg" };
+
+        var currentSettings = ImageCombinerGuiSettingTools.ReadSettings();
+        if (!string.IsNullOrWhiteSpace(currentSettings.SaveToDirectory))
+            saveDialog.FileName = $"{currentSettings.SaveToDirectory}\\";
+
+        if (!saveDialog.ShowDialog() ?? true) return;
+
+        var newFilename = saveDialog.FileName;
+
+        if (!(Path.GetExtension(newFilename).Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+              Path.GetExtension(newFilename).Equals(".jpeg", StringComparison.OrdinalIgnoreCase)))
+            newFilename += ".jpg";
+
+        // Save the image data as a JPG file
+        await using var imageStream = new FileStream(newFilename, FileMode.Create, FileAccess.Write);
+        using var skImage = SKImage.FromBitmap(skBitmap);
+        using var data = skImage.Encode(SKEncodedImageFormat.Jpeg, 100);
+        data.SaveTo(imageStream);
+
+        await StatusContext.ToastSuccess($"Image saved to {newFilename}");
+
+        await AddImages(newFilename.AsList());
     }
 
     [NonBlockingCommand]
