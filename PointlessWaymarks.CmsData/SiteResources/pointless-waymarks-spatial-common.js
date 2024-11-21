@@ -378,9 +378,9 @@ async function singleLineChartInitFromLineData(contentId, chartCanvas, lineData)
                                 setElevationChartLineMarker(connectedMap, feature, location);
                             }
 
-                            return ["Elevation: " + Math.floor(tooltipItem.raw).toLocaleString() + " feet",
-                            "Accumulated Climb: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedClimb).toLocaleString(),
-                            "Accumulated Descent: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedDescent).toLocaleString()
+                            return ["Elevation: " + Math.floor(tooltipItem.raw).toLocaleString() + "'",
+                                "Accumulated Climb: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedClimb).toLocaleString() + "'",
+                                "Accumulated Descent: " + Math.floor(lineData.ElevationPlotData[tooltipItem.dataIndex].AccumulatedDescent).toLocaleString() + "'"
                             ];
                         },
                     }
