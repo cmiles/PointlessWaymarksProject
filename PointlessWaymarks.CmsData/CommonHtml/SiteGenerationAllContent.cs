@@ -106,6 +106,7 @@ public static class SiteGenerationAllContent
         {
             progress?.Report($"Writing HTML for Line {loopItem.Title}");
 
+            await Export.WriteLineContentData(loopItem, progress);
             var htmlModel = new SingleLinePage(loopItem) { GenerationVersion = generationVersion };
             await htmlModel.WriteLocalHtml().ConfigureAwait(false);
             await Export.WriteLineContentData(loopItem, progress).ConfigureAwait(false);

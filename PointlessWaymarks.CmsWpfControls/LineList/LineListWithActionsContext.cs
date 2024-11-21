@@ -12,6 +12,7 @@ using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentGeneration;
+using PointlessWaymarks.CmsData.ContentHtml.LineMonthlyActivitySummaryHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -54,7 +55,8 @@ public partial class LineListWithActionsContext
                 { ItemName = "Text Code to Clipboard", ItemCommand = LinkBracketCodesToClipboardForSelectedCommand },
             new ContextMenuItemData
             {
-                ItemName = "Stats Text Code to Clipboard", ItemCommand = TextStatsBracketCodesToClipboardForSelectedCommand
+                ItemName = "Stats Text Code to Clipboard",
+                ItemCommand = TextStatsBracketCodesToClipboardForSelectedCommand
             },
             new ContextMenuItemData
             {
@@ -93,6 +95,10 @@ public partial class LineListWithActionsContext
                 { ItemName = "Extract New Links", ItemCommand = ListContext.ExtractNewLinksSelectedCommand },
             new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
+            new ContextMenuItemData
+            {
+                ItemName = "Re-Save Selected", ItemCommand = ResaveSelectedCommand
+            },
             new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
             new ContextMenuItemData
             {
@@ -414,26 +420,42 @@ public partial class LineListWithActionsContext
     }
 
     [BlockingCommand]
-    [StopAndWarnIfNoSelectedListItems]
-    private async Task TextStatsBracketCodesToClipboardForSelected()
-    {
-        var finalString = SelectedListItems().Aggregate(string.Empty,
-            (current, loopSelected) =>
-                current + $"{BracketCodeLineTextStats.Create(loopSelected.DbEntry)}");
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        Clipboard.SetText(finalString);
-
-        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
-    }
-
-    [BlockingCommand]
     private async Task RefreshData()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         await ListContext.LoadData();
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task ResaveSelected()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var selectedIds = SelectedListItems().Select(x => x.ContentId()).Where(x => x is not null).ToList();
+
+        var db = await Db.Context().ConfigureAwait(false);
+
+        var selectedToSave = await db.LineContents.Where(x => selectedIds.Contains(x.ContentId)).OrderBy(x => x.Title)
+            .ToListAsync().ConfigureAwait(false);
+
+        var totalCount = selectedToSave.Count;
+
+        StatusContext.Progress($"Found {totalCount} Lines to Generate");
+
+        var generationVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime();
+        
+
+        await Parallel.ForEachAsync(selectedToSave, async (loopItem, _) =>
+        {
+            StatusContext.Progress($"Saving and Writing HTML for Line {loopItem.Title}");
+
+            await LineGenerator.SaveAndGenerateHtml(loopItem, generationVersion, StatusContext.ProgressTracker());
+        }).ConfigureAwait(false);
+
+        await MapComponentGenerator.GenerateAllLinesData();
+        await new LineMonthlyActivitySummaryPage(generationVersion).WriteLocalHtml();
     }
 
     public List<LineListListItem> SelectedListItems()
@@ -534,6 +556,21 @@ public partial class LineListWithActionsContext
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + $"{BracketCodeLineStats.Create(loopSelected.DbEntry)}{Environment.NewLine}");
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    private async Task TextStatsBracketCodesToClipboardForSelected()
+    {
+        var finalString = SelectedListItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + $"{BracketCodeLineTextStats.Create(loopSelected.DbEntry)}");
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
