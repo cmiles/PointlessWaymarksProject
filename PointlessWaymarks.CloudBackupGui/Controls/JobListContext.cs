@@ -193,7 +193,7 @@ public partial class JobListContext
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
-        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message);
+        var translatedMessage = DataNotifications.TranslateDataNotification(eventArgs.Message.ToString());
 
         var toRun = translatedMessage.Match(ProcessDataUpdateNotification,
             ProcessProgressNotification,

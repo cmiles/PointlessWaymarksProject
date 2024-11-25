@@ -63,7 +63,7 @@ public partial class TagExclusionEditorContext
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
     {
-        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message.ToString());
 
         if (translatedMessage.HasError)
         {

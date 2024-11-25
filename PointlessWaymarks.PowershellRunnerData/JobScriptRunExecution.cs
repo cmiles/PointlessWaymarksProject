@@ -211,7 +211,7 @@ internal class JobScriptRunExecution
     {
         if (_pipeline == null || _runId == null) return;
 
-        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message.ToString());
 
         if (translatedMessage.IsT6 && _runId.HasValue)
         {

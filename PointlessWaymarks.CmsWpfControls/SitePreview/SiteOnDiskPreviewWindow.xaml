@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="PointlessWaymarks.CmsWpfControls.SitePreview.SiteOnDiskPreviewWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,8 +6,6 @@
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.SitePreview"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-    xmlns:wpf1="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
     Title="{Binding PreviewContext.SiteMappingNote}"
     Width="1000"
     Height="800"

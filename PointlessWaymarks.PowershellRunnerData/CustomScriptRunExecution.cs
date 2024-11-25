@@ -110,7 +110,7 @@ internal class CustomScriptRunExecution
     {
         if (_pipeline == null) return;
 
-        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message.ToString());
 
         if (translatedMessage.IsT6)
         {

@@ -15,7 +15,7 @@ internal class PowerShellRunnerCloseOrphanRuns
 
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
-        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message.ToString());
 
         if (!translatedMessage.IsT7) return;
 

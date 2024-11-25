@@ -17,7 +17,7 @@ public static class DataNotifications
     private static readonly WorkQueue<string> SendMessageQueue = new()
     {
         Processor = async x =>
-            await DataNotificationTransmissionChannel.PublishAsync(Encoding.UTF8.GetBytes(x)).ConfigureAwait(false)
+            await DataNotificationTransmissionChannel.PublishAsync(BinaryData.FromString(x)).ConfigureAwait(false)
     };
 
     public static bool SuspendNotifications { get; set; }
@@ -64,19 +64,14 @@ public static class DataNotifications
     }
 
     public static OneOf<InterProcessDataNotification, InterProcessProgressNotification, InterProcessError>
-        TranslateDataNotification(IReadOnlyList<byte>? received)
+        TranslateDataNotification(string received)
     {
-        if (received == null || received.Count == 0)
+        if (string.IsNullOrWhiteSpace(received))
             return new InterProcessError { ErrorMessage = "No Data" };
 
         try
         {
-            var asString = Encoding.UTF8.GetString(received.ToArray());
-
-            if (string.IsNullOrWhiteSpace(asString))
-                return new InterProcessError { ErrorMessage = "Data is Blank" };
-
-            var parsedString = asString.Split("|").ToList();
+            var parsedString = received.Split("|").ToList();
 
             if (!parsedString.Any()
                 || parsedString.Count is not 6
@@ -84,7 +79,7 @@ public static class DataNotifications
                )
                 return new InterProcessError
                 {
-                    ErrorMessage = $"Data appears to be in the wrong format - {asString}"
+                    ErrorMessage = $"Data appears to be in the wrong format - {received}"
                 };
 
             if (parsedString[0].Equals("Data"))

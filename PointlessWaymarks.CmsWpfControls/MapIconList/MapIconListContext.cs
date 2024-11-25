@@ -127,7 +127,7 @@ public partial class MapIconListContext
 
     private async Task DataNotificationReceived(TinyMessageReceivedEventArgs e)
     {
-        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message);
+        var translatedMessage = DataNotifications.TranslateDataNotification(e.Message.ToString());
 
         if (translatedMessage.HasError)
         {
