@@ -1,9 +1,12 @@
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
+using OneOf;
+using OneOf.Types;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.Status;
+using PointlessWaymarks.WpfCommon.Utility;
 
 namespace PointlessWaymarks.CmsWpfControls.SitePreview;
 
@@ -46,6 +49,7 @@ public partial class SitePreviewContext : DependencyObject
     public string CurrentAddress { get; set; }
     public string CurrentDocumentTitle { get; set; } = string.Empty;
     public string InitialPage { get; set; }
+    public Func<Task<OneOf<Success<byte[]>, Error<string>>>>? JpgScreenshotFunction { get; set; }
     public string LocalSiteFolder { get; set; }
     public Action<CoreWebView2NewWindowRequestedEventArgs>? NewWindowRequestedAction { get; set; }
     public string PreviewServerHost { get; set; }
@@ -53,8 +57,28 @@ public partial class SitePreviewContext : DependencyObject
     public string SiteName { get; set; }
     public string SiteUrl { get; set; }
     public StatusControlContext StatusContext { get; set; }
+    public int TestNumber { get; set; }
     public string? TextBarAddress { get; set; }
     public SitePreviewControl? WebViewGui { get; set; }
+
+    [BlockingCommand]
+    private async Task JpgScreenshot()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (JpgScreenshotFunction == null)
+        {
+            await StatusContext.ToastError("Screenshot function not available...");
+            return;
+        }
+
+        var screenshotResult = await JpgScreenshotFunction();
+
+        if (screenshotResult.IsT0)
+            await WebViewToJpg.SaveByteArrayAsJpg(screenshotResult.AsT0.Value, string.Empty, StatusContext);
+        else
+            await StatusContext.ToastError(screenshotResult.AsT1.Value);
+    }
 
     [BlockingCommand]
     private async Task TryGoBackNavigation()
