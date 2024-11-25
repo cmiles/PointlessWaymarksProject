@@ -507,19 +507,26 @@ public static class Tags
 
     public static async Task<HtmlTag> PostBodyDiv(IBodyContent dbEntry, IProgress<string>? progress = null, string? contentBefore = null, string? contentAfter = null)
     {
-        if (string.IsNullOrWhiteSpace(dbEntry.BodyContent)) return HtmlTag.Empty();
+        if (string.IsNullOrWhiteSpace(dbEntry.BodyContent) && string.IsNullOrWhiteSpace(contentBefore) && string.IsNullOrWhiteSpace(contentAfter)) return HtmlTag.Empty();
 
         var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
-        var bodyContent = dbEntry.BodyContent;
+        var bodyContent = dbEntry.BodyContent ?? string.Empty;
 
         if (!string.IsNullOrWhiteSpace(contentBefore))
         {
-            bodyContent = contentBefore + Environment.NewLine + bodyContent;
+            bodyContent = contentBefore;
+        }
+
+        if (!string.IsNullOrWhiteSpace(bodyContent))
+        {
+            if(!string.IsNullOrWhiteSpace(bodyContent)) bodyContent += Environment.NewLine;
+            bodyContent += dbEntry.BodyContent;
         }
 
         if (!string.IsNullOrWhiteSpace(contentAfter))
         {
+            if (!string.IsNullOrWhiteSpace(bodyContent)) bodyContent += Environment.NewLine;
             bodyContent = bodyContent + Environment.NewLine + contentAfter;
         }
 

@@ -95,7 +95,7 @@ public static class TrailParts
 
                 if (dbContent.EndingPointContentId is not null)
                 {
-                    var endPoint = await Db.PointContentDto(dbContent.StartingPointContentId.Value);
+                    var endPoint = await Db.PointContentDto(dbContent.EndingPointContentId.Value);
 
                     generatedBlock.AppendLine((await PointParts.StandAlonePointDetailsDiv(endPoint, "End:")).ToString());
 

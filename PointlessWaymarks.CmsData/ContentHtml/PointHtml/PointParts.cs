@@ -79,6 +79,10 @@ public static class PointParts
 
                         typeLine.Text($"{loopDetail.DataType}: {noteText.RemoveOuterPTags()}").Encoded(false);
                     }
+                    else
+                    {
+                        typeLine.Text($"{loopDetail.DataType}");
+                    }
 
                     break;
                 }
@@ -95,6 +99,10 @@ public static class PointParts
                             pointDetails.NotesContentFormat);
 
                         typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+                    else
+                    {
+                        typeLine.Text($"{loopDetail.DataType}");
                     }
 
                     break;
@@ -140,6 +148,10 @@ public static class PointParts
                         typeLine.Text($"{loopDetail.DataType.HtmlEncode()}:  {noteText.RemoveOuterPTags()}")
                             .Encoded(false);
                     }
+                    else
+                    {
+                        typeLine.Text($"{loopDetail.DataType}");
+                    }
 
                     break;
                 }
@@ -158,6 +170,10 @@ public static class PointParts
 
                         typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
                     }
+                    else
+                    {
+                        typeLine.Text($"{loopDetail.DataType}");
+                    }
 
                     break;
                 }
@@ -173,7 +189,11 @@ public static class PointParts
                             await BracketCodeCommon.ProcessCodesForSite(pointDetails.Notes).ConfigureAwait(false),
                             pointDetails.NotesContentFormat);
 
-                        typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                        typeLine.Text($"{pointDetails.Type}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+                    else
+                    {
+                        typeLine.Text($"{pointDetails.Type}");
                     }
 
                     break;
@@ -192,6 +212,10 @@ public static class PointParts
 
                         typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
                     }
+                    else
+                    {
+                        typeLine.Text($"{loopDetail.DataType}");
+                    }
 
                     break;
                 }
@@ -209,6 +233,10 @@ public static class PointParts
 
                         typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
                     }
+                    else
+                    {
+                        typeLine.Text($"{loopDetail.DataType}");
+                    }
 
                     break;
                 }
@@ -225,6 +253,10 @@ public static class PointParts
                             pointDetails.NotesContentFormat);
 
                         typeLine.Text($"{loopDetail.DataType}:  {noteText.RemoveOuterPTags()}").Encoded(false);
+                    }
+                    else
+                    {
+                        typeLine.Text($"{loopDetail.DataType}");
                     }
 
                     break;
