@@ -718,7 +718,7 @@ function urlFromContent(content) {
 
 function AddOptionalLocationContentMarkerToMap(map, optionalLocationContent, contentType, linkUrl) {
 
-    let popupLinkUrl = (!linkUrl || linkUrl.trim() === "") ? urlFromContent(pointToAdd) : linkUrl;
+    let popupLinkUrl = (!linkUrl || linkUrl.trim() === "") ? urlFromContent(optionalLocationContent) : linkUrl;
 
     let popupContent = `<a href="${popupLinkUrl}">${optionalLocationContent.Content.Title}</a>`;
     if (optionalLocationContent.SmallPictureUrl) popupContent += `<p style="text-align: center;"><img src="${optionalLocationContent.SmallPictureUrl}"></img></p>`;
