@@ -2,16 +2,20 @@
     x:Class="PointlessWaymarks.UtilitarianImageCombinerGui.Controls.WebPageAsJpegWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarks.UtilitarianImageCombinerGui.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
     xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     Title="Save Web Page as Jpeg"
     Width="800"
     Height="450"
-    mc:Ignorable="d" d:DataContext="{d:DesignInstance local:WebPageAsJpegWindow}">
+    d:DataContext="{d:DesignInstance local:WebPageAsJpegWindow}"
+    mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -29,18 +33,31 @@
             BorderBrush="LightGray"
             BorderThickness="2"
             CornerRadius="4">
-            <WrapPanel Margin="4">
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
                 <Label Target="{Binding ElementName=UrlTextBox}">URL</Label>
                 <TextBox
+                    Grid.Column="1"
                     Name="UrlTextBox"
-                    Width="360"
-                    Margin="4,0,8,0"
-                    Text="{Binding UserUrl, UpdateSourceTrigger=Explicit}"
+                    Margin="4,0,4,0"
                     AcceptsReturn="False"
-                    TextAlignment="Left" 
-                    KeyDown="UrlTextBox_KeyDown" />
-                <Button Width="120" Command="{Binding SaveCurrentPageAsJpegCommand}">Save As Jpeg</Button>
-            </WrapPanel>
+                    KeyDown="UrlTextBox_KeyDown"
+                    VerticalContentAlignment="Center"
+                    Text="{Binding UserUrl, UpdateSourceTrigger=Explicit}"
+                    TextAlignment="Left" />
+                <Button Grid.Column="2" Padding="12,4,12,4" Click="ButtonNavigate_OnClick">Navigate</Button>
+                <Button Grid.Column="3" Margin="4,0,0,0" Padding="24,4,24,4" Command="{Binding SaveCurrentPageAsJpegCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{svgc:SvgImage Source=/Icons/file-jpg-box.svg, AppName=PointlessWaymarks.WpfCommon}" />
+                        <TextBlock Margin="8,0,0,0">Save as Jpeg</TextBlock>
+                    </StackPanel>
+                </Button>
+            </Grid>
         </Border>
         <Border
             Grid.Row="1"
@@ -51,8 +68,11 @@
             <wpf:WebView2
                 x:Name="WebContentWebView"
                 Margin="4"
-                Source="{Binding UserUrl, TargetNullValue='about:blank'}"
-                 />
+                Source="{Binding UserUrl, TargetNullValue='about:blank'}">
+                <b:Interaction.Behaviors>
+                    <behaviors:WebViewToJpgFunctionInjection />
+                </b:Interaction.Behaviors>
+            </wpf:WebView2>
         </Border>
         <windowScreenShot:WindowScreenShotControl
             Grid.Row="1"
