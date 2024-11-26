@@ -42,4 +42,13 @@
         </Resource>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="UtilitarianImageCombinerInstallerLeftImage.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="UtilitarianImageCombinerInstallerTopRightImage.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
