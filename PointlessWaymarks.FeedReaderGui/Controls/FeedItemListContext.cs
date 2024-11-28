@@ -4,9 +4,10 @@ using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
 using FluentScheduler;
 using Microsoft.EntityFrameworkCore;
+using OneOf;
+using OneOf.Types;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeedReaderData;
 using PointlessWaymarks.LlamaAspects;
@@ -33,12 +34,12 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     public string DisplayUrl { get; set; } = string.Empty;
     public WebViewMessenger FeedDisplayPage { get; set; } = new();
     public List<Guid> FeedList { get; set; } = [];
-    public required ObservableCollection<FeedItemListListItem> Items { get; init; }
+    public Func<Task<OneOf<Success<byte[]>, Error<string>>>>? ItemRssViewScreenshotFunction { get; set; }
+    public Func<Task<OneOf<Success<byte[]>, Error<string>>>>? ItemWebViewScreenshotFunction { get; set; }
     public required ColumnSortControlContext ListSort { get; init; }
     public FeedItemListListItem? SelectedItem { get; set; }
     public List<FeedItemListListItem> SelectedItems { get; set; } = [];
     public bool ShowUnread { get; set; }
-    public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
 
@@ -51,6 +52,9 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     {
         return SelectedItems;
     }
+
+    public required StatusControlContext StatusContext { get; set; }
+    public required ObservableCollection<FeedItemListListItem> Items { get; init; }
 
     [NonBlockingCommand]
     public async Task ClearReadItems()
@@ -118,7 +122,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
             {
                 Items =
                 [
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Posted",
                         ColumnName = "DbItem.PublishingDate",
@@ -126,21 +130,21 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                         DefaultSortDirection = ListSortDirection.Descending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Item Name",
                         ColumnName = "DbItem.Title",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Feed Name",
                         ColumnName = "DbReaderFeed.Name",
                         DefaultSortDirection = ListSortDirection.Ascending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Item Author",
                         ColumnName = "DbItem.Author",
@@ -183,7 +187,7 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
             await StatusContext.ToastError("Nothing Selected?");
             return;
         }
-        
+
         var db = await ContextDb.GetInstance();
         var currentFeed =
             await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == listItem.DbReaderFeed.PersistentId);
@@ -238,6 +242,26 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                        StringComparison.OrdinalIgnoreCase) ?? false)
                 ;
         };
+    }
+
+
+    [BlockingCommand]
+    private async Task ItemWebViewScreenshot()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ItemWebViewScreenshotFunction == null)
+        {
+            await StatusContext.ToastError("Screenshot function not available...");
+            return;
+        }
+
+        var screenshotResult = await ItemWebViewScreenshotFunction();
+
+        if (screenshotResult.IsT0)
+            await WebViewToJpg.SaveByteArrayAsJpg(screenshotResult.AsT0.Value, string.Empty, StatusContext);
+        else
+            await StatusContext.ToastError(screenshotResult.AsT1.Value);
     }
 
     [NonBlockingCommand]
@@ -353,7 +377,8 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
                 catch (Exception exception)
                 {
                     Log.Error(exception, "Error With Display URL in the FeedItemListContext");
-                    await FeedDisplayPage.SetupDocumentWithMinimalCss($"""<h2>Exception</h2><p>{exception}</p>""", "Error");
+                    await FeedDisplayPage.SetupDocumentWithMinimalCss($"""<h2>Exception</h2><p>{exception}</p>""",
+                        "Error");
                     DisplayUrl = "about:blank";
                 }
             });
@@ -416,6 +441,26 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
             ? await ContextDb.UpdateFeeds(FeedList, StatusContext.ProgressTracker())
             : await ContextDb.UpdateFeeds(StatusContext.ProgressTracker());
         foreach (var loopError in errors) await StatusContext.ToastError(loopError);
+    }
+
+
+    [BlockingCommand]
+    private async Task RssViewScreenshot()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ItemRssViewScreenshotFunction == null)
+        {
+            await StatusContext.ToastError("Screenshot function not available...");
+            return;
+        }
+
+        var screenshotResult = await ItemRssViewScreenshotFunction();
+
+        if (screenshotResult.IsT0)
+            await WebViewToJpg.SaveByteArrayAsJpg(screenshotResult.AsT0.Value, string.Empty, StatusContext);
+        else
+            await StatusContext.ToastError(screenshotResult.AsT1.Value);
     }
 
     [NonBlockingCommand]

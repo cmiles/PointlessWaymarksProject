@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Data;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
+using OneOf;
+using OneOf.Types;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.FeedReaderData;
 using PointlessWaymarks.FeedReaderData.Models;
@@ -28,10 +30,11 @@ public partial class SavedFeedItemListContext
     public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
     public string DisplayUrl { get; set; } = string.Empty;
-
     public WebViewMessenger FeedDisplayPage { get; set; } = new();
     public List<Guid> FeedList { get; set; } = [];
+    public Func<Task<OneOf<Success<byte[]>, Error<string>>>>? ItemRssViewScreenshotFunction { get; set; }
     public required ObservableCollection<SavedFeedItemListListItem> Items { get; init; }
+    public Func<Task<OneOf<Success<byte[]>, Error<string>>>>? ItemWebViewScreenshotFunction { get; set; }
     public required ColumnSortControlContext ListSort { get; init; }
     public SavedFeedItemListListItem? SelectedItem { get; set; }
     public List<SavedFeedItemListListItem> SelectedItems { get; set; } = [];
@@ -256,6 +259,26 @@ public partial class SavedFeedItemListContext
         };
     }
 
+
+    [BlockingCommand]
+    private async Task ItemWebViewScreenshot()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ItemWebViewScreenshotFunction == null)
+        {
+            await StatusContext.ToastError("Screenshot function not available...");
+            return;
+        }
+
+        var screenshotResult = await ItemWebViewScreenshotFunction();
+
+        if (screenshotResult.IsT0)
+            await WebViewToJpg.SaveByteArrayAsJpg(screenshotResult.AsT0.Value, string.Empty, StatusContext);
+        else
+            await StatusContext.ToastError(screenshotResult.AsT1.Value);
+    }
+
     [NonBlockingCommand]
     public async Task MarkdownLinksForSelectedItems()
     {
@@ -337,6 +360,26 @@ public partial class SavedFeedItemListContext
                 or DataNotificationUpdateType.New)
                 await UpdateFeedItems(interProcessUpdateNotification.ContentIds);
         }
+    }
+
+
+    [BlockingCommand]
+    private async Task RssViewScreenshot()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ItemRssViewScreenshotFunction == null)
+        {
+            await StatusContext.ToastError("Screenshot function not available...");
+            return;
+        }
+
+        var screenshotResult = await ItemRssViewScreenshotFunction();
+
+        if (screenshotResult.IsT0)
+            await WebViewToJpg.SaveByteArrayAsJpg(screenshotResult.AsT0.Value, string.Empty, StatusContext);
+        else
+            await StatusContext.ToastError(screenshotResult.AsT1.Value);
     }
 
     public async Task Setup()

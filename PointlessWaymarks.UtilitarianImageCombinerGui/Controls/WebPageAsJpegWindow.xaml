@@ -70,7 +70,7 @@
                 Margin="4"
                 Source="{Binding UserUrl, TargetNullValue='about:blank'}">
                 <b:Interaction.Behaviors>
-                    <behaviors:WebViewToJpgFunctionInjection />
+                    <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="JpgScreenshotFunction" />
                 </b:Interaction.Behaviors>
             </wpf:WebView2>
         </Border>

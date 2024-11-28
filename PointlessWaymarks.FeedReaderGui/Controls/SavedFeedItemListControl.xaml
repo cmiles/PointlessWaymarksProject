@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.FeedReaderGui.Controls.SavedFeedItemListControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,6 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:webViewVirtualDomain="clr-namespace:PointlessWaymarks.WpfCommon.WebViewVirtualDomain;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
@@ -139,16 +140,46 @@
             Grid.Row="0"
             Grid.RowSpan="2"
             Grid.Column="2">
-            <TabItem Header="Web">
-                <wpf:WebView2
-                    x:Name="BodyContentWebView"
-                    Source="{Binding DisplayUrl, TargetNullValue='about:blank'}"
-                    Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}" />
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="2,0,4,0" FontWeight="Bold">Web</TextBlock>
+                        <Image
+                            Opacity=".8"
+                            Source="{svgc:SvgImage Source=/Icons/file-jpg-box.svg,
+                                                   AppName=PointlessWaymarks.WpfCommon}"
+                            ToolTip="Save Jpg of Entire Page">
+                            <Image.InputBindings>
+                                <MouseBinding Command="{Binding ItemWebViewScreenshotCommand}" Gesture="LeftClick" />
+                            </Image.InputBindings>
+                        </Image>
+                    </StackPanel>
+                </TabItem.Header>
+                <wpf:WebView2 x:Name="BodyContentWebView" Source="{Binding DisplayUrl, TargetNullValue='about:blank'}">
+                    <b:Interaction.Behaviors>
+                        <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="ItemWebViewScreenshotFunction" />
+                    </b:Interaction.Behaviors>
+                </wpf:WebView2>
             </TabItem>
-            <TabItem Header="Feed Content">
-                <wpf:WebView2 x:Name="RssContentWebView" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="2,0,4,0" FontWeight="Bold">Feed</TextBlock>
+                        <Image
+                            Opacity=".8"
+                            Source="{svgc:SvgImage Source=/Icons/file-jpg-box.svg,
+                                                   AppName=PointlessWaymarks.WpfCommon}"
+                            ToolTip="Save Jpg of Entire Page">
+                            <Image.InputBindings>
+                                <MouseBinding Command="{Binding ItemRssViewScreenshotFunctionCommand}" Gesture="LeftClick" />
+                            </Image.InputBindings>
+                        </Image>
+                    </StackPanel>
+                </TabItem.Header>
+                <wpf:WebView2 x:Name="RssContentWebView">
                     <b:Interaction.Behaviors>
                         <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding FeedDisplayPage}" />
+                        <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="ItemRssViewScreenshotFunction" />
                     </b:Interaction.Behaviors>
                 </wpf:WebView2>
             </TabItem>
