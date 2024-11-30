@@ -49,17 +49,17 @@ public partial class TrailContentEditorContext : IHasChanges, IHasValidationIssu
         PropertyChanged += OnPropertyChanged;
     }
 
-    public StringDataEntryContext BikesEntry { get; set; }
+    public BoolDataEntryContext BikesEntry { get; set; }
     public StringDataEntryContext BikesNoteEntry { get; set; }
     public BodyContentEditorContext? BodyContent { get; set; }
     public ContentIdViewerControlContext? ContentId { get; set; }
     public CreatedAndUpdatedByAndOnDisplayContext? CreatedUpdatedDisplay { get; set; }
     public TrailContent DbEntry { get; set; }
-    public StringDataEntryContext DogsEntry { get; set; }
+    public BoolDataEntryContext DogsEntry { get; set; }
     public StringDataEntryContext DogsNoteEntry { get; set; }
     public ConversionDataEntryContext<Guid?> EndingPointContentIdEntry { get; set; }
     public string EndPointDisplayText { get; set; }
-    public StringDataEntryContext FeeEntry { get; set; }
+    public BoolDataEntryContext FeeEntry { get; set; }
     public StringDataEntryContext FeeNoteEntry { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
     public ConversionDataEntryContext<Guid?> LineContentIdEntry { get; set; }
@@ -149,11 +149,11 @@ Trail Content can bring together a Map, Line, Start and End Points and structure
         newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
 
-        newEntry.Fee = FeeEntry.UserValue.TrimNullToEmpty();
-        newEntry.FeeNote = FeeNoteEntry.UserValue.TrimNullToEmpty();
-        newEntry.Dogs = DogsEntry.UserValue.TrimNullToEmpty();
+        newEntry.Fees = FeeEntry.UserValue;
+        newEntry.FeesNote = FeeNoteEntry.UserValue.TrimNullToEmpty();
+        newEntry.Dogs = DogsEntry.UserValue;
         newEntry.DogsNote = DogsNoteEntry.UserValue.TrimNullToEmpty();
-        newEntry.Bikes = BikesEntry.UserValue.TrimNullToEmpty();
+        newEntry.Bikes = BikesEntry.UserValue;
         newEntry.BikesNote = BikesNoteEntry.UserValue.TrimNullToEmpty();
         newEntry.OtherDetails = OtherDetailsEntry.UserValue.TrimNullToEmpty();
         newEntry.LocationArea = LocationAreaEntry.UserValue.TrimNullToEmpty();
@@ -238,25 +238,25 @@ Trail Content can bring together a Map, Line, Start and End Points and structure
         TagEdit = await TagsEditorContext.CreateInstance(StatusContext, DbEntry);
         BodyContent = await BodyContentEditorContext.CreateInstance(StatusContext, DbEntry);
 
-        FeeEntry = StringDataEntryContext.CreateInstance();
-        FeeEntry.Title = "Fee";
+        FeeEntry = await BoolDataEntryContext.CreateInstance();
+        FeeEntry.Title = "Fees";
         FeeEntry.HelpText =
             "Indicate if there is a fee - or leave this blank - this can be a complicated issue but limiting your entry to Yes or No is useful for search.";
-        FeeEntry.ReferenceValue = DbEntry.Fee ?? string.Empty;
-        FeeEntry.UserValue = DbEntry.Fee ?? string.Empty;
+        FeeEntry.ReferenceValue = DbEntry.Fees;
+        FeeEntry.UserValue = DbEntry.Fees;
 
         FeeNoteEntry = StringDataEntryContext.CreateInstance();
         FeeNoteEntry.Title = "Fee Note";
         FeeNoteEntry.HelpText = "Notes on any fees - could be text, links, snippets or bracket codes to other content.";
-        FeeNoteEntry.ReferenceValue = DbEntry.FeeNote ?? string.Empty;
-        FeeNoteEntry.UserValue = DbEntry.FeeNote ?? string.Empty;
+        FeeNoteEntry.ReferenceValue = DbEntry.FeesNote ?? string.Empty;
+        FeeNoteEntry.UserValue = DbEntry.FeesNote ?? string.Empty;
 
-        DogsEntry = StringDataEntryContext.CreateInstance();
+        DogsEntry = await BoolDataEntryContext.CreateInstance();
         DogsEntry.Title = "Dogs";
         DogsEntry.HelpText =
             "Indicate if dogs are allowed - or leave this blank - this can be a complicated issue but limiting your entry to Yes or No is useful for search.";
-        DogsEntry.ReferenceValue = DbEntry.Dogs ?? string.Empty;
-        DogsEntry.UserValue = DbEntry.Dogs ?? string.Empty;
+        DogsEntry.ReferenceValue = DbEntry.Dogs;
+        DogsEntry.UserValue = DbEntry.Dogs;
 
         DogsNoteEntry = StringDataEntryContext.CreateInstance();
         DogsNoteEntry.Title = "Dogs Note";
@@ -264,12 +264,12 @@ Trail Content can bring together a Map, Line, Start and End Points and structure
         DogsNoteEntry.ReferenceValue = DbEntry.DogsNote ?? string.Empty;
         DogsNoteEntry.UserValue = DbEntry.DogsNote ?? string.Empty;
 
-        BikesEntry = StringDataEntryContext.CreateInstance();
+        BikesEntry = await BoolDataEntryContext.CreateInstance();
         BikesEntry.Title = "Bikes";
         BikesEntry.HelpText =
             "Indicate if bikes are allowed - or leave this blank - this can be a complicated issue but limiting your entry to Yes or No is useful for search.";
-        BikesEntry.ReferenceValue = DbEntry.Bikes ?? string.Empty;
-        BikesEntry.UserValue = DbEntry.Bikes ?? string.Empty;
+        BikesEntry.ReferenceValue = DbEntry.Bikes;
+        BikesEntry.UserValue = DbEntry.Bikes;
 
         BikesNoteEntry = StringDataEntryContext.CreateInstance();
         BikesNoteEntry.Title = "Bikes Note";

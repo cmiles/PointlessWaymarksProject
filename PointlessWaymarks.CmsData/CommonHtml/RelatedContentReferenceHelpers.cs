@@ -35,7 +35,7 @@ public static class RelatedContentReferenceHelpers
             if (trail.StartingPointContentId is not null) toAdd.Add(trail.StartingPointContentId.Value);
             if (trail.EndingPointContentId is not null) toAdd.Add(trail.EndingPointContentId.Value);
 
-            toSearch += trail.Bikes + trail.BikesNote + trail.Dogs + trail.DogsNote + trail.Fee + trail.FeeNote +
+            toSearch += trail.Bikes + trail.BikesNote + trail.Dogs + trail.DogsNote + trail.Fees + trail.FeesNote +
                         trail.LocationArea + trail.OtherDetails + trail.TrailShape;
         }
 

@@ -56,9 +56,8 @@
                         CanHorizontallyScroll="False"
                         Orientation="Vertical">
                         <StackPanel.Resources>
-                            <Style x:Key="ShortEntry" TargetType="stringDataEntry:StringDataEntryControl">
-                                <Setter Property="Width" Value="140" />
-                                <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Style x:Key="ShortEntry" TargetType="boolDataEntry:BoolDataEntryControl">
+                                <Setter Property="Margin" Value="4,12,4,4" />
                             </Style>
                             <Style x:Key="GuidEntry" TargetType="conversionDataEntry:ConversionDataEntryControl">
                                 <Setter Property="Width" Value="500" />
@@ -71,17 +70,17 @@
                                 <Setter Property="FontWeight" Value="DemiBold" />
                             </Style>
                         </StackPanel.Resources>
-                        <stringDataEntry:StringDataEntryControl DataContext="{Binding FeeEntry}" Style="{StaticResource ShortEntry}" />
+                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding FeeEntry}" Style="{StaticResource ShortEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding FeeNoteEntry}" />
-                        <stringDataEntry:StringDataEntryControl DataContext="{Binding DogsEntry}" Style="{StaticResource ShortEntry}" />
+                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding DogsEntry}" Style="{StaticResource ShortEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding DogsNoteEntry}" />
-                        <stringDataEntry:StringDataEntryControl DataContext="{Binding BikesEntry}" Style="{StaticResource ShortEntry}" />
+                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding BikesEntry}" Style="{StaticResource ShortEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding BikesNoteEntry}" />
-                        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding OtherDetailsEntry}" />
+                        <stringDataEntry:StringDataEntryMultiLineControl Margin="0,12,0,0" DataContext="{Binding OtherDetailsEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding LocationAreaEntry}" />
                         <stringDataEntry:StringDataEntryControl DataContext="{Binding TrailShapeEntry}" />
                         <conversionDataEntry:ConversionDataEntryControl
-                            Margin="0,8,0,0"
+                            Margin="0,12,0,0"
                             DataContext="{Binding MapComponentIdEntry}"
                             Style="{StaticResource GuidEntry}" />
                         <TextBox

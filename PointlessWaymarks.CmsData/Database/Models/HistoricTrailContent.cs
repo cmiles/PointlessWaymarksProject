@@ -4,13 +4,13 @@ namespace PointlessWaymarks.CmsData.Database.Models;
 
 public class HistoricTrailContent : IUpdateNotes, IContentCommon
 {
-    public string? Bikes { get; set; }
-    public string? BikesNote { get; set; }
-    public string? Dogs { get; set; }
-    public string? DogsNote { get; set; }
+    public bool Bikes { get; set; }
+    public string? BikesNote { get; set; } = string.Empty;
+    public bool Dogs { get; set; }
+    public string? DogsNote { get; set; } = string.Empty;
     public Guid? EndingPointContentId { get; set; }
-    public string? Fee { get; set; }
-    public string? FeeNote { get; set; }
+    public bool Fees { get; set; }
+    public string? FeesNote { get; set; } = string.Empty;
     public Guid? LineContentId { get; set; }
     public string? LocationArea { get; set; }
     public Guid? MapComponentId { get; set; }
