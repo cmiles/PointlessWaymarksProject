@@ -25,18 +25,18 @@ public partial class CsEditorControl
     {
         InitializeComponent();
 
-        var assemblyList = RoslynHostReferences.NamespaceDefault.With(assemblyReferences: new[]
-        {
-            typeof(object).Assembly,
-            typeof(Regex).Assembly,
-            typeof(Enumerable).Assembly
-        }, imports: ["System.Console", "Internal"]);
+        //var assemblyList = RoslynHostReferences.NamespaceDefault.With(assemblyReferences: new[]
+        //{
+        //    typeof(object).Assembly,
+        //    typeof(Regex).Assembly,
+        //    typeof(Enumerable).Assembly
+        //}, imports: ["System.Console", "Internal"]);
 
-        _host = new ScriptRunnerRoslynHost(new[]
-        {
-            Assembly.Load("RoslynPad.Roslyn.Windows"),
-            Assembly.Load("RoslynPad.Editor.Windows")
-        }, assemblyList);
+        //_host = new ScriptRunnerRoslynHost(new[]
+        //{
+        //    Assembly.Load("RoslynPad.Roslyn.Windows"),
+        //    Assembly.Load("RoslynPad.Editor.Windows")
+        //}, assemblyList);
     }
 
     public bool IsReadOnly

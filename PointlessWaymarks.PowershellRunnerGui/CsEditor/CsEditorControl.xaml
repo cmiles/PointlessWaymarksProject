@@ -75,18 +75,7 @@
                     Visibility="{Binding HasValidationIssues, Converter={StaticResource BooleanToVisibility}}" />
             </StackPanel>
         </StackPanel>
-        <editor:RoslynCodeEditor
-            Name="CsCodeEditor"
-            Grid.Row="1"
-            ContextActionsIcon="{StaticResource Bulb}"
-            HorizontalScrollBarVisibility="Disabled"
-            Loaded="OnItemLoaded"
-            ShowLineNumbers="True"
-            VerticalScrollBarVisibility="Visible"
-            WordWrap="True">
-            <b:Interaction.Behaviors>
-                <powerShellEditor:AvalonEditRenderedStringBindingBehaviour RenderedText="{Binding UserValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            </b:Interaction.Behaviors>
-        </editor:RoslynCodeEditor>
+        <TextBox x:Name="CsCodeEditor" Grid.Row="1" Text="{Binding UserValue, UpdateSourceTrigger=PropertyChanged}">
+        </TextBox>
     </Grid>
 </UserControl>
