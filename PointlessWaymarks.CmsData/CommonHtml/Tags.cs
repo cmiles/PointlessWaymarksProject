@@ -277,7 +277,7 @@ public static class Tags
     {
         var summaryStringList = new List<string>();
 
-        var titleSummaryString = string.Empty;
+        string titleSummaryString;
 
         var summaryHasValue = !string.IsNullOrWhiteSpace(dbEntry.Summary);
 
@@ -511,23 +511,23 @@ public static class Tags
 
         var bodyContainer = new HtmlTag("div").AddClass("post-body-container");
 
-        var bodyContent = dbEntry.BodyContent ?? string.Empty;
+        var bodyContent = string.Empty;
 
         if (!string.IsNullOrWhiteSpace(contentBefore))
         {
             bodyContent = contentBefore;
         }
 
-        if (!string.IsNullOrWhiteSpace(bodyContent))
+        if (!string.IsNullOrWhiteSpace(dbEntry.BodyContent))
         {
-            if(!string.IsNullOrWhiteSpace(bodyContent)) bodyContent += Environment.NewLine;
+            if(!string.IsNullOrWhiteSpace(contentBefore)) bodyContent += Environment.NewLine;
             bodyContent += dbEntry.BodyContent;
         }
 
         if (!string.IsNullOrWhiteSpace(contentAfter))
         {
-            if (!string.IsNullOrWhiteSpace(bodyContent)) bodyContent += Environment.NewLine;
-            bodyContent = bodyContent + Environment.NewLine + contentAfter;
+            if (!string.IsNullOrWhiteSpace(dbEntry.BodyContent)) bodyContent += Environment.NewLine;
+            bodyContent += contentAfter;
         }
 
         var bodyText = ContentProcessing.ProcessContent(
