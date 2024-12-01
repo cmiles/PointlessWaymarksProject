@@ -176,7 +176,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.SearchListHtml
             this.Write("\r\n    ");
             
             #line 47 "E:\Code\PointlessWaymarksProject-01\PointlessWaymarks.CmsData\ContentHtml\SearchListHtml\SearchListPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ContentListTag()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(ContentListTag().Result));
             
             #line default
             #line hidden

@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sitePreview="clr-namespace:PointlessWaymarks.CmsWpfControls.SitePreview"
     xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:utility="clr-namespace:PointlessWaymarks.WpfCommon.Utility;assembly=PointlessWaymarks.WpfCommon"
     xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
     xmlns:wpf1="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
     d:DataContext="{d:DesignInstance sitePreview:SitePreviewContext}"
@@ -20,6 +21,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <utility:BindingProxy x:Key="Proxy" Data="{Binding}" />
             <Style x:Key="{x:Static wpf1:Styles.DocumentStyleKey}" TargetType="{x:Type FlowDocument}">
                 <Setter Property="FontFamily" Value="Calibri" />
                 <Setter Property="TextAlignment" Value="Left" />
@@ -78,12 +80,18 @@
                     Grid.Column="4"
                     Margin="6,0,0,0"
                     VerticalAlignment="Center">
-                    <MenuItem Padding="6" Header="Common Locations">
-                        <MenuItem Command="{Binding TryNavigateToSearchPageCommand}" Header="Search Page" />
-                        <MenuItem Command="{Binding TryNavigateToLatestContentGalleryCommand}" Header="Latest Content" />
-                        <MenuItem Command="{Binding TryNavigateToCameraRollGalleryCommand}" Header="Photo Gallery" />
-                        <MenuItem Command="{Binding TryNavigateToTagListCommand}" Header="Tag List" />
-                        <MenuItem Command="{Binding TryNavigateToLinkListCommand}" Header="Link List" />
+                    <MenuItem
+                        Padding="6"
+                        Header="Common Locations"
+                        ItemsSource="{Binding NavigationItems}">
+                        <MenuItem.ItemTemplate>
+                            <DataTemplate DataType="{x:Type sitePreview:SitePreviewMenuNavigationItem}">
+                                <MenuItem
+                                    Command="{Binding Data.TryNavigateToUrlCommand, Source={StaticResource Proxy}}"
+                                    CommandParameter="{Binding Url}"
+                                    Header="{Binding DisplayText}" />
+                            </DataTemplate>
+                        </MenuItem.ItemTemplate>
                     </MenuItem>
                 </Menu>
                 <TextBox

@@ -1,8 +1,9 @@
-using DocumentFormat.OpenXml.Vml.Office;
 using HtmlTags;
+using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
+using PointlessWaymarks.CommonTools;
 using SimMetricsCore;
 
 namespace PointlessWaymarks.CmsData.CommonHtml;
@@ -19,12 +20,13 @@ public static class ContentList
             PhotoContent => "image",
             FileContent => "file",
             LinkContent => "link",
+            TrailContent => "trail",
             VideoContent => "video",
             _ => "other"
         };
     }
 
-    public static HtmlTag FromContentCommon(IContentCommon content)
+    public static async Task<HtmlTag> FromContentCommon(IContentCommon content)
     {
         var linkTo = UserSettingsSingleton.CurrentSettings().ContentUrl(content.ContentId).Result;
 
@@ -43,12 +45,59 @@ public static class ContentList
         listItemContainerDiv.Data("target-url", linkTo);
 
         if (content is LineContent lineForData)
-        { 
+        {
             listItemContainerDiv.Data("distance", lineForData.LineDistance);
             listItemContainerDiv.Data("climb", lineForData.ClimbElevation);
             listItemContainerDiv.Data("descent", lineForData.DescentElevation);
             listItemContainerDiv.Data("min-elevation", lineForData.MinimumElevation);
             listItemContainerDiv.Data("max-elevation", lineForData.MaximumElevation);
+        }
+
+        LineContent? trailLine = null;
+        PointContent? trailStart = null;
+        PointContent? trailEnd = null;
+
+        if (content is TrailContent trailForData)
+        {
+            listItemContainerDiv.Data("trail-fees", trailForData.Fees);
+            listItemContainerDiv.Data("trail-bikes", trailForData.Bikes);
+            listItemContainerDiv.Data("trail-dogs", trailForData.Dogs);
+            if (!string.IsNullOrWhiteSpace(trailForData.LocationArea))
+                listItemContainerDiv.Data("trail-location-area", SlugTools.CreateSlug(true, trailForData.LocationArea));
+
+            if (trailForData.LineContentId is not null || trailForData.StartingPointContentId is not null ||
+                trailForData.EndingPointContentId is not null)
+            {
+                var dbContext = await Db.Context();
+                if (trailForData.LineContentId is not null)
+                {
+                    trailLine =
+                        await dbContext.LineContents.FirstOrDefaultAsync(x =>
+                            x.ContentId == trailForData.LineContentId);
+                    if (trailLine is not null)
+                    {
+                        listItemContainerDiv.Data("distance", trailLine.LineDistance);
+                        listItemContainerDiv.Data("climb", trailLine.ClimbElevation);
+                        listItemContainerDiv.Data("descent", trailLine.DescentElevation);
+                        listItemContainerDiv.Data("min-elevation", trailLine.MinimumElevation);
+                        listItemContainerDiv.Data("max-elevation", trailLine.MaximumElevation);
+                    }
+                }
+
+                if (trailForData.StartingPointContentId is not null)
+                {
+                    trailStart =
+                        dbContext.PointContents.FirstOrDefault(x => x.ContentId == trailForData.StartingPointContentId);
+                    if (trailStart is not null) listItemContainerDiv.Data("trail-start-point-title", trailStart.Title);
+                }
+
+                if (trailForData.EndingPointContentId is not null)
+                {
+                    trailEnd =
+                        dbContext.PointContents.FirstOrDefault(x => x.ContentId == trailForData.EndingPointContentId);
+                    if (trailEnd is not null) listItemContainerDiv.Data("trail-end-point-title", trailEnd.Title);
+                }
+            }
         }
 
         if (content.MainPicture != null)
@@ -82,6 +131,32 @@ public static class ContentList
         }
 
         if (content is LineContent line) summaryLines.Add(LineParts.LineStatsString(line));
+        if (content is TrailContent)
+        {
+            if (trailStart is not null && trailEnd is not null && trailStart.ContentId == trailEnd.ContentId)
+            {
+                summaryLines.Add($"Start/End: {trailStart.Title}");
+            }
+            else if (trailStart is not null && trailEnd is not null)
+            {
+                summaryLines.Add($"Start: {trailStart.Title} | End: {trailEnd.Title}");
+            }
+
+            if (trailStart is not null && trailEnd is null)
+            {
+                summaryLines.Add($"Start: {trailStart.Title}");
+            }
+
+            if (trailStart is null && trailEnd is not null)
+            {
+                summaryLines.Add($"End: {trailEnd.Title}");
+            }
+
+            if (trailLine != null)
+            {
+                summaryLines.Add(LineParts.LineStatsString(trailLine));
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(content.Tags)) summaryLines.Add($"Tags: {content.Tags}");
 

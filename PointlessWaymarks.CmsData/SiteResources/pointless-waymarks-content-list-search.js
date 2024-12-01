@@ -9,7 +9,8 @@ function processEnableAfterLoadingElements() {
     gsap.to(".enable-after-loading", {
         duration: .5, opacity: 1, onComplete: function () {
             this.targets().forEach(x => x.style.pointerEvents = 'auto');
-        } });
+        }
+    });
 }
 
 function debounce(func, timeout = 500) {
@@ -103,6 +104,19 @@ function searchContent() {
     var contentTypes = Array.from(document.querySelectorAll('.content-list-filter-checkbox'))
         .filter(x => x.checked).map(x => x.value);
 
+    var trailTrueFilterTypes = Array.from(document.querySelectorAll('.trail-list-true-filter-checkbox'))
+        .filter(x => x.checked).map(x => x.value);
+
+    var trailFalseFilterTypes = Array.from(document.querySelectorAll('.trail-list-false-filter-checkbox'))
+        .filter(x => x.checked).map(x => x.value);
+
+    var trailFilterCommonValues = trailTrueFilterTypes.filter(value => trailFalseFilterTypes.includes(value));
+    trailTrueFilterTypes = trailTrueFilterTypes.filter(value => !trailFilterCommonValues.includes(value));
+    trailFalseFilterTypes = trailFalseFilterTypes.filter(value => !trailFilterCommonValues.includes(value));
+
+    var trailLocationFilterDropdown = document.querySelector('#trail-location-filter-dropdown');
+    var trailLocationFilter = trailLocationFilterDropdown ? trailLocationFilterDropdown.value : '';
+
     var mainSiteFeedFilter = Array.from(document.querySelectorAll('.site-main-feed-filter-checkbox')).some(x => x.checked);
 
     var contentDivs = Array.from(document.querySelectorAll('.content-list-item-container'));
@@ -126,6 +140,32 @@ function searchContent() {
             loopDiv.classList.add("hidden-list-item");
             continue;
         }
+
+        if (trailLocationFilter !== '') {
+            if (loopDiv.getAttribute('data-trail-location-area') !== trailLocationFilter) {
+                loopDiv.classList.remove("shown-list-item");
+                loopDiv.classList.add("hidden-list-item");
+                continue;
+            }
+        }
+
+        function checkDataAttributes(elementToCheck, filerDataTypes, filterValue) {
+            for (let type of filerDataTypes) {
+                var dataAttribute = `data-${type}`;
+                if (elementToCheck.getAttribute(dataAttribute) === filterValue) {
+                    console.log(`elementToCheck has ${dataAttribute} set to true`);
+                    return true;
+                } else {
+                    elementToCheck.classList.remove("shown-list-item");
+                    elementToCheck.classList.add("hidden-list-item");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (!checkDataAttributes(loopDiv, trailTrueFilterTypes, "true")) continue;
+        if (!checkDataAttributes(loopDiv, trailFalseFilterTypes, "false")) continue;
 
         var divDataText = loopDiv.getAttribute('data-title').concat(
             loopDiv.getAttribute('data-summary'),

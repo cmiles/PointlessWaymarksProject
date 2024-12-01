@@ -43,6 +43,25 @@ public partial class SitePreviewContext : DependencyObject
             ? $"Preview - {LocalSiteFolder} is mapped to {SiteUrl}"
             : $"{SiteName} - {LocalSiteFolder} is mapped to {SiteUrl}";
 
+        NavigationItems =
+        [
+            new SitePreviewMenuNavigationItem("Search", $"http://{PreviewServerHost}/AllContentList.html"),
+            new SitePreviewMenuNavigationItem("Content Gallery", $"http://{PreviewServerHost}/LatestContent.html"),
+            new SitePreviewMenuNavigationItem("Camera Roll",
+                $"http://{PreviewServerHost}/Photos/Galleries/CameraRoll.html"),
+            new SitePreviewMenuNavigationItem("Tags", $"http://{PreviewServerHost}/Tags/AllTagsList.html"),
+            new SitePreviewMenuNavigationItem("File Search", $"http://{PreviewServerHost}/Files/FileList.html"),
+            new SitePreviewMenuNavigationItem("GeoJson Search", $"http://{PreviewServerHost}/GeoJson/GeoJsonList.html"),
+            new SitePreviewMenuNavigationItem("Line Search", $"http://{PreviewServerHost}/Lines/LineList.html"),
+            new SitePreviewMenuNavigationItem("Link Search", $"http://{PreviewServerHost}/Links/LinkList.html"),
+            new SitePreviewMenuNavigationItem("Note Search", $"http://{PreviewServerHost}/Notes/NoteList.html"),
+            new SitePreviewMenuNavigationItem("Photo Search", $"http://{PreviewServerHost}/Photos/PhotoList.html"),
+            new SitePreviewMenuNavigationItem("Point Search", $"http://{PreviewServerHost}/Points/PointsList.html"),
+            new SitePreviewMenuNavigationItem("Post Search", $"http://{PreviewServerHost}/Posts/PostList.html"),
+            new SitePreviewMenuNavigationItem("Trail Search", $"http://{PreviewServerHost}/Trails/TrailList.html"),
+            new SitePreviewMenuNavigationItem("Video Search", $"http://{PreviewServerHost}/Videos/VideoList.html"),
+        ];
+
         CurrentAddress = InitialPage;
     }
 
@@ -51,6 +70,8 @@ public partial class SitePreviewContext : DependencyObject
     public string InitialPage { get; set; }
     public Func<Task<OneOf<Success<byte[]>, Error<string>>>>? JpgScreenshotFunction { get; set; }
     public string LocalSiteFolder { get; set; }
+
+    public List<SitePreviewMenuNavigationItem> NavigationItems { get; set; }
     public Action<CoreWebView2NewWindowRequestedEventArgs>? NewWindowRequestedAction { get; set; }
     public string PreviewServerHost { get; set; }
     public string SiteMappingNote { get; set; }
@@ -104,39 +125,10 @@ public partial class SitePreviewContext : DependencyObject
     }
 
     [BlockingCommand]
-    private async Task TryNavigateToCameraRollGallery()
+    private async Task TryNavigateToUrl(string url)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate(
-            $"http://{PreviewServerHost}/Photos/Galleries/CameraRoll.html");
-    }
-
-    [BlockingCommand]
-    private async Task TryNavigateToLatestContentGallery()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/LatestContent.html");
-    }
-
-    [BlockingCommand]
-    private async Task TryNavigateToLinkList()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Links/LinkList.html");
-    }
-
-    [BlockingCommand]
-    private async Task TryNavigateToSearchPage()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/AllContentList.html");
-    }
-
-    [BlockingCommand]
-    private async Task TryNavigateToTagList()
-    {
-        await ThreadSwitcher.ResumeForegroundAsync();
-        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate($"http://{PreviewServerHost}/Tags/AllTagsList.html");
+        WebViewGui?.SitePreviewWebView.CoreWebView2.Navigate(url);
     }
 
     [BlockingCommand]

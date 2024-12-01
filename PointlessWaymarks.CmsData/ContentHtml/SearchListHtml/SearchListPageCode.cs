@@ -20,7 +20,7 @@ public partial class SearchListPage(
     public string ListTitle { get; } = listTitle;
     public string RssUrl { get; } = rssUrl;
 
-    public HtmlTag ContentListTag()
+    public async Task<HtmlTag> ContentListTag()
     {
         var allContent = ContentFunction().OrderBy(x => (x as ITitle)?.Title).ToList();
 
@@ -28,7 +28,7 @@ public partial class SearchListPage(
 
         foreach (var loopContent in allContent)
             if (loopContent is IContentCommon loopContentCommon)
-                allContentContainer.Children.Add(ContentList.FromContentCommon(loopContentCommon));
+                allContentContainer.Children.Add(await ContentList.FromContentCommon(loopContentCommon));
             else if (loopContent is LinkContent loopLinkContent)
                 allContentContainer.Children.Add(ContentList.FromLinkContent(loopLinkContent));
 
@@ -55,6 +55,7 @@ public partial class SearchListPage(
                 .AddClasses("site-main-feed-filter-checkbox").Value("site-main-feed")
                 .Attr("onclick", "searchContent()");
             var label = new HtmlTag("label")
+                .Attr("for", "main-feed-filter-checkbox")
                 .AddClasses("content-list-filter-checkbox-label")
                 .Text("Main Page");
             checkBoxContainer.Children.Add(checkbox);
@@ -83,8 +84,7 @@ public partial class SearchListPage(
 
         List<(string label, string sortMethod)> sortList;
 
-        if (allContent.All(x => x is LineContent))
-        {
+        if (allContent.Any() && allContent.All(x => x is LineContent or TrailContent))
             sortList =
             [
                 ("Title ↑", "sortTitleAscending"),
@@ -94,11 +94,9 @@ public partial class SearchListPage(
                 ("Climb ↑", "sortClimbAscending"),
                 ("Climb ↓", "sortClimbDescending"),
                 ("Max Elevation ↑", "sortMaxElevationAscending"),
-                ("Max Elevation ↓", "sortMaxElevationDescending"),
+                ("Max Elevation ↓", "sortMaxElevationDescending")
             ];
-        }
         else
-        {
             sortList =
             [
                 ("Title ↑", "sortTitleAscending"),
@@ -108,8 +106,6 @@ public partial class SearchListPage(
                 ("Updated ↑", "sortUpdatedAscending"),
                 ("Updated ↓", "sortUpdatedDescending")
             ];
-        }
-
 
         var first = true;
 
@@ -137,6 +133,45 @@ public partial class SearchListPage(
             radioContainer.Children.Add(radio);
             radioContainer.Children.Add(label);
             filterContainer.Children.Add(radioContainer);
+        }
+
+        if (allContent.Any() && allContent.All(x => x is TrailContent))
+        {
+            var filterList = new List<(string displayName, string dataType, bool value)>
+                { ("Fees", "trail-fees", true), ("No Fees", "trail-fees", false), ("Dog Friendly", "trail-dogs", true), ("No Dogs", "trail-dogs", false), ("Bikes Allowed", "trail-bikes", true), ("No Bikes", "trail-bikes", false) };
+
+            foreach (var loopFilters in filterList)
+            {
+                var checkboxId = $"{SlugTools.CreateSlug(true, loopFilters.displayName)}-trail-list-filter-checkbox";
+                var trailFilterItemContainer = new DivTag().AddClass("trail-list-filter-item");
+                var checkbox = new CheckboxTag(true)
+                    .Id(checkboxId)
+                    .AddClasses($"trail-list-{loopFilters.value.ToString().ToLower()}-filter-checkbox").Value(loopFilters.dataType)
+                    .Attr("onclick", "processSearchContent()");
+                var label = new HtmlTag("label")
+                    .Attr("for", checkboxId)
+                    .AddClasses("content-list-filter-checkbox-label")
+                    .Text(textInfo.ToTitleCase(loopFilters.displayName));
+                trailFilterItemContainer.Children.Add(checkbox);
+                trailFilterItemContainer.Children.Add(label);
+                filterContainer.Children.Add(trailFilterItemContainer);
+            }
+
+            var locations = allContent.Cast<TrailContent>().Where(x => !string.IsNullOrWhiteSpace(x.LocationArea))
+                .Select(x => x.LocationArea).Distinct().OrderBy(x => x).ToList();
+
+            if (locations.Any())
+            {
+                var selectTag = new SelectTag();
+
+                foreach (var loopLocation in locations)
+                    selectTag.Option(loopLocation, SlugTools.CreateSlug(true, loopLocation));
+
+                selectTag.DefaultOption("All").Id("trail-location-filter-dropdown")
+                    .AddClasses("trail-location-filter-dropdown").Attr("onchange", "processSearchContent()");
+
+                filterContainer.Children.Add(selectTag);
+            }
         }
 
         return filterContainer;
