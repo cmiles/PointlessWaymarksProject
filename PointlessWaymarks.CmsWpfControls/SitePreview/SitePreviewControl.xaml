@@ -19,7 +19,6 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../WpfControlsResourceDictionary.xaml" />
-
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="{x:Static wpf1:Styles.DocumentStyleKey}" TargetType="{x:Type FlowDocument}">
                 <Setter Property="FontFamily" Value="Calibri" />
@@ -116,7 +115,7 @@
                 Margin="4"
                 NavigationStarting="SitePreviewWebView_OnNavigationStarting">
                 <b:Interaction.Behaviors>
-                    <behaviors:WebViewToJpgFunctionInjection />
+                    <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="JpgScreenshotFunction" />
                 </b:Interaction.Behaviors>
             </wpf:WebView2>
         </Border>
