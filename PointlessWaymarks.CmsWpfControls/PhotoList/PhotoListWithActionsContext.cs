@@ -6,6 +6,7 @@ using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.Reports;
 using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
+using Ookii.Dialogs.Wpf;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentGeneration;
@@ -258,7 +259,8 @@ public partial class PhotoListWithActionsContext
                 [Db.ContentTypeDisplayStringForPhoto],
                 windowStatus);
 
-        return new PhotoListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext, loadInBackground);
+        return new PhotoListWithActionsContext(factoryStatusContext, windowStatus, factoryListContext,
+            loadInBackground);
     }
 
     [BlockingCommand]
@@ -345,6 +347,24 @@ public partial class PhotoListWithActionsContext
         Clipboard.SetText(finalString);
 
         await StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    private async Task PhotoMetadataFromPickedFile()
+    {
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var dialog = new VistaOpenFileDialog { Multiselect = false, Filter = "All files (*.*)|*.*" };
+
+        if (!(dialog.ShowDialog() ?? false)) return;
+
+        var selectedFile = dialog.FileName;
+
+        if (string.IsNullOrWhiteSpace(selectedFile)) return;
+        if (!File.Exists(selectedFile)) return;
+        var file = new FileInfo(selectedFile);
+
+        await PhotoMetadataReport.AllPhotoMetadataToHtml(file, StatusContext);
     }
 
     [BlockingCommand]

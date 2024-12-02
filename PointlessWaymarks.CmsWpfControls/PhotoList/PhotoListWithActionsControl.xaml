@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.PhotoList.PhotoListWithActionsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -41,6 +41,7 @@
                 <MenuItem Command="{Binding ReportMultiSpacesInTitleCommand}" Header="Titles with Multiple Spaces" />
                 <MenuItem Command="{Binding ReportAllPhotosCommand}" Header="All Photos" />
                 <MenuItem Command="{Binding ReportPhotoMetadataCommand}" Header="Selected - Metadata to Html" />
+                <MenuItem Command="{Binding PhotoMetadataFromPickedFileCommand}" Header="Metadata to Html - Pick File" />
             </MenuItem>
             <MenuItem Header="Email">
                 <MenuItem Command="{Binding EmailHtmlToClipboardCommand}" Header="Selected To Html Email on Clipboard" />

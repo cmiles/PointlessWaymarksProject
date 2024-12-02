@@ -230,6 +230,17 @@ public static class CommonContentValidation
         return Task.FromResult(new IsValid(true, "Elevation is Valid"));
     }
 
+    public static Task<IsValid> BearingValidation(double? bearing)
+    {
+        if (bearing == null) return Task.FromResult(new IsValid(true, "Null Bearing is Valid"));
+
+        if (bearing is < 0 or >= 360)
+            return Task.FromResult(new IsValid(false,
+                $"Bearings are limited 0-359 - {bearing} was input..."));
+
+        return Task.FromResult(new IsValid(true, "Bearing is Valid"));
+    }
+
     public static Task<bool> FileContentFileFileNameHasInvalidCharacters(FileInfo? fileContentFile,
         Guid? currentContentId)
     {

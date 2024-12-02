@@ -11,6 +11,7 @@ using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsData.ImageHelpers;
+using PointlessWaymarks.CmsData.Spatial;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
@@ -76,6 +77,8 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     public ConversionDataEntryContext<DateTime>? PhotoCreatedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? PhotoCreatedOnUtcEntry { get; set; }
 
+    public ConversionDataEntryContext<double?> PhotoDirectionEntry { get; set; }
+
     public string PhotoEditorHelpText =>
         @"
 ### Photo Content
@@ -94,7 +97,6 @@ Photo Content Notes:
     public bool SelectedFileHasValidationIssues { get; set; }
     public bool SelectedFileNameHasInvalidCharacters { get; set; }
     public string SelectedFileValidationMessage { get; set; } = string.Empty;
-
     public BoolDataEntryContext ShowInSearch { get; set; }
     public BoolDataEntryContext? ShowSizesEntry { get; set; }
     public StringDataEntryContext? ShutterSpeedEntry { get; set; }
@@ -280,6 +282,7 @@ Photo Content Notes:
         newEntry.BodyContent = BodyContent!.UserValue.TrimNullToEmpty();
         newEntry.BodyContentFormat = BodyContent.BodyContentFormat.SelectedContentFormatAsString;
         newEntry.ShowPhotoSizes = ShowSizesEntry!.UserValue;
+        newEntry.PhotoDirection = PhotoDirectionEntry!.UserValue;
         newEntry.Latitude = OptionalLocationEntry!.LatitudeEntry!.UserValue;
         newEntry.Longitude = OptionalLocationEntry.LongitudeEntry!.UserValue;
         newEntry.Elevation = OptionalLocationEntry.ElevationEntry!.UserValue;
@@ -454,6 +457,16 @@ Photo Content Notes:
         PhotoCreatedOnUtcEntry.ReferenceValue = DbEntry.PhotoCreatedOnUtc;
         PhotoCreatedOnUtcEntry.UserText = DbEntry.PhotoCreatedOnUtc?.ToString("MM/dd/yyyy h:mm:ss tt") ?? string.Empty;
 
+        PhotoDirectionEntry =
+            await ConversionDataEntryContext<double?>.CreateInstance(
+                ConversionDataEntryHelpers.DoubleNullableConversion);
+        PhotoDirectionEntry.ValidationFunctions = [CommonContentValidation.BearingValidation];
+        PhotoDirectionEntry.ComparisonFunction = (o, u) => o.IsApproximatelyEqualTo(u, .001);
+        PhotoDirectionEntry.Title = "Photo Direction";
+        PhotoDirectionEntry.HelpText = "Photo Direction";
+        PhotoDirectionEntry.ReferenceValue = DbEntry.PhotoDirection;
+        PhotoDirectionEntry.UserText = DbEntry.PhotoDirection?.ToString("N0") ?? string.Empty;
+
         OptionalLocationEntry = await OptionalLocationEntryContext.CreateInstance(StatusContext, DbEntry);
 
         HelpContext = new HelpDisplayContext([
@@ -491,6 +504,7 @@ Photo Content Notes:
         CameraModelEntry!.UserValue = metadata.CameraModel ?? string.Empty;
         FocalLengthEntry!.UserValue = metadata.FocalLength ?? string.Empty;
         IsoEntry!.UserText = metadata.Iso?.ToString("F0") ?? string.Empty;
+        PhotoDirectionEntry!.UserText = metadata.PhotoDirection?.ToString("N0") ?? string.Empty;
         OptionalLocationEntry!.LatitudeEntry!.UserText = metadata.Latitude?.ToString("F6") ?? string.Empty;
         OptionalLocationEntry.LongitudeEntry!.UserText = metadata.Longitude?.ToString("F6") ?? string.Empty;
         OptionalLocationEntry.ElevationEntry!.UserText = metadata.Elevation?.ToString("N0") ?? string.Empty;

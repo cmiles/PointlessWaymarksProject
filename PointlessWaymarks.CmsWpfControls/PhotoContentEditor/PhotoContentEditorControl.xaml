@@ -188,6 +188,11 @@
                                     DataContext="{Binding IsoEntry}" />
                             </WrapPanel>
                             <optionalLocationEntry:OptionalLocationEntryControl DataContext="{Binding OptionalLocationEntry}" />
+                            <conversionDataEntry:ConversionDataEntryControl
+                                Width="120"
+                                Margin="0,12,0,0"
+                                HorizontalAlignment="Left"
+                                DataContext="{Binding PhotoDirectionEntry}" />
                             <optionalLocationEntry:OptionalLocationActionsControl />
                         </StackPanel>
                     </Grid>

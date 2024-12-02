@@ -39,7 +39,10 @@ public static class PhotoParts
         if (dbEntry is { Elevation: not null, ShowLocation: true })
             outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.Elevation.Value:N0}'",
                 "photo-detail", "elevation-in-feet", dbEntry.Elevation.Value.ToString("F0")));
-        
+        if (dbEntry is { PhotoDirection: not null, ShowLocation: true })
+            outerContainer.Children.Add(Tags.InfoTextDivTag($"{dbEntry.PhotoDirection.Value:N0}\u00B0",
+                "photo-detail", "photo-direction", dbEntry.PhotoDirection.Value.ToString("F0")));
+
         //Return empty if there are no details
         return outerContainer.Children.Count(x => !x.IsEmpty()) > 1 ? outerContainer : HtmlTag.Empty();
     }

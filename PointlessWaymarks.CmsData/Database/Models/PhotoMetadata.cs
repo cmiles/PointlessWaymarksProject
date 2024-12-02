@@ -1,4 +1,4 @@
-﻿namespace PointlessWaymarks.CmsData.Database.Models;
+namespace PointlessWaymarks.CmsData.Database.Models;
 
 public class PhotoMetadata
 {
@@ -15,6 +15,7 @@ public class PhotoMetadata
     public string? PhotoCreatedBy { get; set; }
     public DateTime PhotoCreatedOn { get; set; }
     public DateTime? PhotoCreatedOnUtc { get; set; }
+    public double? PhotoDirection { get; set; }
     public string? ShutterSpeed { get; set; }
     public string? Summary { get; set; }
     public string? Tags { get; set; }
