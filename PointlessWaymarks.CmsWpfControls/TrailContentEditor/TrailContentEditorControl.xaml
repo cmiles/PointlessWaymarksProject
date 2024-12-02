@@ -4,14 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:bodyContentEditor1="clr-namespace:PointlessWaymarks.CmsWpfControls.BodyContentEditor"
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:contentDropdownDataEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentDropdownDataEntry"
     xmlns:contentIdViewer="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentIdViewer"
     xmlns:contentSiteFeedAndIsDraft="clr-namespace:PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft"
-    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:createdAndUpdatedByAndOnDisplay="clr-namespace:PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:optionalLocationEntry="clr-namespace:PointlessWaymarks.CmsWpfControls.OptionalLocationEntry"
     xmlns:postContentEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TrailContentEditor"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:tagsEditor="clr-namespace:PointlessWaymarks.CmsWpfControls.TagsEditor"
@@ -39,12 +38,18 @@
                 <Grid>
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="4" CanHorizontallyScroll="False">
-                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl DataContext="{Binding TitleSummarySlugFolder}" />
-                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl DataContext="{Binding MainSiteFeed}" />
+                            <titleSummarySlugFolderEditor:TitleSummarySlugEditorControl
+                                DataContext="{Binding TitleSummarySlugFolder}" />
+                            <contentSiteFeedAndIsDraft:ContentSiteFeedAndIsDraftControl
+                                DataContext="{Binding MainSiteFeed}" />
                             <boolDataEntry:BoolDataEntryControl Margin="4,8,4,0" DataContext="{Binding ShowInSearch}" />
-                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" Style="{StaticResource TagsEditorInPanelStyle}" />
-                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl DataContext="{Binding CreatedUpdatedDisplay}" Style="{StaticResource CreatedUpdatedInPanelStyle}" />
-                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}" Style="{StaticResource ContentIdInPanelStyle}" />
+                            <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}"
+                                                          Style="{StaticResource TagsEditorInPanelStyle}" />
+                            <createdAndUpdatedByAndOnDisplay:CreatedAndUpdatedByAndOnDisplayControl
+                                DataContext="{Binding CreatedUpdatedDisplay}"
+                                Style="{StaticResource CreatedUpdatedInPanelStyle}" />
+                            <contentIdViewer:ContentIdViewerControl DataContext="{Binding ContentId}"
+                                                                    Style="{StaticResource ContentIdInPanelStyle}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -59,49 +64,35 @@
                             <Style x:Key="ShortEntry" TargetType="boolDataEntry:BoolDataEntryControl">
                                 <Setter Property="Margin" Value="4,12,4,4" />
                             </Style>
-                            <Style x:Key="GuidEntry" TargetType="conversionDataEntry:ConversionDataEntryControl">
+                            <Style x:Key="GuidEntry"
+                                   TargetType="contentDropdownDataEntry:ContentDropdownDataEntryControl">
                                 <Setter Property="Width" Value="500" />
                                 <Setter Property="HorizontalAlignment" Value="Left" />
                             </Style>
-                            <Style x:Key="GuidNameDisplay" TargetType="TextBox">
-                                <Setter Property="IsReadOnly" Value="True" />
-                                <Setter Property="BorderThickness" Value="0" />
-                                <Setter Property="Margin" Value="8,4,0,8" />
-                                <Setter Property="FontWeight" Value="DemiBold" />
-                            </Style>
                         </StackPanel.Resources>
-                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding FeeEntry}" Style="{StaticResource ShortEntry}" />
+                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding FeeEntry}"
+                                                            Style="{StaticResource ShortEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding FeeNoteEntry}" />
-                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding DogsEntry}" Style="{StaticResource ShortEntry}" />
+                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding DogsEntry}"
+                                                            Style="{StaticResource ShortEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding DogsNoteEntry}" />
-                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding BikesEntry}" Style="{StaticResource ShortEntry}" />
+                        <boolDataEntry:BoolDataEntryControl DataContext="{Binding BikesEntry}"
+                                                            Style="{StaticResource ShortEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding BikesNoteEntry}" />
-                        <stringDataEntry:StringDataEntryMultiLineControl Margin="0,12,0,0" DataContext="{Binding OtherDetailsEntry}" />
+                        <stringDataEntry:StringDataEntryMultiLineControl Margin="0,12,0,0"
+                                                                         DataContext="{Binding OtherDetailsEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding LocationAreaEntry}" />
                         <stringDataEntry:StringDataEntryControl DataContext="{Binding TrailShapeEntry}" />
-                        <conversionDataEntry:ConversionDataEntryControl
+                        <contentDropdownDataEntry:ContentDropdownDataEntryControl
                             Margin="0,12,0,0"
                             DataContext="{Binding MapComponentIdEntry}"
                             Style="{StaticResource GuidEntry}" />
-                        <TextBox
-                            IsReadOnly="True"
-                            Style="{StaticResource GuidNameDisplay}"
-                            Text="{Binding MapComponentDisplayText}" />
-                        <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding LineContentIdEntry}" Style="{StaticResource GuidEntry}" />
-                        <TextBox
-                            IsReadOnly="True"
-                            Style="{StaticResource GuidNameDisplay}"
-                            Text="{Binding LineDisplayText}" />
-                        <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding StartingPointContentIdEntry}" Style="{StaticResource GuidEntry}" />
-                        <TextBox
-                            IsReadOnly="True"
-                            Style="{StaticResource GuidNameDisplay}"
-                            Text="{Binding StartingPointDisplayText}" />
-                        <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding EndingPointContentIdEntry}" Style="{StaticResource GuidEntry}" />
-                        <TextBox
-                            IsReadOnly="True"
-                            Style="{StaticResource GuidNameDisplay}"
-                            Text="{Binding EndPointDisplayText}" />
+                        <contentDropdownDataEntry:ContentDropdownDataEntryControl
+                            DataContext="{Binding LineContentIdEntry}" Style="{StaticResource GuidEntry}" />
+                        <contentDropdownDataEntry:ContentDropdownDataEntryControl
+                            DataContext="{Binding StartingPointContentIdEntry}" Style="{StaticResource GuidEntry}" />
+                        <contentDropdownDataEntry:ContentDropdownDataEntryControl
+                            DataContext="{Binding EndingPointContentIdEntry}" Style="{StaticResource GuidEntry}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

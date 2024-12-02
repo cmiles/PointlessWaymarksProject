@@ -1,13 +1,13 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.ContentGeneration;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.BodyContentEditor;
+using PointlessWaymarks.CmsWpfControls.ContentDropdownDataEntry;
 using PointlessWaymarks.CmsWpfControls.ContentIdViewer;
 using PointlessWaymarks.CmsWpfControls.ContentSiteFeedAndIsDraft;
 using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
@@ -24,7 +24,6 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
-using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
@@ -57,22 +56,18 @@ public partial class TrailContentEditorContext : IHasChanges, IHasValidationIssu
     public TrailContent DbEntry { get; set; }
     public BoolDataEntryContext DogsEntry { get; set; }
     public StringDataEntryContext DogsNoteEntry { get; set; }
-    public ConversionDataEntryContext<Guid?> EndingPointContentIdEntry { get; set; }
-    public string EndPointDisplayText { get; set; }
+    public ContentDropdownDataEntryContext EndingPointContentIdEntry { get; set; }
     public BoolDataEntryContext FeeEntry { get; set; }
     public StringDataEntryContext FeeNoteEntry { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
-    public ConversionDataEntryContext<Guid?> LineContentIdEntry { get; set; }
-    public string LineDisplayText { get; set; }
+    public ContentDropdownDataEntryContext LineContentIdEntry { get; set; }
     public StringDataEntryContext LocationAreaEntry { get; set; }
     public ContentSiteFeedAndIsDraftContext? MainSiteFeed { get; set; }
-    public string MapComponentDisplayText { get; set; }
-    public ConversionDataEntryContext<Guid?> MapComponentIdEntry { get; set; }
+    public ContentDropdownDataEntryContext MapComponentIdEntry { get; set; }
     public OptionalLocationEntryContext? OptionalLocationEntry { get; set; }
     public StringDataEntryContext OtherDetailsEntry { get; set; }
     public BoolDataEntryContext ShowInSearch { get; set; }
-    public ConversionDataEntryContext<Guid?> StartingPointContentIdEntry { get; set; }
-    public string StartingPointDisplayText { get; set; }
+    public ContentDropdownDataEntryContext StartingPointContentIdEntry { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
@@ -167,19 +162,6 @@ Trail Content can bring together a Map, Line, Start and End Points and structure
         return newEntry;
     }
 
-    private void EndingPointContentIdEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (EndingPointContentIdEntry.HasValidationIssues) EndPointDisplayText = string.Empty;
-        else
-            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
-            {
-                var db = await Db.Context();
-                EndPointDisplayText =
-                    (await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == EndingPointContentIdEntry.UserValue))
-                    ?.Title ?? string.Empty;
-            });
-    }
-
     [BlockingCommand]
     public async Task ExtractNewLinks()
     {
@@ -187,20 +169,6 @@ Trail Content can bring together a Map, Line, Start and End Points and structure
             $"{BodyContent!.UserValue} {UpdateNotes!.UserValue}",
             StatusContext.ProgressTracker());
     }
-
-    private void LineContentIdEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (LineContentIdEntry.HasValidationIssues) LineDisplayText = string.Empty;
-        else
-            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
-            {
-                var db = await Db.Context();
-                LineDisplayText =
-                    (await db.LineContents.SingleOrDefaultAsync(x => x.ContentId == LineContentIdEntry.UserValue))
-                    ?.Title ?? string.Empty;
-            });
-    }
-
 
     [BlockingCommand]
     private async Task LinkToClipboard()
@@ -297,65 +265,37 @@ Trail Content can bring together a Map, Line, Start and End Points and structure
         TrailShapeEntry.ReferenceValue = DbEntry.TrailShape ?? string.Empty;
         TrailShapeEntry.UserValue = DbEntry.TrailShape ?? string.Empty;
 
-        MapComponentIdEntry =
-            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
-                .ContentIdGuidNullableAndBracketCodeConversion);
-        MapComponentIdEntry.ValidationFunctions = [CommonContentValidation.ValidateMapComponentId];
-        MapComponentIdEntry.ReferenceValue = DbEntry.MapComponentId;
-        MapComponentIdEntry.Title = "Map Component Id";
+        MapComponentIdEntry = await ContentDropdownDataEntryContext.CreateInstance(StatusContext,
+            ContentDropdownDataEntryLoaders.GetCurrentMapEntries, DbEntry.MapComponentId,
+            [DataNotificationContentType.Map]);
+        MapComponentIdEntry.Title = "Map Component";
         MapComponentIdEntry.HelpText =
             "Map to display on the page";
-        MapComponentIdEntry.PropertyChanged += MapComponentIdEntryOnPropertyChanged;
-        MapComponentIdEntry.UserText = DbEntry.MapComponentId.ToString() ?? string.Empty;
 
-        LineContentIdEntry =
-            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
-                .ContentIdGuidNullableAndBracketCodeConversion);
-        LineContentIdEntry.ValidationFunctions = [CommonContentValidation.ValidateLineContentId];
-        LineContentIdEntry.ReferenceValue = DbEntry.LineContentId;
-        LineContentIdEntry.Title = "Line Content Id";
-        LineContentIdEntry.HelpText = "Line Content Id";
-        LineContentIdEntry.PropertyChanged += LineContentIdEntryOnPropertyChanged;
-        LineContentIdEntry.UserText = DbEntry.LineContentId.ToString() ?? string.Empty;
+        LineContentIdEntry = await ContentDropdownDataEntryContext.CreateInstance(StatusContext,
+            ContentDropdownDataEntryLoaders.GetCurrentLineEntries, DbEntry.LineContentId,
+            [DataNotificationContentType.Line]);
+        LineContentIdEntry.Title = "Line Content";
+        LineContentIdEntry.HelpText = "Line Content";
 
         StartingPointContentIdEntry =
-            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
-                .ContentIdGuidNullableAndBracketCodeConversion);
-        StartingPointContentIdEntry.ValidationFunctions = [CommonContentValidation.ValidatePointContentId];
-        StartingPointContentIdEntry.ReferenceValue = DbEntry.StartingPointContentId;
-        StartingPointContentIdEntry.Title = "Starting Point Content Id";
+            await ContentDropdownDataEntryContext.CreateInstance(StatusContext,
+                ContentDropdownDataEntryLoaders.GetCurrentPointEntries, DbEntry.StartingPointContentId,
+                [DataNotificationContentType.Point]);
+        StartingPointContentIdEntry.Title = "Starting Point";
         StartingPointContentIdEntry.HelpText = "Starting Point";
-        StartingPointContentIdEntry.PropertyChanged += StartingPointContentIdEntryOnPropertyChanged;
-        StartingPointContentIdEntry.UserText = DbEntry.StartingPointContentId.ToString() ?? string.Empty;
 
-        EndingPointContentIdEntry =
-            await ConversionDataEntryContext<Guid?>.CreateInstance(ConversionDataEntryTypes
-                .ContentIdGuidNullableAndBracketCodeConversion);
-        EndingPointContentIdEntry.ValidationFunctions = [CommonContentValidation.ValidatePointContentId];
-        EndingPointContentIdEntry.ReferenceValue = DbEntry.EndingPointContentId;
-        EndingPointContentIdEntry.Title = "Ending Point Content Id";
+        EndingPointContentIdEntry = await ContentDropdownDataEntryContext.CreateInstance(StatusContext,
+            ContentDropdownDataEntryLoaders.GetCurrentPointEntries, DbEntry.EndingPointContentId,
+            [DataNotificationContentType.Point]);
+        EndingPointContentIdEntry.Title = "Ending Point";
         EndingPointContentIdEntry.HelpText = "Ending Point";
-        EndingPointContentIdEntry.PropertyChanged += EndingPointContentIdEntryOnPropertyChanged;
-        EndingPointContentIdEntry.UserText = DbEntry.EndingPointContentId.ToString() ?? string.Empty;
 
         HelpContext = new HelpDisplayContext([
             TrailEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock
         ]);
 
         PropertyScanners.SubscribeToChildHasChangesAndHasValidationIssues(this, CheckForChangesAndValidationIssues);
-    }
-
-    private void MapComponentIdEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (MapComponentIdEntry.HasValidationIssues) MapComponentDisplayText = string.Empty;
-        else
-            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
-            {
-                var db = await Db.Context();
-                MapComponentDisplayText =
-                    (await db.MapComponents.SingleOrDefaultAsync(x => x.ContentId == MapComponentIdEntry.UserValue))
-                    ?.Title ?? string.Empty;
-            });
     }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -447,19 +387,6 @@ Trail Content can bring together a Map, Line, Start and End Points and structure
             await ThreadSwitcher.ResumeForegroundAsync();
             RequestContentEditorWindowClose?.Invoke(this, EventArgs.Empty);
         }
-    }
-
-    private void StartingPointContentIdEntryOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (StartingPointContentIdEntry.HasValidationIssues) StartingPointDisplayText = string.Empty;
-        else
-            StatusContext.RunFireAndForgetNonBlockingTask(async () =>
-            {
-                var db = await Db.Context();
-                StartingPointDisplayText =
-                    (await db.PointContents.SingleOrDefaultAsync(x => x.ContentId == StartingPointContentIdEntry.UserValue))
-                    ?.Title ?? string.Empty;
-            });
     }
 
     [BlockingCommand]
