@@ -14,7 +14,7 @@ using Serilog;
 
 namespace PointlessWaymarks.CmsWpfControls.WpfCmsHtml;
 
-public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2>
+public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2CompositionControl>
 {
     public static readonly DependencyProperty HtmlStringProperty = DependencyProperty.Register(nameof(HtmlString),
         typeof(string), typeof(WebViewHtmlPostLocalPreviewBehavior),

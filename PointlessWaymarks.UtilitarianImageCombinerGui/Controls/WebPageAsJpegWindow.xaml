@@ -65,14 +65,14 @@
             BorderBrush="LightGray"
             BorderThickness="2"
             CornerRadius="4">
-            <wpf:WebView2
+            <wpf:WebView2CompositionControl
                 x:Name="WebContentWebView"
                 Margin="4"
                 Source="{Binding UserUrl, TargetNullValue='about:blank'}">
                 <b:Interaction.Behaviors>
                     <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="JpgScreenshotFunction" />
                 </b:Interaction.Behaviors>
-            </wpf:WebView2>
+            </wpf:WebView2CompositionControl>
         </Border>
         <windowScreenShot:WindowScreenShotControl
             Grid.Row="1"

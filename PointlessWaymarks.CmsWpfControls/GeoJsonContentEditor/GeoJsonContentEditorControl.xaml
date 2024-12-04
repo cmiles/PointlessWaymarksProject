@@ -83,11 +83,11 @@
                                 Style="{StaticResource ActionPanelButtonStyle}" />
                         </WrapPanel>
                     </Border>
-                    <wpf:WebView2 Grid.Row="1" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                    <wpf:WebView2CompositionControl Grid.Row="1">
                         <b:Interaction.Behaviors>
                             <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior DeferNavigationTo="{Binding MapPreviewNavigationManager}" WebViewMessenger="{Binding .}" />
                         </b:Interaction.Behaviors>
-                    </wpf:WebView2>
+                    </wpf:WebView2CompositionControl>
                 </Grid>
             </TabItem>
             <TabItem Header="Update Notes">

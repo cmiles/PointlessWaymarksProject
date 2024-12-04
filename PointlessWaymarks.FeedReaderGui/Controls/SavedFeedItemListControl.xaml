@@ -155,11 +155,11 @@
                         </Image>
                     </StackPanel>
                 </TabItem.Header>
-                <wpf:WebView2 x:Name="BodyContentWebView" Source="{Binding DisplayUrl, TargetNullValue='about:blank'}">
+                <wpf:WebView2CompositionControl x:Name="BodyContentWebView" Source="{Binding DisplayUrl, TargetNullValue='about:blank'}">
                     <b:Interaction.Behaviors>
                         <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="ItemWebViewScreenshotFunction" />
                     </b:Interaction.Behaviors>
-                </wpf:WebView2>
+                </wpf:WebView2CompositionControl>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -176,12 +176,12 @@
                         </Image>
                     </StackPanel>
                 </TabItem.Header>
-                <wpf:WebView2 x:Name="RssContentWebView">
+                <wpf:WebView2CompositionControl x:Name="RssContentWebView">
                     <b:Interaction.Behaviors>
                         <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding FeedDisplayPage}" />
                         <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="ItemRssViewScreenshotFunction" />
                     </b:Interaction.Behaviors>
-                </wpf:WebView2>
+                </wpf:WebView2CompositionControl>
             </TabItem>
         </TabControl>
         <Grid Grid.Row="0" Grid.Column="0">

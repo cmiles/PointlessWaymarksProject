@@ -219,7 +219,7 @@
                             </Image>
                         </StackPanel>
                     </TabItem.Header>
-                    <wpf:WebView2
+                    <wpf:WebView2CompositionControl
                         x:Name="BodyContentWebView"
                         CoreWebView2InitializationCompleted="BodyContentWebView_OnCoreWebView2InitializationCompleted"
                         NavigationStarting="BodyContentWebView_OnNavigationStarting"
@@ -227,7 +227,7 @@
                         <b:Interaction.Behaviors>
                             <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="ItemWebViewScreenshotFunction" />
                         </b:Interaction.Behaviors>
-                    </wpf:WebView2>
+                    </wpf:WebView2CompositionControl>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
@@ -244,12 +244,12 @@
                             </Image>
                         </StackPanel>
                     </TabItem.Header>
-                    <wpf:WebView2 x:Name="RssContentWebView" CoreWebView2InitializationCompleted="RssContentWebView_OnCoreWebView2InitializationCompleted">
+                    <wpf:WebView2CompositionControl x:Name="RssContentWebView" CoreWebView2InitializationCompleted="RssContentWebView_OnCoreWebView2InitializationCompleted">
                         <b:Interaction.Behaviors>
                             <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding FeedDisplayPage}" />
                             <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="ItemRssViewScreenshotFunction" />
                         </b:Interaction.Behaviors>
-                    </wpf:WebView2>
+                    </wpf:WebView2CompositionControl>
                 </TabItem>
             </TabControl>
             <StackPanel

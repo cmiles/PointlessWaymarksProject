@@ -155,15 +155,14 @@
                             </StackPanel>
                         </ScrollViewer>
                     </Border>
-                    <wpf:WebView2
+                    <wpf:WebView2CompositionControl
                         x:Name="LineContentWebView"
                         Grid.Row="1"
-                        Grid.Column="0"
-                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        Grid.Column="0">
                         <b:Interaction.Behaviors>
                             <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior DeferNavigationTo="{Binding MapPreviewNavigationManager}" WebViewMessenger="{Binding .}" />
                         </b:Interaction.Behaviors>
-                    </wpf:WebView2>
+                    </wpf:WebView2CompositionControl>
                 </Grid>
             </TabItem>
             <TabItem Header="Body">

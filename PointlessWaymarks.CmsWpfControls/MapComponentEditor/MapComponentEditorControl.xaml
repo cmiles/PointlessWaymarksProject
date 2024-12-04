@@ -216,11 +216,11 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Grid>
-                        <wpf:WebView2 Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <wpf:WebView2CompositionControl>
                             <b:Interaction.Behaviors>
                                 <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior DeferNavigationTo="{Binding MapPreviewNavigationManager}" WebViewMessenger="{Binding .}" />
                             </b:Interaction.Behaviors>
-                        </wpf:WebView2>
+                        </wpf:WebView2CompositionControl>
                     </Grid>
                     <GridSplitter
                         Grid.Row="0"

@@ -117,14 +117,13 @@
                             </StackPanel>
                         </ScrollViewer>
                     </Border>
-                    <wpf:WebView2
+                    <wpf:WebView2CompositionControl
                         Grid.Row="0"
-                        Grid.Column="0"
-                        Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        Grid.Column="0">
                         <b:Interaction.Behaviors>
                             <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior DeferNavigationTo="{Binding MapPreviewNavigationManager}" WebViewMessenger="{Binding .}" />
                         </b:Interaction.Behaviors>
-                    </wpf:WebView2>
+                    </wpf:WebView2CompositionControl>
                     <Border
                         Grid.Row="1"
                         Grid.Column="0"

@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.ContentMap.ContentMapControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -34,17 +34,16 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <wpf:WebView2
+        <wpf:WebView2CompositionControl
             Grid.Row="0"
-            Grid.Column="0"
-            Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+            Grid.Column="0">
             <b:Interaction.Behaviors>
                 <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
                     DeferNavigationTo="{Binding MapPreviewNavigationManager}"
                     RedirectExternalLinksToBrowser="True"
                     WebViewMessenger="{Binding .}" />
             </b:Interaction.Behaviors>
-        </wpf:WebView2>
+        </wpf:WebView2CompositionControl>
         <GridSplitter
             Grid.Row="0"
             Grid.Column="1"

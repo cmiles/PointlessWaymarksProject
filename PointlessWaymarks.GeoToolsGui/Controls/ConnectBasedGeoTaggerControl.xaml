@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.GeoToolsGui.Controls.ConnectBasedGeoTaggerControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -339,11 +339,11 @@
                                 <DataGridTextColumn Binding="{Binding Elevation, Converter={StaticResource MetersToFeet}, StringFormat=N0}" Header="Elevation" />
                             </DataGrid.Columns>
                         </DataGrid>
-                        <wpf:WebView2 Grid.Row="2" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <wpf:WebView2CompositionControl Grid.Row="2">
                             <b:Interaction.Behaviors>
                                 <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding PreviewMap}" />
                             </b:Interaction.Behaviors>
-                        </wpf:WebView2>
+                        </wpf:WebView2CompositionControl>
                     </Grid>
                 </GroupBox>
             </TabItem>
@@ -382,11 +382,11 @@
                             Orientation="Horizontal">
                             <Button Command="{Binding SendResultFilesToFeatureIntersectTaggerCommand}">Send Files to Feature Intersect Tagger</Button>
                         </StackPanel>
-                        <wpf:WebView2 Grid.Row="2" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+                        <wpf:WebView2CompositionControl Grid.Row="2">
                             <b:Interaction.Behaviors>
                                 <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding WriteMap}" />
                             </b:Interaction.Behaviors>
-                        </wpf:WebView2>
+                        </wpf:WebView2CompositionControl>
                     </Grid>
                 </GroupBox>
             </TabItem>

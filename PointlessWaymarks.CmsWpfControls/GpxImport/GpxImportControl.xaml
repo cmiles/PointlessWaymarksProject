@@ -235,11 +235,11 @@
             Grid.Column="0"
             Header="Import Data"
             Style="{StaticResource UiComponentGroupBoxStyle}">
-            <wpf:WebView2 x:Name="GpxImportWebView" Visibility="{Binding StatusContext.BlockUi, Converter={StaticResource BooleanNotToVisibility}}">
+            <wpf:WebView2CompositionControl x:Name="GpxImportWebView">
                 <b:Interaction.Behaviors>
                     <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior WebViewMessenger="{Binding .}" />
                 </b:Interaction.Behaviors>
-            </wpf:WebView2>
+            </wpf:WebView2CompositionControl>
         </GroupBox>
         <Grid
             Grid.Row="0"

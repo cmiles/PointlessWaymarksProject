@@ -70,7 +70,6 @@ public partial class SitePreviewContext : DependencyObject
     public string InitialPage { get; set; }
     public Func<Task<OneOf<Success<byte[]>, Error<string>>>>? JpgScreenshotFunction { get; set; }
     public string LocalSiteFolder { get; set; }
-
     public List<SitePreviewMenuNavigationItem> NavigationItems { get; set; }
     public Action<CoreWebView2NewWindowRequestedEventArgs>? NewWindowRequestedAction { get; set; }
     public string PreviewServerHost { get; set; }
