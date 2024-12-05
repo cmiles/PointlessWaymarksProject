@@ -51,4 +51,13 @@
         </Resource>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="CmsInstallerLeftImage.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="CmsInstallerTopRightImage.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

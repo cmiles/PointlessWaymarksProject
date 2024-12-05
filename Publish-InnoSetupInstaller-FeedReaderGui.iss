@@ -32,6 +32,8 @@ OutputBaseFilename={#MyAppOutputBaseFilename}{#Version}
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=lowest
+WizardSmallImageFile="M:\PointlessWaymarksPublications\PointlessWaymarks.FeedReaderGui\FeedReaderInstallerTopRightImage.bmp"
+WizardImageFile="M:\PointlessWaymarksPublications\PointlessWaymarks.FeedReaderGui\FeedReaderInstallerLeftImage.bmp"
 
 [Files]
 Source: {#MyAppFilesSource}; DestDir: "{app}\"; Flags: recursesubdirs ignoreversion; AfterInstall:PublishVersionAfterInstall;

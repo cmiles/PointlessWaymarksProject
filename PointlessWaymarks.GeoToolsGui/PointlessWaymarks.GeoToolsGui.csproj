@@ -28,6 +28,7 @@
     <ItemGroup>
         <ProjectReference Include="..\PointlessWaymarks.CmsData\PointlessWaymarks.CmsData.csproj" />
         <ProjectReference Include="..\PointlessWaymarks.GeoTaggingService\PointlessWaymarks.GeoTaggingService.csproj" />
+        <ProjectReference Include="..\PointlessWaymarks.PowerShellRunnerData\PointlessWaymarks.PowerShellRunnerData.csproj" />
         <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.WpfCommon\PointlessWaymarks.WpfCommon.csproj" />
     </ItemGroup>
 
@@ -57,6 +58,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Update="GeoToolsInstallerLeftImage.bmp">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="GeoToolsInstallerTopRightImage.bmp">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
         <None Update="README_GeoToolsGui.md">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

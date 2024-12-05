@@ -50,4 +50,13 @@
         </Resource>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="SiteViewerInstallerLeftImage.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="SiteViewerInstallerTopRightImage.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

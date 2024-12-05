@@ -47,6 +47,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Update="CloudBackupInstallerLeftImage.bmp">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="CloudBackupInstallerTopRightImage.bmp">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
         <None Update="README_CloudBackupGui.md">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
