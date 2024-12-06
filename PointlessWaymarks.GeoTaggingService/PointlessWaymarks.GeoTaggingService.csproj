@@ -5,7 +5,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Metalama.Framework" Version="2024.2.30" />
+    <PackageReference Include="Metalama.Framework" Version="2024.2.31" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
     <PackageReference Include="XmpCore" Version="6.1.10.1" />
   </ItemGroup>

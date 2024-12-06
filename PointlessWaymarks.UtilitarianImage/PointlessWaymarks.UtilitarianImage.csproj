@@ -2,7 +2,7 @@
     <ItemGroup>
         <PackageReference Include="NetVips" Version="3.0.0" />
         <PackageReference Include="PDFtoImage" Version="4.1.1" />
-        <PackageReference Include="SkiaSharp" Version="2.88.9" />
+        <PackageReference Include="SkiaSharp" Version="3.116.1" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\PointlessWaymarksTools\PointlessWaymarks.CommonTools\PointlessWaymarks.CommonTools.csproj" />
