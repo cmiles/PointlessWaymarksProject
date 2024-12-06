@@ -88,8 +88,8 @@ public class GpxTrackImport
                 searchEndDate.Date.AddDays(-(settings.DownloadDaysBack % searchSegmentLength) + 1),
                 searchEndDate.AddDays(1).Date.AddTicks(-1)));
 
-        var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(),
-            new BasicAuthParameters(settings.ConnectUserName, settings.ConnectPassword)));
+        var garminConnectAuthParameters = new BasicAuthParameters(settings.ConnectUserName, settings.ConnectPassword, new December2024UpdatedStaticUserAgent());
+        var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), garminConnectAuthParameters));
 
         var fileList = new List<(FileInfo activityFileInfo, FileInfo? gpxFileInfo)>();
 
