@@ -32,14 +32,17 @@
         </Grid.RowDefinitions>
         <WrapPanel Margin="4,0,4,0">
             <GroupBox
-                Width="240"
-                Height="90"
+                Width="248"
+                Height="98"
                 Margin="0,0,4,0"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <TextBlock FontWeight="Bold">List Actions</TextBlock>
+                    <TextBlock FontWeight="DemiBold">List Actions</TextBlock>
                 </GroupBox.Header>
-                <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <WrapPanel
+                    Margin="4"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
                     <Button Width="110" Command="{Binding AddViaFileChooserCommand}">
                         Add Images
                     </Button>
@@ -48,37 +51,40 @@
                 </WrapPanel>
             </GroupBox>
             <GroupBox
-                Height="90"
+                Height="98"
                 Margin="0,0,4,0"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <TextBlock FontWeight="Bold">Individual Image Settings</TextBlock>
+                    <TextBlock FontWeight="DemiBold">Individual Image Settings</TextBlock>
                 </GroupBox.Header>
-                <StackPanel Orientation="Horizontal">
+                <WrapPanel
+                    Margin="12,4,20,4"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
                     <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ItemMaxWidthEntryContext}" />
-                    <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding ItemMaxHeightEntryContext}" />
-                </StackPanel>
+                    <conversionDataEntry:ConversionDataEntryControl Margin="8,0,0,0" DataContext="{Binding ItemMaxHeightEntryContext}" />
+                </WrapPanel>
             </GroupBox>
             <GroupBox
-                Height="90"
+                Height="98"
                 Margin="0,0,4,0"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <TextBlock FontWeight="Bold">Final Image</TextBlock>
+                    <TextBlock FontWeight="DemiBold">Final Image</TextBlock>
                 </GroupBox.Header>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="12,4,18,4" Orientation="Horizontal">
                     <conversionDataEntry:ConversionDataEntryControl
                         Margin="0,1,0,0"
                         VerticalAlignment="Top"
                         DataContext="{Binding FinalImageJpegQuality}" />
-                    <StackPanel VerticalAlignment="Top">
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Top">
                         <Label Style="{StaticResource DataEntryLabelStyle}" ToolTip="Background Color for the Final Document">
                             Background Color
                         </Label>
                         <ComboBox
                             Name="DropdownEntryComboBox"
                             Height="30"
-                            Margin="8,0,4,0"
+                            Margin="4,0,4,0"
                             VerticalAlignment="Top"
                             IsEditable="False"
                             ItemsSource="{Binding BackgroundColors}"
@@ -103,14 +109,17 @@
                 </StackPanel>
             </GroupBox>
             <GroupBox
-                Width="120"
-                Height="90"
+                Width="132"
+                Height="98"
                 Margin="0,0,4,0"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <TextBlock FontWeight="Bold">Save From</TextBlock>
+                    <TextBlock FontWeight="DemiBold">Save From</TextBlock>
                 </GroupBox.Header>
-                <WrapPanel Orientation="Horizontal">
+                <WrapPanel
+                    Margin="4"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
                     <Button Width="110" Command="{Binding OpenWebPageAsJpegWindowCommand}">URL</Button>
                     <Button Width="110" Command="{Binding SaveClipboardImageAsJpgCommand}">Clipboard</Button>
                 </WrapPanel>
@@ -121,7 +130,7 @@
             Margin="4,0,4,0"
             Style="{StaticResource UiComponentGroupBoxStyle}">
             <GroupBox.Header>
-                <TextBlock FontWeight="Bold">Images to Combine</TextBlock>
+                <TextBlock FontWeight="DemiBold">Images to Combine</TextBlock>
             </GroupBox.Header>
             <ListBox
                 HorizontalContentAlignment="Stretch"
@@ -300,25 +309,25 @@
             </Grid.ColumnDefinitions>
             <GroupBox Margin="0,0,0,4" Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <TextBlock FontWeight="Bold">Images to Combine</TextBlock>
+                    <TextBlock FontWeight="DemiBold">Stack</TextBlock>
                 </GroupBox.Header>
-                <Grid>
+                <Grid Margin="4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Button
-                        Height="48"
                         HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
                         Command="{Binding CombineImagesVerticallyCommand}">
-                        Combine - Vertical
+                        Combine - Vertical Stack
                     </Button>
                     <Button
                         Grid.Column="1"
-                        Height="48"
                         HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
                         Command="{Binding CombineImagesHorizontallyCommand}">
-                        Combine - Horizontal
+                        Combine - Horizontal Stack
                     </Button>
                 </Grid>
             </GroupBox>
@@ -327,27 +336,21 @@
                 Margin="0,0,0,4"
                 Style="{StaticResource UiComponentGroupBoxStyle}">
                 <GroupBox.Header>
-                    <TextBlock FontWeight="Bold">Grid</TextBlock>
+                    <TextBlock FontWeight="DemiBold">Grid</TextBlock>
                 </GroupBox.Header>
-                <Grid>
+                <Grid Margin="4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="120" />
                         <ColumnDefinition Width="120" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <conversionDataEntry:ConversionDataEntryControl
-                        Grid.Column="0"
-                        Margin="4"
-                        DataContext="{Binding GridRowEntryContext}" />
-                    <conversionDataEntry:ConversionDataEntryControl
-                        Grid.Column="1"
-                        Margin="4"
-                        DataContext="{Binding GridColumnEntryContext}" />
+                    <conversionDataEntry:ConversionDataEntryControl Grid.Column="0" DataContext="{Binding GridRowEntryContext}" />
+                    <conversionDataEntry:ConversionDataEntryControl Grid.Column="1" DataContext="{Binding GridColumnEntryContext}" />
                     <Button
                         Grid.Column="2"
-                        Height="48"
                         Margin="8,0,0,0"
                         HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
                         Command="{Binding CombineImagesGridCommand}">
                         Combine - Grid
                     </Button>

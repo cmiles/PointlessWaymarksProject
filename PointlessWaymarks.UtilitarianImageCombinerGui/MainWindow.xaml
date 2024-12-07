@@ -17,14 +17,56 @@
     Closing="MainWindow_OnClosing"
     mc:Ignorable="d">
     <Grid>
-        <TabControl>
-            <TabItem Header="Combine Images">
+        <TabControl Margin="2">
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock FontWeight="DemiBold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TabItem}}" Value="True">
+                                        <Setter Property="TextDecorations" Value="Underline" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                        Combine Images
+                    </TextBlock>
+                </TabItem.Header>
                 <controls:CombinerListControl DataContext="{Binding CombinerTabContext}" />
             </TabItem>
-            <TabItem Header="App Settings">
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock FontWeight="DemiBold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TabItem}}" Value="True">
+                                        <Setter Property="TextDecorations" Value="Underline" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                        Settings
+                    </TextBlock>
+                </TabItem.Header>
                 <controls:AppSettingsControl DataContext="{Binding AppSettingsTabContext}" />
             </TabItem>
-            <TabItem Header="About/Help">
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock FontWeight="DemiBold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TabItem}}" Value="True">
+                                        <Setter Property="TextDecorations" Value="Underline" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                        About/Help
+                    </TextBlock>
+                </TabItem.Header>
                 <markdownDisplay:HelpDisplayControl DataContext="{Binding HelpTabContext}" />
             </TabItem>
         </TabControl>
@@ -38,7 +80,7 @@
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
         <windowScreenShot:WindowScreenShotControl
-            Width="40"
+            Width="48"
             Margin="2,2,2,6"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom" />
