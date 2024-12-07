@@ -37,10 +37,10 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="160"></ColumnDefinition>
+                    <ColumnDefinition Width="160"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <Label Target="{Binding ElementName=UrlTextBox}">URL</Label>
+                <Label Target="{Binding ElementName=UrlTextBox}" FontWeight="Bold" Margin="4,4,4,0" VerticalAlignment="Center">URL:</Label>
                 <TextBox
                     Grid.Column="1"
                     Name="UrlTextBox"
@@ -50,8 +50,8 @@
                     VerticalContentAlignment="Center"
                     Text="{Binding UserUrl, UpdateSourceTrigger=Explicit}"
                     TextAlignment="Left" />
-                <Button Grid.Column="2" Padding="12,4,12,4" Click="ButtonNavigate_OnClick">Navigate</Button>
-                <Button Grid.Column="3" Margin="4,0,0,0" Padding="24,4,24,4" Command="{Binding SaveCurrentPageAsJpegCommand}">
+                <Button Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="12,4,12,4" Click="ButtonNavigate_OnClick">Navigate</Button>
+                <Button Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Margin="4,0,0,0" Padding="24,4,24,4" Command="{Binding SaveCurrentPageAsJpegCommand}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{svgc:SvgImage Source=/Icons/file-jpg-box.svg, AppName=PointlessWaymarks.WpfCommon}" />
                         <TextBlock Margin="8,0,0,0">Save as Jpeg</TextBlock>
