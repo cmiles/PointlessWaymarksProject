@@ -17,7 +17,7 @@ If you have questions or comments please contact me at pointless@pointlesswaymar
 
 ## Pointless Waymarks CMS
 
-Pointless Waymarks CMS is a .NET Core 8 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose' solution - instead it focuses on:
+Pointless Waymarks CMS is a .NET Core 9 Windows WPF GUI for generating a static website based on database information and a settings file. It is not an 'all purpose' solution - instead it focuses on:
  - Locally Generated Static Sites - low cost, low maintenance, high durability, easy backup, doesn't have to be on the web to be useful.
  - Database Driven CMS - flexibility in creating and updating content with the potential to generate multiple output formats.
  - Custom Software - optimized support for a limited set of content types and a specific set of workflows.
