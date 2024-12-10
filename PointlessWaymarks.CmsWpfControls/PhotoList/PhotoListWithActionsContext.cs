@@ -95,6 +95,10 @@ public partial class PhotoListWithActionsContext
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
             },
+            new ContextMenuItemData
+            {
+                ItemName = "View Selected Photos", ItemCommand = ListContext.PicturesAndVideosViewWindowSelectedCommand
+            },
             new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 

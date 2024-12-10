@@ -157,7 +157,11 @@ public partial class ContentMapContext : IWebViewMessenger
 
             new ContextMenuItemData { ItemName = "Open URL", ItemCommand = ListContext.ViewOnSiteCommand },
             new ContextMenuItemData { ItemName = "Delete", ItemCommand = ListContext.DeleteSelectedCommand },
-            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand }
+            new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
+            new ContextMenuItemData
+            {
+                ItemName = "View Selected Pictures and Videos", ItemCommand = ListContext.PicturesAndVideosViewWindowSelectedCommand
+            }
         ];
 
         await ListContext.LoadData(true);

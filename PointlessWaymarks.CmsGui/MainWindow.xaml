@@ -76,20 +76,20 @@
             <TabItem Header="Files">
                 <fileList:FileListWithActionsControl DataContext="{Binding TabFileListContext}" />
             </TabItem>
-            <TabItem Header="Trails">
-                <trailList:TrailListWithActionsControl DataContext="{Binding TabTrailListContext}" />
-            </TabItem>
-            <TabItem Header="Maps">
-                <mapComponentList:MapComponentListWithActionsControl DataContext="{Binding TabMapListContext}" />
-            </TabItem>
-            <TabItem Header="GeoJson">
-                <geoJsonList:GeoJsonListWithActionsControl DataContext="{Binding TabGeoJsonListContext}" />
-            </TabItem>
             <TabItem Header="Lines">
                 <lineList:LineListWithActionsControl DataContext="{Binding TabLineListContext}" />
             </TabItem>
             <TabItem Header="Points">
                 <pointList:PointListWithActionsControl DataContext="{Binding TabPointListContext}" />
+            </TabItem>
+            <TabItem Header="GeoJson">
+                <geoJsonList:GeoJsonListWithActionsControl DataContext="{Binding TabGeoJsonListContext}" />
+            </TabItem>
+            <TabItem Header="Maps">
+                <mapComponentList:MapComponentListWithActionsControl DataContext="{Binding TabMapListContext}" />
+            </TabItem>
+            <TabItem Header="Trails">
+                <trailList:TrailListWithActionsControl DataContext="{Binding TabTrailListContext}" />
             </TabItem>
             <TabItem Header="Notes">
                 <noteList:NoteListWithActionsControl DataContext="{Binding TabNoteListContext}" />

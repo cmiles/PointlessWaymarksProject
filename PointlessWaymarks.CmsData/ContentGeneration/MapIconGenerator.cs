@@ -45,7 +45,7 @@ public static class MapIconGenerator
 
         var allMapIcons = await db.MapIcons.OrderBy(x => x.IconName).ToListAsync();
 
-        return JsonSerializer.Serialize(allMapIcons, new JsonSerializerOptions()
+        return JsonSerializer.Serialize(allMapIcons, new JsonSerializerOptions
         {
             WriteIndented = true
         });

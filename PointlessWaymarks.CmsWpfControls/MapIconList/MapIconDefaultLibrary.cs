@@ -227,6 +227,19 @@ public static class MapIconDefaultLibrary
                 LastUpdatedBy = "Default Icon Library",
                 LastUpdatedOn = frozenNow,
                 ContentVersion = Db.ContentVersionDateTime()
+            },
+            new MapIcon
+            {
+                ContentId = Guid.NewGuid(),
+                IconName = "trail-junction",
+                IconSource =
+                    "https://fonts.google.com/icons?selected=Material+Symbols+Outlined:signpost:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=arrow&icon.size=24&icon.color=%235f6368",
+                IconSvg = """
+                          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="M440-80v-160H240L120-360l120-120h200v-80H160v-240h280v-80h80v80h200l120 120-120 120H520v80h280v240H520v160h-80ZM240-640h447l40-40-40-40H240v80Zm33 320h447v-80H273l-40 40 40 40Zm-33-320v-80 80Zm480 320v-80 80Z"/></svg>
+                          """,
+                LastUpdatedBy = "Default Icon Library",
+                LastUpdatedOn = frozenNow,
+                ContentVersion = Db.ContentVersionDateTime()
             }
         ];
     }

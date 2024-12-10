@@ -27,6 +27,7 @@ using PointlessWaymarks.CmsWpfControls.MapComponentList;
 using PointlessWaymarks.CmsWpfControls.NoteList;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
 using PointlessWaymarks.CmsWpfControls.PhotoList;
+using PointlessWaymarks.CmsWpfControls.PicturesViewer;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.TrailList;
@@ -839,6 +840,41 @@ public partial class ContentListContext : IDragSource, IDropTarget
         Clipboard.SetText(finalString);
 
         await StatusContext.ToastSuccess("Bracket Codes copied to Clipboard");
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    public async Task PicturesAndVideosViewWindowSelected(CancellationToken cancelToken)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        var currentSelected = SelectedListItems();
+
+        var contentIdList = new List<Guid>();
+
+        foreach (var loopSelected in currentSelected)
+        {
+            cancelToken.ThrowIfCancellationRequested();
+
+            if (loopSelected is VideoListListItem)
+            {
+                contentIdList.Add(loopSelected.ContentId()!.Value);
+                continue;
+            }
+
+            var dbEntryProperty = loopSelected.GetType().GetProperty("DbEntry");
+            
+            if (dbEntryProperty == null) continue;
+            
+            var dbEntry = dbEntryProperty.GetValue(loopSelected);
+            
+            if (dbEntry is IMainImage { MainPicture: not null } mainImage)
+                contentIdList.Add(mainImage.MainPicture.Value);
+        }
+
+        cancelToken.ThrowIfCancellationRequested();
+
+        await PicturesViewerWindow.CreateInstance(contentIdList.Distinct().ToList());
     }
 
     private async Task PossibleMainImageUpdateDataNotificationReceived(InterProcessDataNotification? translatedMessage)

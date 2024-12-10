@@ -1,0 +1,50 @@
+<Window
+    x:Class="PointlessWaymarks.CmsWpfControls.PicturesViewer.PicturesViewerWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:PointlessWaymarks.WpfCommon.Behaviors;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.PicturesViewer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:wpfCmsHtml="clr-namespace:PointlessWaymarks.CmsWpfControls.WpfCmsHtml"
+    xmlns:wpfHtml="clr-namespace:PointlessWaymarks.WpfCommon.WpfHtml;assembly=PointlessWaymarks.WpfCommon"
+    Title="PicturesViewerWindow"
+    Width="800"
+    Height="450"
+    d:DataContext="{d:DesignInstance local:PicturesViewerWindow}"
+    mc:Ignorable="d">
+    <Grid>
+        <wpf:WebView2CompositionControl x:Name="BodyContentWebView">
+            <b:Interaction.Behaviors>
+                <wpfCmsHtml:WebViewHtmlPostLocalPreviewBehavior HtmlString="{Binding HtmlPreview}" />
+                <behaviors:WebViewToJpgFunctionInjection JpgScreenshotFunctionName="JpgScreenshotFunction" />
+            </b:Interaction.Behaviors>
+        </wpf:WebView2CompositionControl>
+        <Button
+            Width="26"
+            Height="26"
+            Margin="32,4,4,6"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            Command="{Binding JpgScreenshotCommand}">
+            <Image
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Opacity=".2"
+                Source="{svgc:SvgImage Source=/Icons/file-jpg-box.svg,
+                                       AppName=PointlessWaymarks.WpfCommon}" />
+        </Button>
+        <windowScreenShot:WindowScreenShotControl
+            Margin="4"
+            HorizontalContentAlignment="Left"
+            VerticalContentAlignment="Bottom" />
+        <status:StatusControl d:IsHidden="true" DataContext="{Binding StatusContext}" />
+    </Grid>
+</Window>

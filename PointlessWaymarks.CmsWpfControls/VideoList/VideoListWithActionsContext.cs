@@ -65,6 +65,10 @@ public partial class VideoListWithActionsContext
             {
                 ItemName = "Map Selected Items", ItemCommand = ListContext.SpatialItemsToContentMapWindowSelectedCommand
             },
+            new ContextMenuItemData
+            {
+                ItemName = "View Selected Videos", ItemCommand = ListContext.PicturesAndVideosViewWindowSelectedCommand
+            },
             new ContextMenuItemData { ItemName = "Refresh Data", ItemCommand = RefreshDataCommand }
         ];
 

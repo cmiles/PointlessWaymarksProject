@@ -34,9 +34,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <wpf:WebView2CompositionControl
-            Grid.Row="0"
-            Grid.Column="0">
+        <wpf:WebView2CompositionControl Grid.Row="0" Grid.Column="0">
             <b:Interaction.Behaviors>
                 <webViewVirtualDomain:WebViewGeneratedVirtualDomainBehavior
                     DeferNavigationTo="{Binding MapPreviewNavigationManager}"

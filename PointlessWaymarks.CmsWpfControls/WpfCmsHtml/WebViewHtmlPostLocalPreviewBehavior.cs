@@ -127,9 +127,11 @@ public class WebViewHtmlPostLocalPreviewBehavior : Behavior<WebView2CompositionC
     private async void WebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
     {
         await ThreadSwitcher.ResumeForegroundAsync();
-        
-        //Not supporting this atm
-        if (e.NavigationKind is CoreWebView2NavigationKind.Reload or CoreWebView2NavigationKind.BackOrForward)
+
+        if (e.NavigationKind is CoreWebView2NavigationKind.Reload) return;
+
+        //Not supporting this
+        if(e.NavigationKind is CoreWebView2NavigationKind.BackOrForward)
         {
             e.Cancel = true;
             return;

@@ -80,7 +80,6 @@
             d:IsHidden="true"
             DataContext="{Binding StatusContext}" />
         <windowScreenShot:WindowScreenShotControl
-            Width="48"
             Margin="2,2,2,6"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom" />
