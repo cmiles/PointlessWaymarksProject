@@ -73,7 +73,7 @@ public partial class MainWindow
 
         var (dateString, setupFile) = await ProgramInfoTools.LatestInstaller(
             GeoToolsGuiSettingTools.ReadSettings().ProgramUpdateDirectory,
-            "PointlessWaymarksGeoToolsSetup");
+            "PointlessWaymarks-GeoToolsGui-Setup");
 
         Log.Information(
             $"Program Update Check - Current Version {currentDateVersion}, Installer Directory {GeoToolsGuiSettingTools.ReadSettings().ProgramUpdateDirectory}, Installer Date Found {dateString ?? string.Empty}, Setup File Found {setupFile ?? string.Empty}");
