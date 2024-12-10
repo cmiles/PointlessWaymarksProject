@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
         <PackageReference Include="NetVips" Version="3.0.0" />
-        <PackageReference Include="PDFtoImage" Version="4.1.1" />
+        <PackageReference Include="PDFtoImage" Version="5.0.0" />
         <PackageReference Include="SkiaSharp" Version="3.116.1" />
     </ItemGroup>
     <ItemGroup>

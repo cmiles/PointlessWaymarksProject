@@ -1,4 +1,4 @@
-﻿using Fractions;
+using Fractions;
 using Microsoft.Recognizers.Text;
 using Microsoft.Recognizers.Text.DateTime;
 using PointlessWaymarks.CommonTools;
@@ -899,7 +899,7 @@ public static class ContentListSearchFunctions
                     $"contains '{tokens[0]}'");
 
             return new ContentListSearchFunctionReturn(
-                translatedSingleInputToken.IsEquivalentTo(translatedItemShutterSpeed),
+                translatedSingleInputToken.Equals(translatedItemShutterSpeed),
                 $"Search Shutter Speed of {tokens[0]} equals {itemShutterSpeedString}");
         }
 
@@ -922,7 +922,7 @@ public static class ContentListSearchFunctions
                 }
 
                 shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
-                    translatedToken.IsEquivalentTo(translatedItemShutterSpeed),
+                    translatedToken.Equals(translatedItemShutterSpeed),
                     $"Search Shutter Speed of {scanValue} compared to " + $"{itemShutterSpeedString}"));
                 continue;
             }
@@ -947,12 +947,12 @@ public static class ContentListSearchFunctions
             {
                 case "==":
                     shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
-                        translatedItemShutterSpeed.IsEquivalentTo(translatedLookAheadValue),
+                        translatedItemShutterSpeed.Equals(translatedLookAheadValue),
                         $"Search Shutter Speed of {lookAheadValue} compared to " + $"{itemShutterSpeedString}"));
                     break;
                 case "!=":
                     shutterSpeedSearchResults.Add(new ContentListSearchFunctionReturn(
-                        !translatedItemShutterSpeed.IsEquivalentTo(translatedLookAheadValue),
+                        !translatedItemShutterSpeed.Equals(translatedLookAheadValue),
                         $"Search Shutter Speed of {lookAheadValue} not equal to " + $"{itemShutterSpeedString}"));
                     break;
                 case ">":
