@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.OptionalLocationEntry.OptionalLocationActionsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -37,7 +37,7 @@
                     <Binding Path="OptionalLocationEntry.LongitudeEntry.UserValue" />
                 </MultiBinding>
             </Button.Visibility>
-            Point From Photo Location
+            Point From Location
         </Button>
     </WrapPanel>
 </UserControl>
