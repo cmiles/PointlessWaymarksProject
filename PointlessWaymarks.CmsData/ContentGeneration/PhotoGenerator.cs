@@ -148,6 +148,8 @@ public static class PhotoGenerator
         if (toReturn.Lens == "----") toReturn.Lens = string.Empty;
 
         toReturn.Aperture = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
+        if(string.IsNullOrWhiteSpace(toReturn.Aperture))
+            toReturn.Aperture = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagFNumber) ?? string.Empty;
 
         toReturn.License = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
 
