@@ -469,6 +469,7 @@ Photo Content Notes:
         PhotoDirectionEntry.UserText = DbEntry.PhotoDirection?.ToString("N0") ?? string.Empty;
 
         OptionalLocationEntry = await OptionalLocationEntryContext.CreateInstance(StatusContext, DbEntry);
+        OptionalLocationEntry.GetBearing = () => PhotoDirectionEntry.UserValue;
 
         HelpContext = new HelpDisplayContext([
             PhotoEditorHelpText, CommonFields.TitleSlugFolderSummary, BracketCodeHelpMarkdown.HelpBlock

@@ -49,6 +49,13 @@
                 Command="{Binding ShowMarkerInMapWindowCommand}">
                 Show Location on Map
             </Button>
+            <Button
+                Width="236"
+                Margin="6,16,0,0"
+                VerticalAlignment="Bottom"
+                Command="{Binding ShowInPeakFinderWebCommand}">
+                Show in PeakFinder Web
+            </Button>
         </WrapPanel>
     </StackPanel>
 </UserControl>

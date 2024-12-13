@@ -38,6 +38,7 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
     public StatusControlContext StatusContext { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
+    public Func<double?>? GetBearing { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -222,5 +223,46 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
         await mapWindow.PositionWindowAndShowOnUiThread();
 
         await mapWindow.ShowMarker(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0);
+
+        var bearing = GetBearing?.Invoke();
+
+        if (bearing is null)
+        {
+            await mapWindow.ShowMarker(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0);
+        }
+        else
+        {
+            await mapWindow.ShowMarkerAndBearing(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0, bearing ?? 0, 300000);
+        }
     }
+
+    [NonBlockingCommand]
+    public async Task ShowInPeakFinderWeb()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (LatitudeEntry!.HasValidationIssues
+            || LatitudeEntry == null
+            || LongitudeEntry!.HasValidationIssues
+            || LongitudeEntry == null)
+        {
+            await StatusContext.ToastError("No Valid Location Data?");
+            return;
+        }
+
+        var mapWindow = await MapWindow.CreateInstance(LatitudeEntry.UserValue,
+            LongitudeEntry.UserValue, "Map - Location");
+
+        await mapWindow.PositionWindowAndShowOnUiThread();
+
+        var bearing = GetBearing?.Invoke();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var peakFinderUrl =
+            $"https://www.peakfinder.com/?lat={LatitudeEntry.UserValue:F5}&lng={LongitudeEntry.UserValue:F5}{(bearing is null ? "" : $"&azi={bearing.Value:F0}")}";
+
+        ProcessHelpers.OpenUrlInExternalBrowser(peakFinderUrl);
+    }
+
 }
