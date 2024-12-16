@@ -160,6 +160,11 @@ public partial class ListFilterBuilderContext
             {
                 Description = "Show Position", AddFilterCommand = AddPhotoShowPicturePositionCommand,
                 AppliesTo = [Db.ContentTypeDisplayStringForPhoto]
+            },
+            new ListFilterBuilderFilterAdd
+            {
+                Description = "Photo Direction", AddFilterCommand = AddPhotoDirectionFilterCommand,
+                AppliesTo = [Db.ContentTypeDisplayStringForPhoto]
             }
         ];
 
@@ -326,12 +331,6 @@ public partial class ListFilterBuilderContext
     }
 
     [NonBlockingCommand]
-    public async Task AddShowInSearchSearchFilter()
-    {
-        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "ShowInSearch" });
-    }
-
-    [NonBlockingCommand]
     public async Task AddLineActivityType()
     {
         await AddSearchFilter(new TextListFilterFieldBuilder
@@ -433,6 +432,13 @@ public partial class ListFilterBuilderContext
     }
 
     [NonBlockingCommand]
+    public async Task AddPhotoDirectionFilter()
+    {
+        await AddSearchFilter(new NumericListFilterFieldBuilder
+            { FieldTitle = "Photo Direction", NumberConverterFunction = x => decimal.TryParse(x, out _) });
+    }
+
+    [NonBlockingCommand]
     public async Task AddPhotoFocalLengthSearchFilter()
     {
         await AddSearchFilter(new NumericListFilterFieldBuilder
@@ -494,6 +500,12 @@ public partial class ListFilterBuilderContext
         await ThreadSwitcher.ResumeForegroundAsync();
         toAdd.PropertyChanged += ToAdd_PropertyChanged;
         SearchFilters.Add(toAdd);
+    }
+
+    [NonBlockingCommand]
+    public async Task AddShowInSearchSearchFilter()
+    {
+        await AddSearchFilter(new BooleanListFilterFieldBuilder { FieldTitle = "ShowInSearch" });
     }
 
     [NonBlockingCommand]

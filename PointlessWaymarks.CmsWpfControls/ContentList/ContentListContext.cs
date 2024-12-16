@@ -566,6 +566,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchIso;
             else if (searchString.StartsWith("FOCAL LENGTH:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchFocalLength;
+            else if (searchString.StartsWith("PHOTO DIRECTION:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchPhotoDirection;
             else if (searchString.StartsWith("PHOTO SHOW POSITION:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchPhotoPosition;
             else if (searchString.StartsWith("SHOW PICTURE SIZES:", StringComparison.InvariantCultureIgnoreCase))

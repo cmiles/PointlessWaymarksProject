@@ -409,6 +409,38 @@ public static class MapCmsJson
                 boundsKeeper.Add(new Point(loopElements.Longitude.Value, loopElements.Latitude.Value));
             }
 
+            var showBearingLines = true;
+            if (showBearingLines)
+            {
+                var photoContent = dbEntries.Where(x => x is PhotoContent { PhotoDirection: not null }).Cast<PhotoContent>().ToList();
+
+                foreach (var loopPhoto in photoContent)
+                {
+                    if(!await loopPhoto.HasValidLocation()) continue;
+
+                    var start = PointTools.Wgs84Point(loopPhoto.Longitude!.Value, loopPhoto.Latitude!.Value);
+                    var end = PointTools.ProjectCoordinate(start, loopPhoto.PhotoDirection!.Value, 300000);
+
+                    var descriptionAndImage =
+                        GenerateDescription(loopPhoto.MainPicture, loopPhoto.Title, loopPhoto.Summary);
+                    if (!string.IsNullOrWhiteSpace(descriptionAndImage.imageFileToCopy))
+                        filesToCopy.Add(descriptionAndImage.imageFileToCopy);
+
+                    featureCollection.Add(new Feature(new LineString([ start.Coordinate, end.Coordinate]), 
+                        new AttributesTable(new Dictionary<string, object>
+                        {
+                            {
+                                "title",
+                                $"""<a href="http://[[VirtualDomain]]/LocalPreview?{WebUtility.UrlEncode(UserSettingsSingleton.CurrentSettings()
+                                    .PhotoPageUrl(loopPhoto))}">{(string.IsNullOrWhiteSpace(loopPhoto.Title) ? "Preview" : loopPhoto.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(loopPhoto.ContentId.ToString())}">Edit</a>"""
+                            },
+                            { "description", descriptionAndImage.description },
+                            { "displayId", loopPhoto.ContentId },
+                        })));
+                }
+
+            }
+
             geoJsonList.Add(featureCollection);
         }
 

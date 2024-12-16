@@ -765,6 +765,8 @@ public partial class PhotoListWithActionsContext
                 toModify.Longitude = metadataReturn.metadata.Longitude;
             if (toModify.Elevation == null && metadataReturn.metadata.Elevation != null)
                 toModify.Elevation = metadataReturn.metadata.Elevation;
+            if (toModify.PhotoDirection == null && metadataReturn.metadata.PhotoDirection != null)
+                toModify.PhotoDirection = metadataReturn.metadata.PhotoDirection;
 
             var comparisonResult =
                 new CompareLogic { Config = { MaxDifferences = 100 } }.Compare(loopSelected.DbEntry, toModify);

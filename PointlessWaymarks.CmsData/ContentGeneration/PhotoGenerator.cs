@@ -69,7 +69,7 @@ public static class PhotoGenerator
         toReturn.PhotoCreatedOn = createdOn.createdOnLocal ?? DateTime.Now;
         toReturn.PhotoCreatedOnUtc = createdOn.createdOnUtc;
 
-        var locationInformation = await FileMetadataEmbeddedTools.LocationFromExif(metadataDirectories, true, progress);
+        var locationInformation = await FileMetadataEmbeddedTools.LocationFromExif(metadataDirectories, true, createdOn.createdOnUtc ?? createdOn.createdOnLocal, progress);
 
         toReturn.Latitude = locationInformation.Latitude;
         toReturn.Longitude = locationInformation.Longitude;

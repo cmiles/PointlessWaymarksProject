@@ -45,6 +45,19 @@ public static class ContentListSearch
             ContentListSearchFunctions.FilterAperture(photoItem.DbEntry.Aperture, searchString), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchPhotoDirection(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not PhotoListListItem photoItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false, "Photo Direction Search on Item that is not a Photo - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterNumber((decimal?)photoItem.DbEntry.PhotoDirection, searchString, "Photo Direction"),
+            searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchBounds(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
