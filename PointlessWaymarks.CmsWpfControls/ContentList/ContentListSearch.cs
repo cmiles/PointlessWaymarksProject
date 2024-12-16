@@ -45,19 +45,6 @@ public static class ContentListSearch
             ContentListSearchFunctions.FilterAperture(photoItem.DbEntry.Aperture, searchString), searchResultModifier);
     }
 
-    public static ContentListSearchReturn SearchPhotoDirection(IContentListItem toFilter, string searchString,
-        Func<bool, bool> searchResultModifier)
-    {
-        if (toFilter is not PhotoListListItem photoItem)
-            return new ContentListSearchReturn(
-                new ContentListSearchFunctionReturn(false, "Photo Direction Search on Item that is not a Photo - Excluding"),
-                searchResultModifier);
-
-        return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterNumber((decimal?)photoItem.DbEntry.PhotoDirection, searchString, "Photo Direction"),
-            searchResultModifier);
-    }
-
     public static ContentListSearchReturn SearchBounds(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -86,7 +73,8 @@ public static class ContentListSearch
                 var includeGeoJson = Db.GeoJsonBoundingBoxOverlaps(geoJsonItem.DbEntry, bounds);
                 return new ContentListSearchReturn(
                     new ContentListSearchFunctionReturn(includeGeoJson,
-                        $"Geo Json Bounding Box Overlaps Search Bounding Box - {includeGeoJson}"), searchResultModifier);
+                        $"Geo Json Bounding Box Overlaps Search Bounding Box - {includeGeoJson}"),
+                    searchResultModifier);
             case ImageListListItem imageItem:
                 var includeImage = Db.OptionalLocationContentIsInBoundingBox(imageItem.DbEntry, bounds);
                 return new ContentListSearchReturn(
@@ -101,7 +89,8 @@ public static class ContentListSearch
                 var includeMap = Db.MapInitialBoundingBoxOverlaps(mapItem.DbEntry, bounds);
                 return new ContentListSearchReturn(
                     new ContentListSearchFunctionReturn(includeMap,
-                        $"Map Initial View Bounding Box Overlaps Search Bounding Box - {includeMap}"), searchResultModifier);
+                        $"Map Initial View Bounding Box Overlaps Search Bounding Box - {includeMap}"),
+                    searchResultModifier);
             case PhotoListListItem photoItem:
                 var includePhoto = Db.OptionalLocationContentIsInBoundingBox(photoItem.DbEntry, bounds);
                 return new ContentListSearchReturn(
@@ -361,19 +350,6 @@ public static class ContentListSearch
             searchResultModifier);
     }
 
-    public static ContentListSearchReturn SearchShowInSearch(IContentListItem toFilter, string searchString,
-        Func<bool, bool> searchResultModifier)
-    {
-        if (toFilter.Content() is not IShowInSearch searchItem)
-            return new ContentListSearchReturn(
-                new ContentListSearchFunctionReturn(false,
-                    "Show In Search on Item that does not have that option - Excluding"), searchResultModifier);
-
-        return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterBoolean(searchItem.ShowInSearch, searchString,
-                "Show in Search"), searchResultModifier);
-    }
-
     public static ContentListSearchReturn SearchIncludeInActivityLog(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -385,6 +361,14 @@ public static class ContentListSearch
         return new ContentListSearchReturn(
             ContentListSearchFunctions.FilterBoolean(lineItem.DbEntry.IncludeInActivityLog, searchString,
                 "Include In Activity Log"), searchResultModifier);
+    }
+
+    public static ContentListSearchReturn SearchInMainSiteFeed(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterBoolean(toFilter.Content().ShowInMainSiteFeed, searchString,
+                "In Main Site Feed"), searchResultModifier);
     }
 
     public static ContentListSearchReturn SearchIso(IContentListItem toFilter, string searchString,
@@ -578,6 +562,21 @@ public static class ContentListSearch
                 "Photo Created On"), searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchPhotoDirection(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (toFilter is not PhotoListListItem photoItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Photo Direction Search on Item that is not a Photo - Excluding"),
+                searchResultModifier);
+
+        return new ContentListSearchReturn(
+            ContentListSearchFunctions.FilterNumber((decimal?)photoItem.DbEntry.PhotoDirection, searchString,
+                "Photo Direction"),
+            searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchPhotoPosition(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
@@ -628,12 +627,17 @@ public static class ContentListSearch
                 searchString.Trim(), "Public Download Link"), searchResultModifier);
     }
 
-    public static ContentListSearchReturn SearchInMainSiteFeed(IContentListItem toFilter, string searchString,
+    public static ContentListSearchReturn SearchShowInSearch(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {
+        if (toFilter.Content() is not IShowInSearch searchItem)
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(false,
+                    "Show In Search on Item that does not have that option - Excluding"), searchResultModifier);
+
         return new ContentListSearchReturn(
-            ContentListSearchFunctions.FilterBoolean(toFilter.Content().ShowInMainSiteFeed, searchString,
-                "In Main Site Feed"), searchResultModifier);
+            ContentListSearchFunctions.FilterBoolean(searchItem.ShowInSearch, searchString,
+                "Show in Search"), searchResultModifier);
     }
 
     public static ContentListSearchReturn SearchShutterSpeed(IContentListItem toFilter, string searchString,

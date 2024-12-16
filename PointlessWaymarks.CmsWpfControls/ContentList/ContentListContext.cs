@@ -865,11 +865,11 @@ public partial class ContentListContext : IDragSource, IDropTarget
             }
 
             var dbEntryProperty = loopSelected.GetType().GetProperty("DbEntry");
-            
+
             if (dbEntryProperty == null) continue;
-            
+
             var dbEntry = dbEntryProperty.GetValue(loopSelected);
-            
+
             if (dbEntry is IMainImage { MainPicture: not null } mainImage)
                 contentIdList.Add(mainImage.MainPicture.Value);
         }

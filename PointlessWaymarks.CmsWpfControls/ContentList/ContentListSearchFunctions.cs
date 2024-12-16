@@ -771,11 +771,10 @@ public static class ContentListSearchFunctions
         if (listItemNumber == null && string.IsNullOrWhiteSpace(searchString))
             return new ContentListSearchFunctionReturn(true, $"Blank {searchLabel} and Blank Search String (true).");
 
-        if (!string.IsNullOrWhiteSpace(searchString) && searchString.Trim().Equals("null", StringComparison.OrdinalIgnoreCase))
-        {
+        if (!string.IsNullOrWhiteSpace(searchString) &&
+            searchString.Trim().Equals("null", StringComparison.OrdinalIgnoreCase))
             return new ContentListSearchFunctionReturn(listItemNumber is null,
                 $"Comparing {searchLabel} for {listItemNumber} is null");
-        }
 
         if (listItemNumber == null)
             return new ContentListSearchFunctionReturn(false,

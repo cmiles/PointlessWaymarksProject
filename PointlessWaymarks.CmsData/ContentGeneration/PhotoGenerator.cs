@@ -31,6 +31,13 @@ public static class PhotoGenerator
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
 
+    public static bool PhotoFileTypeIsSupported(FileInfo toCheck)
+    {
+        if (toCheck is not { Exists: true }) return false;
+        return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
+               toCheck.Extension.ToUpperInvariant().Contains("JPEG");
+    }
+
     public static async Task<(GenerationReturn generationReturn, PhotoMetadata? metadata)> PhotoMetadataFromFile(
         FileInfo selectedFile, bool skipAdditionalTagDiscovery = false, IProgress<string>? progress = null)
     {
@@ -69,7 +76,8 @@ public static class PhotoGenerator
         toReturn.PhotoCreatedOn = createdOn.createdOnLocal ?? DateTime.Now;
         toReturn.PhotoCreatedOnUtc = createdOn.createdOnUtc;
 
-        var locationInformation = await FileMetadataEmbeddedTools.LocationFromExif(metadataDirectories, true, createdOn.createdOnUtc ?? createdOn.createdOnLocal, progress);
+        var locationInformation = await FileMetadataEmbeddedTools.LocationFromExif(metadataDirectories, true,
+            createdOn.createdOnUtc ?? createdOn.createdOnLocal, progress);
 
         toReturn.Latitude = locationInformation.Latitude;
         toReturn.Longitude = locationInformation.Longitude;
@@ -148,7 +156,7 @@ public static class PhotoGenerator
         if (toReturn.Lens == "----") toReturn.Lens = string.Empty;
 
         toReturn.Aperture = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
-        if(string.IsNullOrWhiteSpace(toReturn.Aperture))
+        if (string.IsNullOrWhiteSpace(toReturn.Aperture))
             toReturn.Aperture = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagFNumber) ?? string.Empty;
 
         toReturn.License = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
@@ -374,12 +382,5 @@ public static class PhotoGenerator
 
         await PictureResizing.ResizeForDisplayAndSrcset(photoContent, forcedResizeOverwriteExistingFiles, progress)
             .ConfigureAwait(false);
-    }
-
-    public static bool PhotoFileTypeIsSupported(FileInfo toCheck)
-    {
-        if (toCheck is not { Exists: true }) return false;
-        return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
-               toCheck.Extension.ToUpperInvariant().Contains("JPEG");
     }
 }

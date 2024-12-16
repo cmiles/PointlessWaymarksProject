@@ -350,8 +350,18 @@ public static class MapCmsJson
                         { "description", descriptionAndImage.description },
                         { "mapLabel", loopElements.MapLabel },
                         { "displayId", loopElements.ContentId },
-                        { "mapIcon", string.IsNullOrWhiteSpace(loopElements.MapIconName) ? "default" : loopElements.MapIconName.Trim() },
-                        { "mapMarkerColor", string.IsNullOrWhiteSpace(loopElements.MapMarkerColor) ? "default" : loopElements.MapMarkerColor.Trim() }
+                        {
+                            "mapIcon",
+                            string.IsNullOrWhiteSpace(loopElements.MapIconName)
+                                ? "default"
+                                : loopElements.MapIconName.Trim()
+                        },
+                        {
+                            "mapMarkerColor",
+                            string.IsNullOrWhiteSpace(loopElements.MapMarkerColor)
+                                ? "default"
+                                : loopElements.MapMarkerColor.Trim()
+                        }
                     })));
                 boundsKeeper.Add(new Point(loopElements.Longitude, loopElements.Latitude));
             }
@@ -388,7 +398,8 @@ public static class MapCmsJson
                 if (contentAsContentCommon is null) continue;
 
                 var descriptionAndImage =
-                    GenerateDescription(contentAsContentCommon.MainPicture, contentAsContentCommon.Title, contentAsContentCommon.Summary);
+                    GenerateDescription(contentAsContentCommon.MainPicture, contentAsContentCommon.Title,
+                        contentAsContentCommon.Summary);
                 if (!string.IsNullOrWhiteSpace(descriptionAndImage.imageFileToCopy))
                     filesToCopy.Add(descriptionAndImage.imageFileToCopy);
 
@@ -412,11 +423,12 @@ public static class MapCmsJson
             var showBearingLines = true;
             if (showBearingLines)
             {
-                var photoContent = dbEntries.Where(x => x is PhotoContent { PhotoDirection: not null }).Cast<PhotoContent>().ToList();
+                var photoContent = dbEntries.Where(x => x is PhotoContent { PhotoDirection: not null })
+                    .Cast<PhotoContent>().ToList();
 
                 foreach (var loopPhoto in photoContent)
                 {
-                    if(!await loopPhoto.HasValidLocation()) continue;
+                    if (!await loopPhoto.HasValidLocation()) continue;
 
                     var start = PointTools.Wgs84Point(loopPhoto.Longitude!.Value, loopPhoto.Latitude!.Value);
                     var end = PointTools.ProjectCoordinate(start, loopPhoto.PhotoDirection!.Value, 300000);
@@ -426,7 +438,7 @@ public static class MapCmsJson
                     if (!string.IsNullOrWhiteSpace(descriptionAndImage.imageFileToCopy))
                         filesToCopy.Add(descriptionAndImage.imageFileToCopy);
 
-                    featureCollection.Add(new Feature(new LineString([ start.Coordinate, end.Coordinate]), 
+                    featureCollection.Add(new Feature(new LineString([start.Coordinate, end.Coordinate]),
                         new AttributesTable(new Dictionary<string, object>
                         {
                             {
@@ -435,10 +447,9 @@ public static class MapCmsJson
                                     .PhotoPageUrl(loopPhoto))}">{(string.IsNullOrWhiteSpace(loopPhoto.Title) ? "Preview" : loopPhoto.Title)}</a> <a href="http://[[VirtualDomain]]/LocalEdit?{WebUtility.UrlEncode(loopPhoto.ContentId.ToString())}">Edit</a>"""
                             },
                             { "description", descriptionAndImage.description },
-                            { "displayId", loopPhoto.ContentId },
+                            { "displayId", loopPhoto.ContentId }
                         })));
                 }
-
             }
 
             geoJsonList.Add(featureCollection);
