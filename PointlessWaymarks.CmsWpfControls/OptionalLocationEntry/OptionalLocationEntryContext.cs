@@ -32,13 +32,13 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
     }
 
     public ConversionDataEntryContext<double?>? ElevationEntry { get; set; }
+    public Func<double?>? GetBearing { get; set; }
     public ConversionDataEntryContext<double?>? LatitudeEntry { get; set; }
     public ConversionDataEntryContext<double?>? LongitudeEntry { get; set; }
     public BoolDataEntryContext? ShowLocationEntry { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public bool HasChanges { get; set; }
     public bool HasValidationIssues { get; set; }
-    public Func<double?>? GetBearing { get; set; }
 
     public void CheckForChangesAndValidationIssues()
     {
@@ -204,39 +204,6 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
     }
 
     [NonBlockingCommand]
-    public async Task ShowMarkerInMapWindow()
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (LatitudeEntry!.HasValidationIssues
-            || LatitudeEntry == null
-            || LongitudeEntry!.HasValidationIssues
-            || LongitudeEntry == null)
-        {
-            await StatusContext.ToastError("No Valid Location Data?");
-            return;
-        }
-
-        var mapWindow = await MapWindow.CreateInstance(LatitudeEntry.UserValue,
-            LongitudeEntry.UserValue, "Map - Location");
-
-        await mapWindow.PositionWindowAndShowOnUiThread();
-
-        await mapWindow.ShowMarker(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0);
-
-        var bearing = GetBearing?.Invoke();
-
-        if (bearing is null)
-        {
-            await mapWindow.ShowMarker(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0);
-        }
-        else
-        {
-            await mapWindow.ShowMarkerAndBearing(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0, bearing ?? 0, 300000);
-        }
-    }
-
-    [NonBlockingCommand]
     public async Task ShowInPeakFinderWeb()
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
@@ -260,4 +227,33 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
         ProcessHelpers.OpenUrlInExternalBrowser(peakFinderUrl);
     }
 
+    [NonBlockingCommand]
+    public async Task ShowMarkerInMapWindow()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (LatitudeEntry!.HasValidationIssues
+            || LatitudeEntry == null
+            || LongitudeEntry!.HasValidationIssues
+            || LongitudeEntry == null)
+        {
+            await StatusContext.ToastError("No Valid Location Data?");
+            return;
+        }
+
+        var mapWindow = await MapWindow.CreateInstance(LatitudeEntry.UserValue,
+            LongitudeEntry.UserValue, "Map - Location");
+
+        await mapWindow.PositionWindowAndShowOnUiThread();
+
+        await mapWindow.ShowMarker(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0);
+
+        var bearing = GetBearing?.Invoke();
+
+        if (bearing is null)
+            await mapWindow.ShowMarker(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0);
+        else
+            await mapWindow.ShowMarkerAndBearing(LatitudeEntry.UserValue ?? 0, LongitudeEntry.UserValue ?? 0,
+                bearing ?? 0, 300000);
+    }
 }
