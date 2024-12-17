@@ -417,7 +417,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
 
         var closeByFeatures = (await db.ContentFromBoundingBox(searchBounds, [Db.ContentTypeDisplayStringForPoint]))
             .Where(x => x.ContentId != DbEntry.ContentId && !DisplayedContentGuids.Contains(x.ContentId)).ToList();
-        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList());
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(closeByFeatures.Cast<object>().ToList(), false);
         DisplayedContentGuids =
             DisplayedContentGuids.Union(closeByFeatures.Select(x => x.ContentId).Cast<Guid>()).ToList();
 
@@ -545,7 +545,7 @@ public partial class PointContentEditorContext : IHasChanges, ICheckForChangesAn
         await StatusContext.ToastSuccess(
             $"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
 
-        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList(), false);
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 

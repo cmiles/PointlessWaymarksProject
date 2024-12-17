@@ -936,7 +936,7 @@ public partial class MapComponentEditorContext : IHasChanges, IHasValidationIssu
         await ThreadSwitcher.ResumeBackgroundAsync();
 
         var mapInformation =
-            await MapCmsJson.ProcessContentToMapInformation(MapElements.Select(x => x.ContentId()!.Value).ToList());
+            await MapCmsJson.ProcessContentToMapInformation(MapElements.Select(x => x.ContentId()!.Value).ToList(), false);
 
         if (mapInformation.fileCopyList.Any())
         {

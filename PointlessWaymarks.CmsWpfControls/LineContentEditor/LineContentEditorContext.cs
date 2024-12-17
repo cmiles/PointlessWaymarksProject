@@ -499,7 +499,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         var mapInformation = await MapCmsJson.ProcessContentToMapInformation(photos.Concat(photoLinks).Concat(points)
             .Concat(pointExternalDirectionsLinks)
-            .Concat(pointDetailsLinks).Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList());
+            .Concat(pointDetailsLinks).Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList(), false);
 
         var lineAsFeatureCollection = GeoJsonTools.DeserializeStringToFeatureCollection(LineGeoJson);
 

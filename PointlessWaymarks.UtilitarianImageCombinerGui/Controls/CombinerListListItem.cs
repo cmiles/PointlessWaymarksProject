@@ -82,7 +82,7 @@ public partial class CombinerListListItem
         CreatedOnUtc = createdOn.createdOnUtc;
 
         var locationInformation =
-            await FileMetadataEmbeddedTools.LocationFromExif(metadataDirectories, true,
+            await FileMetadataEmbeddedTools.LocationFromExif(metadataDirectories, true, null,
                 StatusContext.ProgressTracker());
 
         Latitude = locationInformation.Latitude;

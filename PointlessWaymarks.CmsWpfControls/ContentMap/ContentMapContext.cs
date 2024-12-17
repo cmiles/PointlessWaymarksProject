@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using NetTopologySuite.Geometries;
@@ -67,6 +68,8 @@ public partial class ContentMapContext : IWebViewMessenger
 
             ToWebView.Enqueue(new JsonData { Json = serializedData });
         };
+
+        PropertyChanged += OnPropertyChanged;
     }
 
     public CmsCommonCommands CommonCommands { get; set; }
@@ -76,10 +79,60 @@ public partial class ContentMapContext : IWebViewMessenger
     public SpatialBounds? MapBounds { get; set; } = null;
     public Action<Uri, string> MapPreviewNavigationManager { get; set; }
     public bool RefreshMapOnCollectionChanged { get; set; }
+    public bool ShowPhotoDirectionBearingLines { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public WindowIconStatus? WindowStatus { get; set; }
     public WorkQueue<FromWebViewMessage> FromWebView { get; set; }
     public WorkQueue<ToWebViewRequest> ToWebView { get; set; }
+
+    public async Task ClearBasedOnBounds(bool clearInside)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (MapBounds == null)
+        {
+            await StatusContext.ToastError("No Map Bounds?");
+            return;
+        }
+
+        var currentItems = ListContext.Items.ToList();
+
+        var itemsToRemove = new List<IContentListItem>();
+
+        foreach (var loopItem in currentItems)
+        {
+            var isInside = loopItem switch
+            {
+                FileListListItem file => Db.OptionalLocationContentIsInBoundingBox(file.DbEntry, MapBounds),
+                GeoJsonListListItem geo => Db.GeoJsonBoundingBoxOverlaps(geo.DbEntry, MapBounds),
+                ImageListListItem image => Db.OptionalLocationContentIsInBoundingBox(image.DbEntry, MapBounds),
+                LineListListItem line => Db.LineContentBoundingBoxOverlaps(line.DbEntry, MapBounds),
+                PhotoListListItem photo => Db.OptionalLocationContentIsInBoundingBox(photo.DbEntry, MapBounds),
+                PostListListItem post => Db.OptionalLocationContentIsInBoundingBox(post.DbEntry, MapBounds),
+                PointListListItem point => Db.PointContentIsInBoundingBox(point.DbEntry.ToDbObject(), MapBounds),
+                VideoListListItem video => Db.OptionalLocationContentIsInBoundingBox(video.DbEntry, MapBounds),
+                _ => false
+            };
+
+            if ((clearInside && isInside) || (!clearInside && !isInside)) itemsToRemove.Add(loopItem);
+        }
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        itemsToRemove.ForEach(x => ListContext.Items.Remove(x));
+    }
+
+    [NonBlockingCommand]
+    public async Task ClearInsideMapBounds()
+    {
+        await ClearBasedOnBounds(true);
+    }
+
+    [NonBlockingCommand]
+    public async Task ClearOutsideMapBounds()
+    {
+        await ClearBasedOnBounds(false);
+    }
 
     [NonBlockingCommand]
     public Task CloseAllPopups()
@@ -160,7 +213,8 @@ public partial class ContentMapContext : IWebViewMessenger
             new ContextMenuItemData { ItemName = "View History", ItemCommand = ListContext.ViewHistorySelectedCommand },
             new ContextMenuItemData
             {
-                ItemName = "View Selected Pictures and Videos", ItemCommand = ListContext.PicturesAndVideosViewWindowSelectedCommand
+                ItemName = "View Selected Pictures and Videos",
+                ItemCommand = ListContext.PicturesAndVideosViewWindowSelectedCommand
             }
         ];
 
@@ -193,6 +247,13 @@ public partial class ContentMapContext : IWebViewMessenger
             {
                 Console.WriteLine(e);
             }
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+        if (e.PropertyName == nameof(ShowPhotoDirectionBearingLines))
+            StatusContext.RunBlockingTask(async () => await RefreshMap(MapBounds));
     }
 
     [NonBlockingCommand]
@@ -241,7 +302,8 @@ public partial class ContentMapContext : IWebViewMessenger
             return;
         }
 
-        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(frozenItems);
+        var mapInformation =
+            await MapCmsJson.ProcessContentToMapInformation(frozenItems, ShowPhotoDirectionBearingLines);
 
         if (mapInformation.fileCopyList.Any())
         {
@@ -349,55 +411,6 @@ public partial class ContentMapContext : IWebViewMessenger
         var bounds = MapCmsJson.GetBounds(ListContext.SelectedListItems());
 
         await RequestMapCenterOnEnvelope(bounds);
-    }
-
-    [NonBlockingCommand]
-    public async Task ClearInsideMapBounds()
-    {
-        await ClearBasedOnBounds(true);
-    }
-
-    [NonBlockingCommand]
-    public async Task ClearOutsideMapBounds()
-    {
-        await ClearBasedOnBounds(false);
-    }
-
-    public async Task ClearBasedOnBounds(bool clearInside)
-    {
-        await ThreadSwitcher.ResumeBackgroundAsync();
-
-        if (MapBounds == null)
-        {
-            await StatusContext.ToastError("No Map Bounds?");
-            return;
-        }
-
-        var currentItems = ListContext.Items.ToList();
-
-        var itemsToRemove = new List<IContentListItem>();
-
-        foreach (var loopItem in currentItems)
-        {
-            var isInside = loopItem switch
-            {
-                FileListListItem file => Db.OptionalLocationContentIsInBoundingBox(file.DbEntry, MapBounds),
-                GeoJsonListListItem geo => Db.GeoJsonBoundingBoxOverlaps(geo.DbEntry, MapBounds),
-                ImageListListItem image => Db.OptionalLocationContentIsInBoundingBox(image.DbEntry, MapBounds),
-                LineListListItem line => Db.LineContentBoundingBoxOverlaps(line.DbEntry, MapBounds),
-                PhotoListListItem photo => Db.OptionalLocationContentIsInBoundingBox(photo.DbEntry, MapBounds),
-                PostListListItem post => Db.OptionalLocationContentIsInBoundingBox(post.DbEntry, MapBounds),
-                PointListListItem point => Db.PointContentIsInBoundingBox(point.DbEntry.ToDbObject(), MapBounds),
-                VideoListListItem video => Db.OptionalLocationContentIsInBoundingBox(video.DbEntry, MapBounds),
-                _ => false
-            };
-
-            if ((clearInside && isInside) || (!clearInside && !isInside)) itemsToRemove.Add(loopItem);
-        }
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        itemsToRemove.ForEach(x => ListContext.Items.Remove(x));
     }
 
     [NonBlockingCommand]

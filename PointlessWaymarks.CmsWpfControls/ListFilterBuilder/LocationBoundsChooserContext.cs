@@ -145,7 +145,7 @@ public partial class LocationBoundsChooserContext : IWebViewMessenger
         await StatusContext.ToastSuccess(
             $"Added {searchResult.Count} Item{(searchResult.Count > 1 ? "s" : string.Empty)}");
 
-        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList());
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(searchResult.Cast<object>().ToList(), false);
         DisplayedContentGuids =
             DisplayedContentGuids.Union(searchResult.Select(x => x.ContentId).Cast<Guid>()).ToList();
 

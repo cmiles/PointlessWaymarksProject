@@ -89,6 +89,13 @@
                 <Button Command="{Binding ClearInsideMapBoundsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Clear Inside</Button>
                 <Button Command="{Binding ClearOutsideMapBoundsCommand}" Style="{StaticResource ActionPanelButtonStyle}">Clear Outside</Button>
                 <Button Command="{Binding RefreshMapCommand}" Style="{StaticResource ActionPanelButtonStyle}">Refresh Map</Button>
+                <CheckBox
+                    Width="150"
+                    Margin="4"
+                    VerticalAlignment="Center"
+                    IsChecked="{Binding ShowPhotoDirectionBearingLines}">
+                    Show Photo Bearings
+                </CheckBox>
             </WrapPanel>
         </Border>
     </Grid>

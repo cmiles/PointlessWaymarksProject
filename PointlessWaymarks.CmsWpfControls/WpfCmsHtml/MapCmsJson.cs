@@ -219,7 +219,7 @@ public static class MapCmsJson
 
     public static async Task<(SpatialBounds bounds, List<FeatureCollection> featureList, List<string> fileCopyList)>
         ProcessContentToMapInformation(
-            List<IContentListItem> frozenItems)
+            List<IContentListItem> frozenItems, bool showPhotoDirectionBearingLines)
     {
         var dbEntries = new List<object>();
 
@@ -252,17 +252,17 @@ public static class MapCmsJson
                     break;
             }
 
-        return await ProcessContentToMapInformation(dbEntries);
+        return await ProcessContentToMapInformation(dbEntries, showPhotoDirectionBearingLines);
     }
 
     public static async Task<(SpatialBounds bounds, List<FeatureCollection> featureList, List<string> fileCopyList)>
         ProcessContentToMapInformation(
-            List<Guid> contentIds)
+            List<Guid> contentIds, bool showPhotoDirectionBearingLines)
     {
         var db = await Db.Context();
         var content = await db.ContentFromContentIds(contentIds, true);
 
-        return await ProcessContentToMapInformation(content.Cast<object>().ToList());
+        return await ProcessContentToMapInformation(content.Cast<object>().ToList(), showPhotoDirectionBearingLines);
     }
 
     /// <summary>
@@ -273,7 +273,7 @@ public static class MapCmsJson
     /// <returns></returns>
     public static async Task<(SpatialBounds bounds, List<FeatureCollection> featureList, List<string> fileCopyList)>
         ProcessContentToMapInformation(
-            List<object> dbEntries)
+            List<object> dbEntries, bool showPhotoDirectionBearingLines)
     {
         var geoJsonList = new List<FeatureCollection>();
 
@@ -420,8 +420,7 @@ public static class MapCmsJson
                 boundsKeeper.Add(new Point(loopElements.Longitude.Value, loopElements.Latitude.Value));
             }
 
-            var showBearingLines = true;
-            if (showBearingLines)
+            if (showPhotoDirectionBearingLines)
             {
                 var photoContent = dbEntries.Where(x => x is PhotoContent { PhotoDirection: not null })
                     .Cast<PhotoContent>().ToList();

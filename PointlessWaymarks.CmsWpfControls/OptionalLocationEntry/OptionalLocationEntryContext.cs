@@ -250,11 +250,6 @@ public partial class OptionalLocationEntryContext : IHasChanges, IHasValidationI
             return;
         }
 
-        var mapWindow = await MapWindow.CreateInstance(LatitudeEntry.UserValue,
-            LongitudeEntry.UserValue, "Map - Location");
-
-        await mapWindow.PositionWindowAndShowOnUiThread();
-
         var bearing = GetBearing?.Invoke();
 
         await ThreadSwitcher.ResumeForegroundAsync();
