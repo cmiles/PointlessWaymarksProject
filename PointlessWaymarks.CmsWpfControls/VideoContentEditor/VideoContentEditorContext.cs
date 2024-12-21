@@ -19,7 +19,6 @@ using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.ImageContentEditor;
 using PointlessWaymarks.CmsWpfControls.OptionalLocationEntry;
 using PointlessWaymarks.CmsWpfControls.PhotoContentEditor;
-using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
@@ -31,6 +30,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
+using PointlessWaymarks.WpfCommon.FileMetadataDisplay;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.SimpleMediaPlayer;
 using PointlessWaymarks.WpfCommon.Status;
@@ -220,7 +220,8 @@ Notes:
 
         var toLoad = VideoContent.CreateInstance();
 
-        var newContext = new VideoContentEditorContext(factoryStatusContext, toLoad) { StatusContext = { BlockUi = true } };
+        var newContext = new VideoContentEditorContext(factoryStatusContext, toLoad)
+            { StatusContext = { BlockUi = true } };
 
         if (initialVideo is { Exists: true }) newContext.InitialVideo = initialVideo;
 
@@ -239,7 +240,8 @@ Notes:
         var factoryStatusContext = await StatusControlContext.CreateInstance(statusContext);
 
         var newControl =
-            new VideoContentEditorContext(factoryStatusContext, NewContentModels.InitializeVideoContent(initialContent));
+            new VideoContentEditorContext(factoryStatusContext,
+                NewContentModels.InitializeVideoContent(initialContent));
         await newControl.LoadData(initialContent);
         return newControl;
     }
@@ -827,6 +829,6 @@ Notes:
     [BlockingCommand]
     public async Task ViewVideoMetadata()
     {
-        await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext);
+        await FileMetadataReport.AllFileMetadataToHtmlDocumentAndOpen(SelectedFile, StatusContext);
     }
 }

@@ -16,6 +16,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.SpatialTools;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.FileList;
+using PointlessWaymarks.WpfCommon.FileMetadataDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using PointlessWaymarks.WpfCommon.WebViewVirtualDomain;
@@ -221,66 +222,12 @@ public partial class FileBasedGeoTaggerContext
             return;
         }
 
+        await ThreadSwitcher.ResumeForegroundAsync();
+
         foreach (var loopFile in frozenSelected)
         {
-            loopFile.Refresh();
-            if (!loopFile.Exists)
-            {
-                await StatusContext.ToastWarning($"File {loopFile.FullName} no longer exists?");
-                continue;
-            }
-
-            var htmlParts = new List<string>();
-
-            if (loopFile.Extension.Equals(".xmp", StringComparison.OrdinalIgnoreCase))
-            {
-                IXmpMeta xmp;
-                await using (var stream = File.OpenRead(loopFile.FullName))
-                {
-                    xmp = XmpMetaFactory.Parse(stream);
-                }
-
-                htmlParts.Add(xmp.Properties.OrderBy(x => x.Namespace).ThenBy(x => x.Path)
-                    .Select(x => new { x.Namespace, x.Path, x.Value })
-                    .ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
-            }
-            else
-            {
-                var photoMetaTags = ImageMetadataReader.ReadMetadata(loopFile.FullName);
-
-                htmlParts.Add(photoMetaTags.SelectMany(x => x.Tags).OrderBy(x => x.DirectoryName).ThenBy(x => x.Name)
-                    .ToList().Select(x => new
-                    {
-                        DataType = x.Type.ToString(),
-                        x.DirectoryName,
-                        Tag = x.Name,
-                        TagValue = x.Description?.SafeObjectDump()
-                    }).ToHtmlTable(new { @class = "pure-table pure-table-striped" }));
-
-                var xmpDirectory = ImageMetadataReader.ReadMetadata(loopFile.FullName).OfType<XmpDirectory>()
-                    .FirstOrDefault();
-
-                var xmpMetadata = xmpDirectory?.GetXmpProperties()
-                    .Select(x => new { XmpKey = x.Key, XmpValue = x.Value })
-                    .ToHtmlTable(new { @class = "pure-table pure-table-striped" });
-
-                if (!string.IsNullOrWhiteSpace(xmpMetadata)) htmlParts.Add(xmpMetadata);
-            }
-
-            await ThreadSwitcher.ResumeForegroundAsync();
-
-            var file = new FileInfo(Path.Combine(FileLocationTools.TempStorageDirectory().FullName,
-                $"PhotoMetadata-{Path.GetFileNameWithoutExtension(loopFile.Name)}-{DateTime.Now:yyyy-MM-dd---HH-mm-ss}.htm"));
-
-            var htmlString =
-                await
-                    $"<h1>Metadata Report:</h1><h1>{HttpUtility.HtmlEncode(loopFile.FullName)}</h1><br><h1>Metadata</h1><br>{string.Join("<br><br>", htmlParts)}"
-                        .ToHtmlDocumentWithPureCss("File Metadata", "body {margin: 12px;}");
-
-            await File.WriteAllTextAsync(file.FullName, htmlString);
-
-            var ps = new ProcessStartInfo(file.FullName) { UseShellExecute = true, Verb = "open" };
-            Process.Start(ps);
+            var metadataWindow = await FileMetadataDisplayWindow.CreateInstance(loopFile.FullName);
+            await metadataWindow.PositionWindowAndShowOnUiThread();
         }
     }
 

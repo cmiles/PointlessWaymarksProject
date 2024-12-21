@@ -21,6 +21,7 @@ using PointlessWaymarks.FeatureIntersectionTags;
 using PointlessWaymarks.FeatureIntersectionTags.Models;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.FileMetadataDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
@@ -368,7 +369,8 @@ public partial class PhotoListWithActionsContext
         if (!File.Exists(selectedFile)) return;
         var file = new FileInfo(selectedFile);
 
-        await PhotoMetadataReport.AllPhotoMetadataToHtml(file, StatusContext);
+        var metadataWindow = await FileMetadataDisplayWindow.CreateInstance(file.FullName);
+        await metadataWindow.PositionWindowAndShowOnUiThread();
     }
 
     [BlockingCommand]
@@ -632,7 +634,12 @@ public partial class PhotoListWithActionsContext
             UserSettingsSingleton.CurrentSettings().LocalMediaArchivePhotoDirectory().ToString(),
             singleSelected.DbEntry.OriginalFileName));
 
-        await PhotoMetadataReport.AllPhotoMetadataToHtml(archiveFile, StatusContext);
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        var metadataWindow = await FileMetadataDisplayWindow.CreateInstance(archiveFile.FullName);
+        await metadataWindow.PositionWindowAndShowOnUiThread();
+
+        //await FileMetadataReport.AllFileMetadataToHtmlDocumentAndOpen(archiveFile, StatusContext);
     }
 
     [NonBlockingCommand]

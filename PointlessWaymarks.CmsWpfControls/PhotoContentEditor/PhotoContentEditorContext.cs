@@ -19,7 +19,6 @@ using PointlessWaymarks.CmsWpfControls.CreatedAndUpdatedByAndOnDisplay;
 using PointlessWaymarks.CmsWpfControls.DataEntry;
 using PointlessWaymarks.CmsWpfControls.HelpDisplay;
 using PointlessWaymarks.CmsWpfControls.OptionalLocationEntry;
-using PointlessWaymarks.CmsWpfControls.PhotoList;
 using PointlessWaymarks.CmsWpfControls.PointContentEditor;
 using PointlessWaymarks.CmsWpfControls.TagsEditor;
 using PointlessWaymarks.CmsWpfControls.TitleSummarySlugFolderEditor;
@@ -31,7 +30,7 @@ using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
 using PointlessWaymarks.WpfCommon.ConversionDataEntry;
-using PointlessWaymarks.WpfCommon.Map;
+using PointlessWaymarks.WpfCommon.FileMetadataDisplay;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
@@ -719,7 +718,7 @@ Photo Content Notes:
     [BlockingCommand]
     public async Task ViewPhotoMetadata()
     {
-        await PhotoMetadataReport.AllPhotoMetadataToHtml(SelectedFile, StatusContext);
+        await FileMetadataReport.AllFileMetadataToHtmlDocumentAndOpen(SelectedFile, StatusContext);
     }
 
     [BlockingCommand]
