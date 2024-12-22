@@ -525,10 +525,16 @@ public partial class CombinerListContext : IDropTarget
             newFilename += ".jpg";
 
         // Save the image data as a JPG file
-        await using var imageStream = new FileStream(newFilename, FileMode.Create, FileAccess.Write);
-        using var skImage = SKImage.FromBitmap(skBitmap);
-        using var data = skImage.Encode(SKEncodedImageFormat.Jpeg, 100);
-        data.SaveTo(imageStream);
+        await using (var imageStream = new FileStream(newFilename, FileMode.Create, FileAccess.Write))
+        {
+            using (var skImage = SKImage.FromBitmap(skBitmap))
+            {
+                using (var data = skImage.Encode(SKEncodedImageFormat.Jpeg, 100))
+                {
+                    data.SaveTo(imageStream);
+                }
+            }
+        }
 
         await StatusContext.ToastSuccess($"Image saved to {newFilename}");
 
