@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.GeoToolsGui.Controls.FeatureIntersectTaggerControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -371,7 +371,7 @@
                                 <StackPanel Orientation="Vertical">
                                     <StackPanel Orientation="Vertical">
                                         <CheckBox FontWeight="Bold" IsChecked="{Binding Settings.TagsToLowerCase}">Tags to Lowercase</CheckBox>
-                                        <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">If selected all tags will be converted into lowercase. (Note that when de-duplicating tags the program uses a case insensitive comparison - converting tags to lower case is an aesthetic/data consistency option.)</TextBlock>
+                                        <TextBlock Margin="12,0,4,4" TextWrapping="Wrap">If selected all tags will be converted into lowercase. (Note that when de-duplicating tags the program uses a case-insensitive comparison - converting tags to lower case is an aesthetic/data consistency option.)</TextBlock>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical">
                                         <CheckBox FontWeight="Bold" IsChecked="{Binding Settings.SanitizeTags}">Sanitize Tags</CheckBox>
