@@ -6,6 +6,7 @@
     xmlns:local="clr-namespace:PointlessWaymarks.CmsWpfControls.SitePreview"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:status="clr-namespace:PointlessWaymarks.WpfCommon.Status;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:windowScreenShot="clr-namespace:PointlessWaymarks.WpfCommon.WindowScreenShot;assembly=PointlessWaymarks.WpfCommon"
     Title="{Binding PreviewContext.SiteMappingNote}"
     Width="1000"
     Height="800"
@@ -13,6 +14,10 @@
     mc:Ignorable="d">
     <Grid>
         <local:SitePreviewControl DataContext="{Binding PreviewContext}" />
+        <windowScreenShot:WindowScreenShotControl
+            Margin="4"
+            HorizontalContentAlignment="Left"
+            VerticalContentAlignment="Bottom" />
         <status:StatusControl
             Grid.Row="0"
             d:IsHidden="true"
