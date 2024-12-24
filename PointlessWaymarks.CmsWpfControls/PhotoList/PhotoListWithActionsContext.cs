@@ -805,7 +805,7 @@ public partial class PhotoListWithActionsContext
                 return;
 
         var changeMessages = string.Join(Environment.NewLine,
-            updates.Select(x => $"{Environment.NewLine}{x.toUpdate.Title}{Environment.NewLine}{x.updateMessage}"));
+            updates.Select(x => $"{Environment.NewLine}{x.toUpdate.Title} | {x.updateMessage} | {x.toUpdate.ContentId}"));
 
         if (await StatusContext.ShowMessage("Metadata Updates",
                 $"Update {updates.Count} Photos where blanks were replaced based on current Metadata? {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, changeMessages)}",

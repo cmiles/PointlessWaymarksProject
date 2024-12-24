@@ -193,7 +193,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             }
 
             StatusContext.RunBlockingTask(async () =>
-                await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList(), StatusContext));
+                await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList()));
         }
     }
 
@@ -252,7 +252,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryStatusContext);
         var factorySearchBuilder = await ListFilterBuilderContext.CreateInstance(searchBuilderContentTypes);
 
-        return new ContentListContext(statusContext, factoryObservable, factoryListSelection, factorySearchBuilder,
+        return new ContentListContext(factoryStatusContext, factoryObservable, factoryListSelection, factorySearchBuilder,
             loader, windowStatus);
     }
 
@@ -303,7 +303,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 }
                 catch (Exception exception)
                 {
-                    Log.ForContext("x", x.SafeObjectDump()).Error("Content List: Delete Message Received");
+                    Log.ForContext("x", x.SafeObjectDump()).Error(exception, "Content List: Delete Message Received Error");
                 }
             }
 
@@ -524,6 +524,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 searchFilterFunction = ContentListSearch.SearchSummary;
             else if (searchString.StartsWith("TITLE:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchTitle;
+            else if (searchString.StartsWith("CONTENT ID:", StringComparison.InvariantCultureIgnoreCase))
+                searchFilterFunction = ContentListSearch.SearchContentId;
             else if (searchString.StartsWith("TYPE:", StringComparison.InvariantCultureIgnoreCase))
                 searchFilterFunction = ContentListSearch.SearchContentType;
             else if (searchString.StartsWith("FOLDER:", StringComparison.InvariantCultureIgnoreCase))
@@ -979,7 +981,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
         }
     }
 
-    private async Task TryOpenEditorsForDroppedFiles(List<string> files, StatusControlContext statusContext)
+    private async Task TryOpenEditorsForDroppedFiles(List<string> files)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
 
@@ -1002,7 +1004,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             {
                 StatusContext.RunNonBlockingTask(async () =>
                 {
-                    var newEditor = await FileContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
+                    await FileContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
 
                     await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to File Editor");
                 });
@@ -1055,8 +1057,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 else
                     StatusContext.RunNonBlockingTask(async () =>
                     {
-                        var imageEditorWindow =
-                            await ImageContentEditorWindow.CreateInstance(null, new FileInfo(loopFile), true);
+                        await ImageContentEditorWindow.CreateInstance(null, new FileInfo(loopFile), true);
 
                         await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Image Editor");
                     });
@@ -1067,7 +1068,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
             if (videoContentExtensions.Contains(Path.GetExtension(loopFile).ToUpperInvariant()))
                 StatusContext.RunNonBlockingTask(async () =>
                 {
-                    var newEditor = await VideoContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
+                    await VideoContentEditorWindow.CreateInstance(new FileInfo(loopFile), true);
 
                     await StatusContext.ToastSuccess($"{Path.GetFileName(loopFile)} sent to Video Editor");
                 });

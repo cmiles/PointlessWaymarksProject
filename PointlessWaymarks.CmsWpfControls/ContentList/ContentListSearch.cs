@@ -149,6 +149,33 @@ public static class ContentListSearch
             searchResultModifier);
     }
 
+    public static ContentListSearchReturn SearchContentId(IContentListItem toFilter, string searchString,
+        Func<bool, bool> searchResultModifier)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true, "Content Id Search with no Search String - Including"),
+                x => x);
+
+        var splitString =
+            searchString.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        var contentIdList = new List<Guid>();
+
+        foreach (var loopString in splitString)
+            if (Guid.TryParse(loopString, out var parsedGuid))
+                contentIdList.Add(parsedGuid);
+
+        if (!contentIdList.Any())
+            return new ContentListSearchReturn(
+                new ContentListSearchFunctionReturn(true,
+                    "Content Id List is Empty"), x => x);
+
+        return new ContentListSearchReturn(
+            new ContentListSearchFunctionReturn(contentIdList.Contains(toFilter.ContentId() ?? Guid.Empty),
+                "Content Id List contains Content Id"), searchResultModifier);
+    }
+
     public static ContentListSearchReturn SearchContentType(IContentListItem toFilter, string searchString,
         Func<bool, bool> searchResultModifier)
     {

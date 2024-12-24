@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.ListFilterBuilder.ListFilterBuilderControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -54,6 +54,50 @@
                                 TextAlignment="Left"
                                 TextWrapping="Wrap" />
                         </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
+                            Remove
+                        </Button>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="ContentIdTemplate" DataType="{x:Type listFilterBuilder:TextListFilterFieldBuilder}">
+                <Border Style="{StaticResource ContentListOuterBorderStyle}">
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="90" />
+                        </Grid.ColumnDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox
+                                Margin="4,2,0,0"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Not}">
+                                Not
+                            </CheckBox>
+                            <Label
+                                Grid.Column="1"
+                                Margin="4,0,0,0"
+                                VerticalAlignment="Center"
+                                Content="{Binding FieldTitle}"
+                                FontWeight="Bold" />
+                            <TextBox
+                                Grid.Column="2"
+                                Height="60"
+                                Margin="16,4,4,4"
+                                Padding="4"
+                                HorizontalAlignment="Stretch"
+                                VerticalContentAlignment="Top"
+                                AcceptsReturn="True"
+                                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                TextAlignment="Left"
+                                TextChanged="ContentIdEntryTextBox_OnTextChanged"
+                                TextWrapping="Wrap" />
+                        </Grid>
                         <Button Grid.Column="1" Style="{StaticResource RemoveFilterButtonStyle}">
                             Remove
                         </Button>
@@ -446,7 +490,7 @@
                     </Grid>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="ContentTypeTemplate" DataType="{x:Type listFilterBuilder:ContentTypeListFilterBuilder}">
+            <DataTemplate x:Key="ContentTypeTemplate" DataType="{x:Type listFilterBuilder:ContentTypeListFilterFieldBuilder}">
                 <Border Style="{StaticResource ContentListOuterBorderStyle}">
                     <Grid Margin="4">
                         <Grid.RowDefinitions>
@@ -515,6 +559,7 @@
                 x:Key="FilterSelector"
                 BooleanListFilterTemplate="{StaticResource BooleanTemplate}"
                 BoundsListFilterTemplate="{StaticResource BoundsTemplate}"
+                ContentIdListFilterTemplate="{StaticResource ContentIdTemplate}"
                 ContentTypeListFilterTemplate="{StaticResource ContentTypeTemplate}"
                 DateListFilterTemplate="{StaticResource DateTimeTemplate}"
                 NumericListFilterTemplate="{StaticResource NumericTemplate}"
@@ -530,7 +575,7 @@
             <ColumnDefinition />
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
-        <Grid>
+        <Grid x:Name="EntryGrid" MinHeight="240">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -604,7 +649,11 @@
                 </ItemsControl>
             </GroupBox>
         </Grid>
-        <Grid Grid.Row="0" Grid.Column="1">
+        <Grid
+            x:Name="PreviewGrid"
+            Grid.Row="0"
+            Grid.Column="1"
+            MaxHeight="{Binding ActualHeight, ElementName=EntryGrid}">
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition Height="Auto" />
@@ -618,7 +667,8 @@
                     BorderThickness="0"
                     IsReadOnly="True"
                     Text="{Binding SearchStringPreview}"
-                    TextWrapping="Wrap" />
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Visible" />
             </GroupBox>
             <Button
                 Grid.Row="1"
@@ -628,7 +678,6 @@
                 Clear Search
             </Button>
         </Grid>
-
         <ListBox
             Grid.Row="1"
             Grid.Column="0"

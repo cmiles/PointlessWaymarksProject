@@ -4,9 +4,9 @@ using PointlessWaymarks.LlamaAspects;
 namespace PointlessWaymarks.CmsWpfControls.ListFilterBuilder;
 
 [NotifyPropertyChanged]
-public partial class ContentTypeListFilterBuilder
+public partial class ContentTypeListFilterFieldBuilder
 {
-    public ContentTypeListFilterBuilder()
+    public ContentTypeListFilterFieldBuilder()
     {
         ContentTypeChoices =
         [

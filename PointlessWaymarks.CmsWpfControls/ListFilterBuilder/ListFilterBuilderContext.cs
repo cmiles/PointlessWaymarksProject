@@ -66,6 +66,11 @@ public partial class ListFilterBuilderContext
             },
             new ListFilterBuilderFilterAdd
             {
+                Description = "Content Id", AddFilterCommand = AddContentIdSearchFilterCommand,
+                AppliesTo = []
+            },
+            new ListFilterBuilderFilterAdd
+            {
                 Description = "Show In Search", AddFilterCommand = AddShowInSearchSearchFilterCommand, AppliesTo = []
             },
             new ListFilterBuilderFilterAdd
@@ -247,9 +252,15 @@ public partial class ListFilterBuilderContext
     }
 
     [NonBlockingCommand]
+    public async Task AddContentIdSearchFilter()
+    {
+        await AddSearchFilter(new ContentIdListFilterFieldBuilder() { FieldTitle = "Content Id" });
+    }
+
+    [NonBlockingCommand]
     public async Task AddContentTypeFilter()
     {
-        await AddSearchFilter(new ContentTypeListFilterBuilder());
+        await AddSearchFilter(new ContentTypeListFilterFieldBuilder());
     }
 
     [NonBlockingCommand]
@@ -610,10 +621,14 @@ public partial class ListFilterBuilderContext
                     }
 
                     break;
-                case ContentTypeListFilterBuilder t:
+                case ContentTypeListFilterFieldBuilder t:
                     if (t.ContentTypeChoices.Any(x => x.IsSelected))
                         searchString.AppendLine(
                             $"{(t.Not ? "!" : "")}Type: {string.Join(" ", t.ContentTypeChoices.Where(x => x.IsSelected).Select(x => x.TypeDescription))}");
+                    break;
+                case ContentIdListFilterFieldBuilder t:
+                    searchString.AppendLine(
+                        $"{(t.Not ? "!" : "")}{t.FieldTitle}: {t.SearchText}");
                     break;
             }
 

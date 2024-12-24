@@ -91,7 +91,7 @@ public static class ContentListSearchFunctions
 
             i++;
 
-            //Last token is a operator - this isn't valid, just continue...
+            //Last token is an operator - this isn't valid, just continue...
             if (i >= tokens.Count) continue;
 
             var lookaheadValue = tokens[i];
@@ -504,7 +504,7 @@ public static class ContentListSearchFunctions
 
             i++;
 
-            //Last token is a operator - this isn't valid, just continue...
+            //Last token is an operator - this isn't valid, just continue...
             if (i >= tokens.Count) continue;
 
             var lookaheadValue = tokens[i];
@@ -626,7 +626,7 @@ public static class ContentListSearchFunctions
 
             i++;
 
-            //Last token is a operator - this isn't valid, just continue...
+            //Last token is an operator - this isn't valid, just continue...
             if (i >= tokens.Count) continue;
 
             var lookaheadValue = tokens[i];
@@ -820,7 +820,7 @@ public static class ContentListSearchFunctions
 
             i++;
 
-            //Last token is a operator - this isn't valid, just continue...
+            //Last token is an operator - this isn't valid, just continue...
             if (i >= tokens.Count) continue;
 
             var lookaheadValue = tokens[i];
@@ -934,7 +934,7 @@ public static class ContentListSearchFunctions
 
             i++;
 
-            //Last token is a operator - this isn't valid, just continue...
+            //Last token is an operator - this isn't valid, just continue...
             if (i >= tokens.Count) continue;
 
             var lookAheadValue = tokens[i];

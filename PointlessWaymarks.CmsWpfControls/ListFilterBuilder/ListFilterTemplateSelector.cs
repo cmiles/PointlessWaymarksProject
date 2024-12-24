@@ -7,6 +7,7 @@ public class ListFilterTemplateSelector : DataTemplateSelector
 {
     public DataTemplate? BooleanListFilterTemplate { get; set; }
     public DataTemplate? BoundsListFilterTemplate { get; set; }
+    public DataTemplate? ContentIdListFilterTemplate { get; set; }
     public DataTemplate? ContentTypeListFilterTemplate { get; set; }
     public DataTemplate? DateListFilterTemplate { get; set; }
     public DataTemplate? NumericListFilterTemplate { get; set; }
@@ -18,10 +19,11 @@ public class ListFilterTemplateSelector : DataTemplateSelector
         {
             TextListFilterFieldBuilder => TextListFilterTemplate,
             NumericListFilterFieldBuilder => NumericListFilterTemplate,
-            ContentTypeListFilterBuilder => ContentTypeListFilterTemplate,
+            ContentTypeListFilterFieldBuilder => ContentTypeListFilterTemplate,
             DateTimeListFilterFieldBuilder => DateListFilterTemplate,
             BooleanListFilterFieldBuilder => BooleanListFilterTemplate,
             BoundsListFilterFieldBuilder => BoundsListFilterTemplate,
+            ContentIdListFilterFieldBuilder => ContentIdListFilterTemplate,
             _ => null
         };
     }
