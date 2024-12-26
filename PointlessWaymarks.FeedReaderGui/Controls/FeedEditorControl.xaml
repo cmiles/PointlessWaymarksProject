@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.FeedReaderGui.Controls.FeedEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,6 +8,7 @@
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance controls:FeedEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -42,6 +43,7 @@
                     <stringDataEntry:StringDataEntryControl DataContext="{Binding UserNameEntry}" Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserNoteEntry}" Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserTagsEntry}" Style="{StaticResource EntryStyle}" />
+                    <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserAutoMarkAfterDaysEntry}" Width="180" Style="{StaticResource EntryStyle}" HorizontalAlignment="Left"></conversionDataEntry:ConversionDataEntryControl>
                     <boolDataEntry:BoolDataEntryControl Margin="6,8,8,0" DataContext="{Binding UserUseBasicAuthEntry}" />
                     <stringDataEntry:StringDataEntryControl DataContext="{Binding UserBasicAuthUsernameEntry}" Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryControl DataContext="{Binding UserBasicAuthPasswordEntry}" Style="{StaticResource EntryStyle}" />

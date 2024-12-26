@@ -105,6 +105,39 @@ public class FeedQueries
         }
     }
 
+    public async Task AutoMarkFeedItemsRead(Guid persistentId, FeedContext context, IProgress<string> progress)
+    {
+        var feed = await context.Feeds.SingleOrDefaultAsync(x => x.PersistentId == persistentId);
+
+        if (feed is null)
+        {
+            progress.Report("Feed not found in database?");
+            return;
+        }
+
+        if (feed.AutoMarkReadAfterDays is null or < 1) return;
+
+        var candidateItems = await context.FeedItems
+            .Where(x => x.FeedPersistentId == persistentId && !x.MarkedRead && !x.KeepUnread).ToListAsync();
+
+        var changeItems = new List<Guid>();
+
+        foreach (var loopItem in candidateItems)
+            if (DateTime.Now.Subtract(loopItem.CreatedOn).Days > feed.AutoMarkReadAfterDays)
+            {
+                if (loopItem.PublishingDate is not null && DateTime.Now.Subtract(loopItem.PublishingDate.Value).Days <=
+                    feed.AutoMarkReadAfterDays)
+                    continue;
+                loopItem.MarkedRead = true;
+                changeItems.Add(loopItem.PersistentId);
+            }
+
+        await context.SaveChangesAsync();
+
+        DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.FeedItem,
+            DataNotificationUpdateType.Update, changeItems);
+    }
+
     public async Task FeedAllItemsRead(Guid feedId, bool markRead)
     {
         var db = await GetInstance();
@@ -331,7 +364,8 @@ public class FeedQueries
                 {
                     var credentials = await FeedReaderEncryption.DecryptBasicAuthCredentials(loopFeed.BasicAuthUsername,
                         loopFeed.BasicAuthPassword, DbFileFullName);
-                    currentFeed = await ReadAsync(loopFeed.Url, basicAuthUsername: credentials.username, basicAuthPassword: credentials.password);
+                    currentFeed = await ReadAsync(loopFeed.Url, basicAuthUsername: credentials.username,
+                        basicAuthPassword: credentials.password);
                 }
                 else
                 {
@@ -419,6 +453,8 @@ public class FeedQueries
 
             totalNewItemsCounter += newItemCounter;
             totalExistingItemsCounter += existingItemCounter;
+
+            await AutoMarkFeedItemsRead(loopFeed.PersistentId, db, progress);
 
             DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.FeedItem,
                 DataNotificationUpdateType.New, newFeedItems);

@@ -111,7 +111,7 @@ public partial class MainWindow
         if (string.IsNullOrWhiteSpace(dbFile) || !File.Exists(dbFile))
         {
             var nextAction = await StatusContext.ShowMessage("Database Does Not Exist",
-                $"The database file does not exist? You can create a new database or pick another file...",
+                "The database file does not exist? You can create a new database or pick another file...",
                 ["New", "Choose a File"]);
 
             if (nextAction.Equals("New"))

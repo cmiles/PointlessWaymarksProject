@@ -11,6 +11,7 @@ using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
 using PointlessWaymarks.WpfCommon.BoolDataEntry;
 using PointlessWaymarks.WpfCommon.ChangesAndValidation;
+using PointlessWaymarks.WpfCommon.ConversionDataEntry;
 using PointlessWaymarks.WpfCommon.MarkdownDisplay;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.StringDataEntry;
@@ -31,8 +32,6 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
     public required ReaderFeed DbReaderFeedItem { get; set; }
     public int DbReadFeedItems { get; set; }
     public int DbUnReadFeedItems { get; set; }
-    public bool HasChanges { get; set; }
-    public bool HasValidationIssues { get; set; }
     public HelpDisplayContext? HelpContext { get; set; }
 
     public string HelpText =>
@@ -54,6 +53,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
     public bool UrlCheckHasError { get; set; }
     public bool UrlCheckHasWarning { get; set; }
     public string UrlCheckMessage { get; set; } = string.Empty;
+    public required ConversionDataEntryContext<int?> UserAutoMarkAfterDaysEntry { get; init; }
     public required StringDataEntryContext UserBasicAuthPasswordEntry { get; set; }
     public required StringDataEntryContext UserBasicAuthUsernameEntry { get; set; }
     public required StringDataEntryContext UserNameEntry { get; init; }
@@ -69,6 +69,9 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         HasValidationIssues =
             PropertyScanners.ChildPropertiesHaveValidationIssues(this);
     }
+
+    public bool HasChanges { get; set; }
+    public bool HasValidationIssues { get; set; }
 
     private async Task<OneOf<Success<string>, Warning<string>, Error<string>>> CheckFeedUrl(string url)
     {
@@ -159,6 +162,14 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         userTagEntry.UserValue = feedItem.Tags;
         userTagEntry.ValidationFunctions = [_ => Task.FromResult(new IsValid(true, string.Empty))];
 
+        var autoMarkReadAfterDaysEntry =
+            await ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers.IntNullableConversion);
+        autoMarkReadAfterDaysEntry.Title = "Auto Mark Read After Days";
+        autoMarkReadAfterDaysEntry.HelpText =
+            "If you want to automatically mark feed items as read after a certain number of days, enter that number here. (Enter a blank or value <1 to never auto-mark items as read.)";
+        autoMarkReadAfterDaysEntry.ReferenceValue = feedItem.AutoMarkReadAfterDays;
+        autoMarkReadAfterDaysEntry.UserText = feedItem.AutoMarkReadAfterDays?.ToString() ?? string.Empty;
+
         var userUseBasicAuthEntry = await BoolDataEntryContext.CreateInstance();
         userUseBasicAuthEntry.Title = "Use Basic Auth";
         userUseBasicAuthEntry.HelpText =
@@ -192,6 +203,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             StatusContext = context,
             UserNameEntry = userNameEntry,
             UserNoteEntry = userNoteEntry,
+            UserAutoMarkAfterDaysEntry = autoMarkReadAfterDaysEntry,
             UserUseBasicAuthEntry = userUseBasicAuthEntry,
             UserBasicAuthUsernameEntry = userBasicAuthUsernameEntry,
             UserBasicAuthPasswordEntry = userBasicAuthPasswordEntry,
@@ -329,8 +341,6 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
 
         var db = await ContextDb.GetInstance();
 
-        var unencryptedBasicAuth = (UserBasicAuthUsernameEntry.UserValue,
-            UserBasicAuthPasswordEntry.UserValue);
         var basicAuth = await FeedReaderEncryption.EncryptBasicAuthCredentials(UserBasicAuthUsernameEntry.UserValue,
             UserBasicAuthPasswordEntry.UserValue, ContextDb.DbFileFullName);
 
@@ -338,6 +348,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         DbReaderFeedItem.Note = UserNoteEntry.UserValue;
         DbReaderFeedItem.Tags = UserTagsEntry.UserValue;
         DbReaderFeedItem.Url = UserUrlEntry.UserValue;
+        DbReaderFeedItem.AutoMarkReadAfterDays = UserAutoMarkAfterDaysEntry.UserValue;
         DbReaderFeedItem.UseBasicAuth = UserUseBasicAuthEntry.UserValue;
         DbReaderFeedItem.BasicAuthUsername = basicAuth.username;
         DbReaderFeedItem.BasicAuthPassword = basicAuth.password;
@@ -345,21 +356,27 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         if (DbReaderFeedItem.Id == 0)
         {
             db.Feeds.Add(DbReaderFeedItem);
-            await db.SaveChangesAsync();
-
-            DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
-                DataNotificationUpdateType.Update, DbReaderFeedItem.PersistentId.AsList());
-
-            await ContextDb.UpdateFeeds(DbReaderFeedItem.PersistentId.AsList(), StatusContext.ProgressTracker());
         }
         else
         {
             db.Feeds.Update(DbReaderFeedItem);
-            await db.SaveChangesAsync();
-
-            DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
-                DataNotificationUpdateType.Update, DbReaderFeedItem.PersistentId.AsList());
         }
+
+        await db.SaveChangesAsync();
+
+        await ContextDb.UpdateFeeds(DbReaderFeedItem.PersistentId.AsList(), StatusContext.ProgressTracker());
+
+        DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.Feed,
+            DataNotificationUpdateType.Update, DbReaderFeedItem.PersistentId.AsList());
+
+        UserNameEntry.ReferenceValue = DbReaderFeedItem.Name;
+        UserNoteEntry.ReferenceValue = DbReaderFeedItem.Note;
+        UserTagsEntry.ReferenceValue = DbReaderFeedItem.Tags;
+        UserUrlEntry.ReferenceValue = DbReaderFeedItem.Url;
+        UserAutoMarkAfterDaysEntry.ReferenceValue = DbReaderFeedItem.AutoMarkReadAfterDays;
+        UserUseBasicAuthEntry.ReferenceValue = DbReaderFeedItem.UseBasicAuth;
+        UserBasicAuthUsernameEntry.ReferenceValue = basicAuth.username;
+        UserBasicAuthPasswordEntry.ReferenceValue = basicAuth.password;
 
         CheckForChangesAndValidationIssues();
     }
