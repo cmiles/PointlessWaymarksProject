@@ -105,9 +105,11 @@ public class FeedQueries
         }
     }
 
-    public async Task AutoMarkFeedItemsRead(Guid persistentId, FeedContext context, IProgress<string> progress)
+    public async Task AutoMarkAfterDayRefreshFeed(Guid feedPersistentId, IProgress<string> progress)
     {
-        var feed = await context.Feeds.SingleOrDefaultAsync(x => x.PersistentId == persistentId);
+        var db = await GetInstance();
+
+        var feed = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == feedPersistentId);
 
         if (feed is null)
         {
@@ -117,25 +119,51 @@ public class FeedQueries
 
         if (feed.AutoMarkReadAfterDays is null or < 1) return;
 
-        var candidateItems = await context.FeedItems
-            .Where(x => x.FeedPersistentId == persistentId && !x.MarkedRead && !x.KeepUnread).ToListAsync();
+        var candidateItems = await db.FeedItems
+            .Where(x => x.FeedPersistentId == feedPersistentId && !x.MarkedRead && !x.KeepUnread).ToListAsync();
 
         var changeItems = new List<Guid>();
 
         foreach (var loopItem in candidateItems)
-            if (DateTime.Now.Subtract(loopItem.CreatedOn).Days > feed.AutoMarkReadAfterDays)
+        {
+            var compDate = loopItem.PublishingDate ?? loopItem.CreatedOn;
+            if (DateTime.Now.Subtract(compDate).Days > feed.AutoMarkReadAfterDays)
             {
-                if (loopItem.PublishingDate is not null && DateTime.Now.Subtract(loopItem.PublishingDate.Value).Days <=
-                    feed.AutoMarkReadAfterDays)
-                    continue;
                 loopItem.MarkedRead = true;
                 changeItems.Add(loopItem.PersistentId);
             }
+        }
 
-        await context.SaveChangesAsync();
+        await db.SaveChangesAsync();
 
         DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.FeedItem,
             DataNotificationUpdateType.Update, changeItems);
+    }
+
+    public async Task AutoMarkAfterDayRefreshFeedItem(Guid persistentId, IProgress<string> progress)
+    {
+        var db = await GetInstance();
+
+        var feedItem = await db.FeedItems.SingleOrDefaultAsync(x => x.PersistentId == persistentId);
+        if (feedItem is null) return;
+        if (feedItem.KeepUnread || feedItem.MarkedRead) return;
+
+        var feed = await db.Feeds.SingleOrDefaultAsync(x => x.PersistentId == feedItem.FeedPersistentId);
+        if (feed is null) return;
+
+        if (feed.AutoMarkReadAfterDays is null or < 1) return;
+
+        if (DateTime.Now.Subtract(feedItem.CreatedOn).Days > feed.AutoMarkReadAfterDays)
+        {
+            if (feedItem.PublishingDate is not null && DateTime.Now.Subtract(feedItem.PublishingDate.Value).Days <=
+                feed.AutoMarkReadAfterDays)
+                return;
+            feedItem.MarkedRead = true;
+            await db.SaveChangesAsync();
+
+            DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.SavedFeedItem,
+                DataNotificationUpdateType.Delete, feedItem.PersistentId.AsList());
+        }
     }
 
     public async Task FeedAllItemsRead(Guid feedId, bool markRead)
@@ -161,11 +189,11 @@ public class FeedQueries
         return await FeedContext.CreateInstance(DbFileFullName);
     }
 
-    public async Task ItemKeepUnreadToggle(List<Guid> itemIds)
+    public async Task ItemKeepUnreadToggle(List<Guid> itemIds, IProgress<string> progress)
     {
         var db = await GetInstance();
 
-        var updateList = new List<Guid>();
+        var itemUpdateList = new List<Guid>();
 
         foreach (var loopIds in itemIds)
         {
@@ -176,13 +204,15 @@ public class FeedQueries
             item.KeepUnread = !item.KeepUnread;
             if (item.KeepUnread) item.MarkedRead = false;
 
-            updateList.Add(item.PersistentId);
+            itemUpdateList.Add(item.PersistentId);
         }
 
         await db.SaveChangesAsync();
 
         DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.FeedItem,
-            DataNotificationUpdateType.Update, updateList);
+            DataNotificationUpdateType.Update, itemUpdateList);
+
+        foreach (var loopItem in itemUpdateList) await AutoMarkAfterDayRefreshFeedItem(loopItem, progress);
     }
 
     public async Task ItemRead(List<Guid> itemIds, bool markRead)
@@ -454,7 +484,7 @@ public class FeedQueries
             totalNewItemsCounter += newItemCounter;
             totalExistingItemsCounter += existingItemCounter;
 
-            await AutoMarkFeedItemsRead(loopFeed.PersistentId, db, progress);
+            await AutoMarkAfterDayRefreshFeed(loopFeed.PersistentId, progress);
 
             DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.FeedItem,
                 DataNotificationUpdateType.New, newFeedItems);

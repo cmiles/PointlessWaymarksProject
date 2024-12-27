@@ -555,14 +555,15 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
     [StopAndWarnIfNoSelectedListItem]
     public async Task ToggleKeepUnread(FeedItemListListItem? listItem)
     {
-        await ContextDb.ItemKeepUnreadToggle(listItem!.DbItem.PersistentId.AsList());
+        await ContextDb.ItemKeepUnreadToggle(listItem!.DbItem.PersistentId.AsList(), StatusContext.ProgressTracker());
     }
 
     [NonBlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
     public async Task ToggleSelectedKeepUnRead()
     {
-        await ContextDb.ItemKeepUnreadToggle(SelectedItems.Select(x => x.DbItem.PersistentId).ToList());
+        await ContextDb.ItemKeepUnreadToggle(SelectedItems.Select(x => x.DbItem.PersistentId).ToList(),
+            StatusContext.ProgressTracker());
     }
 
     [BlockingCommand]

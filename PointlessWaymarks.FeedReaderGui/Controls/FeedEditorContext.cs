@@ -354,13 +354,9 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         DbReaderFeedItem.BasicAuthPassword = basicAuth.password;
 
         if (DbReaderFeedItem.Id == 0)
-        {
             db.Feeds.Add(DbReaderFeedItem);
-        }
         else
-        {
             db.Feeds.Update(DbReaderFeedItem);
-        }
 
         await db.SaveChangesAsync();
 

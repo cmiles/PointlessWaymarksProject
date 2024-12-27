@@ -4,11 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:boolDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.BoolDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:controls="clr-namespace:PointlessWaymarks.FeedReaderGui.Controls"
+    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:markdownDisplay="clr-namespace:PointlessWaymarks.WpfCommon.MarkdownDisplay;assembly=PointlessWaymarks.WpfCommon"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:stringDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.StringDataEntry;assembly=PointlessWaymarks.WpfCommon"
-    xmlns:conversionDataEntry="clr-namespace:PointlessWaymarks.WpfCommon.ConversionDataEntry;assembly=PointlessWaymarks.WpfCommon"
     d:DataContext="{d:DesignInstance controls:FeedEditorContext}"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -43,11 +43,15 @@
                     <stringDataEntry:StringDataEntryControl DataContext="{Binding UserNameEntry}" Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserNoteEntry}" Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserTagsEntry}" Style="{StaticResource EntryStyle}" />
-                    <conversionDataEntry:ConversionDataEntryControl DataContext="{Binding UserAutoMarkAfterDaysEntry}" Width="180" Style="{StaticResource EntryStyle}" HorizontalAlignment="Left"></conversionDataEntry:ConversionDataEntryControl>
-                    <boolDataEntry:BoolDataEntryControl Margin="6,8,8,0" DataContext="{Binding UserUseBasicAuthEntry}" />
+                    <conversionDataEntry:ConversionDataEntryControl
+                        Width="180"
+                        HorizontalAlignment="Left"
+                        DataContext="{Binding UserAutoMarkAfterDaysEntry}"
+                        Style="{StaticResource EntryStyle}" />
+                    <boolDataEntry:BoolDataEntryControl Margin="6,18,8,0" DataContext="{Binding UserUseBasicAuthEntry}" />
                     <stringDataEntry:StringDataEntryControl DataContext="{Binding UserBasicAuthUsernameEntry}" Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryControl DataContext="{Binding UserBasicAuthPasswordEntry}" Style="{StaticResource EntryStyle}" />
-                    <StackPanel Margin="24,20,16,8" Orientation="Vertical">
+                    <StackPanel Margin="24,24,16,8" Orientation="Vertical">
                         <TextBlock Text="{Binding DbReaderFeedItem.FeedLastUpdatedDate, StringFormat='Feed Last Updated On: {0}', TargetNullValue='Feed Last Updated On: Unknown'}" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding DbReaderFeedItem.LastSuccessfulUpdate, StringFormat='Pointless Waymarks Last Successful Update: {0}', TargetNullValue='Pointless Waymarks Last Successful Update: Never'}" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding DbReaderFeedItem.CreatedOn, StringFormat='Pointless Waymarks Feed Entry Created On: {0}'}" TextWrapping="Wrap" />

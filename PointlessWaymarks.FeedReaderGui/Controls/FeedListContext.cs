@@ -25,11 +25,9 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
 {
     public required FeedQueries ContextDb { get; init; }
     public DataNotificationsWorkQueue? DataNotificationsProcessor { get; set; }
-    public required ObservableCollection<FeedListListItem> Items { get; init; }
     public required ColumnSortControlContext ListSort { get; init; }
     public FeedListListItem? SelectedItem { get; set; }
     public List<FeedListListItem> SelectedItems { get; set; } = [];
-    public required StatusControlContext StatusContext { get; set; }
     public string UserAddFeedInput { get; set; } = string.Empty;
     public string UserFilterText { get; set; } = string.Empty;
 
@@ -41,6 +39,45 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
     public List<FeedListListItem> SelectedListItems()
     {
         return SelectedItems;
+    }
+
+    public required StatusControlContext StatusContext { get; set; }
+    public required ObservableCollection<FeedListListItem> Items { get; init; }
+
+    public async Task AddNewFeeds()
+    {
+        var existingItemIds = Items.Select(x => x.DbReaderFeed.PersistentId);
+
+        var db = await ContextDb.GetInstance();
+
+        var newItems = (await db.Feeds.Where(x => !existingItemIds.Contains(x.PersistentId)).ToListAsync())
+            .Select(x => new FeedListListItem { DbReaderFeed = x })
+            .ToList();
+
+        var feedCounts = await db.FeedItems.GroupBy(x => x.FeedPersistentId)
+            .Select(x => new { FeedPersistentId = x.Key, AllFeedItemsCount = x.Count() }).ToListAsync();
+
+        var unReadFeedCounts = await db.FeedItems.Where(x => !x.MarkedRead).GroupBy(x => x.FeedPersistentId)
+            .Select(x => new { FeedPersistentId = x.Key, UnreadItemsCount = x.Count() }).ToListAsync();
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        foreach (var loopItem in newItems)
+        {
+            loopItem.ItemsCount = feedCounts
+                .SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)
+                ?.AllFeedItemsCount ?? 0;
+            loopItem.UnreadItemsCount = unReadFeedCounts
+                .SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)?.UnreadItemsCount ?? 0;
+            Items.Add(loopItem);
+        }
+
+        if (newItems.Any())
+        {
+            await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
+
+            await FilterList();
+        }
     }
 
     [BlockingCommand]
@@ -75,7 +112,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
             {
                 Items =
                 [
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Feed Name",
                         ColumnName = "DbReaderFeed.Name",
@@ -83,21 +120,21 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
                         DefaultSortDirection = ListSortDirection.Ascending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Unread Count",
                         ColumnName = "UnreadItemsCount",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "Last Successful Update",
                         ColumnName = "DbReaderFeed.LastSuccessfulUpdate",
                         DefaultSortDirection = ListSortDirection.Descending
                     },
 
-                    new()
+                    new ColumnSortControlSortItem
                     {
                         DisplayName = "URL",
                         ColumnName = "DbReaderFeed.Url",
@@ -370,9 +407,10 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
                 return;
             }
 
-            if (interProcessUpdateNotification.UpdateType is DataNotificationUpdateType.Update
-                or DataNotificationUpdateType.New)
+            if (interProcessUpdateNotification.UpdateType is DataNotificationUpdateType.Update)
                 await UpdateFeedListItems(interProcessUpdateNotification.ContentIds);
+            if (interProcessUpdateNotification.UpdateType is DataNotificationUpdateType.New)
+                await AddNewFeeds();
         }
 
         if (interProcessUpdateNotification.ContentType == DataNotificationContentType.FeedItem)
@@ -405,32 +443,7 @@ public partial class FeedListContext : IStandardListWithContext<FeedListListItem
 
         BuildCommands();
 
-        var db = await ContextDb.GetInstance();
-
-        var initialItems = (await db.Feeds.ToListAsync()).Select(x => new FeedListListItem { DbReaderFeed = x })
-            .ToList();
-
-        var feedCounts = await db.FeedItems.GroupBy(x => x.FeedPersistentId)
-            .Select(x => new { FeedPersistentId = x.Key, AllFeedItemsCount = x.Count() }).ToListAsync();
-
-        var unReadFeedCounts = await db.FeedItems.Where(x => !x.MarkedRead).GroupBy(x => x.FeedPersistentId)
-            .Select(x => new { FeedPersistentId = x.Key, UnreadItemsCount = x.Count() }).ToListAsync();
-
-        await ThreadSwitcher.ResumeForegroundAsync();
-
-        foreach (var loopItem in initialItems)
-        {
-            loopItem.ItemsCount = feedCounts
-                .SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)
-                ?.AllFeedItemsCount ?? 0;
-            loopItem.UnreadItemsCount = unReadFeedCounts
-                .SingleOrDefault(x => x.FeedPersistentId == loopItem.DbReaderFeed.PersistentId)?.UnreadItemsCount ?? 0;
-            Items.Add(loopItem);
-        }
-
-        await ListContextSortHelpers.SortList(ListSort.SortDescriptions(), Items);
-
-        await FilterList();
+        await AddNewFeeds();
 
         ListSort.SortUpdated += (_, list) =>
             StatusContext.RunFireAndForgetNonBlockingTask(() => ListContextSortHelpers.SortList(list, Items));
