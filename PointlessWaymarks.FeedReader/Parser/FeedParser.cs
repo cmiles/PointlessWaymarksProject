@@ -1,4 +1,5 @@
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 using PointlessWaymarks.FeedReader.Parser.Exceptions;
 
@@ -9,6 +10,22 @@ namespace PointlessWaymarks.FeedReader.Parser;
 /// </summary>
 internal static class FeedParser
 {
+    /// <summary>
+    ///     Extracts the undeclared entity from and XML exception message - the intent is that
+    ///     this can then be removed from the XML content and the parsing retried.
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    private static string ExtractUndeclaredEntity(string message)
+    {
+        // Extract the undeclared entity from the exception message
+        var startIndex = message.IndexOf("undeclared entity '", StringComparison.Ordinal) +
+                         "undeclared entity '".Length;
+        var endIndex = message.IndexOf("'", startIndex, StringComparison.Ordinal);
+        if (startIndex > 0 && endIndex > startIndex) return $"&{message.Substring(startIndex, endIndex - startIndex)}";
+        return string.Empty;
+    }
+
     /// <summary>
     ///     reads the encoding from a feed document, returns UTF8 by default
     /// </summary>
@@ -32,7 +49,6 @@ internal static class FeedParser
         return encoding;
     }
 
-
     /// <summary>
     ///     Returns the parsed feed.
     ///     This method checks the encoding of the received file
@@ -50,7 +66,38 @@ internal static class FeedParser
 
         feedContent = RemoveWrongChars(feedContent);
 
-        var feedDoc = XDocument.Parse(feedContent); // 2.) read document to get the used encoding
+        XDocument? feedDoc = null; // 2.) read document to get the used encoding
+        var tryProcess = true;
+        var tryProcessCount = 0;
+
+        //2024-12-27: 20 is arbitrary...
+        while (tryProcess && tryProcessCount < 20)
+        {
+            tryProcessCount++;
+            tryProcess = false;
+
+            try
+            {
+                feedDoc = XDocument.Parse(feedContent);
+            }
+            catch (XmlException ex) when (ex.Message.Contains("Reference to undeclared entity"))
+            {
+                // Extract the undeclared entity from the exception message
+                var entity = ExtractUndeclaredEntity(ex.Message);
+                if (!string.IsNullOrEmpty(entity))
+                {
+                    // Remove the specific undeclared entity and retry parsing
+                    feedContent = feedContent.Replace(entity, " ");
+                    tryProcess = true;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        if (feedDoc == null) throw new Exception("FeedDoc is null after parsing");
 
         var encoding = GetEncoding(feedDoc); // 3.) get used encoding
 
@@ -128,8 +175,7 @@ internal static class FeedParser
     }
 
     /// <summary>
-    ///     removes some characters at the beginning of the document. These shouldn't be there,
-    ///     but unfortunately they are sometimes there. If they are not removed - xml parsing would fail.
+    ///     Removes some characters and commonly undeclared entities that can cause issues.
     /// </summary>
     /// <param name="feedContent">rss feed content</param>
     /// <returns>cleaned up rss feed content</returns>
@@ -147,6 +193,10 @@ internal static class FeedParser
         feedContent =
             feedContent.Replace(((char)65279).ToString(),
                 string.Empty); // replaces special char, fixes issues with at least one feed
+
+        var undeclaredEntities = new[] { "&rsquo;", "&lsquo;", "&rdquo;", "&ldquo;", "&nbsp;" };
+
+        foreach (var entity in undeclaredEntities) feedContent = feedContent.Replace(entity, " ");
 
         return feedContent.Trim();
     }
