@@ -14,16 +14,17 @@ internal static class FeedParser
     ///     Extracts the undeclared entity from and XML exception message - the intent is that
     ///     this can then be removed from the XML content and the parsing retried.
     /// </summary>
-    /// <param name="message"></param>
+    /// <param name="exception"></param>
     /// <returns></returns>
-    private static string ExtractUndeclaredEntity(string message)
+    private static (string entity, int lineNumber, int linePosition) ExtractUndeclaredEntityInformation(
+        XmlException exception)
     {
-        // Extract the undeclared entity from the exception message
-        var startIndex = message.IndexOf("undeclared entity '", StringComparison.Ordinal) +
+        var startIndex = exception.Message.IndexOf("undeclared entity '", StringComparison.Ordinal) +
                          "undeclared entity '".Length;
-        var endIndex = message.IndexOf("'", startIndex, StringComparison.Ordinal);
-        if (startIndex > 0 && endIndex > startIndex) return $"&{message.Substring(startIndex, endIndex - startIndex)};";
-        return string.Empty;
+        var endIndex = exception.Message.IndexOf("'", startIndex, StringComparison.Ordinal);
+        if (startIndex > 0 && endIndex > startIndex)
+            return ($"&{exception.Message[startIndex..endIndex]};", exception.LineNumber, exception.LinePosition - 1);
+        return (string.Empty, exception.LineNumber, exception.LinePosition - 1);
     }
 
     /// <summary>
@@ -70,8 +71,8 @@ internal static class FeedParser
         var tryProcess = true;
         var tryProcessCount = 0;
 
-        //2024-12-27: 20 is arbitrary...
-        while (tryProcess && tryProcessCount < 20)
+        //2024-12-27: 50 is arbitrary...
+        while (tryProcess && tryProcessCount < 50)
         {
             tryProcessCount++;
             tryProcess = false;
@@ -83,11 +84,23 @@ internal static class FeedParser
             catch (XmlException ex) when (ex.Message.Contains("Reference to undeclared entity"))
             {
                 // Extract the undeclared entity from the exception message
-                var entity = ExtractUndeclaredEntity(ex.Message);
-                if (!string.IsNullOrEmpty(entity))
+                var entityExceptionInformation = ExtractUndeclaredEntityInformation(ex);
+                if (!string.IsNullOrEmpty(entityExceptionInformation.entity))
                 {
+                    var undeclaredEntities = new Dictionary<string, string>
+                    {
+                        { "&rsquo;", "&#8217;" },
+                        { "&lsquo;", "&#8216;" },
+                        { "&rdquo;", "&#8221;" },
+                        { "&ldquo;", "&#8220;" },
+                        { "&nbsp;", "&#160;" }
+                    };
+
                     // Remove the specific undeclared entity and retry parsing
-                    feedContent = feedContent.Replace(entity, " ");
+                    var replacement = undeclaredEntities.GetValueOrDefault(entityExceptionInformation.entity, " ");
+                    feedContent = ReplaceStringAtLineAndPositionOrAllContentsIfNotFound(feedContent,
+                        entityExceptionInformation.entity, entityExceptionInformation.lineNumber,
+                        entityExceptionInformation.linePosition, replacement);
                     tryProcess = true;
                 }
                 else
@@ -189,10 +202,38 @@ internal static class FeedParser
             feedContent.Replace(((char)65279).ToString(),
                 string.Empty); // replaces special char, fixes issues with at least one feed
 
-        var undeclaredEntities = new[] { "&rsquo;", "&lsquo;", "&rdquo;", "&ldquo;", "&nbsp;" };
-
-        foreach (var entity in undeclaredEntities) feedContent = feedContent.Replace(entity, " ");
-
         return feedContent.Trim();
+    }
+
+    /// <summary>
+    ///     Replaces a string in the content at the given line and position - but if the value to replace is not found at
+    ///     the line and position, it replaces it everywhere in the content. This is very specific to parsing the feed
+    ///     content and the fallback is just-in-case there is some unexpected difference between the line and position
+    ///     from the exception and the parsing done in this method.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="toReplace"></param>
+    /// <param name="lineNumber"></param>
+    /// <param name="linePosition"></param>
+    /// <param name="replacement"></param>
+    /// <returns></returns>
+    private static string ReplaceStringAtLineAndPositionOrAllContentsIfNotFound(string content, string toReplace,
+        int lineNumber, int linePosition, string replacement)
+    {
+        var lines = content.Split('\n');
+        if (lineNumber - 1 < lines.Length)
+        {
+            var line = lines[lineNumber - 1];
+            if (linePosition - 1 < line.Length && line.Substring(linePosition - 1, toReplace.Length) == toReplace)
+            {
+                var start = line.Substring(0, linePosition - 1);
+                var end = line.Substring(linePosition - 1 + toReplace.Length);
+                lines[lineNumber - 1] = start + replacement + end;
+                return string.Join('\n', lines);
+            }
+        }
+
+        // If the value to replace is not found at the given line and position, replace it everywhere in the content
+        return content.Replace(toReplace, replacement);
     }
 }
