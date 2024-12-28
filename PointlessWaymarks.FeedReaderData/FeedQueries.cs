@@ -117,7 +117,7 @@ public class FeedQueries
             return;
         }
 
-        if (feed.AutoMarkReadAfterDays is null or < 1) return;
+        if (feed.AutoMarkReadAfterDays is null or < 1 && feed.AutoMarkReadMoreThanItems is null or < 1) return;
 
         var candidateItems = await db.FeedItems
             .Where(x => x.FeedPersistentId == feedPersistentId && !x.MarkedRead && !x.KeepUnread).ToListAsync();
@@ -126,18 +126,38 @@ public class FeedQueries
 
         foreach (var loopItem in candidateItems)
         {
-            var compDate = loopItem.PublishingDate ?? loopItem.CreatedOn;
-            if (DateTime.Now.Subtract(compDate).Days > feed.AutoMarkReadAfterDays)
+            if (feed.AutoMarkReadAfterDays is > 0)
             {
-                loopItem.MarkedRead = true;
-                changeItems.Add(loopItem.PersistentId);
+                var compDate = loopItem.PublishingDate ?? loopItem.CreatedOn;
+                if (DateTime.Now.Subtract(compDate).Days > feed.AutoMarkReadAfterDays)
+                {
+                    loopItem.MarkedRead = true;
+                    changeItems.Add(loopItem.PersistentId);
+                }
             }
         }
 
         await db.SaveChangesAsync();
 
+        if (feed.AutoMarkReadMoreThanItems is > 0)
+        {
+            var unreadItems = await db.FeedItems
+                .Where(x => x.FeedPersistentId == feedPersistentId && !x.MarkedRead && !x.KeepUnread).OrderByDescending(x => x.PublishingDate ?? x.CreatedOn).ToListAsync();
+
+            if (unreadItems.Count > feed.AutoMarkReadMoreThanItems)
+            {
+                var beyondLimit = unreadItems.Skip(feed.AutoMarkReadMoreThanItems.Value).ToList();
+                beyondLimit.ForEach(x =>
+                {
+                    x.MarkedRead = true;
+                    changeItems.Add(x.PersistentId);
+                });
+                await db.SaveChangesAsync();
+            }
+        }
+        
         DataNotifications.PublishDataNotification(LogTools.GetCaller(), DataNotificationContentType.FeedItem,
-            DataNotificationUpdateType.Update, changeItems);
+            DataNotificationUpdateType.Update, changeItems.Distinct().ToList());
     }
 
     public async Task AutoMarkAfterDayRefreshFeedItem(Guid persistentId, IProgress<string> progress)

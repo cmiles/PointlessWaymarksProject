@@ -44,9 +44,14 @@
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserNoteEntry}" Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserTagsEntry}" Style="{StaticResource EntryStyle}" />
                     <conversionDataEntry:ConversionDataEntryControl
-                        Width="180"
+                        Width="190"
                         HorizontalAlignment="Left"
                         DataContext="{Binding UserAutoMarkAfterDaysEntry}"
+                        Style="{StaticResource EntryStyle}" />
+                    <conversionDataEntry:ConversionDataEntryControl
+                        Width="224"
+                        HorizontalAlignment="Left"
+                        DataContext="{Binding UserAutoMarkReadMoreThanItemsEntry}"
                         Style="{StaticResource EntryStyle}" />
                     <boolDataEntry:BoolDataEntryControl Margin="6,18,8,0" DataContext="{Binding UserUseBasicAuthEntry}" />
                     <stringDataEntry:StringDataEntryControl DataContext="{Binding UserBasicAuthUsernameEntry}" Style="{StaticResource EntryStyle}" />

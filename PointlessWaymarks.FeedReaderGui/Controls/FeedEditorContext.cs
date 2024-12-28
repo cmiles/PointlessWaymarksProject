@@ -54,6 +54,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
     public bool UrlCheckHasWarning { get; set; }
     public string UrlCheckMessage { get; set; } = string.Empty;
     public required ConversionDataEntryContext<int?> UserAutoMarkAfterDaysEntry { get; init; }
+    public required ConversionDataEntryContext<int?> UserAutoMarkReadMoreThanItemsEntry { get; init; }
     public required StringDataEntryContext UserBasicAuthPasswordEntry { get; set; }
     public required StringDataEntryContext UserBasicAuthUsernameEntry { get; set; }
     public required StringDataEntryContext UserNameEntry { get; init; }
@@ -164,11 +165,19 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
 
         var autoMarkReadAfterDaysEntry =
             await ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers.IntNullableConversion);
-        autoMarkReadAfterDaysEntry.Title = "Auto Mark Read After Days";
+        autoMarkReadAfterDaysEntry.Title = "Auto Mark Read After ___ Days";
         autoMarkReadAfterDaysEntry.HelpText =
-            "If you want to automatically mark feed items as read after a certain number of days, enter that number here. (Enter a blank or value <1 to never auto-mark items as read.)";
+            "If you want to automatically mark feed items as read after a certain number of days, enter that number here. Enter a blank or value <1 to never auto-mark items as read.";
         autoMarkReadAfterDaysEntry.ReferenceValue = feedItem.AutoMarkReadAfterDays;
         autoMarkReadAfterDaysEntry.UserText = feedItem.AutoMarkReadAfterDays?.ToString() ?? string.Empty;
+
+        var autoMarkReadMoreThanItemsEntry =
+            await ConversionDataEntryContext<int?>.CreateInstance(ConversionDataEntryHelpers.IntNullableConversion);
+        autoMarkReadMoreThanItemsEntry.Title = "Auto Mark Read More Than ___ Items";
+        autoMarkReadMoreThanItemsEntry.HelpText =
+            "Enter the max number of items to leave un-read after a feed is refreshed - useful for limiting how much you see from a feed. Enter a blank or value <1 for no limit.)";
+        autoMarkReadMoreThanItemsEntry.ReferenceValue = feedItem.AutoMarkReadMoreThanItems;
+        autoMarkReadMoreThanItemsEntry.UserText = feedItem.AutoMarkReadMoreThanItems?.ToString() ?? string.Empty;
 
         var userUseBasicAuthEntry = await BoolDataEntryContext.CreateInstance();
         userUseBasicAuthEntry.Title = "Use Basic Auth";
@@ -204,6 +213,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
             UserNameEntry = userNameEntry,
             UserNoteEntry = userNoteEntry,
             UserAutoMarkAfterDaysEntry = autoMarkReadAfterDaysEntry,
+            UserAutoMarkReadMoreThanItemsEntry = autoMarkReadMoreThanItemsEntry,
             UserUseBasicAuthEntry = userUseBasicAuthEntry,
             UserBasicAuthUsernameEntry = userBasicAuthUsernameEntry,
             UserBasicAuthPasswordEntry = userBasicAuthPasswordEntry,
@@ -349,6 +359,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         DbReaderFeedItem.Tags = UserTagsEntry.UserValue;
         DbReaderFeedItem.Url = UserUrlEntry.UserValue;
         DbReaderFeedItem.AutoMarkReadAfterDays = UserAutoMarkAfterDaysEntry.UserValue;
+        DbReaderFeedItem.AutoMarkReadMoreThanItems = UserAutoMarkReadMoreThanItemsEntry.UserValue;
         DbReaderFeedItem.UseBasicAuth = UserUseBasicAuthEntry.UserValue;
         DbReaderFeedItem.BasicAuthUsername = basicAuth.username;
         DbReaderFeedItem.BasicAuthPassword = basicAuth.password;
@@ -370,6 +381,7 @@ public partial class FeedEditorContext : IHasChanges, IHasValidationIssues,
         UserTagsEntry.ReferenceValue = DbReaderFeedItem.Tags;
         UserUrlEntry.ReferenceValue = DbReaderFeedItem.Url;
         UserAutoMarkAfterDaysEntry.ReferenceValue = DbReaderFeedItem.AutoMarkReadAfterDays;
+        UserAutoMarkReadMoreThanItemsEntry.ReferenceValue = DbReaderFeedItem.AutoMarkReadMoreThanItems;
         UserUseBasicAuthEntry.ReferenceValue = DbReaderFeedItem.UseBasicAuth;
         UserBasicAuthUsernameEntry.ReferenceValue = basicAuth.username;
         UserBasicAuthPasswordEntry.ReferenceValue = basicAuth.password;

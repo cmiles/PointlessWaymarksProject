@@ -239,7 +239,7 @@
                                                        AppName=PointlessWaymarks.WpfCommon}"
                                 ToolTip="Save Jpg of Entire Page">
                                 <Image.InputBindings>
-                                    <MouseBinding Command="{Binding ItemRssViewScreenshotFunctionCommand}" Gesture="LeftClick" />
+                                    <MouseBinding Command="{Binding ItemRssViewScreenshotCommand}" Gesture="LeftClick" />
                                 </Image.InputBindings>
                             </Image>
                         </StackPanel>

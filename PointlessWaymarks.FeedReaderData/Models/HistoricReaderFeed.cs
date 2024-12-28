@@ -6,6 +6,7 @@ namespace PointlessWaymarks.FeedReaderData.Models;
 public class HistoricReaderFeed
 {
     public int? AutoMarkReadAfterDays { get; set; }
+    public int? AutoMarkReadMoreThanItems { get; set; }
     public DateTime CreatedOn { get; set; } = DateTime.Now;
     public DateTime? FeedLastUpdatedDate { get; set; }
     public int Id { get; set; }

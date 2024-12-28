@@ -6,6 +6,7 @@ namespace PointlessWaymarks.FeedReaderData.Models;
 public class ReaderFeed
 {
     public int? AutoMarkReadAfterDays { get; set; }
+    public int? AutoMarkReadMoreThanItems { get; set; }
     public string BasicAuthPassword { get; set; } = string.Empty;
     public string BasicAuthUsername { get; set; } = string.Empty;
     public DateTime CreatedOn { get; set; } = DateTime.Now;

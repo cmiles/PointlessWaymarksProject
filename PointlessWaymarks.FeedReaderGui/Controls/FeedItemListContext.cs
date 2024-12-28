@@ -264,6 +264,25 @@ public partial class FeedItemListContext : IStandardListWithContext<FeedItemList
             await StatusContext.ToastError(screenshotResult.AsT1.Value);
     }
 
+    [BlockingCommand]
+    private async Task ItemRssViewScreenshot()
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (ItemRssViewScreenshotFunction == null)
+        {
+            await StatusContext.ToastError("Screenshot function not available...");
+            return;
+        }
+
+        var screenshotResult = await ItemRssViewScreenshotFunction();
+
+        if (screenshotResult.IsT0)
+            await WebViewToJpg.SaveByteArrayAsJpg(screenshotResult.AsT0.Value, string.Empty, StatusContext);
+        else
+            await StatusContext.ToastError(screenshotResult.AsT1.Value);
+    }
+
     [NonBlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
     public async Task MarkdownLinksForSelectedItems()
