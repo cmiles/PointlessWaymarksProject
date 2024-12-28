@@ -162,6 +162,9 @@
       <None Update="Feeds\Rss20YandexRussia.xml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Feeds\UndeclaredEntityMattPaynePhoto.xml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="Html\codehollow.html">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
