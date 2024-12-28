@@ -22,7 +22,7 @@ internal static class FeedParser
         var startIndex = message.IndexOf("undeclared entity '", StringComparison.Ordinal) +
                          "undeclared entity '".Length;
         var endIndex = message.IndexOf("'", startIndex, StringComparison.Ordinal);
-        if (startIndex > 0 && endIndex > startIndex) return $"&{message.Substring(startIndex, endIndex - startIndex)}";
+        if (startIndex > 0 && endIndex > startIndex) return $"&{message.Substring(startIndex, endIndex - startIndex)};";
         return string.Empty;
     }
 
@@ -124,16 +124,11 @@ internal static class FeedParser
     /// <returns>parsed feed</returns>
     public static Feed GetFeed(string feedContent)
     {
-        feedContent = RemoveWrongChars(feedContent);
+        // Convert the string to a byte array using UTF8 encoding
+        var feedContentData = Encoding.UTF8.GetBytes(feedContent);
 
-        var feedDoc = XDocument.Parse(feedContent);
-
-        var feedType = ParseFeedType(feedDoc);
-
-        var parser = Factory.GetParser(feedType);
-        var feed = parser.Parse(feedContent);
-
-        return feed.ToFeed();
+        // Call the GetFeed method that accepts a byte array
+        return GetFeed(feedContentData);
     }
 
     /// <summary>
