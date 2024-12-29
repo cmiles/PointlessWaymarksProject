@@ -35,7 +35,7 @@
                 </TextBox>
                 <stringDataEntry:StringDataEntryControl DataContext="{Binding TypeEditor}" />
                 <contentFormat:ContentFormatChooserControl Margin="4,8,0,4" DataContext="{Binding NoteFormatEditor}" />
-                <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding NoteEditor}" TextBoxHeight="90" />
+                <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding NoteEditor}" ValueTextBoxHeight="90" />
                 <Button
                     HorizontalAlignment="Right"
                     Command="{Binding DataContext.DeleteDetailCommand, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"

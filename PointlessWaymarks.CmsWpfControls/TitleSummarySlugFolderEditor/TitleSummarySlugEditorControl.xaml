@@ -51,6 +51,6 @@
         </StackPanel>
         <stringDataEntry:StringDataEntryControl DataContext="{Binding SlugEntry}" />
         <stringWithDropdownDataEntry:StringWithDropdownDataEntryControl DataContext="{Binding FolderEntry}" />
-        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" TextBoxHeight="90" />
+        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SummaryEntry}" ValueTextBoxHeight="90" />
     </StackPanel>
 </UserControl>

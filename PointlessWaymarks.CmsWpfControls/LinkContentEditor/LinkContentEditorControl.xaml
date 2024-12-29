@@ -45,7 +45,7 @@
                                 Command="{Binding OpenUrlInBrowserCommand}"
                                 Content="_Open in Browser" />
                         </Grid>
-                        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding CommentsEntry}" TextBoxHeight="60" />
+                        <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding CommentsEntry}" ValueTextBoxHeight="60" />
                         <tagsEditor:TagsEditorControl DataContext="{Binding TagEdit}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding TitleEntry}" />
                         <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding SiteEntry}" />

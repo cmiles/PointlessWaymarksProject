@@ -44,12 +44,12 @@
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserNoteEntry}" Style="{StaticResource EntryStyle}" />
                     <stringDataEntry:StringDataEntryMultiLineControl DataContext="{Binding UserTagsEntry}" Style="{StaticResource EntryStyle}" />
                     <conversionDataEntry:ConversionDataEntryControl
-                        Width="190"
+                        ValueTextBoxWidth="60"
                         HorizontalAlignment="Left"
                         DataContext="{Binding UserAutoMarkAfterDaysEntry}"
                         Style="{StaticResource EntryStyle}" />
                     <conversionDataEntry:ConversionDataEntryControl
-                        Width="224"
+                        ValueTextBoxWidth="60"
                         HorizontalAlignment="Left"
                         DataContext="{Binding UserAutoMarkReadMoreThanItemsEntry}"
                         Style="{StaticResource EntryStyle}" />
