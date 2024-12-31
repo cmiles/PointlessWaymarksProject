@@ -145,7 +145,7 @@
                                             <Setter Property="Height" Value="30" />
                                         </Style>
                                     </WrapPanel.Resources>
-                                    <Label>Insert Special Page Bracket Code:</Label>
+                                    <Label>Insert:</Label>
                                     <Button Command="{Binding DataContext.InsertIndexTagIndexCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Index
                                     </Button>
@@ -164,16 +164,25 @@
                                     <Button Command="{Binding DataContext.InsertMonthlyActivityCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Activity Summary
                                     </Button>
-                                    <ComboBox ItemsSource="{Binding DataContext.ContentTypeSearchListChoices, ElementName=MenuLinkEditorControlXaml}" SelectedItem="{Binding SelectedSearchPage}" />
+                                    <ComboBox
+                                        Width="100"
+                                        Margin="12,0,0,0"
+                                        VerticalContentAlignment="Center"
+                                        DisplayMemberPath="DisplayValue"
+                                        ItemsSource="{Binding DataContext.ContentTypeSearchListChoices, ElementName=MenuLinkEditorControlXaml}"
+                                        SelectedItem="{Binding SelectedSearchPage}" />
                                     <Button Command="{Binding DataContext.InsertSelectedSearchPageLinkCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
-                                        Insert Search Link
+                                        Search Link
                                     </Button>
                                     <ComboBox
+                                        Width="100"
+                                        Margin="12,0,0,0"
+                                        VerticalContentAlignment="Center"
                                         DisplayMemberPath="DisplayValue"
                                         ItemsSource="{Binding DataContext.ContentTypeRssChoices, ElementName=MenuLinkEditorControlXaml}"
                                         SelectedItem="{Binding SelectedRssPage}" />
                                     <Button Command="{Binding DataContext.InsertSelectedRssPageLinkCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
-                                        Insert RSS Link
+                                        RSS Link
                                     </Button>
                                 </WrapPanel>
                             </Grid>
