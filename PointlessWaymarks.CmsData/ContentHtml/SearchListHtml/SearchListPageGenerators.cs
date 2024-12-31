@@ -55,7 +55,7 @@ public static class SearchListPageGenerators
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteFileListFile();
 
         await WriteSearchListHtml(ContentList, fileInfo, "Files",
-                UserSettingsSingleton.CurrentSettings().FileRssUrl(), generationVersion, progress)
+                UserSettingsSingleton.CurrentSettings().FilesRssUrl(), generationVersion, progress)
             .ConfigureAwait(false);
         RssBuilder.WriteContentCommonListRss(
             ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
@@ -95,7 +95,7 @@ public static class SearchListPageGenerators
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteImageListFile();
 
         await WriteSearchListHtml(ContentList, fileInfo, "Images",
-                UserSettingsSingleton.CurrentSettings().ImageRssUrl(), generationVersion, progress)
+                UserSettingsSingleton.CurrentSettings().ImagesRssUrl(), generationVersion, progress)
             .ConfigureAwait(false);
         RssBuilder.WriteContentCommonListRss(
             ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
@@ -134,7 +134,7 @@ public static class SearchListPageGenerators
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSiteNoteListFile();
 
         await WriteSearchListHtml(ContentList, fileInfo, "Notes",
-                UserSettingsSingleton.CurrentSettings().NoteRssUrl(), generationVersion, progress)
+                UserSettingsSingleton.CurrentSettings().NotesRssUrl(), generationVersion, progress)
             .ConfigureAwait(false);
         RssBuilder.WriteContentCommonListRss(
             ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)
@@ -153,7 +153,7 @@ public static class SearchListPageGenerators
         var fileInfo = UserSettingsSingleton.CurrentSettings().LocalSitePhotoListFile();
 
         await WriteSearchListHtml(ContentList, fileInfo, "Photos",
-                UserSettingsSingleton.CurrentSettings().PhotoRssUrl(), generationVersion, progress)
+                UserSettingsSingleton.CurrentSettings().PhotosRssUrl(), generationVersion, progress)
             .ConfigureAwait(false);
         RssBuilder.WriteContentCommonListRss(
             ContentList().Cast<IContentCommon>().OrderByDescending(x => x.FeedOn).Take(MaxNumberOfRssEntries)

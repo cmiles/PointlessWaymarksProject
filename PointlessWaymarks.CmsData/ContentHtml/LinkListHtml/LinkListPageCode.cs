@@ -13,7 +13,7 @@ public partial class LinkListPage
     public DateTime? GenerationVersion { get; set; }
     public string LangAttribute { get; set; } = UserSettingsSingleton.CurrentSettings().SiteLangAttribute;
     public string ListTitle { get; set; } = "Links";
-    public string RssUrl { get; set; } = UserSettingsSingleton.CurrentSettings().LinkRssUrl();
+    public string RssUrl { get; set; } = UserSettingsSingleton.CurrentSettings().LinksRssUrl();
 
     public static HtmlTag LinkTableTag()
     {

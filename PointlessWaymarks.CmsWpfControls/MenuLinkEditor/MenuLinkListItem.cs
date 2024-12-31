@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.LlamaAspects;
 
@@ -16,6 +16,8 @@ public partial class MenuLinkListItem
 
     public MenuLink DbEntry { get; set; }
     public bool HasChanges { get; set; }
+    public MenuLinkEditorContentTypeSearchListChoice? SelectedRssPage { get; set; }
+    public MenuLinkEditorContentTypeSearchListChoice? SelectedSearchPage { get; set; }
     public string UserLink { get; set; } = string.Empty;
     public int UserOrder { get; set; }
 

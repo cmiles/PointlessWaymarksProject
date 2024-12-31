@@ -130,7 +130,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        await StatusContext.ToastSuccess($"Generated {settings.LinkListUrl()}");
+        await StatusContext.ToastSuccess($"Generated {settings.LinksListUrl()}");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -204,7 +204,7 @@ public partial class LinkContentActions : IContentActions<LinkContent>
 
         var settings = UserSettingsSingleton.CurrentSettings();
 
-        var url = settings.LinkListUrl();
+        var url = settings.LinksListUrl();
 
         await ThreadSwitcher.ResumeForegroundAsync();
 

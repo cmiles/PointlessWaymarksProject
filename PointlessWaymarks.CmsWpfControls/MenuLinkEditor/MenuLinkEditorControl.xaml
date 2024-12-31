@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.MenuLinkEditor.MenuLinkEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -158,14 +158,22 @@
                                     <Button Command="{Binding DataContext.InsertLatestContentGalleryCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Latest Content
                                     </Button>
-                                    <Button Command="{Binding DataContext.InsertLinkListCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
-                                        Links
-                                    </Button>
                                     <Button Command="{Binding DataContext.InsertTagSearchCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Tags
                                     </Button>
                                     <Button Command="{Binding DataContext.InsertMonthlyActivityCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
                                         Activity Summary
+                                    </Button>
+                                    <ComboBox ItemsSource="{Binding DataContext.ContentTypeSearchListChoices, ElementName=MenuLinkEditorControlXaml}" SelectedItem="{Binding SelectedSearchPage}" />
+                                    <Button Command="{Binding DataContext.InsertSelectedSearchPageLinkCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
+                                        Insert Search Link
+                                    </Button>
+                                    <ComboBox
+                                        DisplayMemberPath="DisplayValue"
+                                        ItemsSource="{Binding DataContext.ContentTypeRssChoices, ElementName=MenuLinkEditorControlXaml}"
+                                        SelectedItem="{Binding SelectedRssPage}" />
+                                    <Button Command="{Binding DataContext.InsertSelectedRssPageLinkCommand, ElementName=MenuLinkEditorControlXaml}" CommandParameter="{Binding .}">
+                                        Insert RSS Link
                                     </Button>
                                 </WrapPanel>
                             </Grid>

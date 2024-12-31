@@ -172,7 +172,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.NoteHtml
             this.Write("\"\r\n      href=\"");
             
             #line 40 "E:\Code\PW-06\PointlessWaymarksProject\PointlessWaymarks.CmsData\ContentHtml\NoteHtml\SingleNotePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().NoteRssUrl()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().NotesRssUrl()));
             
             #line default
             #line hidden

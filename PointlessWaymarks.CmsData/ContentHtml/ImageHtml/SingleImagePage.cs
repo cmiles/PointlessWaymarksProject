@@ -192,7 +192,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.ImageHtml
             this.Write("\"\r\n      href=\"");
             
             #line 45 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\ImageHtml\SingleImagePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().ImageRssUrl()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().ImagesRssUrl()));
             
             #line default
             #line hidden

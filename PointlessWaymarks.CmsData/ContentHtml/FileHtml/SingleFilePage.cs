@@ -193,7 +193,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.FileHtml
             this.Write("\"\r\n      href=\"");
             
             #line 44 "E:\Code\PWP-17\PointlessWaymarks.CmsData\ContentHtml\FileHtml\SingleFilePage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().FileRssUrl()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().FilesRssUrl()));
             
             #line default
             #line hidden

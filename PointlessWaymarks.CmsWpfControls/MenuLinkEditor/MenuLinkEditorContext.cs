@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
+using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CmsWpfControls.ContentList;
@@ -31,6 +32,8 @@ public partial class MenuLinkEditorContext
     }
 
     public CmsCommonCommands CommonCommands { get; set; }
+    public List<MenuLinkEditorContentTypeSearchListChoice> ContentTypeRssChoices { get; set; } = [];
+    public List<MenuLinkEditorContentTypeSearchListChoice> ContentTypeSearchListChoices { get; set; } = [];
     public string HelpMarkdown { get; set; }
     public ObservableCollection<MenuLinkListItem> Items { get; set; }
     public List<MenuLinkListItem>? SelectedItems { get; set; }
@@ -48,7 +51,6 @@ public partial class MenuLinkEditorContext
 
         Items.Add(newItem);
     }
-
 
     public static async Task<MenuLinkEditorContext> CreateInstance(StatusControlContext? statusContext,
         bool loadInBackground = true)
@@ -80,9 +82,9 @@ public partial class MenuLinkEditorContext
     }
 
     [BlockingCommand]
-    public async Task InsertIndexTagIndex(MenuLinkListItem? listItem)
+    public async Task InsertIndexTag(MenuLinkListItem? listItem)
     {
-        await InsertIntoLinkTag(listItem, "{{index; text Main;}}");
+        await InsertIntoLinkTag(listItem, BracketCodeSpecialPages.IndexBracketCode);
     }
 
     private async Task InsertIntoLinkTag(MenuLinkListItem? listItem, string toInsert)
@@ -103,37 +105,71 @@ public partial class MenuLinkEditorContext
     [BlockingCommand]
     public async Task InsertLatestContentGallery(MenuLinkListItem? listItem)
     {
-        await InsertIntoLinkTag(listItem, "{{latestcontentpage; text Latest;}}");
+        await InsertIntoLinkTag(listItem, BracketCodeSpecialPages.LatestContentPageBracketCode);
     }
 
     [BlockingCommand]
-    public async Task InsertLinkList(MenuLinkListItem? listItem)
+    public async Task InsertMonthlyActivity(MenuLinkListItem? listItem)
     {
-        await InsertIntoLinkTag(listItem, "{{linklistpage; text Links;}}");
+        await InsertIntoLinkTag(listItem, BracketCodeSpecialPages.MonthlyActivityBracketCode);
     }
 
     [BlockingCommand]
     public async Task InsertPhotoGallery(MenuLinkListItem? listItem)
     {
-        await InsertIntoLinkTag(listItem, "{{photogallerypage; text Photos;}}");
+        await InsertIntoLinkTag(listItem, BracketCodeSpecialPages.PhotoGalleryPageBracketCode);
     }
 
     [BlockingCommand]
     public async Task InsertSearchPage(MenuLinkListItem? listItem)
     {
-        await InsertIntoLinkTag(listItem, "{{searchpage; text Search;}}");
+        await InsertIntoLinkTag(listItem, BracketCodeSpecialPages.SearchPageBracketCode);
+    }
+
+    [BlockingCommand]
+    public async Task InsertSelectedRssPageLink(MenuLinkListItem? listItem)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (listItem == null)
+        {
+            await StatusContext.ToastError("No item?");
+            return;
+        }
+
+        if (listItem.SelectedRssPage is null)
+        {
+            await StatusContext.ToastError("No RSS Selected?");
+            return;
+        }
+
+        await InsertIntoLinkTag(listItem, listItem.SelectedRssPage.BracketCode);
+    }
+
+    [BlockingCommand]
+    public async Task InsertSelectedSearchPageLink(MenuLinkListItem? listItem)
+    {
+        await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (listItem == null)
+        {
+            await StatusContext.ToastError("No item?");
+            return;
+        }
+
+        if (listItem.SelectedSearchPage is null)
+        {
+            await StatusContext.ToastError("No Search Page Selected?");
+            return;
+        }
+
+        await InsertIntoLinkTag(listItem, listItem.SelectedSearchPage.BracketCode);
     }
 
     [BlockingCommand]
     public async Task InsertTagSearch(MenuLinkListItem? listItem)
     {
-        await InsertIntoLinkTag(listItem, "{{tagspage; text Tags;}}");
-    }
-    
-    [BlockingCommand]
-    public async Task InsertMonthlyActivity(MenuLinkListItem? listItem)
-    {
-        await InsertIntoLinkTag(listItem, "{{monthlyactivity; text Activity Summary;}}");
+        await InsertIntoLinkTag(listItem, BracketCodeSpecialPages.TagsPageBracketCode);
     }
 
     public async Task LoadData()
@@ -152,6 +188,55 @@ public partial class MenuLinkEditorContext
         }
 
         listItems = listItems.OrderBy(x => x.UserOrder).ThenBy(x => x.UserLink).ToList();
+
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "File", BracketCode = BracketCodeSpecialPages.FilesSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "GeoJson", BracketCode = BracketCodeSpecialPages.GeoJsonSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Image", BracketCode = BracketCodeSpecialPages.ImagesSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Line", BracketCode = BracketCodeSpecialPages.LinesSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Link", BracketCode = BracketCodeSpecialPages.LinksSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Note", BracketCode = BracketCodeSpecialPages.NotesSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Photo", BracketCode = BracketCodeSpecialPages.PhotosSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Point", BracketCode = BracketCodeSpecialPages.PointsSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Post", BracketCode = BracketCodeSpecialPages.PostSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Trail", BracketCode = BracketCodeSpecialPages.TrailsSearchPageBracketCode });
+        ContentTypeSearchListChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Video", BracketCode = BracketCodeSpecialPages.VideoSearchPageBracketCode });
+
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "File", BracketCode = BracketCodeSpecialPages.FilesRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "GeoJson", BracketCode = BracketCodeSpecialPages.GeoJsonRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Image", BracketCode = BracketCodeSpecialPages.ImageRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Index Page", BracketCode = BracketCodeSpecialPages.ImageRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Line", BracketCode = BracketCodeSpecialPages.LinesRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Link", BracketCode = BracketCodeSpecialPages.LinkRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Note", BracketCode = BracketCodeSpecialPages.NoteRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Photo", BracketCode = BracketCodeSpecialPages.PhotoRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Point", BracketCode = BracketCodeSpecialPages.PointsRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Post", BracketCode = BracketCodeSpecialPages.PostRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Trail", BracketCode = BracketCodeSpecialPages.TrailsRssBracketCode });
+        ContentTypeRssChoices.Add(new MenuLinkEditorContentTypeSearchListChoice
+            { DisplayValue = "Video", BracketCode = BracketCodeSpecialPages.VideoRssBracketCode });
+
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -234,7 +319,7 @@ public partial class MenuLinkEditorContext
         foreach (var loopDbItems in currentDbList)
         {
             var listItem = Items.SingleOrDefault(x => x.DbEntry.Id == loopDbItems.Id);
-            if(listItem == null) deletedItems.Add(loopDbItems);
+            if (listItem == null) deletedItems.Add(loopDbItems);
         }
 
         var withEdits = Items.Where(x => x.HasChanges).ToList();
@@ -253,10 +338,7 @@ public partial class MenuLinkEditorContext
 
         var frozenNowVersion = DateTime.Now.ToUniversalTime().TrimDateTimeToSeconds();
 
-        foreach (var loopDeleted in deletedItems)
-        {
-            context.Remove(loopDeleted);
-        }
+        foreach (var loopDeleted in deletedItems) context.Remove(loopDeleted);
 
         foreach (var loopChanges in withEdits)
             if (loopChanges.DbEntry.Id < 1)
@@ -290,4 +372,11 @@ public partial class MenuLinkEditorContext
     {
         return SelectedItems ?? [];
     }
+}
+
+[NotifyPropertyChanged]
+public partial class MenuLinkEditorContentTypeSearchListChoice
+{
+    public required string BracketCode { get; set; }
+    public required string DisplayValue { get; set; }
 }

@@ -143,7 +143,7 @@ namespace PointlessWaymarks.CmsData.ContentHtml.PhotoGalleryHtml
             this.Write("\"\r\n      href=\"");
             
             #line 36 "C:\Code\PointlessWaymarksProject-05\PointlessWaymarks.CmsData\ContentHtml\PhotoGalleryHtml\CameraRollGalleryPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().PhotoRssUrl()));
+            this.Write(this.ToStringHelper.ToStringWithCulture(UserSettingsSingleton.CurrentSettings().PhotosRssUrl()));
             
             #line default
             #line hidden
