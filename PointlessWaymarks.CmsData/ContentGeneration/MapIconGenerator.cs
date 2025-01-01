@@ -26,17 +26,17 @@ public static class MapIconGenerator
             .ConfigureAwait(false);
     }
 
-    public static async Task<OneOf<Success, Error<string>>> SaveMapIconAndGenerateMapIconsJson(MapIcon toSave)
+    public static async Task<OneOf<MapIcon, Error<string>>> SaveMapIconAndGenerateMapIconsJson(MapIcon toSave)
     {
         var validation = await ValidateMapIcon(toSave);
 
         if (!validation.Valid) return new Error<string>(validation.Explanation);
 
-        await Db.SaveMapIcon(toSave);
+        var savedItem = await Db.SaveMapIcon(toSave);
 
         await GenerateMapIconsFile();
 
-        return new Success();
+        return savedItem;
     }
 
     public static async Task<string> SerializedMapIcons()

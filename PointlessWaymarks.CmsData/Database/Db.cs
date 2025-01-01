@@ -2715,7 +2715,7 @@ public static class Db
         return await MapComponentDtoFromContentId(dbMap.ContentId);
     }
 
-    public static async Task SaveMapIcon(MapIcon toSave)
+    public static async Task<MapIcon> SaveMapIcon(MapIcon toSave)
     {
         var context = await Context();
 
@@ -2739,6 +2739,8 @@ public static class Db
         else
             DataNotifications.PublishDataNotification("Map Icon Updated", DataNotificationContentType.MapIcon,
                 DataNotificationUpdateType.Update, toSave.ContentId.AsList());
+
+        return toSave;
     }
 
     public static async Task SaveNoteContent(NoteContent? toSave)

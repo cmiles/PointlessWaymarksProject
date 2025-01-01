@@ -10,6 +10,7 @@ using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
 using PointlessWaymarks.LlamaAspects;
 using PointlessWaymarks.WpfCommon;
+using PointlessWaymarks.WpfCommon.Behaviors;
 using PointlessWaymarks.WpfCommon.ColumnSort;
 using PointlessWaymarks.WpfCommon.Status;
 using PointlessWaymarks.WpfCommon.Utility;
@@ -64,6 +65,7 @@ public partial class MapIconListContext
     public ObservableCollection<MapIconListListItem> Items { get; set; }
     public ContentListSelected<MapIconListListItem> ListSelection { get; set; }
     public ColumnSortControlContext ListSort { get; set; }
+    public ScrollToItemRequest ScrollTo { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public string UserFilterText { get; set; } = string.Empty;
 
@@ -111,6 +113,8 @@ public partial class MapIconListContext
         });
 
         Items.Add(toAdd);
+
+        ScrollTo = new ScrollToItemRequest(toAdd);
     }
 
     public static async Task<MapIconListContext> CreateInstance(StatusControlContext? statusContext)
@@ -287,7 +291,6 @@ public partial class MapIconListContext
         DataNotifications.NewDataNotificationChannel().MessageReceived += OnDataNotificationReceived;
     }
 
-
     private void OnDataNotificationReceived(object? sender, TinyMessageReceivedEventArgs e)
     {
         DataNotificationsProcessor.Enqueue(e);
@@ -320,7 +323,8 @@ public partial class MapIconListContext
 
         var toAdd = new MapIcon
         {
-            ContentId = toSave.DbEntry.ContentId, IconName = toSave.IconNameEntry.UserValue,
+            ContentId = toSave.DbEntry.ContentId,
+            IconName = toSave.IconNameEntry.UserValue,
             IconSource = toSave.IconSourceEntry.UserValue,
             IconSvg = toSave.IconSvgEntry.UserValue, LastUpdatedBy = toSave.LastUpdatedByEntry.UserValue,
             LastUpdatedOn = DateTime.Now,
@@ -333,5 +337,23 @@ public partial class MapIconListContext
             await StatusContext.ShowMessageWithOkButton($"Error Saving {toAdd.IconName}", saveResult.AsT1.Value);
         else
             await StatusContext.ToastSuccess($"Saved {toAdd.IconName}");
+
+        UpdateItemFromDbEntry(toSave, saveResult.AsT0);
+
+        ScrollTo = new ScrollToItemRequest(toSave);
+    }
+
+    private static void UpdateItemFromDbEntry(MapIconListListItem toSave, MapIcon dbEntry)
+    {
+        toSave.DbEntry = dbEntry;
+
+        toSave.IconName = toSave.DbEntry.IconName ?? string.Empty;
+        toSave.IconNameEntry.ReferenceValue = toSave.DbEntry.IconName ?? string.Empty;
+        toSave.IconSource = toSave.DbEntry.IconSource ?? string.Empty;
+        toSave.IconSourceEntry.ReferenceValue = toSave.DbEntry.IconSource ?? string.Empty;
+        toSave.IconSvg = toSave.DbEntry.IconSvg ?? string.Empty;
+        toSave.IconSvgEntry.ReferenceValue = toSave.DbEntry.IconSvg ?? string.Empty;
+        toSave.LastUpdatedByEntry.ReferenceValue = toSave.DbEntry.LastUpdatedBy ?? string.Empty;
+        toSave.CheckForChangesAndValidationIssues();
     }
 }
