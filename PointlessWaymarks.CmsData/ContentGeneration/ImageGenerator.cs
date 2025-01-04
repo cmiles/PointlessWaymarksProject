@@ -4,7 +4,6 @@ using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Iptc;
 using MetadataExtractor.Formats.Xmp;
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.ImageHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -26,6 +25,13 @@ public static class ImageGenerator
         var htmlContext = new SingleImagePage(toGenerate) { GenerationVersion = generationVersion };
 
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
+    }
+
+    public static bool ImageFileTypeIsSupported(FileInfo toCheck)
+    {
+        if (toCheck is not { Exists: true }) return false;
+        return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
+               toCheck.Extension.ToUpperInvariant().Contains("JPEG");
     }
 
     public static async Task<(GenerationReturn generationReturn, ImageMetadata? metadata)> ImageMetadataFromFile(
@@ -116,6 +122,15 @@ public static class ImageGenerator
         return (GenerationReturn.Success($"Parsed Image Metadata for {selectedFile.FullName} without error"), toReturn);
     }
 
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="selectedFile"></param>
+    /// <param name="overwriteExistingFiles"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, ImageContent? imageContent)> SaveAndGenerateHtml(
         ImageContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
         IProgress<string>? progress = null)
@@ -124,15 +139,25 @@ public static class ImageGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
-
-        toSave.OriginalFileName = selectedFile.Name;
-        await FileManagement.WriteSelectedImageContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
-        await Db.SaveImageContent(toSave).ConfigureAwait(false);
-        await WriteImageFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress).ConfigureAwait(false);
-        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteImageContentData(toSave).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+            toSave.OriginalFileName = selectedFile.Name;
+            await FileManagement.WriteSelectedImageContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
+            await Db.SaveImageContent(toSave).ConfigureAwait(false);
+            await WriteImageFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteImageContentData(toSave).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Image Content {toSave.Title} - Original File Name {toSave.OriginalFileName}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Image Generator", DataNotificationContentType.Image,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
@@ -217,12 +242,5 @@ public static class ImageGenerator
 
         await PictureResizing.ResizeForDisplayAndSrcset(imageContent, forcedResizeOverwriteExistingFiles, progress)
             .ConfigureAwait(false);
-    }
-
-    public static bool ImageFileTypeIsSupported(FileInfo toCheck)
-    {
-        if (toCheck is not { Exists: true }) return false;
-        return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
-               toCheck.Extension.ToUpperInvariant().Contains("JPEG");
     }
 }

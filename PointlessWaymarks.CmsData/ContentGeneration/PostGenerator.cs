@@ -17,6 +17,13 @@ public static class PostGenerator
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
 
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, PostContent? postContent)> SaveAndGenerateHtml(
         PostContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
     {
@@ -24,12 +31,23 @@ public static class PostGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-        await Db.SavePostContent(toSave).ConfigureAwait(false);
-        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WritePostContentData(toSave, progress).ConfigureAwait(false);
+            await Db.SavePostContent(toSave).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WritePostContentData(toSave, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Post Content {toSave.Title}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Post Generator", DataNotificationContentType.Post,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);

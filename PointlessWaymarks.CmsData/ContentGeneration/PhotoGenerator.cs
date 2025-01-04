@@ -280,7 +280,15 @@ public static class PhotoGenerator
         return (GenerationReturn.Success($"Parsed Photo Metadata for {selectedFile.FullName} without error"), toReturn);
     }
 
-
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="selectedFile"></param>
+    /// <param name="overwriteExistingFiles"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, PhotoContent? photoContent)> SaveAndGenerateHtml(
         PhotoContent toSave, FileInfo selectedFile, bool overwriteExistingFiles, DateTime? generationVersion,
         IProgress<string>? progress = null)
@@ -289,14 +297,24 @@ public static class PhotoGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
-
-        await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
-        await Db.SavePhotoContent(toSave).ConfigureAwait(false);
-        await WritePhotoFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress).ConfigureAwait(false);
-        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WritePhotoContentData(toSave).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+            await FileManagement.WriteSelectedPhotoContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
+            await Db.SavePhotoContent(toSave).ConfigureAwait(false);
+            await WritePhotoFromMediaArchiveToLocalSite(toSave, overwriteExistingFiles, progress).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WritePhotoContentData(toSave).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Photo Content {toSave.Title} - Original File Name {toSave.OriginalFileName}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Photo Generator", DataNotificationContentType.Photo,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);

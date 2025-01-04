@@ -6,6 +6,12 @@ namespace PointlessWaymarks.CmsData.ContentGeneration;
 
 public static class SnippetGenerator
 {
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, Snippet? postContent)> SaveAndGenerateHtml(
         Snippet toSave, IProgress<string>? progress = null)
     {
@@ -13,10 +19,20 @@ public static class SnippetGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-
-        await Db.SaveSnippet(toSave).ConfigureAwait(false);
-        await Export.WriteSnippetData(toSave, progress).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            await Db.SaveSnippet(toSave).ConfigureAwait(false);
+            await Export.WriteSnippetData(toSave, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Snippet {toSave.Title}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Snippet Generator", DataNotificationContentType.Snippet,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
@@ -42,7 +58,8 @@ public static class SnippetGenerator
         if (!summaryValidation.Valid) return GenerationReturn.Error(summaryValidation.Explanation, snippet.ContentId);
 
         var createdUpdatedValidation = await CommonContentValidation.ValidateCreatedAndUpdatedBy(snippet, isNewEntry);
-        if (!createdUpdatedValidation.Valid) return GenerationReturn.Error(createdUpdatedValidation.Explanation, snippet.ContentId);
+        if (!createdUpdatedValidation.Valid)
+            return GenerationReturn.Error(createdUpdatedValidation.Explanation, snippet.ContentId);
 
         return GenerationReturn.Success("Post Content Validation Successful");
     }

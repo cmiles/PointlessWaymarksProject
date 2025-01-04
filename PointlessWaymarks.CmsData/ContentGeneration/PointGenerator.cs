@@ -17,6 +17,13 @@ public static class PointGenerator
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
 
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, PointContentDto? pointContent)>
         SaveAndGenerateHtml(PointContentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
     {
@@ -24,17 +31,36 @@ public static class PointGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
+        PointContentDto? savedPoint;
 
-        var savedPoint = await Db.SavePointContent(toSave).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-        await GenerateHtml(savedPoint!, generationVersion, progress).ConfigureAwait(false);
-        await Export.WritePointContentData(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content, progress)
-            .ConfigureAwait(false);
+            savedPoint = await Db.SavePointContent(toSave).ConfigureAwait(false);
+
+            if (savedPoint is null)
+                return (GenerationReturn.Error(
+                    $"Error with Point Content {toSave.Title} - Null Returned from DB Save",
+                    toSave.ContentId), toSave);
+
+            await GenerateHtml(savedPoint!, generationVersion, progress).ConfigureAwait(false);
+            await Export
+                .WritePointContentData(Db.PointContentDtoToPointContentAndDetails(savedPoint!).content, progress)
+                .ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Point Content {toSave.Title}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Point Generator", DataNotificationContentType.Point,
-            DataNotificationUpdateType.LocalContent, [savedPoint!.ContentId]);
+            DataNotificationUpdateType.LocalContent, [savedPoint.ContentId]);
 
         return (GenerationReturn.Success($"Saved and Generated Content And Html for {savedPoint.Title}"),
             savedPoint);
@@ -73,7 +99,8 @@ public static class PointGenerator
         if (!mapIconNameCheck.Valid)
             return GenerationReturn.Error(mapIconNameCheck.Explanation, pointContent.ContentId);
 
-        var mapMarkerColorCheck = await CommonContentValidation.ValidatePointMapMarkerColor(pointContent.MapMarkerColor);
+        var mapMarkerColorCheck =
+            await CommonContentValidation.ValidatePointMapMarkerColor(pointContent.MapMarkerColor);
         if (!mapMarkerColorCheck.Valid)
             return GenerationReturn.Error(mapMarkerColorCheck.Explanation, pointContent.ContentId);
 

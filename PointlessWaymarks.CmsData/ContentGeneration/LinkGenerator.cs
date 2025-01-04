@@ -153,6 +153,13 @@ public static class LinkGenerator
         return (GenerationReturn.Success($"Parsed URL Metadata for {url} without error"), toReturn);
     }
 
+    /// <summary>
+    /// Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, LinkContent? linkContent)> SaveAndGenerateHtml(
         LinkContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
     {
@@ -160,12 +167,21 @@ public static class LinkGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
-
-        await Db.SaveLinkContent(toSave).ConfigureAwait(false);
-        await SaveLinkToPinboard(toSave, progress).ConfigureAwait(false);
-        await GenerateHtmlAndJson(generationVersion, progress).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+            await Db.SaveLinkContent(toSave).ConfigureAwait(false);
+            await SaveLinkToPinboard(toSave, progress).ConfigureAwait(false);
+            await GenerateHtmlAndJson(generationVersion, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Map Content {toSave.Title}", toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Link Generator", DataNotificationContentType.Link,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);

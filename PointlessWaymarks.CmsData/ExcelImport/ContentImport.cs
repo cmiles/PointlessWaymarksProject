@@ -483,7 +483,7 @@ public static class ContentImport
                     updateList);
         }
 
-        return new ContentImportResults(errorNotes.Any(), string.Join(Environment.NewLine, errorNotes), updateList);
+        return new ContentImportResults(errorNotes.Any(), string.Join(Environment.NewLine+Environment.NewLine, errorNotes), updateList);
     }
 
     public static async Task<ContentImportResults> ImportFromFile(string fileName,

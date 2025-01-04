@@ -103,14 +103,14 @@ public static class ExcelHelpers
         catch (Exception e)
         {
             await statusContext.ShowMessageWithOkButton("Import Errors",
-                $"Import Stopped because of an error processing the file:{Environment.NewLine}{e.Message}");
+                $"Import Stopped because of an error processing the file:{Environment.NewLine}{Environment.NewLine}{e.Message}");
             return;
         }
         
         if (contentImportResult.HasError)
         {
             await statusContext.ShowMessageWithOkButton("Import Errors",
-                $"Import Stopped because errors were reported:{Environment.NewLine}{contentImportResult.ErrorNotes}");
+                $"Import Stopped because errors were reported:{Environment.NewLine}{Environment.NewLine}{contentImportResult.ErrorNotes}");
             return;
         }
         

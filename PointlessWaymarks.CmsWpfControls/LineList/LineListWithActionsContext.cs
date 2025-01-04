@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -448,14 +449,24 @@ public partial class LineListWithActionsContext
         StatusContext.Progress($"Found {totalCount} Lines to Generate");
 
         var generationVersion = DateTime.Now.TrimDateTimeToSeconds().ToUniversalTime();
-        
+
+        ConcurrentBag<GenerationReturn> generationReturns = [];
 
         await Parallel.ForEachAsync(selectedToSave, async (loopItem, _) =>
         {
             StatusContext.Progress($"Saving and Writing HTML for Line {loopItem.Title}");
 
-            await LineGenerator.SaveAndGenerateHtml(loopItem, generationVersion, StatusContext.ProgressTracker());
+            generationReturns.Add((await LineGenerator.SaveAndGenerateHtml(loopItem, generationVersion, StatusContext.ProgressTracker())).generationReturn);
+
         }).ConfigureAwait(false);
+
+        if (generationReturns.Any(x => x.HasError))
+        {
+            await StatusContext.ShowMessageWithOkButton("Error Saving Lines",
+                string.Join(Environment.NewLine + Environment.NewLine,
+                    generationReturns.Where(x => x.HasError).Select(x => x.ToErrorString())));
+            return;
+        }
 
         await MapComponentGenerator.GenerateAllLinesData();
         await new LineMonthlyActivitySummaryPage(generationVersion).WriteLocalHtml();

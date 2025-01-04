@@ -1,5 +1,4 @@
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.FileHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -21,7 +20,14 @@ public static class FileGenerator
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
 
-
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="selectedFile"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, FileContent? fileContent)> SaveAndGenerateHtml(
         FileContent toSave, FileInfo selectedFile, DateTime? generationVersion,
         IProgress<string>? progress = null)
@@ -30,15 +36,25 @@ public static class FileGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
-
-        toSave.OriginalFileName = selectedFile.Name;
-        await FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
-        await Db.SaveFileContent(toSave).ConfigureAwait(false);
-        await WriteFileFromMediaArchiveToLocalSiteIfNeeded(toSave).ConfigureAwait(false);
-        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteFileContentData(toSave, progress).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+            toSave.OriginalFileName = selectedFile.Name;
+            await FileManagement.WriteSelectedFileContentFileToMediaArchive(selectedFile).ConfigureAwait(false);
+            await Db.SaveFileContent(toSave).ConfigureAwait(false);
+            await WriteFileFromMediaArchiveToLocalSiteIfNeeded(toSave).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteFileContentData(toSave, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with File Content {toSave.Title} - Original File Name {toSave.OriginalFileName}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("File Generator", DataNotificationContentType.File,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);

@@ -17,6 +17,13 @@ public static class TrailGenerator
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
 
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, TrailContent? trailContent)> SaveAndGenerateHtml(
         TrailContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
     {
@@ -24,12 +31,23 @@ public static class TrailGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-        await Db.SaveTrailContent(toSave).ConfigureAwait(false);
-        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteTrailContentData(toSave, progress).ConfigureAwait(false);
+            await Db.SaveTrailContent(toSave).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteTrailContentData(toSave, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Trail Content {toSave.Title}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Trail Generator", DataNotificationContentType.Trail,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);

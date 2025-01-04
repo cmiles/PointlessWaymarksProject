@@ -1,5 +1,4 @@
 using PointlessWaymarks.CmsData.CommonHtml;
-using PointlessWaymarks.CmsData.ContentHtml;
 using PointlessWaymarks.CmsData.ContentHtml.VideoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -21,7 +20,14 @@ public static class VideoGenerator
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
 
-
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="selectedVideo"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, VideoContent? VideoContent)> SaveAndGenerateHtml(
         VideoContent toSave, FileInfo selectedVideo, DateTime? generationVersion,
         IProgress<string>? progress = null)
@@ -30,15 +36,25 @@ public static class VideoGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
-
-        toSave.OriginalFileName = selectedVideo.Name;
-        await FileManagement.WriteSelectedVideoContentFileToMediaArchive(selectedVideo).ConfigureAwait(false);
-        await Db.SaveVideoContent(toSave).ConfigureAwait(false);
-        await WriteVideoFromMediaArchiveToLocalSiteIfNeeded(toSave).ConfigureAwait(false);
-        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteVideoContentData(toSave, progress).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+            toSave.OriginalFileName = selectedVideo.Name;
+            await FileManagement.WriteSelectedVideoContentFileToMediaArchive(selectedVideo).ConfigureAwait(false);
+            await Db.SaveVideoContent(toSave).ConfigureAwait(false);
+            await WriteVideoFromMediaArchiveToLocalSiteIfNeeded(toSave).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteVideoContentData(toSave, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Video Content {toSave.Title} - Original File Name {toSave.OriginalFileName}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Video Generator", DataNotificationContentType.Video,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
@@ -96,6 +112,14 @@ public static class VideoGenerator
         return GenerationReturn.Success("Video Content Validation Successful");
     }
 
+    public static bool VideoFileTypeIsSupported(FileInfo toCheck)
+    {
+        if (toCheck is not { Exists: true }) return false;
+        return toCheck.Extension.ToUpperInvariant().Contains("MP4") ||
+               toCheck.Extension.ToUpperInvariant().Contains("WEBM") ||
+               toCheck.Extension.ToUpperInvariant().Contains("OGG");
+    }
+
     public static async Task WriteVideoFromMediaArchiveToLocalSiteIfNeeded(VideoContent videoContent)
     {
         if (string.IsNullOrWhiteSpace(videoContent.OriginalFileName))
@@ -123,13 +147,5 @@ public static class VideoGenerator
 
             await sourceVideo.CopyToAndLog(targetVideo.FullName).ConfigureAwait(false);
         }
-    }
-
-    public static bool VideoFileTypeIsSupported(FileInfo toCheck)
-    {
-        if (toCheck is not { Exists: true }) return false;
-        return toCheck.Extension.ToUpperInvariant().Contains("MP4") ||
-               toCheck.Extension.ToUpperInvariant().Contains("WEBM") ||
-               toCheck.Extension.ToUpperInvariant().Contains("OGG");
     }
 }

@@ -28,7 +28,8 @@ public static class MapComponentGenerator
 
         var db = await Db.Context();
 
-        var dbLines = await db.LineContents.Where(x => !x.IsDraft).OrderByDescending(x => x.CreatedOn).AsNoTracking().ToListAsync();
+        var dbLines = await db.LineContents.Where(x => !x.IsDraft).OrderByDescending(x => x.CreatedOn).AsNoTracking()
+            .ToListAsync();
 
         foreach (var mapLine in dbLines)
         {
@@ -75,6 +76,13 @@ public static class MapComponentGenerator
             mapDto);
     }
 
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, MapComponentDto? mapDto)> SaveAndGenerateData(
         MapComponentDto toSave, DateTime? generationVersion, IProgress<string>? progress = null)
     {
@@ -82,11 +90,22 @@ public static class MapComponentGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
+        MapComponentDto savedComponent;
 
-        var savedComponent = await Db.SaveMapComponent(toSave).ConfigureAwait(false);
-
-        await Export.WriteMapComponentContentData(savedComponent, progress).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            savedComponent = await Db.SaveMapComponent(toSave).ConfigureAwait(false);
+            await Export.WriteMapComponentContentData(savedComponent, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Map Component {toSave.Title}",
+                    toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Map Component Generator", DataNotificationContentType.Map,
             DataNotificationUpdateType.LocalContent, [savedComponent.ContentId]);

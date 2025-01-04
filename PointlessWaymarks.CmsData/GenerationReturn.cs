@@ -1,3 +1,4 @@
+using System.Text;
 using Serilog;
 
 namespace PointlessWaymarks.CmsData;
@@ -14,6 +15,11 @@ public class GenerationReturn
     public Exception? Exception { get; set; }
     public string GenerationNote { get; set; } = string.Empty;
     public bool HasError { get; set; }
+
+    public string ToErrorString()
+    {
+        return $"Generation Return Error Note: {GenerationNote}; {ContentId}; Exception Message: {Exception?.Message}";
+    }
 
     public static GenerationReturn Error(string? generationNote, Guid? contentGuid = null, Exception? e = null)
     {

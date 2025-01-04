@@ -12,7 +12,7 @@ public static class GeoJsonGenerator
     {
         progress?.Report($"GeoJson Content - Generate HTML for {toGenerate.Title}");
 
-        var htmlContext = new SingleGeoJsonPage(toGenerate) {GenerationVersion = generationVersion};
+        var htmlContext = new SingleGeoJsonPage(toGenerate) { GenerationVersion = generationVersion };
 
         await htmlContext.WriteLocalHtml().ConfigureAwait(false);
     }
@@ -24,12 +24,21 @@ public static class GeoJsonGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
-
-        await Db.SaveGeoJsonContent(toSave).ConfigureAwait(false);
-        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteGeoJsonContentData(toSave, progress).ConfigureAwait(false);
+        try
+        {
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
+            await Db.SaveGeoJsonContent(toSave).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteGeoJsonContentData(toSave, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with GeoJson Content {toSave.Title}", toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("GeoJson Generator", DataNotificationContentType.GeoJson,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
@@ -45,7 +54,8 @@ public static class GeoJsonGenerator
             return GenerationReturn.Error($"Problem with Root Directory: {rootDirectoryCheck.Explanation}",
                 geoJsonContent.ContentId);
 
-        var commonContentCheck = await CommonContentValidation.ValidateContentCommon(geoJsonContent).ConfigureAwait(false);
+        var commonContentCheck =
+            await CommonContentValidation.ValidateContentCommon(geoJsonContent).ConfigureAwait(false);
         if (!commonContentCheck.Valid)
             return GenerationReturn.Error(commonContentCheck.Explanation, geoJsonContent.ContentId);
 

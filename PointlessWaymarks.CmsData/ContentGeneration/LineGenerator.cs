@@ -3,7 +3,6 @@ using GeoTimeZone;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.LineHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -129,7 +128,8 @@ public static class LineGenerator
         return newEntry;
     }
 
-    public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxRouteInformation trackInformation, bool replaceElevations, bool skipFeatureIntersectTagging, IProgress<string> progress)
+    public static async Task<LineContent> NewFromGpxTrack(GpxTools.GpxRouteInformation trackInformation,
+        bool replaceElevations, bool skipFeatureIntersectTagging, IProgress<string> progress)
     {
         var lineStatistics = DistanceTools.LineStatsInImperialFromCoordinateList(trackInformation.Track);
 
@@ -193,6 +193,13 @@ public static class LineGenerator
         return newEntry;
     }
 
+    /// <summary>
+    ///     Callers must check the generationReturn for success or failure!
+    /// </summary>
+    /// <param name="toSave"></param>
+    /// <param name="generationVersion"></param>
+    /// <param name="progress"></param>
+    /// <returns></returns>
     public static async Task<(GenerationReturn generationReturn, LineContent? lineContent)> SaveAndGenerateHtml(
         LineContent toSave, DateTime? generationVersion, IProgress<string>? progress = null)
     {
@@ -200,65 +207,76 @@ public static class LineGenerator
 
         if (validationReturn.HasError) return (validationReturn, null);
 
-        Db.DefaultPropertyCleanup(toSave);
-        toSave.Tags = Db.TagListCleanup(toSave.Tags);
-
-        var lineFeature = LineContent.FeatureFromGeoJsonLine(toSave.Line);
-
-        Debug.Assert(lineFeature != null, nameof(lineFeature) + " != null");
-
-        var possibleTitle = lineFeature.Attributes.GetOptionalValue("title");
-        if (possibleTitle == null) lineFeature.Attributes.Add("title", toSave.Title);
-        else lineFeature.Attributes["title"] = toSave.Title;
-
-        var possibleTitleLink = lineFeature.Attributes.GetOptionalValue("title-link");
-        if (possibleTitleLink == null)
-            lineFeature.Attributes
-                .Add("title-link", UserSettingsSingleton.CurrentSettings().LinePageUrl(toSave));
-        else
-            lineFeature.Attributes["title-link"] = UserSettingsSingleton.CurrentSettings().LinePageUrl(toSave);
-
-        var possibleDescription = lineFeature.Attributes.GetOptionalValue("description");
-        if (possibleDescription == null) lineFeature.Attributes.Add("description", LineParts.LineStatsString(toSave));
-        else lineFeature.Attributes["description"] = $"Totals: {LineParts.LineStatsString(toSave)}";
-
-        var possibleContentId = lineFeature.Attributes.GetOptionalValue("content-id");
-        if (possibleContentId == null) lineFeature.Attributes.Add("content-id", toSave.ContentId);
-        else lineFeature.Attributes["content-id"] = toSave.ContentId;
-
-        if (toSave.RecordingStartedOn.HasValue)
+        try
         {
-            var asLineString = lineFeature.Geometry as LineString;
-            var startTimezoneIanaIdentifier =
-                TimeZoneLookup.GetTimeZone(asLineString!.StartPoint.Y, asLineString.StartPoint.X);
-            var startTimeZone = TimeZoneInfo.FindSystemTimeZoneById(startTimezoneIanaIdentifier.Result);
-            var startUtcOffset = startTimeZone.GetUtcOffset(toSave.RecordingStartedOn.Value);
-            toSave.RecordingStartedOnUtc = toSave.RecordingStartedOn.Value.Subtract(startUtcOffset);
-        }
-        else
-        {
-            toSave.RecordingStartedOnUtc = null;
-        }
+            Db.DefaultPropertyCleanup(toSave);
+            toSave.Tags = Db.TagListCleanup(toSave.Tags);
 
-        if (toSave.RecordingEndedOn.HasValue)
-        {
-            var asLineString = lineFeature.Geometry as LineString;
-            var endTimezoneIanaIdentifier =
-                TimeZoneLookup.GetTimeZone(asLineString!.EndPoint.Y, asLineString.EndPoint.X);
-            var endTimeZone = TimeZoneInfo.FindSystemTimeZoneById(endTimezoneIanaIdentifier.Result);
-            var endUtcOffset = endTimeZone.GetUtcOffset(toSave.RecordingEndedOn.Value);
-            toSave.RecordingEndedOnUtc = toSave.RecordingEndedOn.Value.Subtract(endUtcOffset);
-        }
-        else
-        {
-            toSave.RecordingEndedOnUtc = null;
-        }
+            var lineFeature = LineContent.FeatureFromGeoJsonLine(toSave.Line);
 
-        toSave.Line = await GeoJsonTools.SerializeFeatureToGeoJson(lineFeature);
+            Debug.Assert(lineFeature != null, nameof(lineFeature) + " != null");
 
-        await Db.SaveLineContent(toSave).ConfigureAwait(false);
-        await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
-        await Export.WriteLineContentData(toSave, progress).ConfigureAwait(false);
+            var possibleTitle = lineFeature.Attributes.GetOptionalValue("title");
+            if (possibleTitle == null) lineFeature.Attributes.Add("title", toSave.Title);
+            else lineFeature.Attributes["title"] = toSave.Title;
+
+            var possibleTitleLink = lineFeature.Attributes.GetOptionalValue("title-link");
+            if (possibleTitleLink == null)
+                lineFeature.Attributes
+                    .Add("title-link", UserSettingsSingleton.CurrentSettings().LinePageUrl(toSave));
+            else
+                lineFeature.Attributes["title-link"] = UserSettingsSingleton.CurrentSettings().LinePageUrl(toSave);
+
+            var possibleDescription = lineFeature.Attributes.GetOptionalValue("description");
+            if (possibleDescription == null)
+                lineFeature.Attributes.Add("description", LineParts.LineStatsString(toSave));
+            else lineFeature.Attributes["description"] = $"Totals: {LineParts.LineStatsString(toSave)}";
+
+            var possibleContentId = lineFeature.Attributes.GetOptionalValue("content-id");
+            if (possibleContentId == null) lineFeature.Attributes.Add("content-id", toSave.ContentId);
+            else lineFeature.Attributes["content-id"] = toSave.ContentId;
+
+            if (toSave.RecordingStartedOn.HasValue)
+            {
+                var asLineString = lineFeature.Geometry as LineString;
+                var startTimezoneIanaIdentifier =
+                    TimeZoneLookup.GetTimeZone(asLineString!.StartPoint.Y, asLineString.StartPoint.X);
+                var startTimeZone = TimeZoneInfo.FindSystemTimeZoneById(startTimezoneIanaIdentifier.Result);
+                var startUtcOffset = startTimeZone.GetUtcOffset(toSave.RecordingStartedOn.Value);
+                toSave.RecordingStartedOnUtc = toSave.RecordingStartedOn.Value.Subtract(startUtcOffset);
+            }
+            else
+            {
+                toSave.RecordingStartedOnUtc = null;
+            }
+
+            if (toSave.RecordingEndedOn.HasValue)
+            {
+                var asLineString = lineFeature.Geometry as LineString;
+                var endTimezoneIanaIdentifier =
+                    TimeZoneLookup.GetTimeZone(asLineString!.EndPoint.Y, asLineString.EndPoint.X);
+                var endTimeZone = TimeZoneInfo.FindSystemTimeZoneById(endTimezoneIanaIdentifier.Result);
+                var endUtcOffset = endTimeZone.GetUtcOffset(toSave.RecordingEndedOn.Value);
+                toSave.RecordingEndedOnUtc = toSave.RecordingEndedOn.Value.Subtract(endUtcOffset);
+            }
+            else
+            {
+                toSave.RecordingEndedOnUtc = null;
+            }
+
+            toSave.Line = await GeoJsonTools.SerializeFeatureToGeoJson(lineFeature);
+
+            await Db.SaveLineContent(toSave).ConfigureAwait(false);
+            await GenerateHtml(toSave, generationVersion, progress).ConfigureAwait(false);
+            await Export.WriteLineContentData(toSave, progress).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            return (
+                GenerationReturn.Error(
+                    $"Error with Line Content {toSave.Title}", toSave.ContentId,
+                    e), toSave);
+        }
 
         DataNotifications.PublishDataNotification("Line Generator", DataNotificationContentType.Line,
             DataNotificationUpdateType.LocalContent, [toSave.ContentId]);
