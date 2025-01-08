@@ -6,7 +6,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>PointlessWaymarksCmsIcon.ico</ApplicationIcon>
         <Nullable>disable</Nullable>
-        <LangVersion>12.0</LangVersion>
+        <LangVersion>13.0</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -33,7 +33,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Jot" Version="2.1.17" />
-        <PackageReference Include="Metalama.Framework" Version="2024.2.31" />
+        <PackageReference Include="Metalama.Framework" Version="2025.0.8" />
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2980" />
     </ItemGroup>
 
