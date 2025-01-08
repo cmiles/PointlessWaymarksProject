@@ -12,23 +12,22 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
     public List<string> ErrorMessages { get; } = [];
     public List<S3UploadRequest> FileSizeMismatches { get; } = [];
     public List<S3UploadRequest> MissingFiles { get; } = [];
-    
-    
+
     public static async Task<S3GeneratedSiteComparisonForAdditionsAndChanges> RunReport(
         IS3AccountInformation s3Account,
         IProgress<string>? progress)
     {
         var returnReport = new S3GeneratedSiteComparisonForAdditionsAndChanges();
-        
+
         if (string.IsNullOrWhiteSpace(s3Account.BucketName()))
         {
             returnReport.ErrorMessages.Add("S3 Bucket Name is empty?");
             return returnReport;
         }
-        
+
         var bucket = s3Account.BucketName();
         var serviceUrl = s3Account.ServiceUrl();
-        
+
         if (string.IsNullOrWhiteSpace(bucket))
         {
             returnReport.ErrorMessages.Add("S3 Bucket is empty?");
@@ -40,13 +39,13 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
             returnReport.ErrorMessages.Add("S3 Service URL is empty?");
             return returnReport;
         }
-        
+
         progress?.Report("Getting list of all generated files");
-        
+
         var allGeneratedFiles =
             new DirectoryInfo(UserSettingsSingleton.CurrentSettings().LocalSiteRootFullDirectory().FullName)
                 .GetFiles("*", SearchOption.AllDirectories).OrderBy(x => x.FullName).ToList();
-        
+
         if (!allGeneratedFiles.Any())
         {
             returnReport.ErrorMessages.Add(
@@ -54,15 +53,15 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
                 "generated site has recently changed or the site is new perhaps try generating all HTML?");
             return returnReport;
         }
-        
+
         progress?.Report($"Found {allGeneratedFiles.Count} Files in Generated Site");
-        
+
         progress?.Report("Setting up for S3 Object Listings");
-        
+
         var s3Client = s3Account.S3Client();
-        
+
         var listRequest = new ListObjectsV2Request { BucketName = bucket };
-        
+
         var awsObjects = new List<S3Object>();
 
         //5/31/2024 - The code commented out below has been tested with Amazon S3 and Cloudflare R2 but fails
@@ -80,34 +79,34 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
         do
         {
             response = await s3Client.ListObjectsV2Async(listRequest);
-            
+
             foreach (var entry in response.S3Objects)
             {
                 if (awsObjects.Count % 1000 == 0)
                     progress?.Report($"S3 Object Listing - Added {awsObjects.Count} S3 Objects so far...");
-                
+
                 awsObjects.Add(entry);
             }
-            
+
             listRequest.ContinuationToken = response.NextContinuationToken;
         } while (response.IsTruncated);
 
         progress?.Report($"Found {awsObjects.Count} S3 Objects - starting file comparison");
-        
+
         var totalGeneratedFiles = allGeneratedFiles.Count;
         var fileLoopCount = 0;
-        
+
         foreach (var loopFile in allGeneratedFiles)
         {
             if (++fileLoopCount % 100 == 0)
                 progress?.Report(
-                    $"File Loop vs S3 Objects Comparison - {fileLoopCount} or {totalGeneratedFiles} - {loopFile.FullName}");
-            
+                    $"File Loop vs S3 Objects Comparison - {fileLoopCount} of {totalGeneratedFiles} - {loopFile.FullName}");
+
             var loopFileKey = S3CmsTools.FileInfoInGeneratedSiteToS3Key(loopFile);
-            
+
             var matches = awsObjects.Where(x => !x.Key.EndsWith("/") && x.Size != 0 && x.Key == loopFileKey)
                 .ToList();
-            
+
             switch (matches.Count)
             {
                 case > 1:
@@ -130,11 +129,11 @@ public class S3GeneratedSiteComparisonForAdditionsAndChanges
                     break;
             }
         }
-        
+
         progress?.Report(
             $"Returning Report - {returnReport.MissingFiles.Count} Missing Files, {returnReport.ErrorMessages.Count} Error " +
             $"Messages, {returnReport.FileSizeMismatches.Count} File Size Mismatches.");
-        
+
         return returnReport;
     }
 }

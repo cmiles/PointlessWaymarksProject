@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="PointlessWaymarks.CmsWpfControls.FilesWrittenLogList.FilesWrittenLogListControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -41,7 +41,8 @@
                             <MenuItem Command="{Binding AllWrittenFilesToRunningS3UploaderCommand}" Header="S3 - Upload All" />
                             <MenuItem Command="{Binding SelectedWrittenFilesToRunningS3UploaderCommand}" Header="S3 - Upload Selected" />
                             <Separator />
-                            <MenuItem Command="{Binding SiteMissingAndChangedFilesReportCommand}" Header="S3 - Missing and Changed Files on Site" />
+                            <MenuItem Command="{Binding SiteMissingAndChangedFilesReportCommand}" Header="S3 - Missing and Changed Files on Site - Size" />
+                            <MenuItem Command="{Binding SiteMissingAndChangedFilesByHashReportCommand}" Header="S3 - Missing and Changed Files on Site - Hash" />
                             <MenuItem Command="{Binding SiteDeletedFilesReportCommand}" Header="S3 - Deleted Files on Site" />
                             <Separator />
                             <MenuItem Command="{Binding AllWrittenFilesToS3UploaderCommand}" Header="S3 - All to Uploader" />

@@ -110,7 +110,7 @@ public class S3GeneratedSiteComparisonForDeletions
         {
             if (++objectLoopCount % 100 == 0)
                 progress?.Report(
-                    $"File Loop vs S3 Objects Comparison - {objectLoopCount} or {totalGeneratedObjects} - {loopObject.Key}");
+                    $"File Loop vs S3 Objects Comparison - {objectLoopCount} of {totalGeneratedObjects} - {loopObject.Key}");
             
             if (loopObject.Key.EndsWith("/") && loopObject.Size == 0)
             {
