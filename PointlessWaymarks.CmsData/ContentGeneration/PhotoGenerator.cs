@@ -22,6 +22,35 @@ namespace PointlessWaymarks.CmsData.ContentGeneration;
 
 public static class PhotoGenerator
 {
+    public static string ApertureCleanup(string? aperture)
+    {
+        if (string.IsNullOrWhiteSpace(aperture))
+            return string.Empty;
+
+        // Remove f, ƒ, f/ or ƒ/ at the start of the aperture string
+        var apertureForCleaning = aperture.Trim();
+        if (apertureForCleaning.StartsWith("f/", StringComparison.OrdinalIgnoreCase) ||
+            apertureForCleaning.StartsWith("ƒ/", StringComparison.OrdinalIgnoreCase))
+            apertureForCleaning = apertureForCleaning.Substring(2);
+        else if (apertureForCleaning.StartsWith("f", StringComparison.OrdinalIgnoreCase) ||
+                 apertureForCleaning.StartsWith("ƒ", StringComparison.OrdinalIgnoreCase))
+            apertureForCleaning = apertureForCleaning.Substring(1);
+
+        if (decimal.TryParse(apertureForCleaning, out var apertureValue))
+        {
+            var cultureSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            var apertureStringDecimal = apertureValue.ToString(CultureInfo.CurrentCulture);
+            apertureStringDecimal = apertureStringDecimal.Contains(cultureSeparator)
+                ? apertureStringDecimal.TrimEnd('0').TrimEnd(cultureSeparator.ToCharArray())
+                : apertureStringDecimal;
+
+            return $"ƒ/{apertureStringDecimal}";
+        }
+
+        // Return the original string if it is not a recognizable format and value
+        return aperture.TrimNullToEmpty();
+    }
+
     public static async Task GenerateHtml(PhotoContent toGenerate, DateTime? generationVersion,
         IProgress<string>? progress = null)
     {
@@ -37,33 +66,6 @@ public static class PhotoGenerator
         if (toCheck is not { Exists: true }) return false;
         return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
                toCheck.Extension.ToUpperInvariant().Contains("JPEG");
-    }
-
-    public static string ApertureCleanup(string? aperture)
-    {
-        if (string.IsNullOrWhiteSpace(aperture))
-            return string.Empty;
-
-        // Remove f, ƒ, f/ or ƒ/ at the start of the aperture string
-        var apertureForCleaning = aperture.Trim();
-        if (apertureForCleaning.StartsWith("f/", StringComparison.OrdinalIgnoreCase) || apertureForCleaning.StartsWith("ƒ/", StringComparison.OrdinalIgnoreCase))
-            apertureForCleaning = apertureForCleaning.Substring(2);
-        else if (apertureForCleaning.StartsWith("f", StringComparison.OrdinalIgnoreCase) || apertureForCleaning.StartsWith("ƒ", StringComparison.OrdinalIgnoreCase))
-            apertureForCleaning = apertureForCleaning.Substring(1);
-
-        if (decimal.TryParse(apertureForCleaning, out var apertureValue))
-        {
-            var apertureStringDecimal = apertureValue.ToString(CultureInfo.InvariantCulture);
-            if (apertureStringDecimal.IndexOf('.', StringComparison.Ordinal) > 0)
-            {
-                apertureStringDecimal = Regex.Replace(apertureStringDecimal.Trim(), "0+?$", " ");
-                apertureStringDecimal = Regex.Replace(apertureStringDecimal.Trim(), "[.]$", " ");
-            }
-            return $"ƒ/{apertureStringDecimal}";
-        }
-
-        // Return the original string if it is not a valid decimal
-        return aperture.TrimNullToEmpty();
     }
 
     public static async Task<(GenerationReturn generationReturn, PhotoMetadata? metadata)> PhotoMetadataFromFile(
