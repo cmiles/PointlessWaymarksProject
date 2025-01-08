@@ -139,7 +139,7 @@ public static class LineData
                     ContentReferenceDescriptions(loopElements.MainPicture, loopElements.Title, loopElements.Summary);
 
                 featureCollection.Add(new Feature(
-                    PointTools.Wgs84Point(loopElements.Longitude.Value, loopElements.Latitude.Value,
+                    PointTools.Wgs84Point(loopElements.Longitude!.Value, loopElements.Latitude!.Value,
                         loopElements.Elevation?.FeetToMeters() ?? 0),
                     new AttributesTable(new Dictionary<string, object>
                     {
@@ -183,6 +183,8 @@ public static class LineData
 
         var photos = (await BracketCodePhotos.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.ShowLocation).Cast<object>();
+        var photosWithDetails = (await BracketCodePhotosWithDetails.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.ShowLocation).Cast<object>();
         var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.ShowLocation)
             .Cast<object>();
@@ -198,7 +200,8 @@ public static class LineData
         var geoJsonLinks =
             (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(lineContent.BodyContent)).Cast<object>();
 
-        var mapInformation = await GenerateGeoJsonDataFromContent(photos.Concat(photoLinks).Concat(points)
+        var mapInformation = await GenerateGeoJsonDataFromContent(photos.Concat(photosWithDetails).Concat(photoLinks)
+            .Concat(points)
             .Concat(pointExternalDirectionsLinks)
             .Concat(pointDetailsLinks).Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList());
 
@@ -233,7 +236,7 @@ public static class LineData
             .OrderBy(x => x.Title).ToList(),
             (await BracketCodeFileImageLink.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.HasLocation())
-            .OrderBy(x => x.Title).ToList(),
+            .OrderBy(x => x.Title).ToList()
         };
         var filesAllReferences = files.SelectMany(x => x).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
             .ToList();
@@ -260,10 +263,13 @@ public static class LineData
 
         var photos = (await BracketCodePhotos.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.HasLocation()).ToList();
+        var photosWithDetails = (await BracketCodePhotosWithDetails.DbContentFromBracketCodes(lineContent.BodyContent))
+            .Where(x => x.HasLocation()).ToList();
         var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(lineContent.BodyContent))
             .Where(x => x.HasLocation())
             .OrderBy(x => x.Title).ToList();
-        var photoAllReferences = photos.Concat(photoLinks).OrderBy(x => x.Title).Select(x => x.ContentId).Distinct()
+        var photoAllReferences = photos.Concat(photosWithDetails).Concat(photoLinks).OrderBy(x => x.Title)
+            .Select(x => x.ContentId).Distinct()
             .ToList();
 
         var posts = (await BracketCodePosts.DbContentFromBracketCodes(lineContent.BodyContent))

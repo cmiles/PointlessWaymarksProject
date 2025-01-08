@@ -91,7 +91,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
     public ConversionDataEntryContext<DateTime?>? RecordingStartedOnEntry { get; set; }
     public bool ReplaceElevationOnImport { get; set; }
     public BoolDataEntryContext? ShowContentReferencesOnMapEntry { get; set; }
-    public BoolDataEntryContext ShowInSearch { get; set; }
+    public BoolDataEntryContext? ShowInSearch { get; set; }
     public StatusControlContext StatusContext { get; set; }
     public TagsEditorContext? TagEdit { get; set; }
     public TitleSummarySlugEditorContext? TitleSummarySlugFolder { get; set; }
@@ -182,7 +182,7 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
-        newEntry.ShowInSearch = ShowInSearch.UserValue;
+        newEntry.ShowInSearch = ShowInSearch!.UserValue;
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.CreatedBy = CreatedUpdatedDisplay!.CreatedByEntry.UserValue.TrimNullToEmpty();
@@ -270,8 +270,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
 
         var cleanedRouteTrackName = importRouteTrackName.Replace(" (track)", "").Replace(" (route)", "").Trim();
 
-        var possibleSelectedTrack = tracksList.Where(x => x.Name.Trim() == importRouteTrackName).ToList();
-        var possibleSelectedRoute = routesList.Where(x => x.Name.Trim() == importRouteTrackName).ToList();
+        var possibleSelectedTrack = tracksList.Where(x => x.Name.Trim() == cleanedRouteTrackName).ToList();
+        var possibleSelectedRoute = routesList.Where(x => x.Name.Trim() == cleanedRouteTrackName).ToList();
 
         if (possibleSelectedTrack.Count == 1)
             await UpdateLineFromTrack(possibleSelectedTrack.Single(), replaceElevations, updateStats);
@@ -483,7 +483,9 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
             return;
         }
 
-        var photos = (await BracketCodePhotos.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
+        var photos = (await BracketCodePhotos.DbContentFromBracketCodes(BodyContent!.UserValue)).Cast<object>();
+        var photosWithDetails = (await BracketCodePhotosWithDetails.DbContentFromBracketCodes(BodyContent.UserValue))
+            .Cast<object>();
         var photoLinks = (await BracketCodePhotoLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
         var points = (await BracketCodePoints.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
         var pointLinks = (await BracketCodePointLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
@@ -497,7 +499,8 @@ public partial class LineContentEditorContext : IHasChanges, IHasValidationIssue
         var geoJsonLinks =
             (await BracketCodeGeoJsonLinks.DbContentFromBracketCodes(BodyContent.UserValue)).Cast<object>();
 
-        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(photos.Concat(photoLinks).Concat(points)
+        var mapInformation = await MapCmsJson.ProcessContentToMapInformation(photos.Concat(photosWithDetails)
+            .Concat(photoLinks).Concat(points)
             .Concat(pointExternalDirectionsLinks)
             .Concat(pointDetailsLinks).Concat(pointLinks).Concat(geoJson).Concat(geoJsonLinks).ToList(), false);
 

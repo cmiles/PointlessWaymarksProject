@@ -77,7 +77,7 @@ public partial class PhotoContentEditorContext : IHasChanges, IHasValidationIssu
     public ConversionDataEntryContext<DateTime>? PhotoCreatedOnEntry { get; set; }
     public ConversionDataEntryContext<DateTime?>? PhotoCreatedOnUtcEntry { get; set; }
 
-    public ConversionDataEntryContext<double?> PhotoDirectionEntry { get; set; }
+    public ConversionDataEntryContext<double?>? PhotoDirectionEntry { get; set; }
 
     public string PhotoEditorHelpText =>
         @"
@@ -97,7 +97,7 @@ Photo Content Notes:
     public bool SelectedFileHasValidationIssues { get; set; }
     public bool SelectedFileNameHasInvalidCharacters { get; set; }
     public string SelectedFileValidationMessage { get; set; } = string.Empty;
-    public BoolDataEntryContext ShowInSearch { get; set; }
+    public BoolDataEntryContext? ShowInSearch { get; set; }
     public BoolDataEntryContext? ShowSizesEntry { get; set; }
     public StringDataEntryContext? ShutterSpeedEntry { get; set; }
     public StatusControlContext StatusContext { get; set; }
@@ -264,7 +264,7 @@ Photo Content Notes:
         newEntry.ShowInMainSiteFeed = MainSiteFeed!.ShowInMainSiteFeedEntry.UserValue;
         newEntry.FeedOn = MainSiteFeed.FeedOnEntry.UserValue;
         newEntry.IsDraft = MainSiteFeed.IsDraftEntry.UserValue;
-        newEntry.ShowInSearch = ShowInSearch.UserValue;
+        newEntry.ShowInSearch = ShowInSearch!.UserValue;
         newEntry.Tags = TagEdit!.TagListString();
         newEntry.Title = TitleSummarySlugFolder.TitleEntry.UserValue.TrimNullToEmpty();
         newEntry.AltText = AltTextEntry!.UserValue.TrimNullToEmpty();

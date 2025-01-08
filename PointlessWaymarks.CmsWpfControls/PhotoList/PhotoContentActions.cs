@@ -4,7 +4,6 @@ using System.Windows;
 using Microsoft.EntityFrameworkCore;
 using PointlessWaymarks.CmsData;
 using PointlessWaymarks.CmsData.BracketCodes;
-using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -31,8 +30,6 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
         StatusContext = statusContext;
         BuildCommands();
     }
-
-    public StatusControlContext StatusContext { get; set; }
 
     public string DefaultBracketCode(PhotoContent? content)
     {
@@ -149,7 +146,7 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
         await StatusContext.ToastSuccess($"Generated {htmlContext.PageUrl}");
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public StatusControlContext StatusContext { get; set; }
 
     [NonBlockingCommand]
     public async Task ViewHistory(PhotoContent? content)
@@ -224,6 +221,8 @@ public partial class PhotoContentActions : IContentActions<PhotoContent>
 
         await sitePreviewWindow.PositionWindowAndShowOnUiThread();
     }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private static async Task<List<object>> ApertureFilter(PhotoContent? content)
     {

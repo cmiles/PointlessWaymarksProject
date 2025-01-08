@@ -8,14 +8,14 @@ public class PictureAsset
     public PictureFile? SmallPicture { get; set; }
     public List<PictureFile> SrcsetImages { get; set; } = [];
 
+    public PictureFile? PictureClosestToByArea(int area)
+    {
+        return SrcsetImages.MinBy(x => Math.Abs(x.Width * x.Height - area));
+    }
+
     public string SrcSetString()
     {
         return string.Join(", ",
             SrcsetImages.OrderByDescending(x => x.Width).Select(x => $"{x.SiteUrl} {x.Width}w"));
-    }
-
-    public PictureFile? PictureClosestToByArea(int area)
-    {
-        return SrcsetImages.MinBy(x => Math.Abs((x.Width * x.Height) - area));
     }
 }

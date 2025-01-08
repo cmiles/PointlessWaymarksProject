@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using PointlessWaymarks.CmsData.BracketCodes;
 using PointlessWaymarks.CmsData.CommonHtml;
 using PointlessWaymarks.CmsData.Database.Models;
@@ -41,7 +41,8 @@ public static class Email
 
         mdBuilder.AppendLine($"<p style=\"text-align: center;\">{Tags.CreatedByAndUpdatedOnString(content)}</p>");
 
-        var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(mdBuilder.ToString(), progress).ConfigureAwait(false);
+        var preprocessResults = await BracketCodeCommon.ProcessCodesForEmail(mdBuilder.ToString(), progress)
+            .ConfigureAwait(false);
         var bodyHtmlString = ContentProcessing.ProcessContent(preprocessResults, content.BodyContentFormat);
 
         var innerContent = HtmlEmail.ChildrenIntoTableCells(

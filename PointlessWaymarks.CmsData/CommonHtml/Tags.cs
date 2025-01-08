@@ -1,5 +1,6 @@
 using HtmlTags;
 using PointlessWaymarks.CmsData.BracketCodes;
+using PointlessWaymarks.CmsData.ContentHtml.PhotoHtml;
 using PointlessWaymarks.CmsData.Database;
 using PointlessWaymarks.CmsData.Database.Models;
 using PointlessWaymarks.CommonTools;
@@ -273,7 +274,7 @@ public static class Tags
         return metaString;
     }
 
-    public static string PhotoCaptionText(PhotoContent dbEntry, bool includeTitle = true)
+    public static string PhotoCaptionText(PhotoContent dbEntry, bool includeTitle = true, bool includePhotoDetails = false)
     {
         var summaryStringList = new List<string>();
 
@@ -310,16 +311,22 @@ public static class Tags
         if (!string.IsNullOrWhiteSpace(dbEntry.PhotoCreatedBy)) summaryStringList.Add($"{dbEntry.PhotoCreatedBy}.");
         summaryStringList.Add($"{dbEntry.PhotoCreatedOn:M/d/yyyy}.");
 
+        if (includePhotoDetails)
+        {
+            var detailsString = PhotoParts.PhotoDetailsString(dbEntry);
+            if (!string.IsNullOrWhiteSpace(detailsString)) summaryStringList.Add($"{detailsString}.");
+        }
+
         return string.Join(" ", summaryStringList);
     }
 
-    public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = true)
+    public static HtmlTag PhotoFigCaptionTag(PhotoContent dbEntry, bool includeTitle = true, bool includePhotoDetails = false)
     {
         if (string.IsNullOrWhiteSpace(dbEntry.Summary)) return HtmlTag.Empty();
 
         var figCaptionTag = new HtmlTag("figcaption");
         figCaptionTag.AddClass("single-photo-caption");
-        figCaptionTag.Text(string.Join(" ", PhotoCaptionText(dbEntry, includeTitle)));
+        figCaptionTag.Text(string.Join(" ", PhotoCaptionText(dbEntry, includeTitle, includePhotoDetails)));
 
         return figCaptionTag;
     }

@@ -158,24 +158,25 @@ public static partial class BracketCodeCommon
     ///     Extracts the Guid from the first {{(photo|image) guid;human_identifier}} in the string.
     /// </summary>
     /// <param name="toProcess"></param>
+    /// <param name="progress"></param>
     /// <returns></returns>
     public static async Task<Guid?> PhotoOrImageCodeFirstIdInContent(string? toProcess, IProgress<string>? progress)
     {
         if (string.IsNullOrWhiteSpace(toProcess)) return null;
 
         //Prefer Photos and Images
-        var regexObj = new Regex(@"{{(?:photo|image) (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
+        var regexObj = new Regex(@"{{(?:photo|photowdetails|image) (?<siteGuid>[\dA-Za-z-]*);[^}]*}}", RegexOptions.Singleline);
         var matchResult = regexObj.Match(toProcess);
         if (matchResult.Success) return Guid.Parse(matchResult.Groups["siteGuid"].Value);
 
-        var videoEmbeds = await BracketCodeVideoEmbed.DbContentFromBracketCodes(toProcess, null);
+        var videoEmbeds = await BracketCodeVideoEmbed.DbContentFromBracketCodes(toProcess);
         if (videoEmbeds.Any(x => x.MainPicture != null))
             return videoEmbeds.First(x => x.MainPicture != null).MainPicture;
 
-        var videoImages = await BracketCodeVideoImageLink.DbContentFromBracketCodes(toProcess, null);
+        var videoImages = await BracketCodeVideoImageLink.DbContentFromBracketCodes(toProcess);
         if (videoImages.Any(x => x.MainPicture != null)) return videoImages.First().MainPicture;
 
-        var fileEmbeds = await BracketCodeFileEmbed.DbContentFromBracketCodes(toProcess, null);
+        var fileEmbeds = await BracketCodeFileEmbed.DbContentFromBracketCodes(toProcess);
         if (fileEmbeds.Any(x => x.MainPicture != null)) return fileEmbeds.First().MainPicture;
 
         var fileImages = await BracketCodeFileImageLink.DbContentFromBracketCodes(toProcess, progress);
@@ -207,6 +208,7 @@ public static partial class BracketCodeCommon
         input = await BracketCodeLineStats.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessForEmail(input, progress).ConfigureAwait(false);
+        input = await BracketCodePhotosWithDetails.ProcessForEmail(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeDailyPhotoPage.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePointLinks.Process(input, progress).ConfigureAwait(false);
@@ -256,6 +258,7 @@ public static partial class BracketCodeCommon
         input = await BracketCodeMapComponents.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeNotes.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotos.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
+        input = await BracketCodePhotosWithDetails.ProcessToFigureWithLink(input, progress).ConfigureAwait(false);
         input = await BracketCodePhotoLinks.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodeDailyPhotoPage.Process(input, progress).ConfigureAwait(false);
         input = await BracketCodePoints.Process(input, progress).ConfigureAwait(false);

@@ -51,7 +51,11 @@ public partial class PhotoListWithActionsContext
                 ItemName = "Image Code to Clipboard",
                 ItemCommand = ListContext.BracketCodeToClipboardSelectedCommand
             },
-
+            new ContextMenuItemData
+            {
+                ItemName = "Image Code with Photo Details to Clipboard",
+                ItemCommand = PhotoWithDetailsCodesToClipboardForSelectedCommand
+            },
             new ContextMenuItemData
             {
                 ItemName = "Text Code to Clipboard", ItemCommand = PhotoLinkCodesToClipboardForSelectedCommand
@@ -346,6 +350,21 @@ public partial class PhotoListWithActionsContext
         var finalString = SelectedListItems().Aggregate(string.Empty,
             (current, loopSelected) =>
                 current + BracketCodePhotoLinks.Create(loopSelected.DbEntry) + Environment.NewLine);
+
+        await ThreadSwitcher.ResumeForegroundAsync();
+
+        Clipboard.SetText(finalString);
+
+        await StatusContext.ToastSuccess($"To Clipboard {finalString}");
+    }
+
+    [BlockingCommand]
+    [StopAndWarnIfNoSelectedListItems]
+    private async Task PhotoWithDetailsCodesToClipboardForSelected()
+    {
+        var finalString = SelectedListItems().Aggregate(string.Empty,
+            (current, loopSelected) =>
+                current + BracketCodePhotosWithDetails.Create(loopSelected.DbEntry) + Environment.NewLine);
 
         await ThreadSwitcher.ResumeForegroundAsync();
 
@@ -805,7 +824,8 @@ public partial class PhotoListWithActionsContext
                 return;
 
         var changeMessages = string.Join(Environment.NewLine,
-            updates.Select(x => $"{Environment.NewLine}{x.toUpdate.Title} | {x.updateMessage} | {x.toUpdate.ContentId}"));
+            updates.Select(x =>
+                $"{Environment.NewLine}{x.toUpdate.Title} | {x.updateMessage} | {x.toUpdate.ContentId}"));
 
         if (await StatusContext.ShowMessage("Metadata Updates",
                 $"Update {updates.Count} Photos where blanks were replaced based on current Metadata? {Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, changeMessages)}",
@@ -859,7 +879,7 @@ public partial class PhotoListWithActionsContext
 
     public List<PhotoListListItem> SelectedListItems()
     {
-        return ListContext.ListSelection.SelectedItems?.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
+        return ListContext.ListSelection.SelectedItems.Where(x => x is PhotoListListItem).Cast<PhotoListListItem>()
             .ToList() ?? [];
     }
 

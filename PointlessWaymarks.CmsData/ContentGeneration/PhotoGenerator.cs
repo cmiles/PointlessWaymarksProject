@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
@@ -36,6 +37,33 @@ public static class PhotoGenerator
         if (toCheck is not { Exists: true }) return false;
         return toCheck.Extension.ToUpperInvariant().Contains("JPG") ||
                toCheck.Extension.ToUpperInvariant().Contains("JPEG");
+    }
+
+    public static string ApertureCleanup(string? aperture)
+    {
+        if (string.IsNullOrWhiteSpace(aperture))
+            return string.Empty;
+
+        // Remove f, ƒ, f/ or ƒ/ at the start of the aperture string
+        var apertureForCleaning = aperture.Trim();
+        if (apertureForCleaning.StartsWith("f/", StringComparison.OrdinalIgnoreCase) || apertureForCleaning.StartsWith("ƒ/", StringComparison.OrdinalIgnoreCase))
+            apertureForCleaning = apertureForCleaning.Substring(2);
+        else if (apertureForCleaning.StartsWith("f", StringComparison.OrdinalIgnoreCase) || apertureForCleaning.StartsWith("ƒ", StringComparison.OrdinalIgnoreCase))
+            apertureForCleaning = apertureForCleaning.Substring(1);
+
+        if (decimal.TryParse(apertureForCleaning, out var apertureValue))
+        {
+            var apertureStringDecimal = apertureValue.ToString(CultureInfo.InvariantCulture);
+            if (apertureStringDecimal.IndexOf('.', StringComparison.Ordinal) > 0)
+            {
+                apertureStringDecimal = Regex.Replace(apertureStringDecimal.Trim(), "0+?$", " ");
+                apertureStringDecimal = Regex.Replace(apertureStringDecimal.Trim(), "[.]$", " ");
+            }
+            return $"ƒ/{apertureStringDecimal}";
+        }
+
+        // Return the original string if it is not a valid decimal
+        return aperture.TrimNullToEmpty();
     }
 
     public static async Task<(GenerationReturn generationReturn, PhotoMetadata? metadata)> PhotoMetadataFromFile(
@@ -158,6 +186,8 @@ public static class PhotoGenerator
         toReturn.Aperture = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagAperture) ?? string.Empty;
         if (string.IsNullOrWhiteSpace(toReturn.Aperture))
             toReturn.Aperture = exifSubIfdDirectory?.GetDescription(ExifDirectoryBase.TagFNumber) ?? string.Empty;
+
+        toReturn.Aperture = ApertureCleanup(toReturn.Aperture);
 
         toReturn.License = exifIfdDirectory?.GetDescription(ExifDirectoryBase.TagCopyright) ?? string.Empty;
 
