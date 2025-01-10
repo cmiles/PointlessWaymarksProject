@@ -52,6 +52,24 @@ namespace PointlessWaymarks.CmsWpfControls.ContentList;
 [GenerateStatusCommands]
 public partial class ContentListContext : IDragSource, IDropTarget
 {
+    private readonly List<string> _validDragAndDropFileExtensions =
+    [
+        ".PDF",
+        ".MPG",
+        ".MPEG",
+        ".FLAC",
+        ".MP3",
+        ".WAV",
+        ".JPG",
+        ".JPEG",
+        ".GPX",
+        ".TCX",
+        ".FIT",
+        ".MP4",
+        ".OGG",
+        ".WEBM"
+    ];
+
     private ContentListContext(StatusControlContext statusContext,
         ObservableCollection<IContentListItem> factoryContentListItems,
         ContentListSelected<IContentListItem> factoryListSelection, ListFilterBuilderContext factoryListFilterBuilder,
@@ -157,39 +175,40 @@ public partial class ContentListContext : IDragSource, IDropTarget
     public void DragOver(IDropInfo dropInfo)
     {
         if (dropInfo.Data is not IDataObject systemDataObject)
+        {
+            dropInfo.Effects = DragDropEffects.None;
             return;
+        }
 
-        if (systemDataObject.GetDataPresent("FileGroupDescriptorW") && systemDataObject.GetDataPresent("FileContents"))
+        if (systemDataObject.GetDataPresent(DataFormats.FileDrop))
+        {
+            if (systemDataObject.GetData(DataFormats.FileDrop) is not string[] possibleFileInfo ||
+                !possibleFileInfo.Any()) return;
+
+            if (possibleFileInfo.Any(x =>
+                    _validDragAndDropFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
+                dropInfo.Effects = DragDropEffects.Link;
+
+            return;
+        }
+
+        if (!systemDataObject.GetDataPresent("FileGroupDescriptorW") ||
+            !systemDataObject.GetDataPresent("FileContents"))
+        {
+            dropInfo.Effects = DragDropEffects.None;
+            return;
+        }
+
+        var virtualFileDescriptor = (MemoryStream)systemDataObject.GetData("FileGroupDescriptorW")!;
+        var virtualFileList = VirtualFileClipboardHelper.ReadFileDescriptor(virtualFileDescriptor);
+        if (virtualFileList.Any(x =>
+                _validDragAndDropFileExtensions.Contains(Path.GetExtension(x.FileName).ToUpperInvariant())))
         {
             dropInfo.Effects = DragDropEffects.Copy;
             return;
         }
 
-        if (!systemDataObject.GetDataPresent(DataFormats.FileDrop)) return;
-
-        if (systemDataObject.GetData(DataFormats.FileDrop) is not string[] possibleFileInfo ||
-            !possibleFileInfo.Any()) return;
-
-        var validFileExtensions = new List<string>
-        {
-            ".PDF",
-            ".MPG",
-            ".MPEG",
-            ".FLAC",
-            ".MP3",
-            ".WAV",
-            ".JPG",
-            ".JPEG",
-            ".GPX",
-            ".TCX",
-            ".FIT",
-            ".MP4",
-            ".OGG",
-            ".WEBM"
-        };
-
-        if (possibleFileInfo.Any(x => validFileExtensions.Contains(Path.GetExtension(x).ToUpperInvariant())))
-            dropInfo.Effects = DragDropEffects.Link;
+        dropInfo.Effects = DragDropEffects.None;
     }
 
     public void Drop(IDropInfo dropInfo)
@@ -206,47 +225,52 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
             StatusContext.RunBlockingTask(async () =>
                 await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList()));
+            return;
         }
 
-        if (systemDataObject.GetDataPresent("FileGroupDescriptorW") && systemDataObject.GetDataPresent("FileContents"))
+        if (!systemDataObject.GetDataPresent("FileGroupDescriptorW") ||
+            !systemDataObject.GetDataPresent("FileContents"))
         {
-            var fileDescriptor = (MemoryStream)systemDataObject.GetData("FileGroupDescriptorW")!;
+            _ = StatusContext.ToastError("Couldn't understand the dropped files?");
+            return;
+        }
 
-            var files = VirtualFileClipboardHelper.ReadFileDescriptor(fileDescriptor);
-            var fileIndex = 0;
+        var fileDescriptor = (MemoryStream)systemDataObject.GetData("FileGroupDescriptorW")!;
 
-            var tempDirectory = FileLocationTools.TempStorageDirectory().FullName;
-            var filePaths = new List<string>();
+        var files = VirtualFileClipboardHelper.ReadFileDescriptor(fileDescriptor);
+        var fileIndex = 0;
 
-            foreach (var fileContentFile in files)
+        var tempDirectory = FileLocationTools.TempStorageDirectory().FullName;
+        var filePaths = new List<string>();
+
+        foreach (var fileContentFile in files)
+        {
+            if ((fileContentFile.FileAttributes & FileAttributes.Directory) != 0)
             {
-                if ((fileContentFile.FileAttributes & FileAttributes.Directory) != 0)
-                {
-                    _ = StatusContext.ToastError("Can't handle dropped directories...");
-                }
-                else
-                {
-                    var fileData = VirtualFileClipboardHelper.GetFileContents(systemDataObject, fileIndex);
+                _ = StatusContext.ToastError("Can't handle dropped directories...");
+            }
+            else
+            {
+                var fileData = VirtualFileClipboardHelper.GetFileContents(systemDataObject, fileIndex);
 
-                    if (fileData is null)
-                    {
-                        _ = StatusContext.ToastError("File Data is Null?");
-                        return;
-                    }
-
-                    fileData.Position = 0;
-                    var filePath = Path.Combine(tempDirectory, fileContentFile.FileName);
-                    filePaths.Add(filePath);
-                    using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-                    fileData.CopyTo(fileStream);
+                if (fileData is null)
+                {
+                    _ = StatusContext.ToastError("File Data is Null?");
+                    return;
                 }
 
-                fileIndex++;
+                fileData.Position = 0;
+                var filePath = Path.Combine(tempDirectory, fileContentFile.FileName);
+                filePaths.Add(filePath);
+                using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                fileData.CopyTo(fileStream);
             }
 
-            StatusContext.RunBlockingTask(async () =>
-                await TryOpenEditorsForDroppedFiles(filePaths));
+            fileIndex++;
         }
+
+        StatusContext.RunBlockingTask(async () =>
+            await TryOpenEditorsForDroppedFiles(filePaths));
     }
 
 
