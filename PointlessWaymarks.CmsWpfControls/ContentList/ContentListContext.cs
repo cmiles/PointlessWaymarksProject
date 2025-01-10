@@ -31,6 +31,7 @@ using PointlessWaymarks.CmsWpfControls.PicturesViewer;
 using PointlessWaymarks.CmsWpfControls.PointList;
 using PointlessWaymarks.CmsWpfControls.PostList;
 using PointlessWaymarks.CmsWpfControls.TrailList;
+using PointlessWaymarks.CmsWpfControls.Utility;
 using PointlessWaymarks.CmsWpfControls.Utility.Excel;
 using PointlessWaymarks.CmsWpfControls.VideoContentEditor;
 using PointlessWaymarks.CmsWpfControls.VideoList;
@@ -43,6 +44,7 @@ using PointlessWaymarks.WpfCommon.Utility;
 using Serilog;
 using TinyIpc.Messaging;
 using ColumnSortControlContext = PointlessWaymarks.WpfCommon.ColumnSort.ColumnSortControlContext;
+using IDataObject = System.Windows.IDataObject;
 
 namespace PointlessWaymarks.CmsWpfControls.ContentList;
 
@@ -154,8 +156,16 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public void DragOver(IDropInfo dropInfo)
     {
-        if (dropInfo.Data is not IDataObject systemDataObject ||
-            !systemDataObject.GetDataPresent(DataFormats.FileDrop)) return;
+        if (dropInfo.Data is not IDataObject systemDataObject)
+            return;
+
+        if (systemDataObject.GetDataPresent("FileGroupDescriptorW") && systemDataObject.GetDataPresent("FileContents"))
+        {
+            dropInfo.Effects = DragDropEffects.Copy;
+            return;
+        }
+
+        if (!systemDataObject.GetDataPresent(DataFormats.FileDrop)) return;
 
         if (systemDataObject.GetData(DataFormats.FileDrop) is not string[] possibleFileInfo ||
             !possibleFileInfo.Any()) return;
@@ -184,18 +194,61 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public void Drop(IDropInfo dropInfo)
     {
-        if (dropInfo.Data is IDataObject systemDataObject && systemDataObject.GetDataPresent(DataFormats.FileDrop))
+        if (dropInfo.Data is not IDataObject systemDataObject) return;
+
+        if (systemDataObject.GetDataPresent(DataFormats.FileDrop))
         {
             if (systemDataObject.GetData(DataFormats.FileDrop) is not string[] possibleFileInfo)
             {
-                StatusContext.ToastError("Couldn't understand the dropped files?");
+                _ = StatusContext.ToastError("Couldn't understand the dropped files?");
                 return;
             }
 
             StatusContext.RunBlockingTask(async () =>
                 await TryOpenEditorsForDroppedFiles(possibleFileInfo.ToList()));
         }
+
+        if (systemDataObject.GetDataPresent("FileGroupDescriptorW") && systemDataObject.GetDataPresent("FileContents"))
+        {
+            var fileDescriptor = (MemoryStream)systemDataObject.GetData("FileGroupDescriptorW")!;
+
+            var files = VirtualFileClipboardHelper.ReadFileDescriptor(fileDescriptor);
+            var fileIndex = 0;
+
+            var tempDirectory = FileLocationTools.TempStorageDirectory().FullName;
+            var filePaths = new List<string>();
+
+            foreach (var fileContentFile in files)
+            {
+                if ((fileContentFile.FileAttributes & FileAttributes.Directory) != 0)
+                {
+                    _ = StatusContext.ToastError("Can't handle dropped directories...");
+                }
+                else
+                {
+                    var fileData = VirtualFileClipboardHelper.GetFileContents(systemDataObject, fileIndex);
+
+                    if (fileData is null)
+                    {
+                        _ = StatusContext.ToastError("File Data is Null?");
+                        return;
+                    }
+
+                    fileData.Position = 0;
+                    var filePath = Path.Combine(tempDirectory, fileContentFile.FileName);
+                    filePaths.Add(filePath);
+                    using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                    fileData.CopyTo(fileStream);
+                }
+
+                fileIndex++;
+            }
+
+            StatusContext.RunBlockingTask(async () =>
+                await TryOpenEditorsForDroppedFiles(filePaths));
+        }
     }
+
 
     [BlockingCommand]
     [StopAndWarnIfNoSelectedListItems]
@@ -252,7 +305,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
         var factoryListSelection = await ContentListSelected<IContentListItem>.CreateInstance(factoryStatusContext);
         var factorySearchBuilder = await ListFilterBuilderContext.CreateInstance(searchBuilderContentTypes);
 
-        return new ContentListContext(factoryStatusContext, factoryObservable, factoryListSelection, factorySearchBuilder,
+        return new ContentListContext(factoryStatusContext, factoryObservable, factoryListSelection,
+            factorySearchBuilder,
             loader, windowStatus);
     }
 
@@ -303,7 +357,8 @@ public partial class ContentListContext : IDragSource, IDropTarget
                 }
                 catch (Exception exception)
                 {
-                    Log.ForContext("x", x.SafeObjectDump()).Error(exception, "Content List: Delete Message Received Error");
+                    Log.ForContext("x", x.SafeObjectDump())
+                        .Error(exception, "Content List: Delete Message Received Error");
                 }
             }
 
