@@ -18,7 +18,7 @@
         <PackageReference Include="HtmlAgilityPack" Version="1.11.72" />
         <PackageReference Include="IdentityModel" Version="7.0.0" />
         <PackageReference Include="Metalama.Framework" Version="2025.0.8" />
-        <PackageReference Include="Mjml.Net" Version="4.6.0" />
+        <PackageReference Include="Mjml.Net" Version="4.7.0" />
         <PackageReference Include="ObjectDumper.NET" Version="4.3.2" />
         <PackageReference Include="System.Net.Http" Version="4.3.4" />
     </ItemGroup>
