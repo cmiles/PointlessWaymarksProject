@@ -41,42 +41,23 @@ public partial class CombinerListContext : IDropTarget
         {
             dropInfo.Effects = DragDropEffects.Move;
             dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
+            return;
         }
-        else if (HasFileSystemData(dropInfo.Data))
-        {
-            if (dropInfo.Data is DataObject dataObject && dataObject.ContainsFileDropList())
-            {
-                var files = dataObject.GetFileDropList().Cast<string>().ToList();
-                var allFilesSupported =
-                    files.All(file => Combiner.SupportedExtensions.Contains(Path.GetExtension(file).ToLower()));
 
-                if (allFilesSupported)
-                {
-                    dropInfo.Effects = DragDropEffects.Copy;
-                    dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
-                }
-                else
-                {
-                    dropInfo.Effects = DragDropEffects.None;
-                }
-            }
-        }
-        else
+        var files = DragAndDropFilesHelper.DroppedFileNames(dropInfo, Combiner.SupportedExtensions);
+
+        if (files.Any())
         {
-            dropInfo.Effects = DragDropEffects.None;
+            dropInfo.Effects = DragDropEffects.Copy;
+            return;
         }
+
+        dropInfo.Effects = DragDropEffects.None;
     }
 
     public void Drop(IDropInfo dropInfo)
     {
-        if (HasFileSystemData(dropInfo.Data))
-        {
-            if (dropInfo.Data is IDataObject dataObject)
-                if (dataObject.GetData(DataFormats.FileDrop) is string[] files)
-                    StatusContext.RunFireAndForgetBlockingTask(async () =>
-                        await AddImages(files.ToList(), dropInfo.InsertIndex));
-        }
-        else if (dropInfo.Data is CombinerListListItem droppedItem)
+        if (dropInfo.Data is CombinerListListItem droppedItem)
         {
             var oldIndex = Items.IndexOf(droppedItem);
             var newIndex = dropInfo.InsertIndex;
@@ -84,7 +65,16 @@ public partial class CombinerListContext : IDropTarget
             if (newIndex > oldIndex) newIndex--; // Compensate for the removal of the item at the old index
 
             if (oldIndex != newIndex) Items.Move(oldIndex, newIndex);
+
+            return;
         }
+
+        var files = DragAndDropFilesHelper.DroppedFileNames(dropInfo, Combiner.SupportedExtensions);
+
+        if (!files.Any()) return;
+
+        StatusContext.RunFireAndForgetBlockingTask(async () =>
+            await AddImages(files.ToList(), dropInfo.InsertIndex));
     }
 
     public async Task AddImages(List<string> imageFiles, int index = -1)
