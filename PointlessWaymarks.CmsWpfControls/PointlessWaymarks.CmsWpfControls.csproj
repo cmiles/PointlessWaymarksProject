@@ -24,7 +24,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Metalama.Framework" Version="2025.0.8" />
-        <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.10" />
+        <PackageReference Include="Microsoft.Recognizers.Text.DateTime" Version="1.8.11" />
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2980" />
         <PackageReference Include="System.Runtime.Caching" Version="9.0.0" />
     </ItemGroup>
