@@ -44,7 +44,13 @@ public partial class CombinerListContext : IDropTarget
             return;
         }
 
-        var files = DragAndDropFilesHelper.DroppedFileNames(dropInfo, Combiner.SupportedExtensions);
+        if (!Clipboard.ContainsImage())
+        {
+            dropInfo.Effects = DragDropEffects.Copy;
+            return;
+        }
+
+        var files = DragAndDropFilesHelper.DroppedFileNames(dropInfo, true, Combiner.SupportedExtensions);
 
         if (files.Any())
         {
@@ -69,7 +75,7 @@ public partial class CombinerListContext : IDropTarget
             return;
         }
 
-        var files = DragAndDropFilesHelper.DroppedFileNames(dropInfo, Combiner.SupportedExtensions);
+        var files = DragAndDropFilesHelper.DroppedFiles(dropInfo, FileLocationTools.TempStorageDirectory(), true, Combiner.SupportedExtensions);
 
         if (!files.Any()) return;
 

@@ -175,7 +175,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public void DragOver(IDropInfo dropInfo)
     {
-        var files = DragAndDropFilesHelper.DroppedFileNames(dropInfo, _validDragAndDropFileExtensions);
+        var files = DragAndDropFilesHelper.DroppedFileNames(dropInfo, true, _validDragAndDropFileExtensions);
 
         if (files.Any())
         {
@@ -188,7 +188,7 @@ public partial class ContentListContext : IDragSource, IDropTarget
 
     public void Drop(IDropInfo dropInfo)
     {
-        var files = DragAndDropFilesHelper.DroppedFiles(dropInfo, FileLocationTools.TempStorageDirectory());
+        var files = DragAndDropFilesHelper.DroppedFiles(dropInfo, FileLocationTools.TempStorageDirectory(), true, _validDragAndDropFileExtensions);
 
         StatusContext.RunBlockingTask(async () =>
             await TryOpenEditorsForDroppedFiles(files));
@@ -984,6 +984,17 @@ public partial class ContentListContext : IDragSource, IDropTarget
     private async Task TryOpenEditorsForDroppedFiles(List<string> files)
     {
         await ThreadSwitcher.ResumeBackgroundAsync();
+
+        if (files.Count > 10)
+        {
+            var manyFilesMessage = $"""
+                                    There are {files.Count} Files to Import - do you really want to open editors for all of these files?
+
+                                    {string.Join($"{Environment.NewLine}{Environment.NewLine}", files)}
+                                    """;
+            if ((await StatusContext.ShowMessageWithYesNoButton("Import Files?", manyFilesMessage)).Equals("no",
+                    StringComparison.OrdinalIgnoreCase)) return;
+        }
 
         var fileContentExtensions = new List<string> { ".PDF", ".MPG", ".MPEG", ".FLAC", ".MP3", ".WAV" };
         var pictureContentExtensions = new List<string> { ".JPG", ".JPEG" };
