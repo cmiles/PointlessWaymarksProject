@@ -1,3 +1,11 @@
+## This project has moved to the [Pointless Waymarks Project Fossil Repository](https://chiselapp.com/user/cmiles/repository/pointless-waymarks-project/) with a GitHub Mirror [here](https://github.com/cmiles/PointlessWaymarksProject02).
+
+## Thank You to everyone who starred or looked at this project and code - I hope you will continue to watch the project via the [mirror](https://github.com/cmiles/PointlessWaymarksProject02), the [Fossil Repo](https://chiselapp.com/user/cmiles/repository/pointless-waymarks-project/) or the [Pointless Waymarks Software Website](https://software.pointlesswaymarks.com/).
+
+## Thank You to everyone who has spent time contributing to Free/Libre/Open software!
+
+-----
+
 Traditional README information below - the tldr version might be taking a look at [Pointless Waymarks](https://PointlessWaymarks.com), [Tucson 2024 Oboz Trail Experience](https://ote.summithut.com/), [cmiles - info](https://www.cmiles.info/) and [Pointless Waymarks Software](https://software.pointlesswaymarks.com/) - these sites are managed and generated with the Pointless Waymarks CMS, photos are tagged via the Pointless Waymarks GeoTools, backups managed with Pointless Waymarks Cloud Backup and personal 'Memory' emails are generated with the MemoriesEmail task run via the Pointless Waymarks PowerShell Runner...
 
 # Pointless Waymarks Project
